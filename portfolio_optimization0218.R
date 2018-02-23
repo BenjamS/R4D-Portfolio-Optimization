@@ -8,7 +8,7 @@ source('D:/OneDrive - CGIAR/Documents/coloredNoise.R')
 # source('~/EUwCconstr.R')
 # source('~/coloredNoise.R')
 #============================================
-#N risky assets and 1 risk free asset
+#N risky assets
 #============================================
 m_b <- c(-0.37, -0.55, -0.78, -0.83)
 cv_b <- c(0.65, 0.56, 0.79, 0.43) * sign(m_b)
@@ -31,11 +31,10 @@ diag(Corr) <- rep(1, n_proj)
 #print(Corr)
 S_b <- diag(s_b) %*% Corr %*% diag(s_b)
 Sb_inv <- round(solve(S_b), 5)
-#--------------------------------------------
+#============================================
 C_targ <- 1
-#--------------------------------------------
 Vb_targ <- 0.6
-#----
+#--------------------------------------------
 rootfn <- T
 quietly <- F
 in_vec <- runif(n_proj + 1)
@@ -46,7 +45,7 @@ outstar <- minV_EnetUconstr(in_star, Vb_targ, m_b, S_b, rootfn, quietly)
 wstar <- in_star[1:n_proj]
 Cost <- sum(wstar)
 Cost
-#--------------------------------------------
+#============================================
 pwr10 <- 2
 range_V <- c(0, 2.5)
 first_i <- range_V[1] * 10^pwr10
@@ -125,8 +124,6 @@ wstars <- wstars[-ind_rm]
 ind <- which(df$NEUb == max(df$NEUb))
 data.frame(opt_NEUb = df$NEUb[ind], opt_Risk = df$Risk[ind], opt_NEUbRiskRat = df$NEUb[ind] / df$Risk[ind], opt_lNEU = df$lNEU[ind])
 ggplot(df, aes(x = Risk, y = NEUb, color = MD)) + geom_point() + geom_vline(xintercept = df$Risk[ind])
-
-
 
 df_wStack <- data.frame(Risk = NA, EUb= NA, project = NA, w = NA)
 for(i in 1:nrow(df)){df_wStack <- rbind(df_wStack, data.frame(Risk = df$Risk[i], EUb = df$EUb[i], project = c(1:n_proj), w = c(wstars[[i]][1:n_proj])))}
