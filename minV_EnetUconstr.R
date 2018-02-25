@@ -10,7 +10,6 @@ minV_EnetUconstr <- function(in_vec, Vb_targ, m_b, S_b, rootfn = T, quietly = T)
   nabwi_V <- 2 * S_b %*% wi
   nabwi_mat <- cbind(nabwi_V, nabwi_NEU)
   l_V <- 1
-  #l_vec <- c(l_V, l_NEU, l_C)
   l_vec <- c(l_V, l_NEU)
   nabwi_L <- nabwi_mat %*% l_vec
   V_b <- t(wi) %*% S_b %*% wi
@@ -20,15 +19,16 @@ minV_EnetUconstr <- function(in_vec, Vb_targ, m_b, S_b, rootfn = T, quietly = T)
   if(quietly == F){
     w_and_l <- c(w, l_NEU)
     Sb_inv <- round(solve(S_b), 6)
-    nabwi_q <- nabwi_mat[, 2] * l_vec[2]
-    #--wgts slack
-    wi_endog <- -1 / 2 * Sb_inv %*% nabwi_q
-    slack_wi <- wi - wi_endog
     #--lambdas slack
     EU_b <- t(wi) %*% m_b
     q <- EU_b + 1
-    l_endog <- -2 * V_b / q
+    MD <- t(nabwi_mat[, 2]) %*% Sb_inv %*% nabwi_mat[, 2]
+    #l_endog <- -2 * V_b / q
+    l_endog <- as.numeric(-2 * q / MD)
     slack_l <- l_vec[2] - l_endog
+    #--wgts slack
+    wi_endog <- -l_endog / 2 * Sb_inv %*% nabwi_mat[, 2]
+    slack_wi <- wi - wi_endog
     slack_wi_and_l <- c(slack_wi, slack_l)
   }
   #--------------------------------
@@ -39,17 +39,17 @@ minV_EnetUconstr <- function(in_vec, Vb_targ, m_b, S_b, rootfn = T, quietly = T)
     return(slack)
   }else{
     if(quietly == F){
-      frontier_root <- 2 * V_b + l_NEU * NEU_b
+      frontier_root <- 2 * V_b + l_NEU * q
+      frontier_root2 <- q^2 - V_b * MD
       print(data.frame(slack, w_and_l, slack_wi_and_l))
-      print(data.frame(frontierRoot = frontier_root))
+      print(data.frame(frontierRoot = frontier_root, frontierRoot2 = frontier_root2))
       print(data.frame(EU_b, V_b, C))
       #---
     }else{
+      MD <- t(nabwi_mat[, 2]) %*% Sb_inv %*% nabwi_mat[, 2]
       EU_b <- t(wi) %*% m_b
-      nabwi_q <- nabwi_mat[, 2] * l_vec[2]
     }
-    MD <- t(nabwi_q) %*% Sb_inv %*% nabwi_q
-    outlist <- list(V_b, EU_b, MD, C)
+    outlist <- list(V_b, EU_b, MD)
     return(outlist)
   }
   #--------------------------------
