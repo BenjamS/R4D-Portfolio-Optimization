@@ -1,11 +1,11 @@
-minV_EnetUconstr <- function(in_vec, Vb_targ, m_b, S_b, rootfn = T, quietly = T){
+minV_EnetUconstr <- function(in_vec, Vb_targ, m_b, S_b, rf, rootfn = T, quietly = T){
   n_proj <- length(m_b)
   w <- in_vec[1:n_proj]
   wi <- 1 / w
   l_NEU <- in_vec[n_proj + 1]
   C <- sum(w)
   #--------------------------------
-  nabwi_NEU <- m_b + 1 / C * w^2
+  nabwi_NEU <- m_b + 1 / (C * (1 + rf)) * w^2
   #nabwi_C <- -w^2
   nabwi_V <- 2 * S_b %*% wi
   nabwi_mat <- cbind(nabwi_V, nabwi_NEU)
@@ -21,7 +21,7 @@ minV_EnetUconstr <- function(in_vec, Vb_targ, m_b, S_b, rootfn = T, quietly = T)
     Sb_inv <- round(solve(S_b), 6)
     #--lambdas slack
     EU_b <- t(wi) %*% m_b
-    q <- EU_b + 1
+    q <- EU_b + 1 / (1 + rf)
     MD <- t(nabwi_mat[, 2]) %*% Sb_inv %*% nabwi_mat[, 2]
     #l_endog <- -2 * V_b / q
     l_endog <- as.numeric(-2 * q / MD)
@@ -30,6 +30,11 @@ minV_EnetUconstr <- function(in_vec, Vb_targ, m_b, S_b, rootfn = T, quietly = T)
     wi_endog <- -l_endog / 2 * Sb_inv %*% nabwi_mat[, 2]
     slack_wi <- wi - wi_endog
     slack_wi_and_l <- c(slack_wi, slack_l)
+    #--Net utility
+    NEU_b <- EU_b - log(C * (1 + rf))
+    #--Net utility to risk ratio
+    NEUbtoRisk <- NEU_b / sqrt(V_b)
+    
   }
   #--------------------------------
   if(rootfn == T){
@@ -43,7 +48,7 @@ minV_EnetUconstr <- function(in_vec, Vb_targ, m_b, S_b, rootfn = T, quietly = T)
       frontier_root2 <- q^2 - V_b * MD
       print(data.frame(slack, w_and_l, slack_wi_and_l))
       print(data.frame(frontierRoot = frontier_root, frontierRoot2 = frontier_root2))
-      print(data.frame(EU_b, V_b, C, MD))
+      print(data.frame(EU_b, V_b, NEUbtoRisk, NEU_b, C, MD))
       #---
     }else{
       MD <- t(nabwi_mat[, 2]) %*% Sb_inv %*% nabwi_mat[, 2]
