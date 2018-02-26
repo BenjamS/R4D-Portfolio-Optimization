@@ -10,18 +10,13 @@ source('~/coloredNoise.R')
 #============================================
 #N risky assets
 #============================================
-m_b <- c(-0.37, -0.45, -0.28, -0.50, -0.65)
-cv_b <- c(0.35, 0.25, 0.52, 0.23, 0.15) * sign(m_b)
+# m_b <- c(-0.37, -0.45, -0.28, -0.50, -0.65)
+# cv_b <- c(0.35, 0.25, 0.52, 0.23, 0.15) * sign(m_b)
+m_b <- c(-0.27, -0.45, -0.58)
+cv_b <- c(0.35, 0.25, 0.52) * sign(m_b)
 s_b <- cv_b * m_b
-m_lA <- c(-.65, -0.75, -0.53, -0.3)
-cv_lA <- c(0.43, 0.81, 0.51, 0.3) * sign(m_lA)
-s_lA <- cv_lA * m_lA
 #--------------------------------------------
 n_proj <- length(m_b)
-onevec <- rep(1, n_proj)
-#--------------------------------------------
-s2_lA <- s_lA^2
-E_lA <- sum(m_lA)
 #--------------------------------------------
 noisevec <- coloredNoise(n_proj^2, a = -2, normalize = T, graph = T)
 Q <- matrix(exp(noisevec), n_proj, n_proj)
@@ -32,15 +27,16 @@ diag(Corr) <- rep(1, n_proj)
 S_b <- diag(s_b) %*% Corr %*% diag(s_b)
 Sb_inv <- round(solve(S_b), 5)
 #============================================
-#Vb_targ <- 0.00592
+rf <- 0.05
+Vb_targ <- 0.5
 #--------------------------------------------
 rootfn <- T
 quietly <- F
 in_vec <- runif(n_proj + 1) * 5
-out <- nleqslv(in_vec, minV_EnetUconstr, jac = NULL, Vb_targ, m_b, S_b, rootfn, quietly)
+out <- nleqslv(in_vec, minV_EnetUconstr, jac = NULL, Vb_targ, m_b, S_b, rf, rootfn, quietly)
 rootfn <- F
 in_star <- out$x
-outstar <- minV_EnetUconstr(in_star, Vb_targ, m_b, S_b, rootfn, quietly)
+outstar <- minV_EnetUconstr(in_star, Vb_targ, m_b, S_b, rf, rootfn, quietly)
 wstar <- in_star[1:n_proj]
 Cost <- sum(wstar)
 Cost
@@ -59,7 +55,7 @@ wstar_list <- list()
 slackvec_list <- list()
 negpos <- c()
 t <- 0
-for(i in first_i:last_i){
+for(i in (first_i + 1):last_i){
   #----
   Vb_targ <- i / 10^pwr10
   #----
@@ -67,7 +63,7 @@ for(i in first_i:last_i){
     rootfn <- T
     quietly <- T
     in_vec <- runif(n_proj + 1)
-    out <- try(nleqslv(in_vec, minV_EnetUconstr, jac = NULL, Vb_targ, m_b, S_b, rootfn, quietly))
+    out <- try(nleqslv(in_vec, minV_EnetUconstr, jac = NULL, Vb_targ, m_b, S_b, rf, rootfn, quietly))
     if(inherits(out, "try-error")){print("gotta skip"); next()}
     if(max(abs(out$fvec)) > 10^-5){print("max iter with no convergence");next()}
     #----
@@ -75,7 +71,7 @@ for(i in first_i:last_i){
     #----
     rootfn <- F
     quietly <- T
-    outstar <- minV_EnetUconstr(instar, Vb_targ, m_b, S_b, rootfn, quietly)
+    outstar <- minV_EnetUconstr(instar, Vb_targ, m_b, S_b, rf, rootfn, quietly)
     #----
     EUb_try <- round(outstar[[2]], 5)
     if(EUb_try %in% EUb_vec){print("already have"); next()}
@@ -101,9 +97,9 @@ for(i in first_i:last_i){
 
 risk_vec <- sqrt(Vb_vec)
 NEUb_vec <- EUb_vec - log(C_vec)
-EUbtest_vec <- -risk_vec * sqrt(MD_vec) + 1
+NEUbtoRisk_vec <- NEUb_vec / risk_vec
 wstars <- wstar_list
-df <- data.frame(EUb = EUb_vec, EUbtest = EUbtest_vec, NEUb = NEUb_vec, Risk = risk_vec, lNEU = lNEU_vec, MD = MD_vec, C = C_vec, negpos, Vb = Vb_vec)
+df <- data.frame(EUb = EUb_vec, NEUbtoRisk = NEUbtoRisk_vec, NEUb = NEUb_vec, Risk = risk_vec, lNEU = lNEU_vec, MD = MD_vec, C = C_vec, negpos, Vb = Vb_vec)
 ind_negw <- which(df$negpos == "negative")
 n_neg <- length(ind_negw)
 n_tot <- nrow(df)
@@ -112,15 +108,18 @@ print(frac_neg)
 df <- df[-ind_negw, ]
 wstars <- wstars[-ind_negw]
 #--------------------------------------------
-ind_rm <- which(df$NEUb < -4.5)
-df <- df[-ind_rm, ]
-wstars <- wstars[-ind_rm]
-ind_dup <- which(duplicated(df$Risk))
-df <- df[-ind_dup, ]
+# ind_rm <- which(df$NEUb < -4.5)
+# df <- df[-ind_rm, ]
+# wstars <- wstars[-ind_rm]
+# ind_dup <- which(duplicated(df$Risk))
+# df <- df[-ind_dup, ]
 #--------------------------------------------
 ind <- which(df$NEUb == max(df$NEUb))
 opt_C <- df$C[ind]
-data.frame(opt_NEUb = df$NEUb[ind], opt_Risk = df$Risk[ind], opt_NEUbRiskRat = df$NEUb[ind] / df$Risk[ind], opt_lNEU = df$lNEU[ind], opt_C = opt_C)
+data.frame(opt_NEUb = df$NEUb[ind], opt_Risk = df$Risk[ind], opt_NEUbRiskRat = df$NEUbtoRisk[ind], opt_lNEU = df$lNEU[ind], opt_C = opt_C)
+# ind <- which(df$MD == min(df$MD))
+# opt_C <- df$C[ind]
+# data.frame(opt_NEUb = df$NEUb[ind], opt_Risk = df$Risk[ind], opt_NEUbRiskRat = df$NEUbtoRisk[ind], opt_lNEU = df$lNEU[ind], opt_C = opt_C)
 ggplot(df, aes(x = Risk, y = NEUb, color = MD)) + geom_point() + geom_vline(xintercept = df$Risk[ind])
 #ggplot(df, aes(x = EUb, y = EUbtest, color = Vb)) + geom_point() + geom_vline(xintercept = df$Risk[ind])
 
