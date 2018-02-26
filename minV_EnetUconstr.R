@@ -43,7 +43,7 @@ minV_EnetUconstr <- function(in_vec, Vb_targ, m_b, S_b, rootfn = T, quietly = T)
       frontier_root2 <- q^2 - V_b * MD
       print(data.frame(slack, w_and_l, slack_wi_and_l))
       print(data.frame(frontierRoot = frontier_root, frontierRoot2 = frontier_root2))
-      print(data.frame(EU_b, V_b, C))
+      print(data.frame(EU_b, V_b, C, MD))
       #---
     }else{
       MD <- t(nabwi_mat[, 2]) %*% Sb_inv %*% nabwi_mat[, 2]
