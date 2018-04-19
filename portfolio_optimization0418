@@ -3,20 +3,19 @@ library(gridExtra)
 library(stats)
 library(pracma)
 library(nleqslv)
-# source('D:/OneDrive - CGIAR/Documents/maxEU_constrVC.R')
-# source('D:/OneDrive - CGIAR/Documents/coloredNoise.R')
-source('~/minV_EUwCconstr.R')
-source('~/coloredNoise.R')
+source('D:/OneDrive - CGIAR/Documents/maxEU_constrVC.R')
+source('D:/OneDrive - CGIAR/Documents/coloredNoise.R')
+# source('~/maxEU_constrVC.R')
+# source('~/coloredNoise.R')
 #============================================
 #N risky assets
 #============================================
-m_h <- c(1.15, 0.95, 1.1)
-K_exo <- c(1.3, 1.5, 1.8)
+m_h <- c(0.85, 0.95, 0.9)
 cv_h <- c(0.15, 0.35, 0.52)
 s_h <- cv_h * m_h
-# m_lA <- c(-.65, -0.75, -0.53, -0.3)
-# cv_lA <- c(0.43, 0.81, 0.51, 0.3) * sign(m_lA)
-# s_lA <- cv_lA * m_lA
+m_lk <- log(c(1.3, 1.5, 1.8))
+cv_lk <- c(0.1, 0.12, 0.07) * sign(m_lk)
+s_lk <- cv_lk * m_lk
 #--------------------------------------------
 n_proj <- length(m_h)
 onevec <- rep(1, n_proj)
@@ -24,6 +23,9 @@ onevec <- rep(1, n_proj)
 # s2_lA <- s_lA^2
 # E_lA <- sum(m_lA)
 #--------------------------------------------
+#Covariance matrices
+#--------------------------------------------
+#Endogenous params
 noisevec <- coloredNoise(n_proj^2, a = -2, normalize = T, graph = T)
 Q <- matrix(exp(noisevec), n_proj, n_proj)
 Corr <- Q %*% t(Q)
@@ -32,30 +34,41 @@ diag(Corr) <- onevec
 #print(Corr)
 S_h <- diag(s_h) %*% Corr %*% diag(s_h)
 Sh_inv <- round(solve(S_h), 5)
+#--------------------------------------------
+#Exogenous params
+noisevec <- coloredNoise(n_proj^2, a = -2, normalize = T, graph = T)
+Q <- matrix(exp(noisevec), n_proj, n_proj)
+Corr <- Q %*% t(Q)
+Corr <- Corr / max(Corr) * 0.5
+diag(Corr) <- onevec
+#print(Corr)
+S_lk <- diag(s_lk) %*% Corr %*% diag(s_lk)
+Vexo <- t(onevec) %*% S_lk %*% onevec
 #============================================
-Vend_targ <- 0.4
+Vend_targ <- 1.2
 C_targ <- 1
 #--------------------------------------------
 rootfn <- T
 quietly <- F
-in_vec <- runif(n_proj + 2)
+in_vec <- rnorm(n_proj + 2)
 out <- nleqslv(in_vec, maxEU_constrVC, jac = NULL, Vend_targ, C_targ, m_h, S_h, rootfn, quietly)
 rootfn <- F
 in_star <- out$x
 outstar <- maxEU_constrVC(in_star, Vend_targ, C_targ, m_h, S_h, rootfn, quietly)
-wstar <- in_star[1:n_proj]
-Cost <- sum(wstar)
+lwstar <- in_star[1:n_proj]
+Cost <- sum(exp(lwstar))
 Cost
 #============================================
 pwr10 <- 2
-range_V <- c(0, 1)
+range_V <- c(0, 3)
 first_i <- range_V[1] * 10^pwr10
 last_i <- range_V[2] * 10^pwr10
 #---------------
-EUb_vec <- c()
-Vb_vec <- c()
+EUr_vec <- c()
+Vend_vec <- c()
 MD_vec <- c()
-lNEU_vec <- c()
+lV_vec <- c()
+lC_vec <- c()
 C_vec <- c()
 wstar_list <- list()
 slackvec_list <- list()
@@ -63,13 +76,13 @@ negpos <- c()
 t <- 0
 for(i in first_i:last_i){
   #----
-  Vb_targ <- i / 10^pwr10
+  Vend_targ <- i / 10^pwr10
   #----
   for(j in 1:40){
     rootfn <- T
     quietly <- T
-    in_vec <- runif(n_proj + 1)
-    out <- try(nleqslv(in_vec, minV_EnetUconstr, jac = NULL, Vb_targ, m_b, S_b, rootfn, quietly))
+    in_vec <- runif(n_proj + 2)
+    out <- try(nleqslv(in_vec, maxEU_constrVC, jac = NULL, Vend_targ, C_targ, m_h, S_h, rootfn, quietly))
     if(inherits(out, "try-error")){print("gotta skip"); next()}
     if(max(abs(out$fvec)) > 10^-5){print("max iter with no convergence");next()}
     #----
@@ -77,22 +90,22 @@ for(i in first_i:last_i){
     #----
     rootfn <- F
     quietly <- T
-    outstar <- minV_EnetUconstr(instar, Vb_targ, m_b, S_b, rootfn, quietly)
+    outstar <- maxEU_constrVC(instar, Vend_targ, C_targ, m_h, S_h, rootfn, quietly)
     #----
-    EUb_try <- round(outstar[[2]], 5)
-    if(EUb_try %in% EUb_vec){print("already have"); next()}
+    EUr_try <- round(outstar[[2]], 5)
+    if(EUr_try %in% EUr_vec){print("already have"); next()}
     #----
     t <- t + 1
     #----
-    wstar <- instar[1:n_proj]
-    l_NEU <- instar[n_proj + 1]
-    #l_C <- instar[n_proj + 2]  
+    wstar <- exp(instar[1:n_proj])
+    l_V <- instar[n_proj + 1]
+    l_C <- instar[n_proj + 2]  
     slackvec_list[[t]] <- outstar$fvec
     wstar_list[[t]] <- wstar
-    Vb_vec[t] <- Vb_targ
-    EUb_vec[t] <- EUb_try
-    lNEU_vec[t] <- l_NEU
-    #lC_vec[t] <- l_C
+    Vend_vec[t] <- Vend_targ
+    EUr_vec[t] <- EUr_try
+    lV_vec[t] <- l_V
+    lC_vec[t] <- l_C
     MD_vec[t] <- outstar[[3]]
     C_vec[t] <- sum(wstar)
     #---
@@ -101,11 +114,11 @@ for(i in first_i:last_i){
   
 }
 
-risk_vec <- sqrt(Vb_vec)
-NEUb_vec <- EUb_vec - log(C_vec)
-EUbtest_vec <- -risk_vec * sqrt(MD_vec) + 1
+risk_vec <- sqrt(Vend_vec)
+NEU_vec <- EUr_vec - log(C_vec)
+EUrtest_vec <- -risk_vec * sqrt(MD_vec) + 1
 wstars <- wstar_list
-df <- data.frame(EUb = EUb_vec, EUbtest = EUbtest_vec, NEUb = NEUb_vec, Risk = risk_vec, lNEU = lNEU_vec, MD = MD_vec, C = C_vec, negpos, Vb = Vb_vec)
+df <- data.frame(EUr = EUr_vec, EUrtest = EUrtest_vec, NEU = NEU_vec, Risk = risk_vec, lV = lV_vec, lC = lC_vec, MD = MD_vec, C = C_vec, negpos, Vend = Vend_vec)
 ind_negw <- which(df$negpos == "negative")
 n_neg <- length(ind_negw)
 n_tot <- nrow(df)
@@ -114,21 +127,22 @@ print(frac_neg)
 df <- df[-ind_negw, ]
 wstars <- wstars[-ind_negw]
 #--------------------------------------------
-ind_rm <- which(df$NEUb < -4.5)
+ind_rm <- which(df$NEU < -4.5)
 df <- df[-ind_rm, ]
 wstars <- wstars[-ind_rm]
 ind_dup <- which(duplicated(df$Risk))
 df <- df[-ind_dup, ]
+wstars <- wstars[-ind_dup]
 #--------------------------------------------
-ind <- which(df$NEUb == max(df$NEUb))
+ind <- which(df$NEU == max(df$NEU))
 opt_C <- df$C[ind]
-data.frame(opt_NEUb = df$NEUb[ind], opt_Risk = df$Risk[ind], opt_NEUbRiskRat = df$NEUb[ind] / df$Risk[ind], opt_lNEU = df$lNEU[ind], opt_C = opt_C)
-ggplot(df, aes(x = Risk, y = NEUb, color = MD)) + geom_point() + geom_vline(xintercept = df$Risk[ind])
-#ggplot(df, aes(x = EUb, y = EUbtest, color = Vb)) + geom_point() + geom_vline(xintercept = df$Risk[ind])
+data.frame(opt_NEU = df$NEU[ind], opt_Risk = df$Risk[ind], opt_NEURiskRat = df$NEU[ind] / df$Risk[ind], opt_lV = df$lV[ind], opt_C = opt_C)
+ggplot(df, aes(x = Risk, y = NEU, color = MD)) + geom_point() + geom_vline(xintercept = df$Risk[ind])
+#ggplot(df, aes(x = Risk, y = EUr, color = Vend)) + geom_point() + geom_vline(xintercept = df$Risk[ind])
 
-df_wStack <- data.frame(Risk = NA, NEUb= NA, project = NA, w = NA)
-for(i in 1:nrow(df)){df_wStack <- rbind(df_wStack, data.frame(Risk = df$Risk[i], NEUb = df$NEUb[i], project = c(1:n_proj), w = c(wstars[[i]][1:n_proj])))}
-#for(i in 1:nrow(df)){df_wStack <- rbind(df_wStack, data.frame(Risk = df$Risk[i], NEUb = df$NEUb[i], project = c(1:n_proj), w = c(wstars[[i]][1:n_proj] / df$C[i])))}
+df_wStack <- data.frame(Risk = NA, NEU= NA, project = NA, w = NA)
+for(i in 1:nrow(df)){df_wStack <- rbind(df_wStack, data.frame(Risk = df$Risk[i], NEU = df$NEU[i], project = c(1:n_proj), w = c(wstars[[i]][1:n_proj])))}
+#for(i in 1:nrow(df)){df_wStack <- rbind(df_wStack, data.frame(Risk = df$Risk[i], NEUb = df$NEU[i], project = c(1:n_proj), w = c(wstars[[i]][1:n_proj] / df$C[i])))}
 df_wStack <- df_wStack[-1, ]
 
 df_wStack$project <- as.character(df_wStack$project)
