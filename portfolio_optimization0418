@@ -3,7 +3,7 @@ library(gridExtra)
 library(stats)
 library(pracma)
 library(nleqslv)
-source('D:/OneDrive - CGIAR/Documents/maxEU_constrVC.R')
+source('D:/OneDrive - CGIAR/Documents/minV_constrEUC.R')
 source('D:/OneDrive - CGIAR/Documents/coloredNoise.R')
 # source('~/maxEU_constrVC.R')
 # source('~/coloredNoise.R')
@@ -45,16 +45,16 @@ diag(Corr) <- onevec
 S_lk <- diag(s_lk) %*% Corr %*% diag(s_lk)
 Vexo <- t(onevec) %*% S_lk %*% onevec
 #============================================
-Vend_targ <- 1.2
+Vend_targ <- 1
 C_targ <- 1
 #--------------------------------------------
 rootfn <- T
 quietly <- F
 in_vec <- rnorm(n_proj + 2)
-out <- nleqslv(in_vec, maxEU_constrVC, jac = NULL, Vend_targ, C_targ, m_h, S_h, rootfn, quietly)
+out <- nleqslv(in_vec, minV_constrEUC, jac = NULL, Vend_targ, C_targ, m_h, S_h, rootfn, quietly)
 rootfn <- F
 in_star <- out$x
-outstar <- maxEU_constrVC(in_star, Vend_targ, C_targ, m_h, S_h, rootfn, quietly)
+outstar <- minV_constrEUC(in_star, Vend_targ, C_targ, m_h, S_h, rootfn, quietly)
 lwstar <- in_star[1:n_proj]
 Cost <- sum(exp(lwstar))
 Cost
@@ -78,11 +78,11 @@ for(i in first_i:last_i){
   #----
   Vend_targ <- i / 10^pwr10
   #----
-  for(j in 1:40){
+  for(j in 1:20){
     rootfn <- T
     quietly <- T
     in_vec <- runif(n_proj + 2)
-    out <- try(nleqslv(in_vec, maxEU_constrVC, jac = NULL, Vend_targ, C_targ, m_h, S_h, rootfn, quietly))
+    out <- try(nleqslv(in_vec, minV_constrEUC, jac = NULL, Vend_targ, C_targ, m_h, S_h, rootfn, quietly))
     if(inherits(out, "try-error")){print("gotta skip"); next()}
     if(max(abs(out$fvec)) > 10^-5){print("max iter with no convergence");next()}
     #----
@@ -90,7 +90,7 @@ for(i in first_i:last_i){
     #----
     rootfn <- F
     quietly <- T
-    outstar <- maxEU_constrVC(instar, Vend_targ, C_targ, m_h, S_h, rootfn, quietly)
+    outstar <- minV_constrEUC(instar, Vend_targ, C_targ, m_h, S_h, rootfn, quietly)
     #----
     EUr_try <- round(outstar[[2]], 5)
     if(EUr_try %in% EUr_vec){print("already have"); next()}
@@ -115,42 +115,53 @@ for(i in first_i:last_i){
 }
 
 risk_vec <- sqrt(Vend_vec)
-NEU_vec <- EUr_vec - log(C_vec)
-EUrtest_vec <- -risk_vec * sqrt(MD_vec) + 1
 wstars <- wstar_list
-df <- data.frame(EUr = EUr_vec, EUrtest = EUrtest_vec, NEU = NEU_vec, Risk = risk_vec, lV = lV_vec, lC = lC_vec, MD = MD_vec, C = C_vec, negpos, Vend = Vend_vec)
-ind_negw <- which(df$negpos == "negative")
-n_neg <- length(ind_negw)
-n_tot <- nrow(df)
-frac_neg <- n_neg / n_tot
-print(frac_neg)
-df <- df[-ind_negw, ]
-wstars <- wstars[-ind_negw]
+df <- data.frame(EUr = EUr_vec, Risk = risk_vec, lV = lV_vec, lC = lC_vec, MD = MD_vec, C = C_vec, negpos, Vend = Vend_vec)
+# ind_negw <- which(df$negpos == "negative")
+# n_neg <- length(ind_negw)
+# n_tot <- nrow(df)
+# frac_neg <- n_neg / n_tot
+# print(frac_neg)
+# df <- df[-ind_negw, ]
+# wstars <- wstars[-ind_negw]
 #--------------------------------------------
-ind_rm <- which(df$NEU < -4.5)
-df <- df[-ind_rm, ]
-wstars <- wstars[-ind_rm]
-ind_dup <- which(duplicated(df$Risk))
-df <- df[-ind_dup, ]
-wstars <- wstars[-ind_dup]
-#--------------------------------------------
-ind <- which(df$NEU == max(df$NEU))
+ind <- which(df$EUr == max(df$EUr))
 opt_C <- df$C[ind]
-data.frame(opt_NEU = df$NEU[ind], opt_Risk = df$Risk[ind], opt_NEURiskRat = df$NEU[ind] / df$Risk[ind], opt_lV = df$lV[ind], opt_C = opt_C)
+data.frame(opt_EUr = df$EUr[ind], opt_Risk = df$Risk[ind], opt_NEURiskRat = df$EUr[ind] / df$Risk[ind], opt_lV = df$lV[ind], opt_C = opt_C)
 ggplot(df, aes(x = Risk, y = NEU, color = MD)) + geom_point() + geom_vline(xintercept = df$Risk[ind])
 #ggplot(df, aes(x = Risk, y = EUr, color = Vend)) + geom_point() + geom_vline(xintercept = df$Risk[ind])
+#--------------------------------------------
+ind_dup <- which(duplicated(df$Risk))
+ind_rm <- c()
+for(i in 1:length(ind_dup)){
+  ind <- c(ind_dup[i] - 1, ind_dup[i])
+  ind_ind_rm <- which(df$EUr[ind] == min(df$EUr[ind]))
+  ind_rm[i] <- ind[ind_ind_rm]
+}
+df <- df[-ind_rm, ]
+wstars <- wstars[-ind_rm]
 
-df_wStack <- data.frame(Risk = NA, NEU= NA, project = NA, w = NA)
-for(i in 1:nrow(df)){df_wStack <- rbind(df_wStack, data.frame(Risk = df$Risk[i], NEU = df$NEU[i], project = c(1:n_proj), w = c(wstars[[i]][1:n_proj])))}
+df_wStack <- data.frame(Risk = NA, EUr = NA, project = NA, w = NA)
+for(i in 1:nrow(df)){df_wStack <- rbind(df_wStack, data.frame(Risk = df$Risk[i], EUr = df$EUr[i], project = c(1:n_proj), w = c(wstars[[i]])))}
 #for(i in 1:nrow(df)){df_wStack <- rbind(df_wStack, data.frame(Risk = df$Risk[i], NEUb = df$NEU[i], project = c(1:n_proj), w = c(wstars[[i]][1:n_proj] / df$C[i])))}
 df_wStack <- df_wStack[-1, ]
 
 df_wStack$project <- as.character(df_wStack$project)
-df_wStack$w <- df_wStack$w / df$C[ind]
+#df_wStack$w <- df_wStack$w / df$C[ind]
 gg <- ggplot(df_wStack, aes(x = Risk, y = w)) + geom_area(aes(fill = project))
 gg <- gg + geom_vline(xintercept = df$Risk[ind])
 gg
+
+# max(subset(df_wStack, project == 3)$w)
+# quantile(subset(df_wStack, project == 3)$w)
+ind_rm <- which(df_wStack$w > 0.6 & df_wStack$project == 3)
+df_wStack <- df_wStack[-ind_rm,]
+
 #--------------------------------------------
+
+
+
+
 df_wStack <- data.frame(Risk = NA, NEUb= NA, project = NA, w = NA)
 #for(i in 1:nrow(df)){df_wStack <- rbind(df_wStack, data.frame(Risk = df$Risk[i], NEUb = df$NEUb[i], project = c(1:n_proj), w = c(wstars[[i]][1:n_proj])))}
 for(i in 1:nrow(df)){df_wStack <- rbind(df_wStack, data.frame(Risk = df$Risk[i], NEUb = df$NEUb[i], project = c(1:n_proj), w = c(wstars[[i]][1:n_proj] / df$C[i])))}
