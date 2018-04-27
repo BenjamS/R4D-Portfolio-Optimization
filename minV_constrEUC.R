@@ -58,10 +58,12 @@ minV_constrEUC <- function(in_vec, Vend_targ, C_targ, m_h, S_h, rootfn = T, quie
       Sh_inv <- round(solve(S_h), 6)
       Mert <- t(nablw_mat[, c(2:3)]) %*% Sh_inv %*% nablw_mat[, c(2:3)]
       Mert_inv <- round(solve(Mert), 6)
-      MD <- t(l_vec[2:3]) %*% Mert_inv %*% l_vec[2:3]
+      #MD <- t(l_vec[2:3]) %*% Mert_inv %*% l_vec[2:3]
+      MD <- -2 * (l_vec[2:3] %*% t(nablw_mat[, c(2:3)]) %*% lw)
       EUr_end <- t(lw) %*% m_h
+      SOC <- t(lw) %*% (2 * S_h + l_C * diag(w)) %*% lw
     }
-    outlist <- list(Vend, EUr_end, MD)
+    outlist <- list(Vend, EUr_end, SOC, MD)
     return(outlist)
   }
   #--------------------------------
