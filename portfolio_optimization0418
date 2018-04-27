@@ -10,11 +10,11 @@ source('D:/OneDrive - CGIAR/Documents/coloredNoise.R')
 #============================================
 #N risky assets
 #============================================
-m_h <- c(0.85, 0.95, 0.9)
-cv_h <- c(0.15, 0.35, 0.52)
+m_h <- c(0.86, 0.94, 0.98, 1.08, 1.15)
+cv_h <- c(0.15, 0.35, 0.52, 0.6, 0.75)
 s_h <- cv_h * m_h
-m_lk <- log(c(1.3, 1.5, 1.8))
-cv_lk <- c(0.1, 0.12, 0.07) * sign(m_lk)
+m_lk <- log(c(1.3, 1.5, 1.8, 1.2, 1.3))
+cv_lk <- c(0.1, 0.12, 0.07, 0.2, 0.3) * sign(m_lk)
 s_lk <- cv_lk * m_lk
 #--------------------------------------------
 n_proj <- length(m_h)
@@ -45,7 +45,7 @@ diag(Corr) <- onevec
 S_lk <- diag(s_lk) %*% Corr %*% diag(s_lk)
 Vexo <- t(onevec) %*% S_lk %*% onevec
 #============================================
-Vend_targ <- 1
+Vend_targ <- 8
 C_targ <- 1
 #--------------------------------------------
 rootfn <- T
@@ -60,16 +60,17 @@ Cost <- sum(exp(lwstar))
 Cost
 #============================================
 pwr10 <- 2
-range_V <- c(0, 3)
+range_V <- c(0, 9)
 first_i <- range_V[1] * 10^pwr10
 last_i <- range_V[2] * 10^pwr10
 #---------------
 EUr_vec <- c()
 Vend_vec <- c()
 MD_vec <- c()
-lV_vec <- c()
+SOC_vec <- c()
+lEUr_vec <- c()
 lC_vec <- c()
-C_vec <- c()
+Uc_vec <- c()
 wstar_list <- list()
 slackvec_list <- list()
 negpos <- c()
@@ -98,16 +99,17 @@ for(i in first_i:last_i){
     t <- t + 1
     #----
     wstar <- exp(instar[1:n_proj])
-    l_V <- instar[n_proj + 1]
+    l_EUr <- instar[n_proj + 1]
     l_C <- instar[n_proj + 2]  
     slackvec_list[[t]] <- outstar$fvec
     wstar_list[[t]] <- wstar
     Vend_vec[t] <- Vend_targ
     EUr_vec[t] <- EUr_try
-    lV_vec[t] <- l_V
+    lEUr_vec[t] <- l_EUr
     lC_vec[t] <- l_C
-    MD_vec[t] <- outstar[[3]]
-    C_vec[t] <- sum(wstar)
+    SOC_vec[t] <- outstar[[3]]
+    MD_vec[t] <- outstar[[4]]
+    Uc_vec[t] <- wstar %*% log(wstar)
     #---
     if(sum(wstar < 0) > 0){negpos[t] <- "negative"}else{negpos[t] <- "positive"}
   }
@@ -115,8 +117,9 @@ for(i in first_i:last_i){
 }
 
 risk_vec <- sqrt(Vend_vec)
+EUrtoRisk_vec = EUr_vec / risk_vec
 wstars <- wstar_list
-df <- data.frame(EUr = EUr_vec, Risk = risk_vec, lV = lV_vec, lC = lC_vec, MD = MD_vec, C = C_vec, negpos, Vend = Vend_vec)
+df <- data.frame(EUr = EUr_vec, Risk = risk_vec, EUrtoRisk = EUrtoRisk_vec, lEUr = lEUr_vec, lC = lC_vec, SOC = SOC_vec, MD = MD_vec, Uc = Uc_vec, negpos, Vend = Vend_vec)
 # ind_negw <- which(df$negpos == "negative")
 # n_neg <- length(ind_negw)
 # n_tot <- nrow(df)
@@ -124,20 +127,23 @@ df <- data.frame(EUr = EUr_vec, Risk = risk_vec, lV = lV_vec, lC = lC_vec, MD = 
 # print(frac_neg)
 # df <- df[-ind_negw, ]
 # wstars <- wstars[-ind_negw]
+# ind_rm <- which(df$lEUr > 0)
+# length(ind_rm)
+# df <- df[-ind_rm, ]
+# wstars <- wstars[-ind_rm]
 #--------------------------------------------
-ind <- which(df$EUr == max(df$EUr))
-opt_C <- df$C[ind]
-data.frame(opt_EUr = df$EUr[ind], opt_Risk = df$Risk[ind], opt_NEURiskRat = df$EUr[ind] / df$Risk[ind], opt_lV = df$lV[ind], opt_C = opt_C)
-ggplot(df, aes(x = Risk, y = NEU, color = MD)) + geom_point() + geom_vline(xintercept = df$Risk[ind])
-#ggplot(df, aes(x = Risk, y = EUr, color = Vend)) + geom_point() + geom_vline(xintercept = df$Risk[ind])
+ind_EUrOpt <- which(df$EUr == max(df$EUr))
+ind_EUrtoRiskOpt <- which(df$EUrtoRisk == max(df$EUrtoRisk))
+data.frame(opt_EUr = df$EUr[ind_EUrOpt], opt_Risk_EUr = df$Risk[ind_EUrOpt],
+           opt_lEUr_EUr = df$lEUr[ind_EUrOpt])
+data.frame(opt_EUrtoRisk = df$EUrtoRisk[ind_EUrtoRiskOpt], opt_Risk_EUrtoRisk = df$Risk[ind_EUrtoRiskOpt],
+           opt_lEUr_EUrtoRisk = df$lEUr[ind_EUrtoRiskOpt])
+ggplot(df, aes(x = Risk, y = Uc, color = lEUr)) + geom_point() #+ geom_vline(xintercept = df$Risk[ind_EUrOpt])
+ggplot(df, aes(x = Risk, y = EUrtoRisk, color = lEUr)) + geom_point() + geom_vline(xintercept = df$Risk[ind_EUrtoRiskOpt])
+#ggplot(df, aes(x = eEUr, y = SOC, color = Risk)) + geom_point()
 #--------------------------------------------
-ind_dup <- which(duplicated(df$Risk))
-ind_rm <- c()
-for(i in 1:length(ind_dup)){
-  ind <- c(ind_dup[i] - 1, ind_dup[i])
-  ind_ind_rm <- which(df$EUr[ind] == min(df$EUr[ind]))
-  ind_rm[i] <- ind[ind_ind_rm]
-}
+ind_minRisk <- which(df$Risk == min(df$Risk) & df$lEUr < 0)
+ind_rm <- which(df$EUr < df$EUr[ind_minRisk])
 df <- df[-ind_rm, ]
 wstars <- wstars[-ind_rm]
 
