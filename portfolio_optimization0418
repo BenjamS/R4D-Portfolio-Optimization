@@ -3,10 +3,10 @@ library(gridExtra)
 library(stats)
 library(pracma)
 library(nleqslv)
-source('D:/OneDrive - CGIAR/Documents/minV_constrEUC.R')
-source('D:/OneDrive - CGIAR/Documents/coloredNoise.R')
-# source('~/maxEU_constrVC.R')
-# source('~/coloredNoise.R')
+# source('D:/OneDrive - CGIAR/Documents/maxEU_constrVC.R')
+# source('D:/OneDrive - CGIAR/Documents/coloredNoise.R')
+source('~/maxEU_constrVC.R')
+source('~/coloredNoise.R')
 #============================================
 #N risky assets
 #============================================
@@ -51,10 +51,10 @@ C_targ <- 1
 rootfn <- T
 quietly <- F
 in_vec <- rnorm(n_proj + 2)
-out <- nleqslv(in_vec, minV_constrEUC, jac = NULL, Vend_targ, C_targ, m_h, S_h, rootfn, quietly)
+out <- nleqslv(in_vec, maxEU_constrVC, jac = NULL, Vend_targ, C_targ, m_h, S_h, rootfn, quietly)
 rootfn <- F
 in_star <- out$x
-outstar <- minV_constrEUC(in_star, Vend_targ, C_targ, m_h, S_h, rootfn, quietly)
+outstar <- maxEU_constrVC(in_star, Vend_targ, C_targ, m_h, S_h, rootfn, quietly)
 lwstar <- in_star[1:n_proj]
 Cost <- sum(exp(lwstar))
 Cost
@@ -68,7 +68,7 @@ EUr_vec <- c()
 Vend_vec <- c()
 MD_vec <- c()
 SOC_vec <- c()
-lEUr_vec <- c()
+lV_vec <- c()
 lC_vec <- c()
 Uc_vec <- c()
 wstar_list <- list()
@@ -83,7 +83,7 @@ for(i in first_i:last_i){
     rootfn <- T
     quietly <- T
     in_vec <- runif(n_proj + 2)
-    out <- try(nleqslv(in_vec, minV_constrEUC, jac = NULL, Vend_targ, C_targ, m_h, S_h, rootfn, quietly))
+    out <- try(nleqslv(in_vec, maxEU_constrVC, jac = NULL, Vend_targ, C_targ, m_h, S_h, rootfn, quietly))
     if(inherits(out, "try-error")){print("gotta skip"); next()}
     if(max(abs(out$fvec)) > 10^-5){print("max iter with no convergence");next()}
     #----
@@ -91,7 +91,7 @@ for(i in first_i:last_i){
     #----
     rootfn <- F
     quietly <- T
-    outstar <- minV_constrEUC(instar, Vend_targ, C_targ, m_h, S_h, rootfn, quietly)
+    outstar <- maxEU_constrVC(instar, Vend_targ, C_targ, m_h, S_h, rootfn, quietly)
     #----
     EUr_try <- round(outstar[[2]], 5)
     if(EUr_try %in% EUr_vec){print("already have"); next()}
@@ -99,13 +99,13 @@ for(i in first_i:last_i){
     t <- t + 1
     #----
     wstar <- exp(instar[1:n_proj])
-    l_EUr <- instar[n_proj + 1]
+    l_V <- instar[n_proj + 1]
     l_C <- instar[n_proj + 2]  
     slackvec_list[[t]] <- outstar$fvec
     wstar_list[[t]] <- wstar
     Vend_vec[t] <- Vend_targ
     EUr_vec[t] <- EUr_try
-    lEUr_vec[t] <- l_EUr
+    lV_vec[t] <- l_EUr
     lC_vec[t] <- l_C
     SOC_vec[t] <- outstar[[3]]
     MD_vec[t] <- outstar[[4]]
@@ -119,7 +119,8 @@ for(i in first_i:last_i){
 risk_vec <- sqrt(Vend_vec)
 EUrtoRisk_vec = EUr_vec / risk_vec
 wstars <- wstar_list
-df <- data.frame(EUr = EUr_vec, Risk = risk_vec, EUrtoRisk = EUrtoRisk_vec, lEUr = lEUr_vec, lC = lC_vec, SOC = SOC_vec, MD = MD_vec, Uc = Uc_vec, negpos, Vend = Vend_vec)
+sqtMD_vec  <- sqrt(MD_vec)
+df <- data.frame(EUr = EUr_vec, Risk = risk_vec, EUrtoRisk = EUrtoRisk_vec, lV = lV_vec, lC = lC_vec, SOC = SOC_vec, sqtMD = sqtMD_vec, Uc = Uc_vec, negpos, Vend = Vend_vec)
 # ind_negw <- which(df$negpos == "negative")
 # n_neg <- length(ind_negw)
 # n_tot <- nrow(df)
@@ -132,15 +133,21 @@ df <- data.frame(EUr = EUr_vec, Risk = risk_vec, EUrtoRisk = EUrtoRisk_vec, lEUr
 # df <- df[-ind_rm, ]
 # wstars <- wstars[-ind_rm]
 #--------------------------------------------
+df$SOCcat <- NA
+df$SOCcat[which(df$SOC >= 0)] <- 1
+df$SOCcat[which(df$SOC < 0)] <- 0
+#--------------------------------------------
+
+#--------------------------------------------
 ind_EUrOpt <- which(df$EUr == max(df$EUr))
 ind_EUrtoRiskOpt <- which(df$EUrtoRisk == max(df$EUrtoRisk))
 data.frame(opt_EUr = df$EUr[ind_EUrOpt], opt_Risk_EUr = df$Risk[ind_EUrOpt],
-           opt_lEUr_EUr = df$lEUr[ind_EUrOpt])
+           opt_lV_EUr = df$lV[ind_EUrOpt])
 data.frame(opt_EUrtoRisk = df$EUrtoRisk[ind_EUrtoRiskOpt], opt_Risk_EUrtoRisk = df$Risk[ind_EUrtoRiskOpt],
-           opt_lEUr_EUrtoRisk = df$lEUr[ind_EUrtoRiskOpt])
-ggplot(df, aes(x = Risk, y = Uc, color = lEUr)) + geom_point() #+ geom_vline(xintercept = df$Risk[ind_EUrOpt])
-ggplot(df, aes(x = Risk, y = EUrtoRisk, color = lEUr)) + geom_point() + geom_vline(xintercept = df$Risk[ind_EUrtoRiskOpt])
-#ggplot(df, aes(x = eEUr, y = SOC, color = Risk)) + geom_point()
+           opt_lV_EUrtoRisk = df$lV[ind_EUrtoRiskOpt])
+ggplot(df, aes(x = Risk, y = EUr, color = sqtMD)) + geom_point() + geom_vline(xintercept = df$Risk[ind_EUrOpt])
+ggplot(df, aes(x = Risk, y = EUrtoRisk, color = SOCcat)) + geom_point() + geom_vline(xintercept = df$Risk[ind_EUrtoRiskOpt])
+ggplot(df, aes(x = Risk, y = sqtMD, color = SOCcat)) + geom_point()
 #--------------------------------------------
 ind_minRisk <- which(df$Risk == min(df$Risk) & df$lEUr < 0)
 ind_rm <- which(df$EUr < df$EUr[ind_minRisk])
