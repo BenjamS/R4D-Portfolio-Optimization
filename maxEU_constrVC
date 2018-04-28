@@ -1,5 +1,5 @@
 maxEU_constrVC <- function(in_vec, Vend_targ, C_targ, m_h, S_h, rootfn = T, quietly = T){
-  #in_vec <- c(1.9758359, -1.1307682,  0.1549323, -2.5105947, -1.5765046)
+  #in_vec <- in_star
   n_proj <- length(m_h)
   lw <- in_vec[1:n_proj]
   w <- exp(lw)
@@ -23,22 +23,26 @@ maxEU_constrVC <- function(in_vec, Vend_targ, C_targ, m_h, S_h, rootfn = T, quie
   if(quietly == F){
     Sh_inv <- round(solve(S_h), 6)
     #--lambdas slack
-    Mert <- t(nablw_mat[, c(1, 3)]) %*% Sh_inv %*% nablw_mat[, c(1, 3)]
-    Mert_inv <- round(solve(Mert), 6)
-    MD <- t(l_vec[c(1, 3)]) %*% Mert_inv %*% l_vec[c(1, 3)]
+    Mert <- t(nablw_mat[, c(1,3)]) %*% Sh_inv %*% nablw_mat[, c(1,3)]
+    Mert_inv <- round(solve(Mert), 5)
+    MD <- t(l_vec[c(1,3)]) %*% Mert %*% l_vec[c(1,3)]
     EUr_end <- m_h %*% lw
     Uc <- w %*% lw
-    MD_test <- -2 * l_V * (l_vec[c(1, 3)] %*% c(EUr_end, Uc))
+    MD_test <- -2 * l_V * (l_vec[c(1,3)] %*% t(nablw_mat[, c(1,3)]) %*% lw)
     MD_check <- MD - MD_test
-    l_effective <- -2 * Mert_inv %*% c(EUr_end, Uc)
-    slack_l <- 1 / l_V * l_vec[c(1, 3)] - l_effective
+    l_V_eff <- as.numeric(-1 / 2 * (EUr_end + l_C * Uc) / Vend)
+    lxx <- -(2 * l_V_eff) * Mert_inv %*% c(EUr_end, Uc)
+    l_EUr_eff <- lxx[1]
+    l_C_eff <- lxx[2]
+    l_effective <- c(l_EUr_eff, l_V_eff, l_C_eff)
+    slack_l <- l_vec - l_effective
     #--wgts slack
-    w_effective <- exp(-1 / 2 * Sh_inv %*% (1 / l_V * (nablw_mat[, c(1, 3)] %*% l_vec[c(1, 3)])))
+    w_effective <- exp(-1 / (2 * l_V) * Sh_inv %*% (nablw_mat[, c(1,3)] %*% l_vec[c(1,3)]))
     slack_w <- w - w_effective
-    slack_w_and_l <- c(slack_w, slack_l)
+    slack_w_and_l <- c(slack_w, slack_l[2:3])
     w_and_l <- c(w, l_V, l_C)
     #--Second order condition (must be < 0 for a max(EUr))
-    SOC <- t(lw) %*% (2 * l_V * S_h + diag(w)) %*% lw
+    SOC <- t(lw) %*% (2 * l_V * S_h + l_C * diag(w)) %*% lw
   }
   #--------------------------------
   if(rootfn == T){
@@ -55,12 +59,14 @@ maxEU_constrVC <- function(in_vec, Vend_targ, C_targ, m_h, S_h, rootfn = T, quie
       #---
     }else{
       Sh_inv <- round(solve(S_h), 6)
-      Mert <- t(nablw_mat[, c(1, 3)]) %*% Sh_inv %*% nablw_mat[, c(1, 3)]
+      Mert <- t(nablw_mat[, c(1,3)]) %*% Sh_inv %*% nablw_mat[, c(1,3)]
       Mert_inv <- round(solve(Mert), 6)
-      MD <- t(l_vec[c(1, 3)]) %*% Mert_inv %*% l_vec[c(1, 3)]
+      MD <- t(l_vec[c(1,3)]) %*% Mert %*% l_vec[c(1,3)]
+      #MD <- -2 * (l_vec[c(1,3)] %*% t(nablw_mat[, c(1,3)]) %*% lw)
       EUr_end <- t(lw) %*% m_h
+      SOC <- t(lw) %*% (2 * l_V * S_h + l_C * diag(w)) %*% lw
     }
-    outlist <- list(Vend, EUr_end, MD)
+    outlist <- list(Vend, EUr_end, SOC, MD)
     return(outlist)
   }
   #--------------------------------
