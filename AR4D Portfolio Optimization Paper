@@ -4,6 +4,7 @@ author: "Ben Schiek"
 date: "September 23, 2019"
 output:
   pdf_document:
+    fig_caption: yes
     toc: true
     toc_depth: 4
     latex_engine: xelatex
@@ -20,7 +21,7 @@ knitr::opts_chunk$set(echo = FALSE)
 
 Agricultural research for development (AR4D) fund allocation processes are increasingly fraught with contentious choices between many worthwhile alternatives. How to fairly and optimally allocate an ever-shrinking budget across a portfolio of research programs that are all, in one way or another, vitally important? Here I examine the possibility of adapting portfolio optimization tools developed in the financial context in order to address this issue.
 
-In particular, I walk through an adaptation of Minimum Variance (MV) Analysis, first conceptualized by Markowitz () and later formalized by Merton (). The principal outputs of MV Analysis are 1) the MV frontier, which indicates the expected portfolio return associated with any level of risk tolerance, and 2) the vector of budget shares that must be allocated to each portfolio item in order to achieve a given risk-reward position on the MV frontier.
+In particular, I walk through an adaptation of Mean-Variance (MV) Analysis, first conceptualized by Markowitz () and later formalized by Merton (). The principal outputs of MV Analysis are 1) the MV frontier, which indicates the expected portfolio return associated with any level of risk tolerance, and 2) the vector of budget shares that must be allocated to each portfolio item in order to achieve a given risk-reward position on the MV frontier.
 
 It is worth emphasizing from the outset that this goes far beyond the "priority setting exercises", with which many donors, development agencies, and AR4D institutions may be familiar. Whereas priority setting exercises typically culminate in the ranking of research alternatives into research priorities, the final output of the method proposed here are the precise budget shares that must be allocated to each research program in order to maximize portfolio net benefit, given a certain risk tolerance specified by the donor. The explicit accounting of risk involved in MV Analysis also merits special emphasis, as risk accounting in the AR4D context is, by comparison, quite rudimentary.
 
@@ -32,7 +33,7 @@ This exploratory market analysis is a quick and inexpensive way to examine how p
 
 The AR4D and financial planning contexts differ in many important ways. The AR4D donor wants the price of staples to go down.
 
-
+MV analysis is, in many ways, still a work in progress.
 Negative weights... A number of unresolved methodological issues severely limit the usefulness of MV Analysis. In a nutshell, noise in the data makes accurate estimation of the returns vector and correlations matrix difficult.
 
 IMPACT future backtest
@@ -41,6 +42,10 @@ IMPACT future backtest
 There is an increasingly toxic environment between research institutions and donors. Much of this is arguably attributable to current priority setting practices, which leave plenty of room for politics, institutional inertia, and other forms of subjective whim to creep in and exert undue influence over fund allocation decisions. The MV Analysis adaption may contribute towards reducing that 
 
 I am not convinced that the MV Analysis adaptation is a perfect fit. But I am convinced and hope to convince others that this adaptation is better than the often ad hoc and/or politically driven processes in place now.  could go a long way towards inoculating AR4D decision making pipelines from some of the more egregious ad hoc and/or politically driven tendencies exerting an undue influence over the process today. The proposed method forces decisionmakers to think carefully about how funding aligns with AR4D pro-poor mandates, geographic focus, etc., and increases transparency around these issues. These tools also bring risk into the picture.
+
+The aim of investment here is not merely to share in the fortunes of the portfolio items, but rather to play a role in their shaping. High commodity price is an indication of demand outstripping supply. The aim of the CBOE speculator is to prosper from that scarcity and to aggravate it by removing from circulation as much of the commodity as possible, thereby raising the price further, the aim of the AR4D donor is the exact opposite of this. The donor invests in AR4D so as to increase production and quality of the crops and thereby to bring down their price.
+
+Interpretation of "price" is different from the financial context. This could reflect 1) higher kcals per unit weight, 2) higher quality kcals, 3) higher demand, or 4) some combination of all of the above.
 
 
 
@@ -76,81 +81,131 @@ An historic effort begun in 2011 to restructure the financing of the Consultativ
 
 ### 3.1 Isolating and interpreting signals
 
-*The loadings matrix is obtained via singular value decomposition of the data matrix.
-
-*A number of different rules of thumb are often followed to separate the important eigenvectors (or principle components or loadings) of a data correlation matrix from noise. "Keep only the signals that describe 90% of the variation", for example, or "the elbow rule", or "keep only those with eigenvalues greater than 1". The perils of using these arbitrary cutoff rules has been well documented (). Here I follow a much more rigorous method developed by physicists in the 1960s. In particular, a key theorem that emerged from this work says that the distribution of the eigenvalues of any random correlation matrix is a function of the dimensions of the underlying matrix. The physicists used this theorem to identify the important components of their data by comparing the eigenvalue density plot of their data correlation matrix against that of a random matrix. The eigenvalues of the data correlation matrix that lie beyond the random matrix eigenvalue density can be identified as corresponding to components of the system that can be meaningfully distinguished from noise. More recently, ... () have applied this method to separate signals from noise in financial data.
-
-*Having separated signals from noise, the next step is to attempt to attribute meaning to the signals.
-... () addressed the question of how to interpret eigenvalues.
-
-$$\tilde{L} = \tilde{P}\tilde{\Lambda}^{1 \over 2}$$
+*Given enough observations, a large matrix of time series data $X$ can be condensed into just a handful of "signals" that capture the majority of the movement in the data. Formally, these signals are defined
 
 $$
-\tilde{L}_{rot} = \tilde{L}V
+S = X \tilde{P}
 $$
 
+where $P$ is the matrix of eigenvectors of $X'X$, and $\tilde{P}$ is this same matrix truncated to retain only the eigenvectors containing significant information---i.e. information that can meaningfully be distinguished from noise. A number of different rules of thumb are often followed to determing how many vectors of $P$ should be retained. "Keep only the signals that describe 90% of the variation", for example, or "the elbow rule", or "keep only those with eigenvalues greater than 1". The perils of using these arbitrary cutoff rules has been well documented (). Here I follow ... () who apply a more rigorous technique developed by physicists in the 1960s. The technique is based on a key theorem of random matrix theory that says that the distribution of the eigenvalues of any random correlation matrix is a function of the dimensions of the underlying matrix. Physicists used this theorem to identify the important components ("collective modes") in complexly interacting systems by comparing the eigenvalue density plot of their data correlation matrix against that of a random matrix. The eigenvalues of the data correlation matrix that extend beyond the random matrix eigenvalue density can be identified as corresponding to components of the system that can be meaningfully distinguished from noise.
 
-The method for identifying and quantifying tradeoffs is based on the eigendecomposition of the correlation matrix of SDG Tracker data. First, signals are separated from noise using a method developed in the analysis of physical systems (). The components of the retained eigenvectors are then interpreted as the magnitude and direction of the influence (a.k.a. "loading" or "score") of each SDG Tracker over the average movement of the dataset. Loadings with opposite signs indicate a tradeoff, while loadings with the same sign are indicative of synergy.
-
-Beyond tradeoffs, this method is also useful for identifying just a few key crosscutting tendencies that are broadly characteristic of the entire dataset. In other words, the loadings on each eigenvector tend to be thematically organized, such that each eigenvector captures a particular aspect of the overall evolution of the system. This effectively reduces the problem of making sense of several dozen complexly interacting indicators to the more mangeable problem of making sense of just a few crosscutting trends.
-
-The identification of tradeoffs and key crosscutting trends is useful in and of itself for stimulating and orienting high level policy discussion. However, longstanding methods used in the analogous decisionmaking context of finance are motivation to aim for more. In particular, a variant of Minimum Variance (MV) analysis can be applied to determine the optimal allocation of a budget across the---potentially several dozen---SDG indicators, given a certain risk tolerance.
-
-Much of the present work is inspired by two papers in particular. In the first of these, 
-
-Here I adapt and combine these two advances into a single workflow.
-
-In this paper, I propose a method to identify and quantify such tradeoffs in the SDG Tracker historical data. I then combine this with methods from financial analysis to determine a donor's optimal allocation of investments across the indicators given the donor's level of risk tolerance.
+This method is useful for identifying just a few key crosscutting tendencies that are broadly characteristic of the entire dataset. In other words,  This effectively reduces the problem of making sense of several dozen complexly interacting indicators to the more mangeable problem of making sense of just a few crosscutting trends.
 
 
-### 3.2 Minimum variance analysis, and adaptation
+*Having separated signals from noise, the next step is to attempt to attribute meaning to the signals. This can be achieved by looking at a varimax rotation of the loadings corresponding to each signal. Signal loadings are defined
+
+$$
+\tilde{L} = \tilde{P}\tilde{\Lambda}^{1/2}
+$$
+where \Lambda is the diagonal matrix of eigenvalues of $X'X$, and where, as before, the squiggly lines on top indicate that the respective matrix is truncated to contain only the columns that can be meaningfully separated from noise.
+
+The varimax rotation works by maximizing the spareseness of the loadings matrix.
+
+The rotated loadings are then defined
+
+$$
+L_{\circlearrowright} = VL
+$$
+where $V$ is an orthogonal matrix. We are then interested in only the retained rotated loadings $\tilde{L}_{\circlearrowright}$.
+
+The components of the retained rotated loadings are then interpreted as the magnitude and direction of the influence of each portfolio item over the average movement of the dataset. Loadings with opposite signs indicate a tradeoff, while loadings with the same sign are indicative of synergy. When there is structure in the data, the rotated loadings tend to be thematically organized, such that each loading vector corresponds to a particular aspect of the overall evolution of the system.
+
+indicate how correlated each portfolio item is with each given signal. Signals can then be characterized in concrete terms based on which items are most strongly associated with their movement.
+
+... () did something similar when they looked at the elements of the eigenvectors of a financial data correlation matrix. But they did not first apply a rigorous signal separation technique as I have done here. Nor did they apply a varimax rotation to clarify the interpretation.
+
+
+
+### 3.2 Risk adjusted portfolio optimization
 
 $$R = \mathbf{w \cdot r}, \:\:\: C=\mathbf{w\cdot1}, \:\:\: V = \mathbf{w\cdot K \cdot w} \tag{1}$$
 
 
-$$\max_{\mathbf{w}}\:U \:\:\:\:s.t. \:\:\: C=\overline{C} \:, \:\:\: V = \overline{V} \tag{2}$$
+$$\max_{\mathbf{w}}\:R \:\:\:\:s.t. \:\:\: C=\overline{C} \:, \:\:\: V = \overline{V} \tag{2}$$
 
 $$\mathcal{L} = R - \lambda_C(C - \overline{C}) - \lambda_{V}(V - \overline{V}) \tag{3}$$
 
 $$\nabla \mathcal{L} = \mathbf{r} - \lambda_C \mathbf{1} - 2 \lambda_{V} K \cdot \mathbf{w} = \mathbf{0} \tag{4}$$
+Dotting through by $\mathbf{w}$ gives the frontier equation.
 
 $$R^* = \lambda_C \overline{C} + 2 \lambda_V \overline{V} \tag{5}$$
 Note this implies that the risk shadow price is proportional to the expected reward to risk ratio.
 
-$$\lambda_V = \frac{1}{2} \frac{R^* - \lambda_C \overline{C}}{\overline{V}} \tag{6}$$
+$$\lambda_V = \frac{NR}{2\overline{V}} \: ; \:\:\: NR = R^* - \lambda_C \overline{C} \tag{6}$$
+
+Dotting the first order conditions through by $K^{-1}$ and rearranging gives an equation for the optimal budget weights.
+
+$$
+\mathbf{w}^* = \frac{1}{2 \lambda_V} K^{-1} \cdot \nabla NR \: ; \:\:\: \nabla NR = \mathbf{r} - \lambda_C \mathbf{1}
+$$
+Note, in passing, that dotting this through by $\nabla NR$ gives another instructive equation for $\lambda_V$.
+
+$$
+\lambda_V = \frac{d^2}{2 NR} \: ; \:\:\:\:d^2 = \nabla NR \cdot K^{-1} \cdot \nabla NR
+$$
+
+This says that the risk shadow price is inversely proportional to the ratio of the squared Mahalanobis distance ($d^2$) of the portfolio net reward gradient to the net reward. The Mahalanobis distance can be thought of as... Hence, this says that the marginal net benefit of taking on more risk is higher for portfolios... 
+
+Moreover, combining this with the previous expression for $\lambda_V$ gives
+
+$$
+NR = \overline{\sigma} d
+$$
+The optimal portfolio net reward is thus equal to the portfolio standard deviation scaled by the Mahalanobis distance of the portfolio's net reward gradient.
+
+Now, returning to the task at hand, in order to evaluate the optimal budget weights or the frontier equation (), we must first solve for the cost and risk shadow prices $\lambda_C$ and $\lambda_V$.
+
+To do this, first note that the budget weights equation can be rewritten as follows:
+$$
+\mathbf{w}^* = \frac{1}{2 \lambda_V} K^{-1} \cdot [\mathbf{r}, \: \mathbf{1}] \left[\begin{matrix} 1 \\ -\lambda_C \\ \end{matrix} \right]
+$$
+Now, dotting through by $[\mathbf{r}, \mathbf{1}]$ gives
 
 
-$$K^{-1} \cdot (\mathbf{r} - \lambda_C \mathbf{1}) = 2 \lambda_{V} \mathbf{w}^* \tag{5}$$
-
-$$K^{-1} \cdot [\mathbf{r}, \: \mathbf{1}] \left[\begin{matrix} 1 \\ -\lambda_C \\ \end{matrix} \right] = 2 \lambda_{V} \mathbf{w}^* \tag{6}$$
-
-$$ M\left[\begin{matrix}
-1 \\
--\lambda_C \\
-\end{matrix} \right] = 2 \lambda_{V} \left[\begin{matrix}
+$$
+\left[\begin{matrix}
 R \\
 \bar{C} \\
-\end{matrix} \right] \tag{7}$$
-
-where 
-
-$$M = [\mathbf{r}, \: \mathbf{1}]' \cdot K^{-1} \cdot [\mathbf{r}, \: \mathbf{1}] \tag{8}$$
-
-
-$$\left[\begin{matrix}
+\end{matrix} \right]  = \frac{1}{2 \lambda_{V}} M\left[\begin{matrix}
 1 \\
 -\lambda_C \\
-\end{matrix} \right] = 2 \lambda_{V} M^{-1} \left[\begin{matrix}
+\end{matrix} \right]  \tag{7}
+$$
+
+where $M$ has been introduced to stand for the matrix
+
+$$
+M = [\mathbf{r}, \: \mathbf{1}]' \cdot K^{-1} \cdot [\mathbf{r}, \: \mathbf{1}] \tag{8}
+$$
+
+Let $M$ be called the "Merton matrix", after the man in whose footsteps we are now following. Pre-multiplying both sides of the previous equation by the inverse Merton matrix and rearranging gives the following expression: 
+
+$$
+2 M^{-1}\left[\begin{matrix}
 R \\
 \bar{C} \\
-\end{matrix} \right] \tag{9}$$
+\end{matrix} \right]  = \left[\begin{matrix}
+1/\lambda_V \\
+-\lambda_C / \lambda_V \\
+\end{matrix} \right]  \tag{7}
 
-Utility
+$$
 
-Bernoulli...This may be formalized as follows.
+For any given return target $R$ and budget $\bar{C}$, then, the cost and risk shadow prices are given by this equation. With values for $\lambda_C$ and $\lambda_V$ in hand, the budget weights and risk associated with the chosen return target can be evaluated.
 
-$$\frac{\partial \ln U}{\partial \ln w_i} \sim \frac{d \ln U}{dU}$$
-Note that multiplying through by $w_i / U$ gives an alternative expression,
+### 3.3 Dealing with negative weights
+
+When implementing MV Analysis, the vector of optimal budget shares often includes negative values. In the financial context, negative budget shares have a real world interpretation in terms of short selling. In the AR4D context, there is no analogous real world interpretation of negative budget shares. To force positive budget shares, I replace the linear returns function with a utility function derived from the assumption of diminishing returns to investment in any single portfolio item. This forces the MV Analysis apparatus to output a vector of optimal _logged_ budget shares, which in turn guarantees that the budget shares themselves are positive. This modification violates the budget constraint, but the budget constraint can then be arbitrarily restored by virtue of the fact that utility functions are defined up to an affine transformation. Again, financial analysts may be interested in this approach, which has not appeared in the literature over there. (Negative budget shares are permissible in the financial context, but nonetheless viewed by many as a methodological nuissance (Boyle etc.))
+
+Bernoulli...This may be formalized as follows. Another way, not yet explored in the literature, is to interpret the optimal weights as utility weights rather than budget weights. Recall that utility is defined in terms of the   Utility is defined in terms of a first order relation such that increments in the quantity of a given portfolio item are valued in proportion to the amount of the item already accumulated.... Defined up to an affine transformation.
+
+One of the main problems limiting the usefulness of MV analysis is that the optimal weights usually include negative values. A negative sign on a budget weight indicates that one should invest in the inverse of the corresponding portfolio item. In the financial context, this is possible through short selling, or through investment in financial products that track the inverse of a given product. However, there remains a more serious problem: a portfolio with both negative and positive weights implies that the investor must spend beyond their budget---i.e., they must borrow---in order to take up the corresponding position on the efficient frontier. 
+
+
+$$
+\frac{\partial \ln U}{\partial \ln w_i} \sim \frac{d \ln U}{dU}
+$$
+Note that multiplying through by $w_i / U$ gives an alternative expression.
 
 $$\frac{\partial U}{\partial w_i} \sim \frac{d \ln w_i}{dw_i}$$
 The "$\sim$" means there is a proportionality constant multiplying the right side. In this context, it makes sense to set these constants equal to the expected returns.
@@ -159,21 +214,40 @@ $$\frac{\partial U}{\partial w_i} = \mu_i \frac{d \ln w_i}{dw_i}$$
 
 
 which can then be used to arrive at an expression for $U$.
-$$U = \int \nabla_{\mathbf{w}} U \cdot d\mathbf{w} = \mathbf{\mu} \cdot \ln{\mathbf{w}} + k$$
-where $k$ is a constant of integration. To force positive budget weights, the returns function $R$ is replaced with the utility function $U$. The budget constraint can be arbitrarily enforced since utility is defined only up to an affine connection.
+$$U(\mathbf{w}; \mathbf{\mu}) = \int \nabla_{\mathbf{w}} U \cdot d\mathbf{w} = \mathbf{\mu} \cdot \ln{\mathbf{w}} + k$$
+where $k$ is an arbitrary constant of integration. Here it is important to underscore that utility itself has no unique value. In mathematical terms, utility is defined up to an affine transformation.
 
-A number of unresolved methodological issues severely limit the usefulness of MV Analysis. In a nutshell, noise in the data makes accurate estimation of the returns vector and correlations matrix difficult. Effectively, one is optimizing over a great deal of noise. Real portfolio returns tend to be lower, and risk higher, than the MV frontier would suggest. To address this problem, I dimensionally reduce the portfolio from the number of items it contains to the number of signals that can be meaningfully distinguished from noise. I then conduct MV Analysis over the signals portfolio. In a backtest on financial data, this method generates a frontier that offers more accurate, better peforming portfolios than the conventional approach. This may be of interest to financial analysts, as it has not yet appeared in the financial literature. 
+To force positive budget weights, the returns function $R$ is replaced with the utility function $U$. The same steps are followed as above to solve for the optimal budget weights, except that $R$ is replaced with $U$ and $\mathbf{w}$ is replaced with $\ln \mathbf{w}$.
 
-When implementing MV Analysis, the vector of optimal budget shares often includes negative values. In the financial context, negative budget shares have a real world interpretation in terms of short selling. In the AR4D context, there is no analogous real world interpretation of negative budget shares. To force positive budget shares, I replace the linear returns function with a utility function derived from the assumption of diminishing returns to investment in any single portfolio item. This forces the MV Analysis apparatus to output a vector of optimal _logged_ budget shares, which in turn guarantees that the budget shares themselves are positive. This modification violates the budget constraint, but the budget constraint can then be arbitrarily restored by virtue of the fact that utility functions are defined up to an affine transformation. Again, financial analysts may be interested in this approach, which has not appeared in the literature over there. (Negative budget shares are permissible in the financial context, but nonetheless viewed by many as a methodological nuissance (Boyle etc.))
+$$
+\ln \mathbf{w}^* = \frac{1}{2 \lambda_V} K^{-1} \cdot [\mathbf{r}, \: \mathbf{1}] \left[\begin{matrix} 1 \\ -\lambda_C \\ \end{matrix} \right]
 
+$$
+
+When making this substitution, the budget weights no longer add up to the constraint $\overline{C}$. However, since utility $U$ is defined only up to an affine transformation, the optimal weights can be arbitrarily renormalized to sum to the constraint. That is, if $\mathbf{\tilde{w}}$ represent the renormalized weights, such that
+
+$$
+\mathbf{\tilde{w}^*} = \frac{\bar{C}}{\mathbf{w^* \cdot 1}} \mathbf{w^*}
+$$
+we have
+$$
+U(\mathbf{\tilde{w}^*}; \mathbf{\mu}) = \mathbf{\mu} \cdot \ln \mathbf{w^*} + \mathbf{\mu \cdot 1} \ln \left(\frac{\bar{C}}{\mathbf{w^* \cdot 1}} \right)
+$$
+which is just $U(\mathbf{w^*}; \mathbf{\mu})$ plus a constant, and hence affine to it. Therefore, $U(\mathbf{w^*}; \mathbf{\mu}) = U(\mathbf{\tilde{w}^*}; \mathbf{\mu})$. Note also that this is tantamount to setting the constant of integration $k$ in equation ... equal to $\mathbf{\mu \cdot 1} \ln \left(\frac{\bar{C}}{\mathbf{w^* \cdot 1}} \right)$
+
+### 3.4 Dealing with inaccuracy in MV Analysis
+
+A number of unresolved methodological issues severely limit the usefulness of MV Analysis in real life. In a nutshell, noise in the data makes accurate estimation of the returns vector and correlations matrix difficult. Effectively, one is optimizing over a great deal of noise. Real portfolio returns tend to be lower, and risk higher, than the MV frontier would suggest. To address this problem, I dimensionally reduce the portfolio from the number of items it contains to the number of signals that can be meaningfully distinguished from noise. I then conduct MV Analysis over the signals portfolio. In a backtest on financial data, this method generates a frontier that offers more accurate, better peforming portfolios than the conventional approach. This may be of interest to financial analysts, as it has not yet appeared in the financial literature. 
 
 As mentioned in the introduction, MV Analysis is of limited practical use in real life due to the difficulty involved in accurately estimating asset returns and correlations (for more details, see ()). While adapting MV Analysis to the AR4D context, I tried to address this problem in a number of different ways, all but one of which were ineffective. The one approach that showed some promise---at least with respect to the financial data used in this study---may be characterized as a dimensional reduction of the original problem whereby the noisy dimensions are purged from the data and only the "signally" dimensions retained.
 
+## 4. An example from the financial context
 
+Before exploring the possibility of applying these tools to the AR4D context, it will be instructive to first apply them in the financial context where they have been developed. Below, daily financial data for 46 securities over the period 20 June 2018 to 8 August 2019 is downloaded directly into R from yahoo finance using the tidyquant package. The 46 securities have been chosen so as to be representative of the radar screen of a modern, broad minded investor (Table 1). They are mostly exchange traded funds tracking broad categories of stocks, bonds, markets, and commodities, plus the major currency pair exchange rates traded on the FOREX market.
 
+[Table here detailing the ETF names, what they track, and my category name]
 
-## 3. An example in the financial context
-
+The dataset is large enough to allow for backtesting of the optimal portfolio. The portfolio is optimized using the first two thirds of the data (the "train" data), and then backtested against the remaining third. Historical returns and correlation matrices are presented for these two datasets in Figures .... 
 
 ```{r, fig.width=14, fig.height=14, fig.align='center', echo = FALSE}
 
@@ -692,7 +766,7 @@ ts_detail_vec <- c(spy_sector_detail, minerals_detail, agriculture_detail, energ
                    currency_detail, emerg_mkt_detail, crypto_detail, Tbond_detail)
 df_symb_detail <- data.frame(symbol = ts_symb_vec, detail = ts_detail_vec)
 #--
-length(ts_symb_vec)
+#length(ts_symb_vec)
 #--
 # list_groups <- list(spy_sector_symbs, minerals_symbs, agriculture_symbs, energy_symbs,
 #                      currency_symbs, emerg_mkt_symbs, crypto_symbs, Tbond_symbs)
@@ -872,16 +946,8 @@ if(check_on_data){
 ```
 
 
-## 4. Application to real world data
 
-### 4.1 The financial context
-
-#### 4.1.1 The data
-
-yahoo finance et. etc. The train data is 2/3 the whole data. 
-
-
-```{r, fig.width=11, fig.height=6, fig.align='center', echo=FALSE}
+```{r, fig.cap="", fig.width=11, fig.height=6, fig.align='center', echo=FALSE}
 ind_train <- 1:round(nrow(mat_pctDiff) * 2 / 3)
 ind_test <- setdiff(1:nrow(mat_pctDiff), ind_train)
 mat_pctDiff_train <- mat_pctDiff[ind_train, ]
@@ -933,11 +999,8 @@ historical_returns_and_corr_plot(mat_pctDiff_train, mat_pctDiff_test, group_info
 
 ```
 
-#### 4.1.2 Extraction of signals from noise
 
-In figure ..., a density plot of the correlation matrix eigenvalues is compared against one of eigenvalues derived from a random matrix. In this plot, it is evident that most eigenvalues are small and cannot be distinguished from noise, but a few extend beyond the random matrix eigenvalue density plot. These correspond to the eigenvectors that can be meaningfully distinguished from noise.
-
-The signal time series are plotted against the data average in figure .... Here it is evident that the first signal reflects the average, while the subsequent signals reflect forces pushing and pulling on the average.
+In Figure ..., a density plot of the correlation matrix eigenvalues is compared against one of eigenvalues derived from a random matrix. In this plot, it is evident that most eigenvalues are small and cannot be distinguished from noise, but six of them extend beyond the random matrix eigenvalue density plot. These correspond to the eigenvectors that can be meaningfully distinguished from noise.
 
 ```{r, fig.align='center', echo=FALSE}
 fun_env = list(eigenvalue_density_plot = T,
@@ -954,17 +1017,13 @@ mat_pctDiff_sig_train <- list_out[[5]]
 mat_eigvecs_sig_train <- list_out[[7]]
 ```
 
-What do these signals look like? The signal time series ($S$) can be derived by post multiplying the data time series matrix by the matrix of signal eigenvectors ($\tilde{P}$).
-
-$$
-S = X \tilde{P}
-$$
-The signal time series are plotted in Figure 5. The average ($\bar{x}$) is included in these plots as an orienting reference (thick yellow line). I.e.:
+Six signals are then constructed from these eigenvectors and plotted in Figure 5. The data set average ($\bar{x}$) is included in these plots as an orienting reference (thick yellow line).
 
 $$
 \bar{x} = \frac{1}{n} X \cdot \mathbf{1}
 $$
-Note how Signal 1 hews closely to the average, while the other signals push and pull on the average.
+
+Note how Signal 1 hews closely to the average, while the other signals capture movements in the data placing upward or downward pressure on the average.
 
 ```{r, fig.width=7, fig.height=12, fig.align='center', echo=FALSE}
 
@@ -977,16 +1036,9 @@ plot_signals_against_avg(mat_pctDiff_sig_train, mat_pctDiff_train,
 
 #### 4.1.3 Interpretation and characterization of the signals
 
-But what do these signals represent in concrete terms? Figure 5 already offers some insight into this question, indicating that Signal 1 represents the average (Others have noted that the first signal tracks the average closely ()). But what about the other signals? Do they track closely to particular market sectors?
+But what do these signals represent in concrete terms? Figure 5 already offers insight into Signal 1, but what about the other signals? Do they track closely to particular market sectors?
 
-These questions are answered by looking at the signal loadings, defined as follows.
-<!-- mat_eigvecs <- mat_loads %*% diag(1 / sqrt(eigvals)) -->
-$$
-\tilde{L} = \tilde{P}\tilde{\Lambda}^{1 \over 2}
-$$
-The rotated signal loadings indicate how correlated each portfolio item is with each given signal. Signals can then be characterized in concrete terms based on which items are most strongly associated with their movement. The loadings are shown in Figure 6.
-
-
+Turning to the signal loadings, we see that the first signal is highly correlated with a broad range of items, consistent with what is observed in Figure 5. The second, third, and fourth signals are highly correlated with specific markets (precious metals, forex trading, and US Treasury bonds, respectively). This begins to offer insight into the concrete character of these signals. However, there remains considerable fuzziness in the picture. There is considerable overlap between signals, with many items loading moderately onto several different signals at once. The interpretation of the fifth and sixth signals is particularly blurry.
 
 ```{r, fig.width=15, fig.height=12, fig.align='center', echo=FALSE}
 
@@ -998,14 +1050,7 @@ interpret_loadings(mat_loads_sig_train, fig_title = this_fig_title, fun_env)
 
 ```
 
-The first signal is highly correlated with a broad range of items, consistent with what is observed in Figure 5. The second, third, and fourth signals are highly correlated with specific markets (precious metals, forex trading, and US Treasury bonds, respectively). This begins to offer insight into the concrete character of these signals. However, there remains considerable fuzziness in the picture. There is considerable overlap between signals, with many items loading moderately onto several different signals at once. The interpretation of the fifth and sixth signals is particularly blurry.
-
-To further aid in analysis, an orthogonal varimax rotation ($V$) is applied to the loadings matrix.
-
-$$
-\tilde{L}_{rot} = \tilde{L}V
-$$
-The varimax rotation works by maximizing the spareseness of the loadings matrix. The rotated loadings ($\tilde{L}_{rot}$) are plotted in Figure 7. (So and so () ran into a similar situation when they analyzed eigenvectors of the S&P 500 correlation matrix. They attempted to clarify the matter by adding or substracting the fuzzy eigenvectors.)
+To further aid in analysis, an orthogonal varimax rotation is applied to the loadings matrix. The rotated loadings ($\tilde{L}_{rot}$) are plotted in Figure 7.
 
 ```{r, fig.width=15, fig.height=12, fig.align='center', echo=FALSE}
 
@@ -1019,7 +1064,7 @@ interpret_loadings(mat_loads_rot_sig_train, fig_title = this_fig_title, fun_env)
 
 Now the picture is very clear. The varimax rotation has removed the overlap between signals. Even Signals 5 and 6 have a clear interpretation now. Signal 5 is highly correlated with agriculture, while Signal 6 tracks industrial metals---in contradistinction to Signal 2, which tracks precious metals.
 
-disclaimer: these signal loadings do vary from one time window to another
+These loadings vary depending on the time period and size of the time window. However, a plot of the signals against their respective highest loading items suggests that signal correlations with some items are persistent over time (Figure 8).
 
 ```{r, fig.width=7, fig.height=10, fig.align='center', echo=FALSE}
 #=======================================================================
@@ -1102,7 +1147,7 @@ plot_signals_against_associated_items <- function(mat_loads_rot_sig,
   
 }
 #=======================================================================
-this_fig_title <- "Figure 7: Signals plotted with their respective highest loading items, train data"
+this_fig_title <- "Figure 8: Signals plotted with their respective highest loading items, train data"
 plot_signals_against_associated_items(mat_loads_rot_sig_train,
                                       mat_pctDiff_train,
                                       mat_pctDiff_sig_train,
@@ -1114,8 +1159,7 @@ plot_signals_against_associated_items(mat_loads_rot_sig_train,
 
 
 
-#### 4.1.4 Portfolio optimization
-
+Moving to MV Analysis now, a conventional MV frontier and optimal portfolio budget weights are calculated based on the train data and plotted in Figure 9. This is "conventional" in the sense that it allows for negative budget weights. The frontier looks good, offering portfolio returns of 20% or more for relatively small risk. However, a backtest of the optimal weights displayed in Figure 10 indicates that the real return on investment in these optimal portfolios would have been much less, and the risk much higher, than the efficient fontier suggests.
 
 ```{r, fig.align='center', echo=FALSE}
 # Get backtest data
@@ -1123,7 +1167,7 @@ fun_env = list(eigenvalue_density_plot = F,
                pca_var_plot = F,
                pca_ind_plot = F,
                group_info,
-               quietly = F)
+               quietly = T)
 list_out <- signals_from_noise(mat_pctDiff_test, fig_title_eigDens = NULL, fun_env)
 # list_out <- list(mat_loads_sig, mat_loads_rot_sig, mat_loads, mat_loads_rot, mat_inData_sig, eigvals_sig, mat_eigvecs_sig, eigvals, mat_eigvecs)
 mat_loads_sig_test <- list_out[[1]]
@@ -1406,7 +1450,7 @@ fun_env <- list(n_points_on_frontier,
 
 list_out <- get_optimal_frontier(cormat, mat_nab,
                                  Rtarg_limits = c(0.01, 0.3),
-                                 fig_title = "Figure 8: Optimal portfolio frontier",
+                                 fig_title = "Figure 9: Optimal frontier, negative weights allowed",
                                  fun_env)
 
 df_frontier <- list_out[[2]]
@@ -1416,7 +1460,6 @@ df_backtest <- list_out[[3]]
 
 ```
 
-Minimum variance analysis is, in many ways, still a work in progress. A backtest of the optimal weights displayed in Figure ... indicates that the real return on investment in these optimal portfolios would have been much less, and the risk much higher, than the efficient fontier suggests.
 
 ```{r, fig.width=8, fig.height=4, fig.align='center', echo = FALSE}
 
@@ -1424,123 +1467,13 @@ Minimum variance analysis is, in many ways, still a work in progress. A backtest
 # Frontier plot with backtest
 plot_frontier_wBacktest(df_frontier,
                         df_backtest,
-                        fig_title = "Figure 9: Optimal portfolio solution vs. backtest")
+                        fig_title = "Figure 10: Optimal solution vs. backtest")
 #-------------------------------------------
 
 
 ```
 
-Recently, the notion of "eigenportfolios" has been explored..., in particular the leading eigenvector, which, as observed above, corresponds to the time series average. The eigenportfolios corresponding to the data are displayed in table ... They are all disastrous portfolios with respect to the efficient frontier.
-
-```{r, echo=F}
-#-----------------------------------------------------------------------
-# # Get eigenportfolios
-# mat_wEigen <- apply(mat_eigvecs_sig_train, 2, function(x) x / sum(x))
-# # mat_loads_rot_sig_train_normd <- apply(mat_loads_rot_sig_train, 2, function(x) x / sum(x))
-# # mat_wEigen <- apply(mat_loads_rot_sig_train_normd, 2, function(x) x / sum(x))
-# V_eigen <- apply(mat_wEigen, 2, function(x) t(x) %*% cormat %*% x)
-# R_eigen <- apply(mat_wEigen, 2, function(x) t(x) %*% nab_pctRet_train)
-# V_eigen_test <- apply(mat_wEigen, 2, function(x) t(x) %*% cormat_test %*% x)
-# R_eigen_test <- apply(mat_wEigen, 2, function(x) t(x) %*% nab_pctRet_test)
-# 
-# #mat_pctDiff_eigenportfolio <- mat_pctDiff_train %*% mat_wEigen
-# #R_eigen <- apply(mat_pctDiff_eigenportfolio, 2, function(x) prod(1 + x)) - 1
-# #CV_eigen <- abs(sqrt(V_eigen) / R_eigen)
-# n_signals <- ncol(mat_pctDiff_sig_train)
-# signal_names[1] <- "US / Emerg. Markets, Energy, Blockchain"
-# df_eigenportfolio <- data.frame(Eigen_portfolio = as.character(c(1:n_signals)),
-#                                 Characteristic = signal_names,
-#                                 R_eigen, V_eigen,
-#                                 R_eigen_test, V_eigen_test)
-# colnames(df_eigenportfolio) <- c("Eigen-portfolio", "Description",
-#                                  "Return target", "Risk target",
-#                                  "Return backtest", "Risk backtest")
-# df_eigenportfolio[, 3:6] <- round(df_eigenportfolio[, 3:6], 2)
-# knitr::kable(df_eigenportfolio)
-# #-----------------------------------------------------------------------
-
-
-
-```
-
-
-
-### 4.2. Dealing with negative budget weights
-
-One of the main problems limiting the usefulness of MV analysis is that the optimal weights usually include negative values. A negative sign on a budget weight indicates that one should invest in the inverse of the corresponding portfolio item. In the financial context, this is possible through short selling, or through investment in financial products that track the inverse of a given product. However, there remains a more serious problem: a portfolio with both negative and positive weights implies that the investor must spend beyond their budget---i.e., they must borrow---in order to take up the corresponding position on the efficient frontier. In the example above, some of the higher return positions on the frontier require that the investor borrow amounts that are equal to 30%-50% of their budget. (...This is part of the motivation for eigenportfolios, there is a theorem guaranteeing that the components of the leading eigenvector will always be positive if the correlation matrix has no negative elements.)
-
-It is possible to enforce positive weights when solving for optimal portfolios using heuristic methods. However, these methods offer no guarantee that the solution found is a global optimum. An evolutionary algorithm is applied below...
-
-
-```{r, echo=F}
-
-
-# wLam <- exp(lamW::lambertW0(-nab_pctRet_train))
-# wLam <- wLam / sum(wLam)
-# t(nab_pctRet_train) %*% wLam
-# #------------------------------------
-# # Heuristic solution
-# portfolio_heuristic_fn <- function(w_vec){
-#   w_vec <- w_vec / sum(w_vec)
-#   R <- as.numeric(t(nab_pctRet) %*% w_vec)
-#   V <- as.numeric(t(w_vec) %*% cormat %*% w_vec)
-#   obj_fn <- R
-#   return(obj_fn)
-# }
-# env <- environment(fun = portfolio_heuristic_fn)
-# env[["nab_pctRet"]] <- nab_pctRet_train
-# env[["cormat"]] <- cormat
-# env[["nab_pctRet"]] <- nab_pctRet_test
-# env[["cormat"]] <- cormat_test
-# #------------------------------------
-# out_malschains <- Rmalschains::malschains(function(w_vec) {-portfolio_heuristic_fn(w_vec)},
-#                                           lower = as.vector(rep(0, n_items)),
-#                                           upper = as.vector(rep(1, n_items)),
-#                                           verbosity = 0,
-#                                           env = env)
-# w_vec <- out_malschains$sol
-# w_vec <- w_vec / sum(w_vec)
-# R <- as.numeric(t(nab_pctRet_train) %*% w_vec)
-# V <- as.numeric(t(w_vec) %*% cormat %*% w_vec)
-# R
-# V
-# #------------------------------------
-
-
-# n_signals <- ncol(mat_eigvecs_sig_train)
-# mat_eigvecs_sig_train_aug <- cbind(mat_eigvecs_sig_train, nab_C)
-# Q <- t(mat_eigvecs_sig_train_aug) %*% mat_eigvecs_train
-# # M <- round(Q %*% diag(1 / eigvals) %*% t(mat_eigvecs) %*% mat_sig_eigvecs_aug, 6)
-# M <- round(Q %*% diag(1 / eigvals_train) %*% t(Q), 7)
-# M
-# M_inv <- round(solve(M), 5)
-# M_inv
-# 
-# targ_vec <-  c(0.2 * rep(1, n_signals), 1)
-# #targ_vec <- c(0.06, 0.06, 0.02, 0.02, 1)
-# x <- -2 * M_inv %*% targ_vec
-# l_V <- 1 / x[1]
-# lambdas <- l_V * x
-# lambdas
-# l_C <- lambdas[length(lambdas)]
-# 
-# wStar <- -1 / (2 * l_V) * mat_eigvecs_train %*% diag(1 / eigvals_train) %*% t(mat_eigvecs_train) %*% mat_eigvecs_sig_train_aug %*% lambdas
-# pctDiff_wStar <- mat_pctDiff_test %*% wStar
-# 
-# backtest_ret <- prod(1 + pctDiff_wStar) - 1
-# #sd(pctDiff_wStar)
-# sum(wStar)
-# 
-# t(wStar) %*% cormat %*% wStar
-
-
-
-
-```
-
-
-Another way, not yet explored in the literature, is to interpret the optimal weights as utility weights rather than budget weights. Recall that utility is defined in terms of the   Utility is defined in terms of a first order relation such that increments in the quantity of a given portfolio item are valued in proportion to the amount of the item already accumulated.... Defined up to an affine transformation.
-
+The MV frontier and budget weights using the utility approach presented in the methodlogy section are plotted in Figure 11. The frontier looks much less appealing than the conventional frontier. However, a backtest in Figure 12 suggests that it is more accurate than the conventional frontier.
 
 ```{r, fig.width=8, fig.height=6, fig.align='center', echo = FALSE}
 
@@ -1553,7 +1486,7 @@ fun_env <- list(n_points_on_frontier,
 
 list_out <- get_optimal_frontier(cormat, mat_nab,
                                  Rtarg_limits = c(0.01, 5),
-                                 fig_title = "Figure 10: Optimal portfolio frontier, utility weights",
+                                 fig_title = "Figure 11: Optimal frontier, utility weights",
                                  fun_env)
 
 df_frontier <- list_out[[2]]
@@ -1572,19 +1505,14 @@ df_backtest <- list_out[[3]]
 # Frontier plot with backtest
 plot_frontier_wBacktest(df_frontier,
                         df_backtest,
-                        fig_title = "Figure 11: Optimal portfolio solution vs. backtest, utility weights")
+                        fig_title = "Figure 12: Optimal solution vs. backtest, utility weights")
 #-------------------------------------------
 
 
 
 ```
 
-### 4.3 Signal portfolios
-
-The optimal frontier diverges so much from the backtest frontier because the optimal frontier is obtained by optimizing over not only the signals contained in the data, but also the noise. By optimizing only over the signals...
-
-Banks or financial institutions could create products that track the extracted signals. An investor could then invest in just a handful of signals instead of potentially several dozen securities, thereby reducing transaction costs. The optimal frontier for such a portfolio is unappealing compared to the conventional frontier (Figure ...), but the backtest reveals much better performance, at least over this particular dataset. This is probably because
-
+Since much of the inaccuracy of the MV frontier is attributable to noise in the data, it stands to reason that the MV frontier of a portfolio containing only signals---i.e. the significant information in the data, purged of noise---will be more accurate. But is this true? The frontier and budget weights of the signals portfolio are displayed in Figure 13. The optimal frontier for such a portfolio is unappealing compared to the conventional frontier, but the backtest reveals much better performance, at least over this particular dataset. More experimentation is required before this can be confirmed or rejected as a general rule. Note that a signals portfolio also has the benefit of reducing transaction costs. Were banks or other financial institutions to create products (along the lines of an ETF, for example) that track signals, investors could then invest in just a handful of signals instead of potentially several dozen securities.
 
 ```{r, echo=F}
 
@@ -1605,7 +1533,7 @@ nab_pctRet_train <- apply(mat_pctDiff_sig_train, 2, function(x) prod(1 + x)) - 1
 nab_pctRet_test <- apply(mat_pctDiff_sig_test, 2, function(x) prod(1 + x)) - 1
 #------------------------------------
 mat_nab <- cbind(nab_pctRet_train, nab_C)
-signal_names <- c("US / Emerg. Markets,\nEnergy, Blockchain", "Precious metals", "FOREX", "US Bonds", "Agriculture", "Industrial metals")
+signal_names <- c("Sig. 1: US / Emerg. Markets,\nEnergy, Blockchain", "Sig. 2: Precious metals", "Sig. 3: FOREX", "Sig. 4: US Bonds", "Sig. 5: Agriculture", "Sig. 6: Industrial metals")
 row.names(mat_nab) <- signal_names
 #------------------------------------
 fun_env <- list(n_points_on_frontier,
@@ -1617,7 +1545,7 @@ fun_env <- list(n_points_on_frontier,
 
 list_out <- get_optimal_frontier(cormat, mat_nab,
                                  Rtarg_limits = c(0.1, 0.5),
-                                 fig_title = "Figure 12: Optimal portfolio frontier, utility weights, signals",
+                                 fig_title = "Figure 13: Optimal frontier, utility weights, signals portfolio. The signals are numbered in descending order of their respective eigenvalues, and named in accordance with their respective highest loading items.",
                                  fun_env)
 
 df_frontier <- list_out[[2]]
@@ -1637,521 +1565,28 @@ df_backtest <- list_out[[3]]
 # Frontier plot with backtest
 plot_frontier_wBacktest(df_frontier,
                         df_backtest,
-                        fig_title = "Figure 13: Optimal portfolio solution vs. backtest, utility interpretation, signals")
+                        fig_title = "Figure 14: Optimal solution vs. backtest, utility weights, signals portfolio")
 #-------------------------------------------
 
 ```
 
 
-## Example 2: Mod-MV analysis to determine optimal investments across strategic objectives in the AR4D context
+## 5. Signal and MV Analysis in the AR4D context
 
-The aim of investment here is not merely to share in the fortunes of the portfolio items, but rather to play a role in their shaping. High commodity price is an indication of demand outstripping supply. The aim of the CBOE speculator is to prosper from that scarcity and to aggravate it by removing from circulation as much of the commodity as possible, thereby raising the price further, the aim of the AR4D donor is the exact opposite of this. The donor invests in AR4D so as to increase production and quality of the crops and thereby to bring down their price.
-
-Interpretation of "price" is different from the financial context. This could reflect 1) higher kcals per unit weight, 2) higher quality kcals, 3) higher demand, or 4) some combination of all of the above.
-
-based on export price, because there are enough data to permit a backtest. but should really focus on farmgate price
-
-The data is very low resolution. Results vary considerably depending on geographical focus. I do export price first in order to have enough data to apply backtests and then farmgate price. The backtests diverge considerably more from the optimal frontier than in the financial context.
-
+Below, I explore an analogous application of the methods used above in the AR4D context. Though the workflow is analogous, it is important to keep in mind that the AR4D context is very different from the financial context in many key respects... Limited data, motivation,.. what else?. There is not enough data to conduct a backtest. However, the historical data can be extended into a hypothetical future using IMPACT runs. The "backtest" can then be conducted over the future projection.
+The data is very low resolution. Keep in mind the very different mechanisms driving  Results vary considerably depending on geographical focus. I do export price first in order to have enough data to apply backtests and then farmgate price. The backtests diverge considerably more from the optimal frontier than in the financial context.
+Now we look at farmgate price.
+Other things to try: vap per kcal
 
 ```{r, echo=F}
+
 #=======================================================================
-# Define geographic areas of focus
 area_vec <- c("World","Low Income Food Deficit Countries", "Net Food Importing Developing Countries",
               "Least Developed Countries", "Eastern Africa", "Western Africa", "South America",
               "Southern Asia", "Southern Africa", "Middle Africa", "Asia",
               "Sub-Saharan Africa")
-# Define commodities of interest
-cereal_vec <- c("Maize", "Wheat", "Sorghum", "Rice", "Millet") #"Rice, paddy"
-pulses_oilcrops_vec <- c("Beans, dry", "Cow peas, dry", "Chick peas", "Lentils", "Soybeans", "Groundnuts, shelled") #"Groundnuts, with shell"
-RnT_vec <- c("Cassava Equivalent", "Yams", "Potatoes", "Sweet potatoes")#"Cassava"
-item_vec <- c(cereal_vec, pulses_oilcrops_vec, RnT_vec)
-#------------------
-list_groups <- list(cereal_vec, pulses_oilcrops_vec, RnT_vec)
-group_names <- c("Cereals", "Pulses & Oilcrops", "Roots & Tubers")
-group_info <- list(list_groups, group_names)
-n_groups <- length(group_names)
-#------------------------------
-#Prep export value data
-df_expVal_raw <- read.csv("Trade_Crops_Livestock_E_All_Data.csv", stringsAsFactors = F)
-#colnames(df_expVal_raw)
-df_expVal_raw$Area.Code <- NULL
-df_expVal_raw$Item.Code <- NULL
-df_expVal_raw$Element.Code <-NULL
-u <- colnames(df_expVal_raw)
-#colnames(df_expVal_raw)
-df_expVal_raw <- df_expVal_raw[, -grep("F", u)]
-colnames(df_expVal_raw)[5:ncol(df_expVal_raw)] <- as.character(c(1961:(1961 + ncol(df_expVal_raw) - 5)))
-df_expVal_raw <- gather(df_expVal_raw,Year,Value,`1961`:`2016`)
-#------------------
-#unique(df_expVal_raw$Item)[grep("cassava", unique(df_expVal_raw$Item), ignore.case = T)]
-#unique(df_expVal_raw$Element)
-#------------------
-df_expVal <- subset(df_expVal_raw, Item %in% item_vec)
-df_expVal$Unit <- NULL
-#------------------
-# Create SSA group
-# unique(df_expVal$Area)[grep("africa", unique(df_expVal_raw$Area), ignore.case = T)]
 SSA_vec <- c("South Africa", "Africa", "Eastern Africa", "Middle Africa", "Southern Africa", "Western Africa")
-df_x <- subset(df_expVal, Area %in% SSA_vec)
-df_x <- as.data.frame(df_x %>% group_by(Year, Item, Element) %>% summarise(Value = sum(Value, na.rm = T)))
-df_x$Area <- "Sub-Saharan Africa"
-df_x <- df_x[, colnames(df_expVal)]
-df_expVal <- as.data.frame(rbind(df_expVal, df_x))
 #------------------
-df_expVal <- subset(df_expVal, Area %in% area_vec)
-#unique(df_expVal_raw$Element)
-element_vec <- c("Export Quantity", "Export Value")
-df_expVal <- subset(df_expVal, Element %in% element_vec)
-#df_expVal <- subset(df_expVal, Year > 1961)
-df_expVal$Unit <- NULL
-df_expVal <- df_expVal %>% spread(Element, Value)
-df_expVal$`Export Price` <- df_expVal$`Export Value` / df_expVal$`Export Quantity`
-#------------------
-# Create group id variable for plotting
-df_expVal$Group <- NA
-u <- df_expVal$Item
-df_expVal$Group[which(u %in% cereal_vec)] <- "Cereals"
-df_expVal$Group[which(u %in% pulses_oilcrops_vec)] <- "Pulses and Oilcrops"
-df_expVal$Group[which(u %in% RnT_vec)] <- "Roots & Tubers"
-df_expVal$Group <- factor(df_expVal$Group)
-#------------------
-check_on_data = F
-if(check_on_data){
-  # Export value plots
-  df_plot <- subset(df_expVal, Year == 2016)
-  df_plot <- subset(df_plot, Area == "World")
-  xx <- df_plot$Group
-  df_plot$Item <- factor(df_plot$Item, levels = unique(df_plot$Item[order(xx)]))
-  df_plot <- df_plot %>% gather_("Element", "Value", colnames(df_plot[4:6]))
-  gg <- ggplot(df_plot, aes(x = Item, y = Value, fill = Group))
-  gg <- gg + geom_bar(stat = "identity", position = "dodge")
-  gg <- gg + facet_wrap(~Element, scales = "free_y")
-  gg <- gg + theme(axis.title.x = element_blank(),
-                   axis.text.x = element_text(angle = 60, hjust = 1),
-                   axis.title.y = element_blank(),
-                   legend.title = element_blank())
-  #gg <- gg + coord_flip()
-  gg
-  
-  df_plot <- subset(df_expVal, Year == 2016)
-  df_plot$Area[grep("Least Developed Countries", df_plot$Area)] <- "Least Developed\nCountries"
-  df_plot$Area[grep("Low Income Food Deficit Countries", df_plot$Area)] <- "Low Income\nFood Deficit Countries"
-  xx <- df_plot$Group
-  df_plot$Item <- factor(df_plot$Item, levels = unique(df_plot$Item[order(xx)]))
-  gg <- ggplot(df_plot, aes(x = Item, y = `Export Price`, fill = Group))
-  gg <- gg + geom_bar(stat = "identity", position = "dodge")
-  gg <- gg + facet_wrap(~Area)
-  gg <- gg + theme(axis.title.y = element_blank(),
-                   axis.text.y = element_text(size = 7))
-  gg <- gg + coord_flip()
-  gg
-  
-  
-  df_plot <- df_expVal
-  df_plot$Year <- as.integer(df_plot$Year)
-  xx <- df_plot$Group
-  df_plot$Item <- factor(df_plot$Item, levels = unique(df_plot$Item[order(xx)]))
-  gg <- ggplot(df_plot, aes(x = Year, y = `Export Price`, fill = Item))
-  gg <- gg + geom_area(position = "stack")
-  gg <- gg + facet_wrap(~Area, scales = "free")
-  gg
-  df_plot <- as.data.frame(df_plot %>% group_by(Area, Year) %>% mutate(sum_x = sum(`Export Price`)))
-  df_plot$`Export Price (share)` <- df_plot$`Export Price` / df_plot$sum_x
-  gg <- ggplot(df_plot, aes(x = Year, y = `Export Price (share)`, fill = Item))
-  gg <- gg + geom_area(position = "stack")
-  gg <- gg + facet_wrap(~Area)
-  gg
-  
-  
-}
-```
-
-### The data
-
-FAO etc...
-
-```{r, echo=F}
-#=======================================================================
-# Examine historical returns, correlation matrix
-period <- c(1967, 2016)
-fraction_train <- 1
-#-----------------------------
-df_in <- subset(df_expVal, Area == "Sub-Saharan Africa")
-#"Low Income Food Deficit Countries"
-#"Net Food Importing Developing Countries"
-#"Sub-Saharan Africa"
-#"South America"
-#"Asia"
-#"World"
-#unique(df_expVal$Area)[grep("deficit", unique(df_expVal$Area), ignore.case = T)]
-# df2 <- subset(df_expVal, Area == "Net Food Importing Developing Countries")
-# list_groups_mod <- list_groups
-#-----------------------------
-# # If looking at Low Income Food Deficit Countries, have to remove Sweet potatoes
-# df2 <- subset(df_expVal, Area == "Low Income Food Deficit Countries" & Item != "Sweet potatoes")
-# list_groups_mod <- list_groups
-# list_groups_mod[[3]] <- list_groups_mod[[3]][which(list_groups_mod[[3]] != "Sweet potatoes")] 
-#-----------------------------
-
-
-group_colors <- wesanderson::wes_palette("GrandBudapest1", n = n_groups, type = "continuous")
-
-#-----------------------------
-df_in <- df_in[, c("Item", "Year", "Export Price")]
-df_in <- df_in %>% spread(Item, `Export Price`)
-
-  if(!is.null(period)){
-    ind_ret_sinceYr <- which(df_in$Year == period[1])
-    ind_ret_toYr <- which(df_in$Year == period[2])
-    df_in <- df_in[ind_ret_sinceYr:ind_ret_toYr, ]
-  }
-  #-------------------------------------------
-  mat <- as.matrix(df_in[, -1])
-  #-------------------------------------------
-  # Replace NA with interplation
-  mat <- na.approx(mat)
-  #-------------------------------------------
-  # Get percentage difference
-  mat_pctDiff <- diff(mat) / mat[-nrow(mat), ]
-  year_vec <- df_in$Year[-1]
-# mat_pctDiff <- scale(mat)
-#   year_vec <- df_in$Year
-  #-------------------------------------------
-  row.names(mat_pctDiff) <- year_vec
-  #-------------------------------------------
-  n_items <- ncol(mat_pctDiff)
-  #-------------------------------------------
-# Separate train from test data
-  ind_train <- 1:round(nrow(mat_pctDiff) * fraction_train)
-    ind_test <- setdiff(1:nrow(mat_pctDiff), ind_train)
-    mat_pctDiff_train <- mat_pctDiff[ind_train, ]
-    mat_pctDiff_test <- mat_pctDiff[ind_test, ]
-
-    
-    this_fig_title <- "Figure 14: Historical change, agricultural export prices"
-historical_returns_and_corr_plot(mat_pctDiff_train, mat_pctDiff_test = NULL, group_info,
-                                 returns_plot = T,
-                                 corr_plot = F,
-                                 group_colors = group_colors,
-                                 fig_title_returns = this_fig_title)
-
-
-```
-
-```{r, fig.width=12, fig.height=12, fig.align='center', echo=FALSE}
-
-# (mat_pctDiff,
-#                                              mat_pctDiff_test = NULL,
-#                                              group_info = NULL,
-#                                              returns_plot = F,
-#                                              corr_plot = F,
-#                                              fig_title_returns = NULL,
-#                                              fig_title_corrplot = NULL,
-#                                              fig_title_corrplot_test = NULL,
-#                                              returns_plot_range = NULL,
-#                                              corrplot_options = list(
-#                                                plot_with_pvals = F,
-#                                                plot_with_corrCoefs = F,
-#                                                corr_coef_size = 0.75)
-# )
-
-corrplot_options = list(plot_with_pvals = F, plot_with_corrCoefs = F, corr_coef_size = 0.75)
-fig_title_corrplot <- "Figure 15: Correlation matrix, train data"
-fig_title_corrplot_test <- "Figure 16: Correlation matrix, test data"
-historical_returns_and_corr_plot(mat_pctDiff_train, mat_pctDiff_test, group_info,
-                                 returns_plot = F, 
-                                 corr_plot = T, 
-                                 group_colors = group_colors, 
-                                 fig_title_corrplot = fig_title_corrplot,
-                                 fig_title_corrplot_test = fig_title_corrplot_test,
-                                 corrplot_options = corrplot_options)
-
-    
-    
-    
-    
-```
-    
-    
-```{r, echo=F}    
-
-mat_z <- scale(mat)
-  year_vec <- df_in$Year
-  #-------------------------------------------
-  row.names(mat_z) <- year_vec
-  #-------------------------------------------
-  n_items <- ncol(mat)
-  #-------------------------------------------
-# Separate train from test data
-  ind_train <- 1:round(nrow(mat_z) * fraction_train)
-    ind_test <- setdiff(1:nrow(mat_z), ind_train)
-    mat_z_train <- mat_z[ind_train, ]
-    mat_z_test <- mat_z[ind_test, ]
-
-  #===========================================
-  # Extract signals from noise
-  #-------------------------------------------
-fun_env = list(eigenvalue_density_plot = T,
-               pca_var_plot = F,
-               pca_ind_plot = F,
-               group_info,
-               quietly = F)
-this_fig_title <- "Figure 17: Eigenvalue density plots for the agricultural export price data correlation matrix and a\ncorrelation matrix of a random dataset of the same dimensions."
-list_out <- signals_from_noise(mat_pctDiff_train, fig_title_eigDens = this_fig_title, fun_env)
-# list_out <- list(mat_loads_sig, mat_loads_rot_sig, mat_loads, mat_loads_rot, mat_inData_sig, eigvals_sig, mat_eigvecs_sig, eigvals, mat_eigvecs)
-mat_loads_sig_train <- list_out[[1]]
-mat_loads_rot_sig_train <- list_out[[2]]
-mat_pctDiff_sig_train <- list_out[[5]]
-mat_eigvecs_sig_train <- list_out[[7]]
-
-
-
-signal_names <- NULL
-fun_env <- list(group_info, signal_names, group_colors)
-this_fig_title <- "Figure 18: Signal loadings, agricultural export price train data"
-interpret_loadings(mat_loads_sig_train, fig_title = this_fig_title, fun_env)
-
-
-
-```
-
-
-```{r, fig.width=9, fig.height=8, fig.align='center', echo = FALSE}
-#=======================================================================
-n_items <- ncol(mat_pctDiff)
-C_targ <- 1
-nab_C <- rep(1, n_items)
-#------------------------------------
-# Correlation matrix
-cormat <- cor(mat_pctDiff_train)
-cormat_test <- cor(mat_pctDiff_test)
-#cormat <- round(mat_loads_rot_sig_train %*% t(mat_loads_rot_sig_train), 7)
-#cormat <- round(mat_loads_sig_train %*% t(mat_loads_sig_train), 7)
-# mse <- mean((cor(mat_pctDiff_train) - cormat)^2)
-# mse
-#------------------------------------
-# Expected returns vector
-#nab_pctRet_train <- apply(mat_pctDiff_train[ind_equal_test, ], 2, function(x) prod(1 + x)) - 1
-nab_pctRet_train <- apply(mat_pctDiff_train, 2, function(x) prod(1 + x)) - 1
-nab_pctRet_test <- apply(mat_pctDiff_test, 2, function(x) prod(1 + x)) - 1
-#------------------------------------
-mat_nab <- cbind(nab_pctRet_train, nab_C)
-n_points_on_frontier <- 50
-#------------------------------------
-fun_env <- list(n_points_on_frontier,
-                utility_interpretation = T,
-                backtest_info = list(nab_pctRet_test, cormat_test),
-                frontier_and_budget_plot = T,
-                group_info = NULL,
-                group_colors = NULL)
-
-list_out <- get_optimal_frontier(cormat, mat_nab,
-                                 Rtarg_limits = c(1, 30),
-                                 fig_title = "Figure 8: Optimal portfolio frontier",
-                                 fun_env)
-
-df_frontier <- list_out[[2]]
-df_backtest <- list_out[[3]]
-#------------------------------------
-
-
-```
-
-Minimum variance analysis is, in many ways, still a work in progress. A backtest of the optimal weights displayed in Figure ... indicates that the real return on investment in these optimal portfolios would have been much less, and the risk much higher, than the efficient fontier suggests.
-
-```{r, fig.width=8, fig.height=4, fig.align='center', echo = FALSE}
-
-#-------------------------------------------
-# Frontier plot with backtest
-plot_frontier_wBacktest(df_frontier,
-                        df_backtest,
-                        fig_title = "Figure 9: Optimal portfolio solution vs. backtest")
-#-------------------------------------------
-
-
-```
-
-## 6. Discussion
-
-
-An important implication of the theorem is that signal extraction is as much a function of data quality (i.e. whether there really is structure in the observed system, and how well this is captured in the data) as it is of data quantity. If none or very few of the eigenvalues of a given data correlation matrix can be distinguished from noise, this may be either because there is no structure to be found in the observed system, or because there are not enough observations to fully flesh out the structure. Just as a low resolution image of a person is difficult to distinguish from an image of randomly shaded pixels, underlying structure in the SDG Tracker data may be difficult to discern due to the low number of observations currently available. As resolution (number of observations) increases, the components of the system become more clearly rendered. 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-```{r, echo=F}
-
-
-# 
-# if(class(mat_loads_rot_sig_train) == "numeric"){n_items <- length(mat_loads_rot_sig_train)}
-# if(class(mat_loads_rot_sig_train) == "matrix"){n_items <- nrow(mat_loads_rot_sig_train)
-# }
-# C_targ <- 1
-# nab_C <- rep(1, n_items)
-# #------------------------------------
-# # Correlation matrix
-# cormat_train <- cor(mat_pctDiff_train)
-# #cormat <- round(mat_loads_rot_sig_train %*% t(mat_loads_rot_sig_train), 7)
-# #cormat <- round(mat_loads_sig_train %*% t(mat_loads_sig_train), 7)
-# # mse <- mean((cor(mat_pctDiff_train) - cormat)^2)
-# # mse
-# #------------------------------------
-# # Expected returns vector
-# #ind_t_ret <- ind_ret_sinceYr:ind_ret_toYr
-# nab_pctDiff_train <- apply(mat_pctDiff_train, 2, function(x) prod(1 + x)) - 1
-# #------------------------------------
-# mat_nab_train <- cbind(nab_pctDiff_train, nab_C)
-# n_points_on_frontier <- 50
-# #------------------------------------
-# list_out <- get_optimal_frontier(cormat_train, mat_nab_train,
-#                                  Rtarg_limits = c(3, 70),
-#                                  n_points_on_frontier = n_points_on_frontier,
-#                                  backtest_info = list(nab_pctRet_test, cormat_test),
-#                                  utility_interpretation = T,
-#                                  frontier_and_budget_plot = T,
-#                                  group_info = NULL,
-#                                  fig_title = NULL)
-# 
-# df_frontier <- list_out[[2]]
-# df_backtest <- list_out[[3]]
-# 
-# 
-# #-------------------------------------------
-# # Frontier plot with backtest
-# plot_frontier_wBacktest(df_frontier,
-#                         df_backtest,
-#                         fig_title = "Figure 10: Optimal portfolio solution vs. backtest, utility interpretation",
-#                         separate_plots = T)
-# #-------------------------------------------
-
-
-
-```
-
-So, in this back test, real returns to the optimal portfolio were much lower than those indicated by the optimal frontier, but nonetheless substantial (60%-90%). This is probably due to the low resolution of the data and the long time horizons. A lot can happen in 30 years. The usefulness of a backtest is  questionable, since the idea of investment is not merely to ride the fortunes of the portfolio items, but to play a role in shaping them.
-
-The optimal portfolio looking ahead from 2016 (the last year of available data), based on the returns and correlations of the precceding 40 years of data, is computed below.
-
-
-```{r, echo=F}
-
-#the signals can be used in optimization
-#defining the return window, and whether to define expected return as the return over a recent window or the average of returns over many small windows. In the development context, this 
-#"Gross Prod. Value / MT\n(current USD)"
-
-
-
-
-
-
-
-# sigExtract_and_portfoliOptimization <- function(df_in,
-#                                                 Rtarg_limit = c(0.1, 5),
-#                                                 period = NULL,
-#                                                 purge_cormat_noise = F,
-#                                                 signals_replace_items = F,
-#                                                 fraction_train = 1,
-#                                                 fig_title_frontier_wBudget = NULL,
-#                                                 fun_env = NULL
-# ){
-#   #===========================================
-#   # Unpack function environments
-#   if(is.null(fn_envs)){
-#     fun_env_signals_from_noise <- standard_env_signals_from_noise
-#     fun_env_interpret_loadings <- standard_env_interpret_loadings
-#     fun_env_get_optimal_frontier <- standard_env_get_optimal_frontier
-#   }else{
-#     fun_env_signals_from_noise <- fun_env[[1]]
-#     fun_env_interpret_loadings <- fun_env[[2]]
-#     fun_env_get_optimal_frontier <- fun_env[[3]]
-#   }
-#   #===========================================
-#   # Prepare data
-#   #-------------------------------------------
-#   # df_in must have dimensions nrow = length(time series), ncol = n_items + 1, with the first column as date vec (Year, in the case of FAO data).
-#   #-------------------------------------------
-#   # Restrict period
-#   if(!is.null(period)){
-#     ind_ret_sinceYr <- which(df$Year == period[1])
-#     ind_ret_toYr <- which(df$Year == period[2])
-#     df <- df[ind_ret_sinceYr:ind_ret_toYr, ]
-#   }
-#   #-------------------------------------------
-#   mat <- as.matrix(df[, -1])
-#   #-------------------------------------------
-#   # Replace NA with interplation
-#   mat <- na.approx(mat)
-#   #-------------------------------------------
-#   # Get percentage difference
-#   mat_pctDiff <- diff(mat) / mat[-nrow(mat), ]
-#   year_vec <- df$Year[-1]
-#   row.names(mat_pctDiff) <- year_vec
-#   #-------------------------------------------
-#   n_items <- ncol(mat_pctDiff)
-#   #===========================================
-#   # Extract signals from noise
-#   #-------------------------------------------
-#     ind_train <- 1:round(nrow(mat_pctDiff) * fraction_train)
-#     ind_test <- setdiff(1:nrow(mat_pctDiff), ind_train)
-#     mat_pctDiff_train <- mat_pctDiff[ind_train, ]
-#     mat_pctDiff_test <- mat_pctDiff[ind_test, ]
-#     #-------------------------------------------
-#     list_out <- signals_from_noise(mat_pctDiff_train, fun_env_signals_from_noise)
-#     #list_out <- list(mat_loads_sig, mat_loads_rot_sig, mat_loads, mat_loads_rot, mat_inData_sig, eigvals_sig, mat_eigvecs_sig, eigvals, mat_eigvecs)
-#     mat_loads_rot_sig <- list_out[[2]]
-#     interpret_loadings(mat_loads_rot_sig, fun_env_interpret_loadings)
-#     #-------------------------------------------
-#     list_out <- signals_from_noise(mat_pctDiff_test, fun_env_signals_from_noise)
-#     mat_loads_rot_sig_test <- list_out[[2]]
-#     interpret_loadings(mat_loads_rot_sig_test, fun_env_interpret_loadings)
-#     #-------------------------------------------
-#     df_loads_train <- data.frame(mat_loads_rot_sig)
-#     df_loads_test <- data.frame(mat_loads_rot_sig_test)
-#     mse_vec <- c()
-#     for(i in 1:min(ncol(df_loads_train), ncol(df_loads_test))){
-#       mse_vec[i] <- mean((df_loads_test[, i] - df_loads_train[, i])^2)
-#     }
-#     print("Test data loadings vs. train data loadings (mse):", mse_vec)
-#     mse_loads <- mse_vec[1]
-#   }
-#   #===========================================
-#   # Portfolio optimization
-#   
-#   get_optimal_frontier_wrapper()
-#   
-# }
-# 
-# 
-# #=======================================================================
-
-
-```
-
-Now we look at farmgate price.
-
-```{r, echo=F}
-
-#=======================================================================
 # Have to rename some crops because names in the production and value of production datasets differ somewhat from those in the trade dataset used above.
 cereal_vec <- c("Maize", "Wheat", "Sorghum", "Rice, paddy", "Millet")
 pulses_oilcrops_vec <- c("Beans, dry", "Cow peas, dry", "Chick peas", "Lentils", "Soybeans", "Groundnuts, with shell")
@@ -2163,10 +1598,10 @@ group_names <- c("Cereals", "Pulses & Oilcrops", "Roots & Tubers")
 group_info <- list(list_groups, group_names)
 #------------------------------------
 # Get total value of ag production data
-rm(df_expVal, df_expVal_raw)
-gc()
+#rm(df_expVal, df_expVal_raw)
+#gc()
 df_vap_raw <- read.csv("Value_of_Production_E_All_Data.csv", stringsAsFactors = F)
-colnames(df_vap_raw)
+#colnames(df_vap_raw)
 df_vap_raw$Area.Code <- NULL
 df_vap_raw$Item.Code <- NULL
 df_vap_raw$Element.Code <-NULL
@@ -2308,7 +1743,8 @@ if(check_on_data){
 #=======================================================================
 # Examine historical returns, correlation matrix
 #-----------------------------
-group_colors <- wesanderson::wes_palette("GrandBudapest1", n = n_groups, type = "continuous")
+# group_colors <- wesanderson::wes_palette("Moonrise1", n = n_groups, type = "continuous")
+group_colors <- RColorBrewer::brewer.pal(n = n_groups, "Dark2")
 #-----------------------------
 #"Low Income Food Deficit Countries"
 #"Net Food Importing Developing Countries"
@@ -2316,7 +1752,7 @@ group_colors <- wesanderson::wes_palette("GrandBudapest1", n = n_groups, type = 
 #"South America"
 #"Asia"
 #"World"
-this_area <- "World"
+this_area <- "Sub-Saharan Africa"
 period <- c(1991, 2016)
 fraction_train <- 1
 #-----------------------------
@@ -2490,538 +1926,11 @@ df_backtest <- list_out[[3]]
 
 ```
 
-
-```{r, fig.align="center", echo=F}
-#-------------------------------------------
-# Frontier plot with backtest
-plot_frontier_wBacktest(df_frontier,
-                        df_backtest,
-                        fig_title = "Figure 20: Optimal portfolio solution vs. backtest", separate_plots = T)
-#-------------------------------------------
-
-```
+## 6. Discussion
 
 
-## Example 3: Mod-MV analysis to determine optimal investments across SDGs
+An important implication of the theorem is that signal extraction is as much a function of data quality (i.e. whether there really is structure in the observed system, and how well this is captured in the data) as it is of data quantity. If none or very few of the eigenvalues of a given data correlation matrix can be distinguished from noise, this may be either because there is no structure to be found in the observed system, or because there are not enough observations to fully flesh out the structure. Just as a low resolution image of a person is difficult to distinguish from an image of randomly shaded pixels, underlying structure in the SDG Tracker data may be difficult to discern due to the low number of observations currently available. As resolution (number of observations) increases, the components of the system become more clearly rendered. 
 
-
-
-
-```{r, echo=FALSE}
-#setwd("D:/OneDrive - CGIAR/Documents")
-#-------------------------------------------------------------
-remove_countries <- c("São Tomé and Principe", "Micronesia, Fed. Sts.")
-WDI_country_classification <- read.csv("WDICountry.csv", stringsAsFactors = F)
-Low_income_countries <- unique(WDI_country_classification$Table.Name[which(WDI_country_classification$Income.Group == "Low income")])
-
-Lower_middle_income_countries <- unique(WDI_country_classification$Table.Name[which(WDI_country_classification$Income.Group == "Lower middle income")])
-Upper_middle_income_countries <- unique(WDI_country_classification$Table.Name[which(WDI_country_classification$Income.Group == "Upper middle income")])
-
-WDI_raw <- read.csv("WDIData.csv", stringsAsFactors = F)
-WDI_raw$Country.Code <- NULL
-WDI_raw$Indicator.Code <- NULL
-WDI_raw$X <- NULL
-colnames(WDI_raw)[1:2] <- c("Country", "Indicator")
-WDI_raw$Country <- as.character(WDI_raw$Country)
-WDI_raw$Indicator <- as.character(WDI_raw$Indicator)
-#unique(WDI_raw$Country)
-#unique(WDI_raw$Indicator)
-unique(WDI_raw$Indicator[grep("basic", WDI_raw$Indicator, ignore.case = T)])
-colnames(WDI_raw)[3:ncol(WDI_raw)] <- as.character(c(1960:2018))
-WDI_long <- WDI_raw %>% gather(Year, Value, `1960`:`2018`)
-#unique(WDI_raw$Country)
-WDI_long <- as.data.frame(WDI_long %>% group_by(Year, Indicator) %>% mutate(world_mu = mean(Value, na.rm = T)))
-ind_worldGini <- which(WDI_long$Country == "World" & WDI_long$Indicator == "GINI index (World Bank estimate)")
-WDI_long$Value[ind_worldGini] <- WDI_long$world_mu[ind_worldGini]
-ind_worldIncomeBottom <- which(WDI_long$Country == "World" & WDI_long$Indicator == "Income share held by lowest 20%")
-WDI_long$Value[ind_worldIncomeBottom] <- WDI_long$world_mu[ind_worldIncomeBottom]
-WDI_long$world_mu <- NULL
-WDI_long <- as.data.frame(WDI_long %>% group_by(Year, Indicator) %>% mutate(world_sum = sum(Value, na.rm = T)))
-ind_worldBatDeaths <- which(WDI_long$Country == "World" & WDI_long$Indicator == "Battle-related deaths (number of people)")
-WDI_long$Value[ind_worldBatDeaths] <- WDI_long$world_sum[ind_worldBatDeaths]
-WDI_long$world_sum <- NULL
-WDI_long$Value[which(is.nan(WDI_long$Value))] <- NA
-#unique(WDI_long$Indicator)
-#unique(WDI_raw$Indicator)[grep("Average", unique(WDI_raw$Indicator))]
-#-------------------------------------------------------------
-
-```
-
-
-
-```{r, fig.width=10, fig.height=4, fig.align='center', echo = FALSE}
-
-environmental_indicators <- c("CO2 emissions (metric tons per capita)", 
-                              #"Combustible renewables and waste (% of total energy)",
-                              "CO2 intensity (kg per kg of oil equivalent energy use)",
-                              "Forest area (% of land area)",
-                              "GDP per unit of energy use (PPP $ per kg of oil equivalent)",
-                              "Energy intensity level of primary energy (MJ/$2011 PPP GDP)",
-                              "Renewable energy consumption (% of total final energy consumption)",
-                              "Agricultural methane emissions (thousand metric tons of CO2 equivalent)",
-                              "Agricultural nitrous oxide emissions (thousand metric tons of CO2 equivalent)",
-                              "Methane emissions in energy sector (thousand metric tons of CO2 equivalent)",
-                              "Nitrous oxide emissions in energy sector (thousand metric tons of CO2 equivalent)",
-                              "Fertilizer consumption (kilograms per hectare of arable land)",
-                              "Fertilizer consumption (% of fertilizer production)",
-                              "Adjusted savings: net forest depletion (% of GNI)",
-                              "Adjusted savings: mineral depletion (% of GNI)",
-                              "Adjusted savings: energy depletion (% of GNI)",
-                              "Level of water stress: freshwater withdrawal as a proportion of available freshwater resources",
-                              #"Access to clean fuels and technologies for cooking (% of population)",
-                              "Renewable internal freshwater resources per capita (cubic meters)"
-                              #"Water productivity, total (constant 2010 US$ GDP per cubic meter of total freshwater withdrawal)"
-)
-#-------------------------------------------------------------
-food_sec_indicators <- c("Agricultural land (% of land area)",
-                         "Land under cereal production (hectares)",
-                         "Prevalence of undernourishment (% of population)",
-                         "Food imports (% of merchandise imports)",
-                         "Agriculture, forestry, and fishing, value added per worker (constant 2010 US$)",
-                         "Agriculture, value added per worker (constant 2010 US$)",
-                         "Agriculture, forestry, and fishing, value added (% of GDP)",
-                         #"Agriculture, forestry, and fishing, value added (annual % growth)",
-                         "Food, beverages and tobacco (% of value added in manufacturing)"
-)
-
-economic_growth_indicators <- c(
-  "Oil rents (% of GDP)",
-  "Coal rents (% of GDP)",
-  "Forest rents (% of GDP)",
-  "Natural gas rents (% of GDP)",
-  #"Total natural resources rents (% of GDP)",
-  "Mineral rents (% of GDP)",
-  #"Foreign direct investment, net (BoP, current US$)",
-  "Foreign direct investment, net inflows (BoP, current US$)",
-  #"Foreign direct investment, net inflows (% of GDP)",
-  #"Export value index (2000 = 100)",
-  #"Import value index (2000 = 100)",
-  "GDP per capita (current US$)",
-  "Net ODA received per capita (current US$)",
-  "Trade (% of GDP)",
-  #"GDP growth (annual %)",
-  #"GDP per capita growth (annual %)",
-  "Industry (including construction), value added (% of GDP)",
-  #"Industry (including construction), value added (annual % growth)",
-  "Manufacturing, value added (% of GDP)",
-  #"Manufacturing, value added (annual % growth)",
-  "Machinery and transport equipment (% of value added in manufacturing)",
-  "Services, value added (% of GDP)",
-  #"Services, value added (annual % growth)",
-  "Trade in services (% of GDP)",
-  #"Exports of goods and services (annual % growth)",
-  #"Imports of goods and services (annual % growth)",
-  #"Medium and high-tech Industry (including construction) (% manufacturing value added)",
-  #"Gross capital formation (annual % growth)",
-  #"Gross fixed capital formation (annual % growth)",
-  #"Final consumption expenditure (annual % growth)",
-  "Final consumption expenditure (constant 2010 US$)",
-  "Employment in agriculture (% of total employment) (modeled ILO estimate)",
-  "Employment in industry (% of total employment) (modeled ILO estimate)",
-  "Employment in services (% of total employment) (modeled ILO estimate)",
-  "Labor force participation rate, total (% of total population ages 15+) (modeled ILO estimate)",
-  #"Unemployment, total (% of total labor force) (modeled ILO estimate)",
-  "Industry, value added per worker (constant 2010 US$)",
-  "Industry (including construction), value added per worker (constant 2010 US$)",
-  "Services, value added per worker (constant 2010 US$)"
-)
-#-------------------------------------------------------------
-peaceHRights_indicators <- c("Military expenditure (% of GDP)",
-                             "Ratio of female to male labor force participation rate (%) (modeled ILO estimate)",
-                             "Refugee population by country or territory of origin",
-                             "Internally displaced persons, new displacement associated with conflict and violence (number of cases)",
-                             "Internally displaced persons, total displaced by conflict and violence (number of people)",
-                             "Battle-related deaths (number of people)",
-                             "Literacy rate, youth (ages 15-24), gender parity index (GPI)",
-                             "School enrollment, primary (gross), gender parity index (GPI)",
-                             "School enrollment, primary and secondary (gross), gender parity index (GPI)",
-                             "School enrollment, secondary (gross), gender parity index (GPI)",
-                             "School enrollment, tertiary (gross), gender parity index (GPI)",
-                             "Income share held by lowest 20%"
-)
-#-------------------------------------------------------------
-# economic_equality_indicators <- c("Consumer price index (2010 = 100)",
-#                                   "Income share held by lowest 10%",
-#                                   "Income share held by lowest 20%",
-#                                   #"GINI index (World Bank estimate)",
-#                                   "Risk premium on lending (lending rate minus treasury bill rate, %)",
-#                                   #"Poverty gap at $1.90 a day (2011 PPP) (%)",
-#                                   "Poverty headcount ratio at $1.90 a day (2011 PPP) (% of population)",
-#                                   "Number of people pushed below the $1.90 ($ 2011 PPP) poverty line by out-of-pocket health care expenditure",
-#                                   "Number of people pushed below the $3.10 ($ 2011 PPP) poverty line by out-of-pocket health care expenditure",
-#                                   "Number of people spending more than 10% of household consumption or income on out-of-pocket health care expenditure",
-#                                   "Number of people spending more than 25% of household consumption or income on out-of-pocket health care expenditure",
-#                                   "Mortality rate attributed to unsafe water, unsafe sanitation and lack of hygiene (per 100,000 population)",
-#                                   "People using at least basic sanitation services (% of population)",
-#                                   "People using at least basic sanitation services, rural (% of rural population)",
-#                                   "People using at least basic sanitation services, urban (% of urban population)",
-#                                   "People using safely managed sanitation services (% of population)",
-#                                   "People using safely managed sanitation services, rural (% of rural population)",
-#                                   "People using safely managed sanitation services, urban (% of urban population)",
-#                                   "People using at least basic drinking water services (% of population)",
-#                                   "People using at least basic drinking water services, rural (% of rural population)",
-#                                   "People using at least basic drinking water services, urban (% of urban population)",
-#                                   "Labor force with basic education, female (% of female working-age population with basic education)",
-#                                   "Labor force with basic education, male (% of male working-age population with basic education)"
-# )
-#-------------------------------------------------------------
-infrastructure_indicators <- c(#"Access to electricity (% of population)",
-  "Access to electricity, urban (% of urban population)",
-  "Access to electricity, rural (% of rural population)",
-  "Air transport, freight (million ton-km)",
-  "Air transport, passengers carried",
-  "Railways, goods transported (million ton-km)",
-  "Railways, passengers carried (million passenger-km)"
-  #"Mobile cellular subscriptions (per 100 people)"
-  #"Individuals using the Internet (% of population)"
-)
-#-------------------------------------------------------------
-healthPop_indicators <- c("Mortality rate, under-5 (per 1,000 live births)",
-                          #"Incidence of HIV (% of uninfected population ages 15-49)",
-                          "Life expectancy at birth, total (years)",
-                          # "Life expectancy at birth, male (years)",
-                          # "Life expectancy at birth, female (years)"
-                          "Prevalence of HIV, total (% of population ages 15-49)",
-                          #"Birth rate, crude (per 1,000 people)",
-                          #"Death rate, crude (per 1,000 people)",
-                          "Urban population (% of total population)",
-                          "Rural population (% of total population)",
-                          #"Urban population growth (annual %)",
-                          #"Population growth (annual %)",
-                          #"Population ages 0-14, total",
-                          #"Population ages 0-14 (% of total)",
-                          #"Population ages 15-64, total",
-                          #"Population ages 15-64 (% of total)",
-                          #"Population ages 65 and above, total",
-                          #"Population ages 65 and above (% of total)",
-                          "Population density (people per sq. km of land area)",
-                          "Population growth (annual %)",
-                          "Physicians (per 1,000 people)",
-                          # "Population, total",
-                          #"Age dependency ratio, young (% of working-age population)",
-                          #"Age dependency ratio, old (% of working-age population)",
-                          "Age dependency ratio (% of working-age population)",
-                          "Adolescent fertility rate (births per 1,000 women ages 15-19)"
-                          
-)
-#-------------------------------------------------------------
-educ_indicators <- c("Government expenditure on education, total (% of GDP)",
-                     "School enrollment, primary (% gross)",
-                     "School enrollment, secondary (% gross)",
-                     "School enrollment, tertiary (% gross)",
-                     #"Adjusted savings: education expenditure (current US$)",
-                     "Adjusted savings: education expenditure (% of GNI)",
-                     "Expenditure on primary education (% of government expenditure on education)",
-                     "Expenditure on secondary education (% of government expenditure on education)",
-                     "Expenditure on tertiary education (% of government expenditure on education)",
-                     "Government expenditure on education, total (% of government expenditure)",
-                     "Literacy rate, adult total (% of people ages 15 and above)",
-                     "Literacy rate, youth total (% of people ages 15-24)"
-)
-#-------------------------------------------------------------
-indicator_vec <- c(healthPop_indicators, food_sec_indicators, educ_indicators,
-                   economic_growth_indicators, #economic_equality_indicators,
-                   environmental_indicators, peaceHRights_indicators,
-                   infrastructure_indicators)
-list_groups <- list(healthPop_indicators, food_sec_indicators, educ_indicators,
-                    economic_growth_indicators, #economic_equality_indicators,
-                    environmental_indicators, peaceHRights_indicators,
-                    infrastructure_indicators)
-group_names <- c("Health/Population", "Food Security", "Education",
-                 "Economic Growth", #"Economic Equality",
-                 "Environmental Sustainability", "Equality, Peace, Human Rights", "Infrastructure")
-names(list_groups) <- group_names
-group_info <- list(list_groups, group_names)
-n_groups <- length(group_names)
-#-------------------------------------------------------------
-#"Least developed countries: UN classification"
-#"Sub-Saharan Africa (excluding high income)"
-#"Lower middle income"
-these_countries <- "World"
-#-------------------------------------------------------------
-df_WDI <- subset(WDI_long, Country %in% c(these_countries))
-df_WDI <- subset(df_WDI, Indicator %in% indicator_vec)
-df_WDI <- df_WDI %>% spread(Indicator, Value)
-df_WDI$Year <- as.integer(df_WDI$Year)
-df_WDI <- subset(df_WDI, Year >= 1990)
-df_WDI <- subset(df_WDI, Year <= 2016)
-#df_WDI$`Individuals using the Internet (% of population)`[which(df_WDI$Year < 1994)] <- 0
-#-------------------------------------------------------------
-year_vec <- df_WDI$Year
-df_WDI <- df_WDI[, -c(1, 2)]
-out <- apply(df_WDI, 2, function(x) length(which(is.na(x))))
-#table(out)
-ind_rm <- which(as.numeric(out) > 10)
-#length(ind_rm)
-df_WDI <- df_WDI[, -ind_rm]
-#ncol(df_WDI)
-ind_rp <- which(is.na(df_WDI[1, ]))
-if(length(ind_rp) != 0){
-  for(i in 1:length(ind_rp)){
-    df_WDI[1, ind_rp[i]] <- mean(df_WDI[, ind_rp[i]], na.rm = T)
-  }
-}
-ind_rp <- which(is.na(df_WDI[nrow(df_WDI), ]))
-for(i in 1:length(ind_rp)){
-  df_WDI[nrow(df_WDI), ind_rp[i]] <- mean(df_WDI[, ind_rp[i]], na.rm = T)
-}
-
-#df_WDI <- as.data.frame(na.approx(df_WDI[, -c(1, 2)]))
-df_WDI <- as.data.frame(na.approx(df_WDI))
-#class(df_WDI)
-out <- apply(df_WDI, 2, function(x) length(which(is.na(x))))
-table(out)
-#which(as.numeric(out) > 0)
-#colnames(df_WDI)[which(as.numeric(out) > 0)]
-#-----------------------------------------------------------
-track_inverse <- c("Agricultural methane emissions (thousand metric tons of CO2 equivalent)",
-                   "Agricultural nitrous oxide emissions (thousand metric tons of CO2 equivalent)",
-                   "Methane emissions in energy sector (thousand metric tons of CO2 equivalent)",
-                   "Nitrous oxide emissions in energy sector (thousand metric tons of CO2 equivalent)",
-                   "CO2 emissions (metric tons per capita)",
-                   "CO2 intensity (kg per kg of oil equivalent energy use)",
-                   "Adjusted savings: energy depletion (% of GNI)",
-                   "Adjusted savings: net forest depletion (% of GNI)",
-                   "Adjusted savings: mineral depletion (% of GNI)",
-                   "Adolescent fertility rate (births per 1,000 women ages 15-19)",
-                   "Age dependency ratio (% of working-age population)",
-                   "Children out of school (% of primary school age)",
-                   "Military expenditure (% of GDP)",
-                   "Mortality rate, under-5 (per 1,000 live births)",
-                   "Prevalence of undernourishment (% of population)",
-                   "Refugee population by country or territory of origin",
-                   "Prevalence of HIV, total (% of population ages 15-49)")
-ind_track_inverse <- which(colnames(df_WDI) %in% track_inverse)
-df_WDI[, ind_track_inverse] <- 1 / df_WDI[, ind_track_inverse]
-colnames(df_WDI)[ind_track_inverse] <- paste("1 /", colnames(df_WDI)[ind_track_inverse])
-for(i in 1:length(list_groups)){
-  ind_chng <- which(list_groups[[i]] %in% track_inverse)
-  list_groups[[i]][ind_chng] <- paste("1 /", list_groups[[i]][ind_chng])
-  
-}
-#-----------------------------------------------------------
-mat_zWDI <- scale(df_WDI)
-mat_pctDiff <- mat_zWDI
-row.names(mat_pctDiff) <- year_vec
-#mat_pctDiff <- diff(as.matrix(log(df_WDI)))
-
-# mat_pctDiff <- diff(as.matrix(df_WDI)) / as.matrix(df_WDI[-nrow(df_WDI), ])
-# row.names(mat_pctDiff) <- year_vec[-1]
-
-# library(tidyquant)
-# ema_per <- 2
-# mat_pctDiff <- apply(df_WDI, 2, function(x) x - EMA(x, ema_per))
-# row.names(mat_pctDiff) <- year_vec
-# mat_pctDiff <- mat_pctDiff[-c(1:(ema_per - 1)), ]
-# mat_pctDiff[is.nan(mat_pctDiff)] <- 0
-# mat_pctDiff[is.infinite(mat_pctDiff)] <- 0
-#-----------------------------------------------------------
-df_plot <- as.data.frame(mat_pctDiff)
-df_plot$Year <- year_vec[-1]
-df_plot <- df_plot %>% gather_("Indicator", "Value", colnames(df_WDI))
-df_plot$Type <- NA
-df_plot$Type[which(df_plot$Indicator %in% healthPop_indicators)] <- "Health/Population"
-#df_plot$Type[which(df_plot$Indicator %in% economic_equality_indicators)] <- "Economic Equality"
-df_plot$Type[which(df_plot$Indicator %in% educ_indicators)] <- "Education"
-df_plot$Type[which(df_plot$Indicator %in% economic_growth_indicators)] <- "Economic Growth"
-df_plot$Type[which(df_plot$Indicator %in% environmental_indicators)] <- "Environmental Sustainability"
-df_plot$Type[which(df_plot$Indicator %in% food_sec_indicators)] <- "Food Security"
-df_plot$Type[which(df_plot$Indicator %in% infrastructure_indicators)] <- "Infrastructure"
-df_plot$Type[which(df_plot$Indicator %in% peaceHRights_indicators)] <- "Equality, Peace, Human Rights"
-#------------------------------------------------------------
-# gg <- ggplot(df_plot, aes(x = Year, y = Value, group = Indicator, color = Indicator))
-# gg <- gg + geom_line()
-# gg <- gg + facet_wrap(~ Type, nrow = 3, scales = "free")
-# gg <- gg + theme(legend.position = "none")
-# gg
-#------------------------------------------------------------
-check_on_data <- F
-if(check_on_data){
-  this_type <- "Health/Population"
-  df_plot2 <- subset(df_plot, Type == this_type)
-  gg <- ggplot(df_plot2, aes(x = Year, y = Value, group = Indicator, color = Indicator))
-  gg <- gg + geom_line(lwd = 1.1)
-  gg <- gg + geom_point(size = 2)
-  gg <- gg + labs(title = this_type)
-  gg_health <- gg
-  gg
-  this_type <- "Education"
-  df_plot2 <- subset(df_plot, Type == this_type)
-  gg <- ggplot(df_plot2, aes(x = Year, y = Value, group = Indicator, color = Indicator))
-  gg <- gg + geom_line(lwd = 1.1)
-  gg <- gg + geom_point(size = 2)
-  gg <- gg + labs(title = this_type)
-  gg_educ <- gg
-  gg
-  this_type <- "Economic Growth"
-  df_plot2 <- subset(df_plot, Type == this_type)
-  gg <- ggplot(df_plot2, aes(x = Year, y = Value, group = Indicator, color = Indicator))
-  gg <- gg + geom_line(lwd = 1.1)
-  gg <- gg + geom_point(size = 2)
-  gg <- gg + labs(title = this_type)
-  gg_econ <- gg
-  gg
-  # this_type <- "Economic Equality"
-  # df_plot2 <- subset(df_plot, Type == this_type)
-  # gg <- ggplot(df_plot2, aes(x = Year, y = Value, group = Indicator, color = Indicator))
-  # gg <- gg + geom_line(lwd = 1.1)
-  # gg <- gg + geom_point(size = 2)
-  # gg <- gg + labs(title = this_type)
-  # gg_employ <- gg
-  # gg
-  this_type <- "Environmental Sustainability"
-  df_plot2 <- subset(df_plot, Type == this_type)
-  gg <- ggplot(df_plot2, aes(x = Year, y = Value, group = Indicator, color = Indicator))
-  gg <- gg + geom_line(lwd = 1.1)
-  gg <- gg + geom_point(size = 2)
-  gg <- gg + labs(title = this_type)
-  gg_environ <- gg
-  gg
-  this_type <- "Food Security"
-  df_plot2 <- subset(df_plot, Type == this_type)
-  gg <- ggplot(df_plot2, aes(x = Year, y = Value, group = Indicator, color = Indicator))
-  gg <- gg + geom_line(lwd = 1.1)
-  gg <- gg + geom_point(size = 2)
-  gg <- gg + labs(title = this_type)
-  gg_pop <- gg
-  gg
-  this_type <- "Infrastructure"
-  df_plot2 <- subset(df_plot, Type == this_type)
-  gg <- ggplot(df_plot2, aes(x = Year, y = Value, group = Indicator, color = Indicator))
-  gg <- gg + geom_line(lwd = 1.1)
-  gg <- gg + geom_point(size = 2)
-  gg <- gg + labs(title = this_type)
-  gg_infrastr <- gg
-  gg
-  this_type <- "Equality, Peace, Human Rights"
-  df_plot2 <- subset(df_plot, Type == this_type)
-  gg <- ggplot(df_plot2, aes(x = Year, y = Value, group = Indicator, color = Indicator))
-  gg <- gg + geom_line(lwd = 1.1)
-  gg <- gg + geom_point(size = 2)
-  gg <- gg + labs(title = this_type)
-  gg_infrastr <- gg
-  gg
-  
-}
-
-```
-
-```{r, fig.align='center', echo=FALSE}
-#------------------------------------------------------------
-fun_env = list(eigenvalue_density_plot = T,
-               pca_var_plot = F,
-               pca_ind_plot = F,
-               group_info,
-               quietly = F)
-this_fig_title <- NULL
-list_out <- signals_from_noise(mat_pctDiff, fig_title_eigDens = this_fig_title, fun_env)
-# list_out <- list(mat_loads_sig, mat_loads_rot_sig, mat_loads, mat_loads_rot, mat_inData_sig, eigvals_sig, mat_eigvecs_sig, eigvals, mat_eigvecs)
-mat_loads_sig <- list_out[[1]]
-mat_loads_rot_sig <- list_out[[2]]
-mat_pctDiff_sig <- list_out[[5]]
-mat_eigvecs_sig <- list_out[[7]]
-
-
-```
-
-
-
-```{r, fig.width=7, fig.height=12, fig.align='center', echo=FALSE}
-
-this_fig_title <- NULL
-plot_signals_against_avg(mat_pctDiff_sig, mat_pctDiff,
-                         fig_title = this_fig_title,
-                         facet_ncol = 1)
-
-```
-
-
-```{r, fig.width=15, fig.height=12, fig.align='center', echo=FALSE}
-
-
-#group_colors <- RColorBrewer::brewer.pal(n = n_groups, "Dark2")
-# "Darjeeling"
-group_colors <- wesanderson::wes_palette("Darjeeling1", n = n_groups, type = "continuous")
-# signal_names <- c("US / Emerg. Markets,\nEnergy, Blockchain", "Precious metals", "FOREX", "US Bonds", "Agriculture", "Industrial metals")
-signal_names <- NULL
-fun_env <- list(group_info, signal_names, group_colors)
-this_fig_title <- NULL
-interpret_loadings(mat_loads_sig, fig_title = this_fig_title, fun_env)
-
-```
-
-
-```{r, fig.width=8, fig.height=6, fig.align='center', echo = FALSE}
-
-#=======================================================================
-# Conventional risk-reward frontier
-n_items <- nrow(mat_loads_rot_sig)
-C_targ <- 1
-nab_C <- rep(1, n_items)
-#------------------------------------
-# Get pct return vec and correlation matrix only over a period equal in length to that of the test period.
-#ind_equal_test <- (nrow(mat_pctDiff) - length(ind_test)):nrow(mat_pctDiff)
-#------------------------------------
-# Correlation matrix
-#cormat <- cor(mat_pctDiff[ind_equal_test, ])
-cormat <- round(cor(mat_pctDiff), 7)
-#cormat_test <- cor(mat_pctDiff_test)
-#cormat <- round(mat_loads_rot_sig %*% t(mat_loads_rot_sig), 7)
-#cormat <- round(mat_loads_sig %*% t(mat_loads_sig), 7)
-# mse <- mean((cor(mat_pctDiff) - cormat)^2)
-# mse
-#------------------------------------
-# Expected returns vector
-#nab_pctRet <- apply(mat_pctDiff[ind_equal_test, ], 2, function(x) prod(1 + x)) - 1
-nab_pctRet <- apply(mat_pctDiff, 2, function(x) prod(1 + x)) - 1
-#nab_pctRet_test <- apply(mat_pctDiff_test, 2, function(x) prod(1 + x)) - 1
-#------------------------------------
-mat_nab <- cbind(nab_pctRet, nab_C)
-n_points_on_frontier <- 50
-#------------------------------------
-list_out <- get_optimal_frontier(cormat, mat_nab,
-                                 Rtarg_limits = c(0.01, 3),
-                                 n_points_on_frontier = n_points_on_frontier,
-                                 utility_interpretation = F,
-                                 backtest_info = NULL,
-                                 frontier_and_budget_plot = T,
-                                 list_groups = list_groups,
-                                 group_names = group_names,
-                                 fig_title = "Figure 8: Optimal portfolio frontier")
-
-df_frontier <- list_out[[2]]
-df_backtest <- list_out[[3]]
-#------------------------------------
-```
-
-
-
-
-```{r, fig.width=8, fig.height=6, fig.align='center', echo = FALSE}
-
-list_out <- get_optimal_frontier(cormat, mat_nab,
-                                 Rtarg_limits = c(0.01, 25),
-                                 n_points_on_frontier = n_points_on_frontier,
-                                 utility_interpretation = T,
-                                 backtest_info = NULL,
-                                 frontier_and_budget_plot = T,
-                                 list_groups = list_groups,
-                                 group_names = group_names,
-                                 fig_title = "Figure 3: Optimal portfolio frontier, utility weights")
-
-df_frontier <- list_out[[2]]
-df_backtest <- list_out[[3]]
-
-```
-
-
-
-
-
-
-
-
-## Discussion and conculsions
 
 * When tackling complex, seemingly intangible, subjects such as "sustainability", or "resilience", or, in the case of this paper, "tradeoffs between strategic objectives", progress is often made by attempting to formalize---or otherwise bring down to earth---a longstanding, high level (and, at times, politically driven), conceptual narrative of the issue in terms of measurable inputs and outputs. Regardless of the degree of success in bringing the problem down to earth, the quantitative grappling with it forces us to examine it in greater granularity than is possible in the high level narrative. New problems, and/or connections to old problems, are invariably discovered along the way, unnoticed until now due to fixation on certain aspects of the problem that are emphasized in the conceptual narrative. [It is worth mentioning that this process is not subject to political pressures, and does not allow us to substitute real progress on the problem with conferences and rhetoric.]
 
@@ -3033,253 +1942,4 @@ df_backtest <- list_out[[3]]
 
 * Having identified tradeoffs, the natural next question from a donor's perspective is: how to optimize investment across these tradeoffs? ...which then turns out to be intimately bound up with the issue of risk...portfolio optimization. An unsuspected opportunity.
 
-
-
-
-
-
-## scraps:
-
-
-```{r, echo=F}
-
-Signals_from_noise <- function(mat_pctDiff, varimax_rot = T,
-                               list_groups = NULL,
-                               group_names = NULL,
-                               pca_var_plot = F,
-                               pca_ind_plot = F,
-                               eigenvalue_density_plot = F,
-                               loadings_plot = T,
-                               sig_ts_plot = F,
-                               sig_corr_plot = F,
-                               yearly = F){
-  varNames_ordered <- colnames(mat_pctDiff)
-  date_vec <- row.names(mat_pctDiff)
-  if(yearly){date_vec <- as.integer(date_vec)}
-  n_obs <- ncol(mat_pctDiff)
-  #----
-  if(!is.null(list_groups)){
-    group_vec <- rep(NA, n_obs)
-    for(i in 1:length(list_groups)){
-      this_group_vec <- list_groups[[i]]
-      this_group_name <- group_names[i]
-      group_vec[which(varNames_ordered %in% this_group_vec)] <- this_group_name
-      
-    }
-  }
-  #----
-  if(pca_ind_plot){
-    res <- FactoMineR::PCA(t(mat_pctDiff), graph = F)
-    gg <- factoextra::fviz_pctDiffd(res, habillage = factor(group_vec), addEllipses = T)
-    print(gg)
-  }
-  #----
-  res <- FactoMineR::PCA(mat_pctDiff, ncp = ncol(mat_pctDiff), graph = F)
-  #----
-  if(pca_var_plot){
-    gg <- factoextra::fviz_pca_var(res, habillage = factor(group_vec))
-    print(gg)
-  }
-  # library(mclust)
-  # mc <- Mclust(t(mat_pctDiff))
-  # summary(mc)
-  # View(mc$classification)
-  # factoextra::fviz_cluster(mc, frame.type = "norm", geom = "text")
-  #--Extraction of signals (main PCs)
-  eigvals <- as.data.frame(res$eig)$eigenvalue
-  eigval_max <- max(eigvals)
-  N_t <- nrow(mat_pctDiff)
-  N_c <- ncol(mat_pctDiff)
-  Q <- N_t / N_c
-  s_sq <- 1 - eigval_max / N_c
-  #s_sq <- 1
-  eigvals_rand_max <- s_sq * (1 + 1 / Q + 2 / sqrt(Q))
-  eigval_rand_min <- s_sq * (1 + 1 / Q - 2 / sqrt(Q))
-  lam <- seq(eigval_rand_min, eigvals_rand_max, 0.001)
-  dens_rand <- Q / (2 * pi * s_sq) * sqrt((eigvals_rand_max - lam) * (lam - eigval_rand_min)) / lam
-  df_e <- data.frame(eigenvalues = eigvals)
-  #--Eigenvalue density vs. random matrix eigenvalue density
-  if(eigenvalue_density_plot){
-    gg <- ggplot()
-    gg <- gg + geom_density(data = df_e, aes(x = eigenvalues, color = "Correlation Matrix"), lwd = 1.1)
-    gg <- gg + geom_line(data = data.frame(x = lam, y = dens_rand), aes(x = x, y = y, color = "Random matrix"), lwd = 1.1)
-    gg <- gg + scale_colour_manual(name = "Eigenvalue density",
-                                   values = c(`Correlation Matrix` = "blue", `Random matrix` = "orange"))
-    print(gg)
-  }
-  #-----------------------------------------
-  ind_deviating_from_noise <- which(eigvals > eigvals_rand_max)# (eigvals_rand_max + 5 * 10^-1))
-  mat_Loads <- res$var$coord
-  mat_signal_Loads <- mat_Loads[, ind_deviating_from_noise]
-  mat_Loads_rot <- varimax(mat_Loads)[[1]]
-  mat_signal_Loads_rot <- mat_Loads_rot[, ind_deviating_from_noise]
-  mat_eigvecs <-  mat_Loads %*% diag(1 / sqrt(eigvals))
-  eigvals_sig <- eigvals[ind_deviating_from_noise]
-  n_signals <- length(eigvals_sig)
-  print(paste("Number of signals: ", n_signals))
-  mat_signal_eigvecs <- mat_eigvecs[, ind_deviating_from_noise]
-  mat_signal_ts <- mat_pctDiff %*% mat_signal_eigvecs
-  if(n_signals == 1){
-    mat_signal_ts <- mat_signal_ts / eigvals_sig
-  }else{
-    mat_signal_ts <- mat_signal_ts %*% diag(1 / eigvals_sig)
-  }
-  # Set sign of eigenvectors such that they
-  # best conform to the input time series
-  #inData_avg <- mat_pctDiff %*% rep(1, n_obs) * 1 / n_obs
-  inData_avg <- rowMeans(mat_pctDiff)
-  if(n_signals == 1){
-    #sse <- sum((mat_signal_ts - inData_avg)^2)
-    #sse_neg <- sum((-mat_signal_ts - inData_avg)^2)
-    mse <- mean((mat_signal_ts - inData_avg)^2)
-    mse_neg <- mean((-mat_signal_ts - inData_avg)^2)
-    if(mse_neg < mse){
-      mat_signal_eigvecs <- -mat_signal_eigvecs
-      mat_signal_ts <- -mat_signal_ts
-    }
-  }else{
-    for(i in 1:n_signals){
-      # sse <- sum((mat_signal_ts[, i] - inData_avg)^2)
-      # sse_neg <- sum((-mat_signal_ts[, i] - inData_avg)^2)
-      # sse_vec <- c(sse, sse_neg)
-      mse <- mean((mat_signal_ts[, i] - inData_avg)^2)
-      mse_neg <- mean((-mat_signal_ts[, i] - inData_avg)^2)
-      if(mse_neg < mse){
-        mat_signal_eigvecs[, i] <- -mat_signal_eigvecs[, i]
-        mat_signal_ts[, i] <- -mat_signal_ts[, i]
-      }
-    }
-    
-  }
-  #------------------------------------------------------------
-  # Plot loadings barcharts
-  if(varimax_rot){
-    df_plot <- data.frame(ts_id = varNames_ordered, mat_signal_Loads_rot)
-  }else{
-    df_plot <- data.frame(ts_id = varNames_ordered, mat_signal_Loads)
-  }
-  signal_id <- paste("Signal", c(1:n_signals))
-  colnames(df_plot)[2:(n_signals + 1)] <- signal_id
-  gathercols <- as.character(signal_id)
-  df_plot <- gather_(df_plot, "Signal", "Loading", gathercols)
-  #--
-  if(!is.null(list_groups)){
-    # df_plot$Type <- NA
-    # u <- as.character(df_plot$ts)
-    # for(i in 1:length(list_groups)){
-    #   ind <- which(u %in% list_groups[[i]])
-    #   df_plot$Type[ind] <- group_names[i]
-    # }
-    # df_plot$Type <- as.factor(df_plot$Type)
-    df_plot$Type <- factor(group_vec)
-    xx <- df_plot$Type
-    df_plot$ts_id <- factor(df_plot$ts_id, levels = unique(df_plot$ts_id[order(xx)]))
-    gg <- ggplot(df_plot, aes(x = ts_id, y = Loading, fill = Type))
-  }else{
-    gg <- ggplot(df_plot, aes(x = ts_id, y = Loading))
-  }
-  #--
-  gg <- gg + geom_bar(stat = "identity", position = "dodge")
-  gg <- gg + facet_wrap(~ Signal, nrow = 1)
-  #gg <- gg + labs(title = )
-  gg <- gg + theme(axis.text.y = element_text(face = "bold", size = 10),
-                   axis.text.x = element_text(face = "bold", size = 10),
-                   axis.title.y = element_text(face = "bold", size = 10),
-                   axis.title.x = element_text(face = "bold", size = 10))
-  gg <- gg + coord_equal()
-  # if(N_c <= 50){
-  #   gg <- gg + theme(axis.text.x = element_text(angle = 60, hjust = 1),
-  #                    axis.title.y = element_blank())
-  # }else{
-  #   gg <- gg + theme(axis.text.x = element_blank(),
-  #                    axis.title.y = element_blank())
-  # }
-  gg <- gg + coord_flip()
-  if(loadings_plot){print(gg)}
-  #---------------------------------
-  # Plot signal ts against average
-  df_plot1 <- data.frame(Date = date_vec, inData_avg)
-  df_plot2 <- data.frame(Date = date_vec, mat_signal_ts)
-  df_plot1$Date <- factor(format(df_plot1$Date, format = "%y-%m-%d%"), ordered = T)
-  df_plot2$Date <- factor(format(df_plot2$Date, format = "%y-%m-%d%"), ordered = T)
-  xAxis_labels <- df_plot1$Date[seq(1, nrow(df_plot1), length.out = 10)]
-  signal_id <- paste("Signal", c(1:n_signals))
-  colnames(df_plot2)[2:(n_signals + 1)] <- signal_id
-  gathercols <- signal_id
-  df_plot2 <- df_plot2 %>% gather_("Signal", "Value", gathercols)
-  gg <- ggplot()
-  gg <- gg + geom_line(data = df_plot1, aes(x = Date, y = inData_avg, group = 1), color = "orange", lwd = 2)
-  gg <- gg + geom_line(data = df_plot2, aes(x = Date, y = Value, group = 1))
-  gg <- gg + scale_x_discrete(breaks = xAxis_labels)
-  gg <- gg + facet_wrap(~ Signal, ncol = 1)
-  gg <- gg + theme(axis.title.y = element_blank())
-  gg
-  if(sig_ts_plot){print(gg)}
-  #--Correlation matrix
-  if(sig_corr_plot){
-    # t(mat_signal_ts) %*% mat_signal_ts
-    # t(mat_signal_eigvecs) %*% mat_signal_eigvecs
-    rcorr_out <- rcorr(mat_signal_ts)
-    cormat <- rcorr_out$r
-    print(cormat)
-    pmat <- rcorr_out$P
-    corrplot(cormat, type="upper", order="hclust", p.mat = pmat, sig.level = 0.01, insig = "blank", tl.col = "black", tl.srt = 45)
-    
-  }
-  #---------------------------------
-  df_sig_ts <- data.frame(date = date_vec, ts_sigs = mat_signal_ts)
-  #df_sig_eigvecs <- data.frame(Loadings_sigs_rot = mat_signal_Loads_rot)
-  list_out <- list(df_sig_ts, mat_signal_eigvecs, mat_eigvecs, mat_signal_Loads, mat_signal_Loads_rot, eigvals_sig, eigvals)
-  return(list_out)
-}
-
-
-
-# wStar_normd <- wStar_sig1 / max(abs(wStar_sig1))
-# #w_star_normd <- wStar_trad / max(abs(wStar_trad))
-# varNames_ordered <- colnames(mat_pctDiff)
-# df_plot <- data.frame(ts_id = varNames_ordered, mat_Loads_rot, wStar_normd)
-# signal_id <- paste("Signal", c(1:n_sigs))
-# colnames(df_plot)[2:(n_sigs + 1)] <- signal_id
-# colnames(df_plot)[ncol(df_plot)] <- "Portfolio weights"
-# gathercols <- colnames(df_plot)[-1]
-# df_plot <- gather_(df_plot, "Signal", "Loading", gathercols)
-# #--
-# n_obs <- ncol(mat_pctDiff)
-# group_vec <- rep(NA, n_obs)
-# for(i in 1:length(list_groups)){
-#   this_group_vec <- list_groups[[i]]
-#   this_group_name <- group_names[i]
-#   group_vec[which(varNames_ordered %in% this_group_vec)] <- this_group_name
-# 
-# }
-# 
-# df_plot$Type <- factor(group_vec)
-# xx <- df_plot$Type
-# df_plot$ts_id <- factor(df_plot$ts_id, levels = unique(df_plot$ts_id[order(xx)]))
-# gg <- ggplot(df_plot, aes(x = ts_id, y = Loading, fill = Type))
-# #--
-# gg <- gg + geom_bar(stat = "identity", position = "dodge")
-# gg <- gg + facet_wrap(~ Signal, nrow = 1)
-# #gg <- gg + labs(title = )
-# gg <- gg + theme(axis.text.y = element_text(face = "bold", size = 10),
-#                  axis.text.x = element_text(face = "bold", size = 10),
-#                  axis.title.y = element_text(face = "bold", size = 10),
-#                  axis.title.x = element_text(face = "bold", size = 10))
-# gg <- gg + coord_flip()
-# gg
-
-
-
-# 
-
-```
-
-
-<!-- Little or no care is taken, however, to address the tradeoffs that exist between investments in each of these thematic areas. It is well known, for example, that agriculture is often detrimental to the environment. This implies a tradeoff between the food security and environmental objectives. Economic growth, in its turn, is inversely related to both agricultural and environmental objectives. In many parts of the world, there is also a longstanding tradeoff between economic growth and economic equality. Investments in one thematic area can thus offset returns to investments in other thematic areas. -->
-
-<!-- Moreover, conventional -->
-
-<!-- ### I.ii Proposed solution: a PCA approach -->
-
-<!-- In this concept note, I propose a rigorous, precise method for identifying and quantifying tradeoffs and synergies between strategic objectives (SOs). The method is based on principle components analysis (PCA) of a large dataset of development indicators spanning the usual thematic areas. (For a good overview of PCA, see Abdi & Williams (2010).) A variant of this approach has been applied in the analysis of financial market time series (Gopikrishnan et al., 2001). Here I enhance such precedents by also leveraging a rigorous signal selecting technique developed in the study of physical systems (Dehesa et al., 1983). -->
+## 7. Conclusion
