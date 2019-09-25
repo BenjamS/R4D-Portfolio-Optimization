@@ -1,0 +1,85 @@
+---
+title: Risk-adjusted optimal balancing of investments across staple crop research
+  programs
+author: "Ben Schiek"
+date: "September 23, 2019"
+output:
+  pdf_document:
+    toc: yes
+    toc_depth: '4'
+    df_print: kable
+    fig_caption: yes
+    latex_engine: xelatex
+    includes:
+      in_header: preamble.tex
+mainfont: Calibri Light
+bibliography: R4D Portfolio Optimization.bib
+biblio-style: apalike
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+
+## 1. Introduction
+
+Agricultural research for development (AR4D) fund allocation processes are increasingly fraught with contentious choices between many worthwhile alternatives. How to fairly and optimally allocate an ever-shrinking budget across a portfolio of research programs that are all, in one way or another, vitally important? Here I examine the possibility of adapting portfolio optimization tools developed in the financial context in order to address this issue.
+
+In particular, I walk through an adaptation of Mean-Variance (MV) Analysis, first conceptualized by Markowitz () and later formalized by Merton (). The principal outputs of MV Analysis are 1) the MV frontier, which indicates the expected portfolio return associated with any level of risk tolerance, and 2) the vector of budget shares that must be allocated to each portfolio item in order to achieve a given risk-reward position on the MV frontier.
+
+It is worth emphasizing from the outset that this goes far beyond the "priority setting exercises", with which many donors, development agencies, and AR4D institutions may be familiar. Whereas priority setting exercises typically culminate in the ranking of research alternatives into research priorities, the final output of the method proposed here are the precise budget shares that must be allocated to each research program in order to maximize portfolio net benefit, given a certain risk tolerance specified by the donor. The explicit accounting of risk involved in MV Analysis also merits special emphasis, as risk accounting in the AR4D context is, by comparison, quite rudimentary.
+
+After reviewing some of the cultural and methodological issues that motivate and constrain this work, I first walk through an application of MV Analysis in its native financial context using daily price data downloaded from yahoo finance. Then, I move to an application in the AR4D context using yearly farmgate price data for staple crops downloaded from the Food and Agriculture Organization (FAO), for various geographical regions.
+
+In both applications, I first decompose the data into a loadings matrix in order to isolate and interpret key trends or "signals" in the data. I separate signals from noise using an old but little-utilized technique developed in the study of physical systems. Once signals have been isolated, they are interpreted in concrete terms based on how much the different portfolio items load onto them. A varimax rotation of the loadings matrix turns out to be of great assistance in this task. The interpretation of the signals is then further confirmed and illustrated by constructing the signal time series and then plotting them against their respective highest loading price series. The highest loading price series are seen to track their respective signals closely.
+
+This exploratory market analysis is a quick and inexpensive way to examine how prices are interacting with each other, and to identify which price series appear to be moving the market. This is important information to take into consideration could serve to inform and orient policy discussions, and to prepare the ground for the subsequent question of optimal funding allocations is addressed. Given enough data, it could also be used to 
+
+The AR4D and financial planning contexts differ in many important ways. The AR4D donor wants the price of staples to go down.
+
+
+## 2. Cultural background: Mills' missing "fifth step"
+
+For a long time now, AR4D centers have been under increasing pressure to "do a lot more with a lot less" @Alston1995  
+
+
+### 3 Methodological background
+
+### 3.1 Isolating and interpreting signals
+
+*Given enough observations, a large matrix of time series data $X$ can be condensed into just a handful of "signals" that capture the majority of the movement in the data. Formally, these signals are defined
+
+\begin{equation}
+S = X \bar{P}
+(\#eq:signals)
+\begin{equation}
+
+where $P$ is the matrix of eigenvectors of $ X'X $, and $ \tilde{P} $  \@ref(eq:signals) is this same matrix truncated to retain only the eigenvectors containing significant information---i.e. information that can meaningfully be distinguished from noise. A number of different rules of thumb are often followed to determing how many vectors of $P$ should be retained. "Keep only the signals that describe 90% of the variation", for example, or "the elbow rule", or "keep only those with eigenvalues greater than 1". The perils of using these arbitrary cutoff rules has been well documented (). Here I follow ... () who apply a more rigorous technique developed by physicists in the 1960s. The technique is based on a key theorem of random matrix theory that says that the distribution of the eigenvalues of any random correlation matrix is a function of the dimensions of the underlying matrix. Physicists used this theorem to identify the important components ("collective modes") in complexly interacting systems by comparing the eigenvalue density plot of their data correlation matrix against that of a random matrix. The eigenvalues of the data correlation matrix that extend beyond the random matrix eigenvalue density can be identified as corresponding to components of the system that can be meaningfully distinguished from noise.
+
+This method is useful for identifying just a few key crosscutting tendencies that are broadly characteristic of the entire dataset. In other words,  This effectively reduces the problem of making sense of several dozen complexly interacting indicators to the more mangeable problem of making sense of just a few crosscutting trends.
+
+
+*Having separated signals from noise, the next step is to attempt to attribute meaning to the signals. This can be achieved by looking at a varimax rotation of the loadings corresponding to each signal. Signal loadings are defined
+
+\begin{equation}
+\tilde{L} = \tilde{P}\tilde{\Lambda}^{1/2}
+(\#eq:binom)
+\begin{equation}
+
+where $\Lambda$ is the diagonal matrix of eigenvalues of $X'X$, and where, as before, the squiggly lines on top indicate that the respective matrix is truncated to contain only the columns that can be meaningfully separated from noise.
+
+The varimax rotation works by maximizing the spareseness of the loadings matrix.
+
+The rotated loadings are then defined
+
+\begin{equation}
+L_{\circlearrowright} = VL
+(\#eq:binom)
+\begin{equation}
+
+
+$$R = \mathbf{w \cdot r}, \:\:\: C=\mathbf{w\cdot1}, \:\:\: V = \mathbf{w} \cdot K \cdot \mathbf{w} \tag{1}$$
+
+
+$$\max_{\mathbf{w}}\:R \:\:\:\:s.t. \:\:\: C=\overline{C} \:, \:\:\: V = \overline{V} \tag{2}$$
