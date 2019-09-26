@@ -39,3 +39,55 @@ blah blah remember that in equation (\ref{eq:this_eq})
 <!-- https://sv.overleaf.com/learn/latex/Cross_referencing_sections_and_equations -->
 
 ## References
+
+
+
+
+
+
+
+
+
+
+
+
+---
+title: "This title"
+author:
+  - name: "Ben Schiek"
+    affiliation: Center for International Tropical Agriculture
+    email: b.schiek@cgiar.org
+output: 
+  BiocStyle::pdf_document:
+  number_sections: yes
+  toc: no
+bibliography: R4D Portfolio Optimization.bib
+keywords: keyword, fun, happiness"
+abstract: Here is my abstract. super fun.
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+## Introduction
+
+blah blah...
+
+\begin{equation}
+S = X \bar{P}
+\label{eq:this_eq}
+\end{equation}
+
+For a long time now, AR4D centers have been under increasing pressure to "do a lot more with a lot less" [@Alston1995]
+
+\begin{equation}
+1+1=2
+\end{equation}
+
+
+## Later on
+blah blah remember that in equation (\ref{eq:this_eq})
+
+<!-- https://sv.overleaf.com/learn/latex/Cross_referencing_sections_and_equations -->
+
+## References
