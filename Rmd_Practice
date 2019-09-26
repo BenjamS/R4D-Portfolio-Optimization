@@ -4,7 +4,14 @@ author: "This guy"
 date: "This date"
 output:
   pdf_document:
+    toc: yes
+    toc_depth: '4'
+    df_print: kable
+    fig_caption: yes
     latex_engine: xelatex
+mainfont: Calibri Light
+bibliography: R4D Portfolio Optimization.bib
+biblio-style: apalike
 ---
 
 ```{r setup, include=FALSE}
@@ -19,6 +26,7 @@ S = X \bar{P}
 \label{eq:this_eq}
 \end{equation}
 
+For a long time now, AR4D centers have been under increasing pressure to "do a lot more with a lot less" [@Alston1995]
 
 \begin{equation}
 1+1=2
@@ -29,3 +37,5 @@ S = X \bar{P}
 blah blah remember that in equation (\ref{eq:this_eq})
 
 <!-- https://sv.overleaf.com/learn/latex/Cross_referencing_sections_and_equations -->
+
+## References
