@@ -1,0 +1,331 @@
+---
+title: A new approach to risk-adjusted optimization of agricultural research portfolios
+author:
+  - name: Ben Schiek
+    email: b.schiek@cgiar.org
+    affiliation: International Center for Tropical Agriculture (CIAT)
+address:
+  - code: International Center for Tropical Agriculture
+    address: Km 17 Recta Cali-Palmira, Valle del Cauca, Colombia
+abstract: |
+Conventional priority setting exercises generate valuable insight into the strengths and weaknesses of individual agricultural research proposals, but they stop short of providing tools that can translate this insight into optimal resource allocation shares across a portfolio containing several such proposals. They also lack tools for risk accounting. Here I explore the possibility of redressing both of these methodological lacunae in one stroke by adapting Mean-Variance Analysis, a risk-adjusted portfolio optimization technique developed in financial contexts, to the agricultural research portfolio optimization problem. Along the way, I present new approaches to two old problems faced in Mean-Variance Analysis---negative budget weights and inaccurate mean-variance frontiers. These innovations compare favorably to the baseline Mean-Variance model in a backtest using financial data. I then apply the adapted Mean-Variance model to the agricultural research context using FAO farmgate price data for the major staple crops. There is not enough FAO data for an historical backtest, but I introduce the notion of a future backtest based on hypothetical extensions of the FAO data into the future using the IMPACT sector equilibrium model. Future backtest results are compared for different geographical regions under a range of different assumptions regarding future socioeconomic and emissions trajectories.
+keywords: "Risk-adjusted portfolio optmization, Mean-Variance Analysis, AR4D, ex-ante impact assessment"
+journal: "European Journal of Operational Research"
+date: "`r Sys.Date()`"
+bibliography: AR4D Portfolio Optimization.bib
+biblio-style: apalike
+#linenumbers: true
+#numbersections: true
+output:
+  rticles::elsevier_article:
+    latex_engine: xelatex
+mainfont: Garamond
+---
+<!-- https://tug.org/FontCatalogue/ -->
+<!-- Source Serif Pro Light -->
+<!-- rmarkdown::draft("Test.Rmd", template = "elsevier_article", package = "rticles") -->
+
+## 1. Introduction
+
+### Mills' missing fifth step
+
+Long ago, Bradford Mills articulated the four steps of priority setting in agricultural research for development (AR4D) as follows [-@Mills1998]:
+
+>Step one is the development of an information base. Step two is the establishment of research alternatives. Step three is the evaluation of the potential impact of research alternatives. Step four, often considered the final output of a priority-setting exercise, is the ranking of alternatives into research priorities.
+
+However, he went on to observe that these steps were insufficient. An as of yet non-existent "fifth step, the development of guidelines for translating priorities into planning and resource allocation decisions, is necessary to establish direct links with planning and resource allocation activities" [@Mills1998].
+
+Mills identified this lacuna in the resource allocation toolkit at a time when AR4D centers were beginning to come under pressure from public and private donors to "do a lot more with a lot less" [@Alston1995]. In the ensuing time between then and now, this pressure has only increased, stimulating the emergence and refinement of numerous ex-ante impact assessment models for the evaluation of individual research alternatives (for example, see @Alston1995; @Antle1999; @Antle2015; Mills, 1998; and @nelson2014modeling). However, this activity has focused on Step 3. Work has still not begun on Mills' missing Step 5.
+
+Meanwhile, AR4D resource allocation decision-making mechanisms have become increasingly vulnerable to undue political pressure, opaque, ad hoc procedures and criteria, and institutional inertia [@Birner2016]; and relations between donors and research institutions have reached an historic level of toxicity [@leeuwis2018reforming; @mccalla2014cgiar]. AR4D fund allocation processes are increasingly contentious. Scientists don't trust the mechanisms.
+
+I hope to convince you that a portfolio optimization tool will generate trust.
+[Motivated by all this]Here I examine the possibility of redressing this issue by adapting portfolio optimization tools developed in the financial context.
+
+[Scraps:
+ The Consultative Group on International Agricultural Research (CGIAR) is said to have a "long history of good intentions but limited success in developing appropriate approaches for priority setting" [@Birner2016]. An historic effort begun in 2011 to restructure CGIAR financing around Core Research Programs (CRPs) was ad hoc, thereby reinforcing the very institutional inertia it was designed to disrupt [@Birner2016]. ReDonor attempts to establish criteria and methods for a merit-based allocation of ever-scarcer research funds are seen as invasive characterized as "development at the expense of research" [@Birner2016] or even the "Balkanization" of research [@Petsko2011]. "One of the geniuses" of CG centers is said to be their ability to consistently attract "aid funding of long-term research" while keeping "aid professionals from setting research agendas" [@mccalla2014cgiar]. Scientists respond with ultimatums of their own, demanding a return to the days of "more stable funding" and "budget autonomy" [@leeuwis2018reforming].
+“The failure of reforms is attributed to the unwillingness of donors, and the World Bank leadership of the CGIAR, to take on entrenched center interests” [@mccalla2014cgiar].
+]
+
+### A trust-generating mechanism
+
+The problem articulated by Mills is essentially a portfolio optimization problem. The question is: How to optimally allocate a limited budget across a portfolio of research programs that are all, in one way or another, vitally important?
+
+Risk-the handling of risk is “rudimentary and in need of further refinement” (Alston & Norton, 1995). There is no accounting for covariance between portfolio items.
+
+In particular, I walk through an adaptation of Mean-Variance (MV) Analysis, first conceptualized by Markowitz [@markowitz1952portfolio] and later formalized by Merton [@merton1972analytic]. The principal outputs of MV Analysis are 1) the MV frontier, which indicates the expected portfolio return associated with any level of risk tolerance, and 2) the vector of budget shares that must be allocated to each portfolio item in order to achieve a given risk-reward position on the MV frontier.
+
+It is worth emphasizing from the outset that this goes far beyond the "priority setting exercises", with which many donors, development agencies, and AR4D institutions may be familiar. Whereas priority setting exercises typically culminate in the ranking of research alternatives into research priorities, the final output of the method proposed here are the precise budget shares that must be allocated to each research program in order to maximize portfolio net benefit, given a certain risk tolerance specified by the donor. The explicit accounting of risk involved in MV Analysis also merits special emphasis, as risk accounting in the AR4D context is, by comparison, quite rudimentary.
+
+After reviewing some of the cultural and methodological issues that motivate and constrain this work, I first walk through an application of MV Analysis in its native financial context using daily price data downloaded from yahoo finance. Then, I move to an application in the AR4D context using yearly farmgate price data for staple crops downloaded from the Food and Agriculture Organization (FAO), for various geographical regions.
+
+
+
+There is an increasingly toxic environment between research institutions and donors. Much of this is arguably attributable to current priority setting practices, which leave plenty of room for politics, institutional inertia, and other forms of subjective whim to creep in and exert undue influence over fund allocation decisions. The MV Analysis adaption may contribute towards reducing that 
+
+I am not convinced that the MV Analysis adaptation is a perfect fit. But I am convinced and hope to convince others that this adaptation is better than the often ad hoc and/or politically driven processes in place now.  could go a long way towards inoculating AR4D decision making pipelines from some of the more egregious ad hoc and/or politically driven tendencies exerting an undue influence over the process today. The proposed method forces decisionmakers to think carefully about how funding aligns with AR4D pro-poor mandates, geographic focus, etc., and increases transparency around these issues. These tools also bring risk into the picture.
+
+The aim of investment here is not merely to share in the fortunes of the portfolio items, but rather to play a role in their shaping. High commodity price is an indication of demand outstripping supply. The aim of the CBOE speculator is to prosper from that scarcity and to aggravate it by removing from circulation as much of the commodity as possible, thereby raising the price further, the aim of the AR4D donor is the exact opposite of this. The donor invests in AR4D so as to increase production and quality of the crops and thereby to bring down their price.
+
+Interpretation of "price" is different from the financial context. This could reflect 1) higher kcals per unit weight, 2) higher quality kcals, 3) higher demand, or 4) some combination of all of the above.
+
+Agricultural research for development (AR4D) fund allocation processes are increasingly fraught with contentious choices between many worthwhile alternatives. How to fairly and optimally allocate an ever-shrinking budget across a portfolio of research programs that are all, in one way or another, vitally important? Here I examine the possibility of adapting portfolio optimization tools developed in the financial context in order to address this issue.
+
+In particular, I walk through an adaptation of Mean-Variance (MV) Analysis, first conceptualized by Markowitz () and later formalized by Merton (). The principal outputs of MV Analysis are 1) the MV frontier, which indicates the expected portfolio return associated with any level of risk tolerance, and 2) the vector of budget shares that must be allocated to each portfolio item in order to achieve a given risk-reward position on the MV frontier.
+
+It is worth emphasizing from the outset that this goes far beyond the "priority setting exercises", with which many donors, development agencies, and AR4D institutions may be familiar. Whereas priority setting exercises typically culminate in the ranking of research alternatives into research priorities, the final output of the method proposed here are the precise budget shares that must be allocated to each research program in order to maximize portfolio net benefit, given a certain risk tolerance specified by the donor. The explicit accounting of risk involved in MV Analysis also merits special emphasis, as risk accounting in the AR4D context is, by comparison, quite rudimentary.
+
+After reviewing some of the cultural and methodological issues that motivate and constrain this work, I first walk through an application of MV Analysis in its native financial context using daily price data downloaded from yahoo finance. Then, I move to an application in the AR4D context using yearly farmgate price data for staple crops downloaded from the Food and Agriculture Organization (FAO), for various geographical regions.
+
+In both applications, I first decompose the data into a loadings matrix in order to isolate and interpret key trends or "signals" in the data. I separate signals from noise using an old but little-utilized technique developed in the study of physical systems. Once signals have been isolated, they are interpreted in concrete terms based on how much the different portfolio items load onto them. A varimax rotation of the loadings matrix turns out to be of great assistance in this task. The interpretation of the signals is then further confirmed and illustrated by constructing the signal time series and then plotting them against their respective highest loading price series. The highest loading price series are seen to track their respective signals closely.
+
+This exploratory market analysis is a quick and inexpensive way to examine how prices are interacting with each other, and to identify which price series appear to be moving the market. This is important information to take into consideration could serve to inform and orient policy discussions, and to prepare the ground for the subsequent question of optimal funding allocations is addressed. Given enough data, it could also be used to 
+
+The AR4D and financial planning contexts differ in many important ways. The AR4D donor wants the price of staples to go down.
+
+MV analysis is, in many ways, still a work in progress.
+Negative weights... A number of unresolved methodological issues severely limit the usefulness of MV Analysis. In a nutshell, noise in the data makes accurate estimation of the returns vector and correlations matrix difficult.
+
+IMPACT future backtest
+
+
+There is an increasingly toxic environment between research institutions and donors. Much of this is arguably attributable to current priority setting practices, which leave plenty of room for politics, institutional inertia, and other forms of subjective whim to creep in and exert undue influence over fund allocation decisions. The MV Analysis adaption may contribute towards reducing that 
+
+I am not convinced that the MV Analysis adaptation is a perfect fit. But I am convinced and hope to convince others that this adaptation is better than the often ad hoc and/or politically driven processes in place now.  could go a long way towards inoculating AR4D decision making pipelines from some of the more egregious ad hoc and/or politically driven tendencies exerting an undue influence over the process today. The proposed method forces decisionmakers to think carefully about how funding aligns with AR4D pro-poor mandates, geographic focus, etc., and increases transparency around these issues. These tools also bring risk into the picture.
+
+The aim of investment here is not merely to share in the fortunes of the portfolio items, but rather to play a role in their shaping. High commodity price is an indication of demand outstripping supply. The aim of the CBOE speculator is to prosper from that scarcity and to aggravate it by removing from circulation as much of the commodity as possible, thereby raising the price further, the aim of the AR4D donor is the exact opposite of this. The donor invests in AR4D so as to increase production and quality of the crops and thereby to bring down their price.
+
+Interpretation of "price" is different from the financial context. This could reflect 1) higher kcals per unit weight, 2) higher quality kcals, 3) higher demand, or 4) some combination of all of the above.
+
+The continued absence of this translational step has left research budget allocation pipelines vulnerable to undue political pressures, opaque, ad hoc procedures, institutional inertia, and other forms of subjective whim. The situation is further aggravated by steadily darkening financial outlooks, resulting in an unprecedented level of toxicity in relations between donors and research organizations.
+   This, in turn, further aggravated by increasingly austere fiscal outlooks, has contributed to unprecedented levels of toxicity in relations between donors and research institutes.
+  
+  The urgency of filling this methodological gap was recognized more than twenty years ago by Bradford Mills. However, attention has instead focused on the development of individual project ex-ante impact assessment tools. The continued absence of a rigorous assessment tool at the portfolio level has left research budget allocation processes vulnerable to undue political pressures, ad hoc procedures, institutional inertia, and other forms of subjective whim. This, in turn, situation, further aggravated by increasingly austere fiscal outlooks, has contributed to unprecedented levels of toxicity in relations between donors and research institutes.  making it increasingly difficult to devise a budget appropriation acceptable to all stakeholders.  by replacing the revenue function with a utility function. I also present a new approach to the old problem of highly inaccurate mean-variance frontiers due to noisy data by first dimensionally reducing the portfolio from several dozen assets to just a handful of "signals". The signals are constructed from the eigenvectors of the correlation matrix that can be meaningfully distinguished from noise.
+The continued absence of this translational step has contributed to deteriorating relations between donors and research organizations.
+
+
+
+## 2. Cultural background: Mills' missing "fifth step"
+
+For a long time now, AR4D centers have been under increasing pressure to "do a lot more with a lot less" [@Alston1995], "prove their relevance" (Braunschweig, 2000), "show value for money" (Yet et al., 2016), and otherwise demonstrate "more efficient spending of resources" (Petsakos, Hareau, Kleinwechter, Wiebe, & Sulser, 2018). However, in response to these alarm bells, efforts have focused on developing and refining ex-ante impact assessment tools for the evaluation of individual research proposals (for example, see Alston & Norton, 1995; Antle et al., 2015; Mills, 1998; Nelson & Shively, 2014). Work on the problem of how to best balance investments across a portfolio of research alternatives has been scant, by comparison.
+
+
+### 3 Methodological background
+
+### 3.1 Isolating and interpreting signals
+
+In both applications, I first decompose the data into a loadings matrix in order to isolate and interpret key trends or "signals" in the data. I separate signals from noise using an old but little-utilized technique developed in the study of physical systems. Once signals have been isolated, they are interpreted in concrete terms based on how much the different portfolio items load onto them. A varimax rotation of the loadings matrix turns out to be of great assistance in this task. The interpretation of the signals is then further confirmed and illustrated by constructing the signal time series and then plotting them against their respective highest loading price series. The highest loading price series are seen to track their respective signals closely.
+
+This exploratory market analysis is a quick and inexpensive way to examine how prices are interacting with each other, and to identify which price series appear to be moving the market. This is important information to take into consideration could serve to inform and orient policy discussions, and to prepare the ground for the subsequent question of optimal funding allocations is addressed. Given enough data, it could also be used to 
+
+The AR4D and financial planning contexts differ in many important ways. The AR4D donor wants the price of staples to go down.
+
+MV analysis is, in many ways, still a work in progress.
+Negative weights... A number of unresolved methodological issues severely limit the usefulness of MV Analysis. In a nutshell, noise in the data makes accurate estimation of the returns vector and correlations matrix difficult.
+
+IMPACT future backtest
+
+
+
+*Given enough observations, a large matrix of time series data $X$ can be condensed into just a handful of "signals" that capture the majority of the movement in the data. Formally, these signals are defined
+
+\begin{equation}
+S = X \tilde{P}
+\end{equation}
+
+where $P$ is the matrix of eigenvectors of $X'X$, and $\tilde{P}$ is this same matrix truncated to retain only the eigenvectors containing significant information---i.e. information that can meaningfully be distinguished from noise. A number of different rules of thumb are often followed to determing how many vectors of $P$ should be retained. "Keep only the signals that describe 90% of the variation", for example, or "the scree test", or "keep only those with eigenvalues greater than 1". The perils of using these arbitrary cutoff rules has been well documented [@russell2002search]. Here I follow Laloux, Cizeau, Bouchaud, and Potters [-@laloux1999noise] who apply a more rigorous technique developed by physicists in the 1960s [@dehesa1983mathematical; @mehta2004random]. The technique is based on a key theorem of random matrix theory that says that the distribution of the eigenvalues of any random correlation matrix is a function of the dimensions of the underlying matrix. Physicists used this theorem to identify the important components ("collective modes") in complexly interacting systems by comparing the eigenvalue density plot of their data correlation matrix against that of a random matrix. The eigenvalues of the data correlation matrix that extend beyond the random matrix eigenvalue density can be identified as corresponding to components of the system that can be meaningfully distinguished from noise.
+
+This method is useful for identifying just a few key crosscutting tendencies that are broadly characteristic of the entire dataset. In other words,  This effectively reduces the problem of making sense of several dozen complexly interacting indicators to the more mangeable problem of making sense of just a few crosscutting trends.
+
+
+*Having separated signals from noise, the next step is to attempt to attribute meaning to the signals. This can be achieved by looking at a varimax rotation of the loadings corresponding to each signal. Signal loadings are defined
+
+\begin{equation}
+\tilde{L} = \tilde{P}\tilde{\Lambda}^{1/2}
+\end{equation}
+
+where $\Lambda$ is the diagonal matrix of eigenvalues of $X'X$, and where, as before, the squiggly lines on top indicate that the respective matrix is truncated to contain only the columns that can be meaningfully separated from noise.
+
+The varimax rotation works by maximizing the spareseness of the loadings matrix.
+
+The rotated loadings are then defined
+
+\begin{equation}
+L_{\circlearrowright} = VL
+\end{equation}
+
+where $V$ is an orthogonal matrix. We are then interested in only the retained rotated loadings $\tilde{L}_{\circlearrowright}$.
+
+The components of the retained rotated loadings are then interpreted as the magnitude and direction of the influence of each portfolio item over the average movement of the dataset. Loadings with opposite signs indicate a tradeoff, while loadings with the same sign are indicative of synergy. When there is structure in the data, the rotated loadings tend to be thematically organized, such that each loading vector corresponds to a particular aspect of the overall evolution of the system.
+
+indicate how correlated each portfolio item is with each given signal. Signals can then be characterized in concrete terms based on which items are most strongly associated with their movement.
+
+Gopikrishnan, Rosenow, Plerou, and Stanley [-@gopikrishnan2001quantifying] pursued a similar line of inquiry when they looked at the components of the eigenvectors of a financial data correlation matrix. But they did not first apply a rigorous signal separation technique as I have done here. Nor did they apply a varimax rotation to clarify the interpretation.
+
+
+### 3.2 Risk adjusted portfolio optimization
+
+\begin{equation}
+R = \mathbf{w \cdot r}, \:\:\: C=\mathbf{w\cdot1}, \:\:\: V = \mathbf{w} \cdot K \cdot \mathbf{w}
+\end{equation}
+
+
+\begin{equation}
+\max_{\mathbf{w}}\:R \:\:\:\:s.t. \:\:\: C=\overline{C} \:, \:\:\: V = \overline{V}
+\end{equation}
+
+\begin{equation}
+\mathcal{L} = R - \lambda_C(C - \overline{C}) - \lambda_{V}(V - \overline{V})
+\end{equation}
+
+\begin{equation}
+\nabla \mathcal{L} = \mathbf{r} - \lambda_C \mathbf{1} - 2 \lambda_{V} K \cdot \mathbf{w} = \mathbf{0}
+\end{equation}
+
+Dotting through by $\mathbf{w}$ gives the frontier equation.
+
+\begin{equation}
+R^* = \lambda_C \overline{C} + 2 \lambda_V \overline{V}
+\end{equation}
+
+Note this implies that the risk shadow price is proportional to the expected reward to risk ratio.
+
+\begin{equation}
+\lambda_V = \frac{NR}{2\overline{V}} \: ; \:\:\: NR = R^* - \lambda_C \overline{C}
+\end{equation}
+
+Dotting the first order conditions through by $K^{-1}$ and rearranging gives an equation for the optimal budget weights.
+
+\begin{equation}
+\mathbf{w}^* = \frac{1}{2 \lambda_V} K^{-1} \cdot \nabla NR \: ; \:\:\: \nabla NR = \mathbf{r} - \lambda_C \mathbf{1}
+\end{equation}
+
+Note, in passing, that dotting this through by $\nabla NR$ gives another instructive equation for $\lambda_V$.
+
+\begin{equation}
+\lambda_V = \frac{d^2}{2 NR} \: ; \:\:\:\:d^2 = \nabla NR \cdot K^{-1} \cdot \nabla NR
+\end{equation}
+
+This says that the risk shadow price is inversely proportional to the ratio of the squared Mahalanobis distance ($d^2$) of the portfolio net reward gradient to the net reward. The Mahalanobis distance can be thought of as... Hence, this says that the marginal net benefit of taking on more risk is higher for portfolios... 
+
+, the Mahalanobis distance can only equal zero when the mean returns to scale of all items are the same, and equal to γ_C, that is, when μ_h=-γ_C 1. Note, moreover, that this can be written E(∇U_R )=-γ_C ∇U_C. The zero d_m^* condition thus coincides with the net utility maximizing condition. In the present context, then, the Mahalanobis distance indicates how “far” the portfolio is from being…. This is subtly different from portfolio variance. Whereas the variance is a measure of how widely the portfolio return can be expected to vary around given targets E(¯U_R ),¯U_C, the 
+
+Moreover, combining this with the previous expression for $\lambda_V$ gives
+
+\begin{equation}
+NR = \overline{\sigma} d
+\end{equation}
+
+The optimal portfolio net reward is thus equal to the portfolio standard deviation scaled by the Mahalanobis distance of the portfolio's net reward gradient.
+
+Now, returning to the task at hand, in order to evaluate the optimal budget weights or the frontier equation (), we must first solve for the cost and risk shadow prices $\lambda_C$ and $\lambda_V$.
+
+To do this, first note that the budget weights equation can be rewritten as follows:
+
+\begin{equation}
+\mathbf{w}^* = \frac{1}{2 \lambda_V} K^{-1} \cdot [\mathbf{r}, \: \mathbf{1}] \left[\begin{matrix} 1 \\ -\lambda_C \\ \end{matrix} \right]
+\end{equation}
+
+Now, dotting through by $[\mathbf{r}, \mathbf{1}]$ gives
+
+\begin{equation}
+\left[\begin{matrix}
+R \\
+\bar{C} \\
+\end{matrix} \right]  = \frac{1}{2 \lambda_{V}} M\left[\begin{matrix}
+1 \\
+-\lambda_C \\
+\end{matrix} \right]  \tag{7}
+\end{equation}
+
+where $M$ has been introduced to stand for the matrix
+
+\begin{equation}
+M = [\mathbf{r}, \: \mathbf{1}]' \cdot K^{-1} \cdot [\mathbf{r}, \: \mathbf{1}]
+\end{equation}
+
+Let $M$ be called the "Merton matrix", after the man in whose footsteps we are now following. Pre-multiplying both sides of the previous equation by the inverse Merton matrix and rearranging gives the following expression: 
+
+\begin{equation}
+2 M^{-1}\left[\begin{matrix}
+R \\
+\bar{C} \\
+\end{matrix} \right]  = \left[\begin{matrix}
+1/\lambda_V \\
+-\lambda_C / \lambda_V \\
+\end{matrix} \right]  \tag{7}
+\end{equation}
+
+For any given return target $R$ and budget $\bar{C}$, then, the cost and risk shadow prices are given by this equation. With values for $\lambda_C$ and $\lambda_V$ in hand, the budget weights and risk associated with the chosen return target can be evaluated.
+
+
+### 3.3 Dealing with negative weights
+
+When implementing MV Analysis, the vector of optimal budget shares often includes negative values. A negative sign on a budget weight indicates that one should invest in the inverse of the corresponding portfolio item. In the financial context, this is possible through short selling, or through investment in financial products that track the inverse of a given product. However, even in the financial context negative weights are viewed as a methodological nuissance since a portfolio with both negative and positive weights requires the investor to borrow beyond their budget.
+
+
+In the financial context, negative budget shares have a real world interpretation in terms of short selling. In the AR4D context, there is no analogous real world interpretation of negative budget shares. To force positive budget shares, I replace the linear returns function with a utility function derived from the assumption of diminishing returns to investment in any single portfolio item. This forces the MV Analysis apparatus to output a vector of optimal _logged_ budget shares, which in turn guarantees that the budget shares themselves are positive. This modification violates the budget constraint, but the budget constraint can then be arbitrarily restored by virtue of the fact that utility functions are defined up to an affine transformation. Again, financial analysts may be interested in this approach, which has not appeared in the literature over there. (Negative budget shares are permissible in the financial context, but nonetheless viewed by many as a methodological nuissance (Boyle etc.))
+
+Bernoulli [@Bernoulli1954] This may be formalized as follows. Another way, not yet explored in the literature, is to interpret the optimal weights as utility weights rather than budget weights. Recall that utility is defined in terms of the   Utility is defined in terms of a first order relation such that increments in the quantity of a given portfolio item are valued in proportion to the amount of the item already accumulated.... Defined up to an affine transformation.
+
+In economics, this is referred to as cardinal utility. Cardinal utility has generally been deprecated in the literature since the 1930s in favor of ordinal utility, which studiously avoids theoretical assumptions such as that in equation … in favor of preference rankings based purely on empirical observation [@kobberling2006strength]. One of the main  backlash has come at the cost of    Since some readers might find our use of cardinal utility controversial, we take a moment to explain ourselves.
+Much of early economic theory was concerned with the quixotic aim of developing a rigorous theoretical basis on which cardinal utility could be quantified in absolute terms, in the same way that physical quantities like heat and energy can be quantified. But if cardinal utility is defined purely on the basis of a marginal relation (such as we do here), then it is defined only up to an affine transformation, and thus does not admit of measurement in absolute units.
+In our view, the backlash against cardinal utility theory was certainly to be expected given the quixotic and often ethically dubious problem sets motivating its proponents (hedonometers, interpersonal comparisons of utility, etc.). However,  baby with bathwater… particularly the insight, going back perhaps as far as Aristotle [@kauder1953genesis], and certainly as far as Bernoulli, that “in the absence of the unusual, the utility resulting from any small increase in wealth will be inversely proportionate to the quantity of goods previously possessed” [-@Bernoulli1954]. The predominance of ordinal utility at the cost of neglecting cardinal has generated waves of graduates who are left to rediscover this self-evident fact of life on their own, and who even then remain skeptical of it and regard it as something controversial. This insight is what is formulated in equation ….
+
+\begin{equation}
+\frac{\partial \ln U}{\partial \ln w_i} \sim \frac{d \ln U}{dU}
+\end{equation}
+
+Note that multiplying through by $w_i / U$ gives an alternative expression.
+
+\begin{equation}
+\frac{\partial U}{\partial w_i} \sim \frac{d \ln w_i}{dw_i}
+\end{equation}
+
+The "$\sim$" means there is a proportionality constant multiplying the right side. In this context, it makes sense to set these constants equal to the expected returns.
+
+\begin{equation}
+\frac{\partial U}{\partial w_i} = \mu_i \frac{d \ln w_i}{dw_i}
+\end{equation}
+
+which can then be used to arrive at an expression for $U$.
+
+\begin{equation}
+U(\mathbf{w}; \mathbf{\mu}) = \int \nabla_{\mathbf{w}} U \cdot d\mathbf{w} = \mathbf{\mu} \cdot \ln{\mathbf{w}} + k
+\end{equation}
+
+where $k$ is an arbitrary constant of integration. Here it is important to underscore that utility itself has no unique value. In mathematical terms, utility is defined up to an affine transformation.
+
+To force positive budget weights, $\mathbf{w}$ is replaced with $\ln \mathbf{w}$.
+
+\begin{equation}
+\ln \mathbf{w}^* = \frac{1}{2 \lambda_V} K^{-1} \cdot [\mathbf{r}, \: \mathbf{1}] \left[\begin{matrix} 1 \\ -\lambda_C \\ \end{matrix} \right]
+\end{equation}
+
+This is tantamount to replacing the returns function $R$ with the utility function $U$, and the cost function $C$ with a cost utility function $U_C = \mathbf{1}\cdot\ln{\mathbf{w}} + k_C$. When making this substitution, the budget weights no longer add up to the constraint $\overline{C}$. However, since utility is defined only up to an affine transformation, the optimal weights can be arbitrarily renormalized to sum to the constraint. That is, if $\mathbf{\tilde{w}}$ represent the renormalized weights, such that
+
+\begin{equation}
+\mathbf{\tilde{w}^*} = \frac{\bar{C}}{\mathbf{w^* \cdot 1}} \mathbf{w^*}
+\end{equation}
+
+we have
+
+\begin{equation}
+U(\mathbf{\tilde{w}^*}; \mathbf{\mu}) = \mathbf{\mu} \cdot \ln \mathbf{w^*} + \mathbf{\mu \cdot 1} \ln \left(\frac{\bar{C}}{\mathbf{w^* \cdot 1}} \right)
+\end{equation}
+
+which is just $U(\mathbf{w^*}; \mathbf{\mu})$ plus a constant, and hence affine to it. Therefore, $U(\mathbf{w^*}; \mathbf{\mu}) = U(\mathbf{\tilde{w}^*}; \mathbf{\mu})$. Note also that this is tantamount to setting the constant of integration $k$ in equation ... equal to $\mathbf{\mu \cdot 1} \ln \left(\frac{\bar{C}}{\mathbf{w^* \cdot 1}} \right)$
+
+### 3.4 Dealing with inaccuracy in MV Analysis
+
+A number of unresolved methodological issues severely limit the usefulness of MV Analysis in real life. In a nutshell, noise in the data makes accurate estimation of the returns vector and correlations matrix difficult. Effectively, one is optimizing over a great deal of noise. Real portfolio returns tend to be lower, and risk higher, than the MV frontier would suggest. To address this problem, I dimensionally reduce the portfolio from the number of items it contains to the number of signals that can be meaningfully distinguished from noise. I then conduct MV Analysis over the signals portfolio. In a backtest on financial data, this method generates a frontier that offers more accurate, better peforming portfolios than the conventional approach. This may be of interest to financial analysts, as it has not yet appeared in the financial literature. 
+
+As mentioned in the introduction, MV Analysis is of limited practical use in real life due to the difficulty involved in accurately estimating asset returns and correlations (for more details, see ()). While adapting MV Analysis to the AR4D context, I tried to address this problem in a number of different ways, all but one of which were ineffective. The one approach that showed some promise---at least with respect to the financial data used in this study---may be characterized as a dimensional reduction of the original problem whereby the noisy dimensions are purged from the data and only the "signally" dimensions retained.
+
+## 4. An example from the financial context
+
+Before exploring the possibility of applying these tools to the AR4D context, it will be instructive to first apply them in the financial context where they have been developed. Below, daily financial data for 46 securities over the period 20 June 2018 to 8 August 2019 is downloaded directly into R from yahoo finance using the tidyquant package. The 46 securities have been chosen so as to be representative of the radar screen of a modern, broad minded investor (Table 1). They are mostly exchange traded funds tracking broad categories of stocks, bonds, markets, and commodities, plus the major currency pair exchange rates traded on the FOREX market.
+
+[Table here detailing the ETF names, what they track, and my category name]
+
+The dataset is large enough to allow for backtesting of the optimal portfolio. The portfolio is optimized using the first two thirds of the data (the "train" data), and then backtested against the remaining third. Historical returns and correlation matrices are presented for these two datasets in Figures .... 
