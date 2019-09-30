@@ -1,5 +1,5 @@
 ---
-title: A new approach to risk-adjusted optimization of agricultural research portfolios
+title: A new approach to risk-adjusted optimization of agricultural
 author:
   - name: Ben Schiek
     email: b.schiek@cgiar.org
@@ -8,8 +8,8 @@ address:
   - code: International Center for Tropical Agriculture
     address: Km 17 Recta Cali-Palmira, Valle del Cauca, Colombia
 abstract: |
-Conventional priority setting exercises generate valuable insight into the strengths and weaknesses of individual agricultural research proposals, but they stop short of providing tools that can translate this insight into optimal resource allocation shares across a portfolio containing several such proposals. They also lack tools for risk accounting. Here I explore the possibility of redressing both of these methodological lacunae in one stroke by adapting Mean-Variance Analysis, a risk-adjusted portfolio optimization technique developed in financial contexts, to the agricultural research portfolio optimization problem. Along the way, I present new approaches to two old problems faced in Mean-Variance Analysis---negative budget weights and inaccurate mean-variance frontiers. These innovations compare favorably to the baseline Mean-Variance model in a backtest using financial data. I then apply the adapted Mean-Variance model to the agricultural research context using FAO farmgate price data for the major staple crops. There is not enough FAO data for an historical backtest, but I introduce the notion of a future backtest based on hypothetical extensions of the FAO data into the future using the IMPACT sector equilibrium model. Future backtest results are compared for different geographical regions under a range of different assumptions regarding future socioeconomic and emissions trajectories.
-keywords: "Risk-adjusted portfolio optmization, Mean-Variance Analysis, AR4D, ex-ante impact assessment"
+   Conventional priority setting exercises generate valuable insight into the strengths and weaknesses of individual agricultural research proposals, but they stop short of providing tools that can translate this insight into optimal resource allocation shares across a portfolio containing several such proposals. They also lack tools for risk accounting. Here I explore the possibility of redressing both of these methodological lacunae in one stroke by adapting Mean-Variance Analysis, a risk-adjusted portfolio optimization technique developed in financial contexts, to the agricultural research portfolio optimization problem. Along the way, I present new approaches to two old problems faced in Mean-Variance Analysis---negative budget weights and inaccurate mean-variance frontiers. These innovations compare favorably to the baseline Mean-Variance model in a backtest using financial data. I then apply the adapted Mean-Variance model to the agricultural research context using FAO farmgate price data for the major staple crops. There is not enough FAO data for an historical backtest, but I introduce the notion of a future backtest based on hypothetical extensions of the FAO data into the future using the IMPACT sector equilibrium model. Future backtest results are compared for different geographical regions under a range of different assumptions regarding future socioeconomic and emissions trajectories.
+keywords: "Risk-adjusted portfolio optmization, Mean-Variance Analysis, AR4D, ex-ante impact assessment, foresight"
 journal: "European Journal of Operational Research"
 date: "`r Sys.Date()`"
 bibliography: AR4D Portfolio Optimization.bib
@@ -35,97 +35,41 @@ Long ago, Bradford Mills articulated the four steps of priority setting in agric
 
 However, he went on to observe that these steps were insufficient. An as of yet non-existent "fifth step, the development of guidelines for translating priorities into planning and resource allocation decisions, is necessary to establish direct links with planning and resource allocation activities" [@Mills1998].
 
-Mills identified this lacuna in the resource allocation toolkit at a time when AR4D centers were beginning to come under pressure from public and private donors to "do a lot more with a lot less" [@Alston1995]. In the ensuing time between then and now, this pressure has only increased, stimulating the emergence and refinement of numerous ex-ante impact assessment models for the evaluation of individual research alternatives (for example, see @Alston1995; @Antle1999; @Antle2015; Mills, 1998; and @nelson2014modeling). However, this activity has focused on Step 3. Work has still not begun on Mills' missing Step 5.
+Mills identified this lacuna at a time when AR4D centers were just beginning to come under pressure from public and private donors to "do a lot more with a lot less" [@Alston1995]. Methodological work in response to this pressure has focused on Steps 1-4. The emergence and refinement of numerous ex-ante impact assessment models for the evaluation of individual research alternatives, in particular, is remarkable (see, for example, @Alston1995; @Antle1999; @Antle2015; Mills, 1998; and @nelson2014modeling). However, work has still not begun on the missing Step 5.
 
-Meanwhile, AR4D resource allocation decision-making mechanisms have become increasingly vulnerable to undue political pressure, opaque, ad hoc procedures and criteria, and institutional inertia [@Birner2016]; and relations between donors and research institutions have reached an historic level of toxicity [@leeuwis2018reforming; @mccalla2014cgiar]. AR4D fund allocation processes are increasingly contentious. Scientists don't trust the mechanisms.
+In hindsight, Mills' concern was well founded. Budgetary pressure on AR4D centers to "prove their relevance" (Braunschweig, 2000), "show value for money" (Yet et al., 2016), and otherwise demonstrate "more efficient spending of resources" (Petsakos, Hareau, Kleinwechter, Wiebe, & Sulser, 2018) has only increased since the 1990s. Between Step 4 and the final allocation of funds, stakeholder politics, institutional inertia, ad hoc procedures and criteria, and other subjective forces have repeatedly undercut any careful, objective rigor occurring in Steps 1-4 [@Birner2016; @mccalla2014cgiar]. This  inconsistency, opacity, and subjectivity in resource allocation decisions, has, in turn, aggravated scientists' already longstanding distrust of impact assessment mechanisms. The result is that relations between donors and the research programs they fund have fallen to an historic level of toxicity [@Birner2016; @leeuwis2018reforming; @mccalla2014cgiar].
 
-I hope to convince you that a portfolio optimization tool will generate trust.
-[Motivated by all this]Here I examine the possibility of redressing this issue by adapting portfolio optimization tools developed in the financial context.
+The problem at once suggests its solution: A tool _at the portfolio level_ that can guarantee consistency, transparency, and objectivity in the translation of individual impact evaluations into budget appropriations. It would also be nice if such a method took explicit account of the risk associated with each research alternative, and were quick and inexpensive to implement relative to consensus building mechanisms such as the Analytical Hierarchy Process (Braunschwig 2000). In this paper, I explore the possibility of building such a tool based on risk-adjusted portfolio optimization techniques developed in the financial context.
+
+
+### AR4D mean-variance analysis
+
+In particular, I explore the possibility of adapting Mean-Variance (MV) Analysis, first conceptualized by Markowitz [@markowitz1952portfolio] and later formalized by Merton [@merton1972analytic], to the AR4D context. In stock market investment contexts, MV Analysis is used to optimize the investor's return on investment in a portfolio of $n$ risky assets, given the investor's level of risk tolerance. On input, MV Analysis takes the expected returns and risk of each asset in the portfolio, and outputs the precise budget shares that must be invested in each of the portfolio assets in order to achieve the risk adjusted maximum return. An "efficient frontier" can also be constructed indicating the maximized return associated with any level of risk tolerance.
+
+To build intuition, I first walk through an application of MV Analysis in its native financial context using daily price data downloaded from yahoo finance. Then, I move to an application in the AR4D context using yearly country-level farmgate price data for staple crops downloaded from the Food and Agriculture Organization (FAO), aggregated up to various geographical regions. Solutions are backtested on a subsequent dataset. The FAO price series are not long enough to conduct a backtest of the optimal solution, but ... IMPACT future backtest.
+
+In a more advanced iteration of the method explored here, the expected returns and risk associated with each of the research programs in the portfolio would be evaluated using an ex-ante impact assessment model, such that the portfolio methods outlined here correspond to the missing Step 5 in the budget allocation workflow defined by Mills. Before that can happen, however, modelers must develop more sophisticated risk assessment tools. Alston and Norton acknowledged in 1995 that the treatment of risk in impact assessment models was "rudimentary and in need of further refinement" [-@Alston1995]. This is still true today.
+
+There are, of course, many differences between the financial and AR4D contexts that must be kept in mind. Time horizons... negative weights...by replacing the revenue function with a utility function. When determining the optimal budget shares based on price data...their solutions coincide, but their motivation is very different. The logic for doing so is that price represents the ratio of demand to supply. The basic aim of AR4D programs is to make staple crops more accessible to producers and consumers. Price isThe aim of investment here is not merely to share in the fortunes of the portfolio items, but rather to play a role in their shaping. High commodity price is an indication of demand outstripping supply. The aim of the CBOE speculator is to prosper from that scarcity and to aggravate it by removing from circulation as much of the commodity as possible, thereby raising the price further, the aim of the AR4D donor is the exact opposite of this. The donor invests in AR4D so as to increase production and quality of the crops and thereby to bring down their price.
+
+### Separating signals from noise, identifying main assets contributing to market movements
+
+MV analysis is, in many ways, still a work in progress. A number of unresolved methodological issues severely limit the usefulness of MV Analysis. In a nutshell, noise in the data makes accurate estimation of the returns vector and correlations matrix difficult. I present a new approach to the old problem of highly inaccurate mean-variance frontiers due to noisy data by first dimensionally reducing the portfolio from several dozen assets to just a handful of "signals". The signals are constructed from the eigenvectors of the correlation matrix that can be meaningfully distinguished from noise.
+
+I first decompose the data into a loadings matrix in order to isolate and interpret key trends or "signals" in the data. I separate signals from noise using an old but little-utilized technique developed in the study of physical systems. Once signals have been isolated, they are interpreted in concrete terms based on how much the different portfolio items load onto them. A varimax rotation of the loadings matrix turns out to be of great assistance in this task. The interpretation of the signals is then further confirmed and illustrated by constructing the signal time series and then plotting them against their respective highest loading price series. The highest loading price series are seen to track their respective signals closely.
+
+
+
 
 [Scraps:
  The Consultative Group on International Agricultural Research (CGIAR) is said to have a "long history of good intentions but limited success in developing appropriate approaches for priority setting" [@Birner2016]. An historic effort begun in 2011 to restructure CGIAR financing around Core Research Programs (CRPs) was ad hoc, thereby reinforcing the very institutional inertia it was designed to disrupt [@Birner2016]. ReDonor attempts to establish criteria and methods for a merit-based allocation of ever-scarcer research funds are seen as invasive characterized as "development at the expense of research" [@Birner2016] or even the "Balkanization" of research [@Petsko2011]. "One of the geniuses" of CG centers is said to be their ability to consistently attract "aid funding of long-term research" while keeping "aid professionals from setting research agendas" [@mccalla2014cgiar]. Scientists respond with ultimatums of their own, demanding a return to the days of "more stable funding" and "budget autonomy" [@leeuwis2018reforming].
-“The failure of reforms is attributed to the unwillingness of donors, and the World Bank leadership of the CGIAR, to take on entrenched center interests” [@mccalla2014cgiar].
+“The failure of reforms is attributed to the unwillingness of donors, and the World Bank leadership of the CGIAR, to take on entrenched center interests” [@mccalla2014cgiar]. Interpretation of "price" is different from the financial context. This could reflect 1) higher kcals per unit weight, 2) higher quality kcals, 3) higher demand, or 4) some combination of all of the above.
+
 ]
 
-### A trust-generating mechanism
+## 2 Methods
 
-The problem articulated by Mills is essentially a portfolio optimization problem. The question is: How to optimally allocate a limited budget across a portfolio of research programs that are all, in one way or another, vitally important?
-
-Risk-the handling of risk is “rudimentary and in need of further refinement” (Alston & Norton, 1995). There is no accounting for covariance between portfolio items.
-
-In particular, I walk through an adaptation of Mean-Variance (MV) Analysis, first conceptualized by Markowitz [@markowitz1952portfolio] and later formalized by Merton [@merton1972analytic]. The principal outputs of MV Analysis are 1) the MV frontier, which indicates the expected portfolio return associated with any level of risk tolerance, and 2) the vector of budget shares that must be allocated to each portfolio item in order to achieve a given risk-reward position on the MV frontier.
-
-It is worth emphasizing from the outset that this goes far beyond the "priority setting exercises", with which many donors, development agencies, and AR4D institutions may be familiar. Whereas priority setting exercises typically culminate in the ranking of research alternatives into research priorities, the final output of the method proposed here are the precise budget shares that must be allocated to each research program in order to maximize portfolio net benefit, given a certain risk tolerance specified by the donor. The explicit accounting of risk involved in MV Analysis also merits special emphasis, as risk accounting in the AR4D context is, by comparison, quite rudimentary.
-
-After reviewing some of the cultural and methodological issues that motivate and constrain this work, I first walk through an application of MV Analysis in its native financial context using daily price data downloaded from yahoo finance. Then, I move to an application in the AR4D context using yearly farmgate price data for staple crops downloaded from the Food and Agriculture Organization (FAO), for various geographical regions.
-
-
-
-There is an increasingly toxic environment between research institutions and donors. Much of this is arguably attributable to current priority setting practices, which leave plenty of room for politics, institutional inertia, and other forms of subjective whim to creep in and exert undue influence over fund allocation decisions. The MV Analysis adaption may contribute towards reducing that 
-
-I am not convinced that the MV Analysis adaptation is a perfect fit. But I am convinced and hope to convince others that this adaptation is better than the often ad hoc and/or politically driven processes in place now.  could go a long way towards inoculating AR4D decision making pipelines from some of the more egregious ad hoc and/or politically driven tendencies exerting an undue influence over the process today. The proposed method forces decisionmakers to think carefully about how funding aligns with AR4D pro-poor mandates, geographic focus, etc., and increases transparency around these issues. These tools also bring risk into the picture.
-
-The aim of investment here is not merely to share in the fortunes of the portfolio items, but rather to play a role in their shaping. High commodity price is an indication of demand outstripping supply. The aim of the CBOE speculator is to prosper from that scarcity and to aggravate it by removing from circulation as much of the commodity as possible, thereby raising the price further, the aim of the AR4D donor is the exact opposite of this. The donor invests in AR4D so as to increase production and quality of the crops and thereby to bring down their price.
-
-Interpretation of "price" is different from the financial context. This could reflect 1) higher kcals per unit weight, 2) higher quality kcals, 3) higher demand, or 4) some combination of all of the above.
-
-Agricultural research for development (AR4D) fund allocation processes are increasingly fraught with contentious choices between many worthwhile alternatives. How to fairly and optimally allocate an ever-shrinking budget across a portfolio of research programs that are all, in one way or another, vitally important? Here I examine the possibility of adapting portfolio optimization tools developed in the financial context in order to address this issue.
-
-In particular, I walk through an adaptation of Mean-Variance (MV) Analysis, first conceptualized by Markowitz () and later formalized by Merton (). The principal outputs of MV Analysis are 1) the MV frontier, which indicates the expected portfolio return associated with any level of risk tolerance, and 2) the vector of budget shares that must be allocated to each portfolio item in order to achieve a given risk-reward position on the MV frontier.
-
-It is worth emphasizing from the outset that this goes far beyond the "priority setting exercises", with which many donors, development agencies, and AR4D institutions may be familiar. Whereas priority setting exercises typically culminate in the ranking of research alternatives into research priorities, the final output of the method proposed here are the precise budget shares that must be allocated to each research program in order to maximize portfolio net benefit, given a certain risk tolerance specified by the donor. The explicit accounting of risk involved in MV Analysis also merits special emphasis, as risk accounting in the AR4D context is, by comparison, quite rudimentary.
-
-After reviewing some of the cultural and methodological issues that motivate and constrain this work, I first walk through an application of MV Analysis in its native financial context using daily price data downloaded from yahoo finance. Then, I move to an application in the AR4D context using yearly farmgate price data for staple crops downloaded from the Food and Agriculture Organization (FAO), for various geographical regions.
-
-In both applications, I first decompose the data into a loadings matrix in order to isolate and interpret key trends or "signals" in the data. I separate signals from noise using an old but little-utilized technique developed in the study of physical systems. Once signals have been isolated, they are interpreted in concrete terms based on how much the different portfolio items load onto them. A varimax rotation of the loadings matrix turns out to be of great assistance in this task. The interpretation of the signals is then further confirmed and illustrated by constructing the signal time series and then plotting them against their respective highest loading price series. The highest loading price series are seen to track their respective signals closely.
-
-This exploratory market analysis is a quick and inexpensive way to examine how prices are interacting with each other, and to identify which price series appear to be moving the market. This is important information to take into consideration could serve to inform and orient policy discussions, and to prepare the ground for the subsequent question of optimal funding allocations is addressed. Given enough data, it could also be used to 
-
-The AR4D and financial planning contexts differ in many important ways. The AR4D donor wants the price of staples to go down.
-
-MV analysis is, in many ways, still a work in progress.
-Negative weights... A number of unresolved methodological issues severely limit the usefulness of MV Analysis. In a nutshell, noise in the data makes accurate estimation of the returns vector and correlations matrix difficult.
-
-IMPACT future backtest
-
-
-There is an increasingly toxic environment between research institutions and donors. Much of this is arguably attributable to current priority setting practices, which leave plenty of room for politics, institutional inertia, and other forms of subjective whim to creep in and exert undue influence over fund allocation decisions. The MV Analysis adaption may contribute towards reducing that 
-
-I am not convinced that the MV Analysis adaptation is a perfect fit. But I am convinced and hope to convince others that this adaptation is better than the often ad hoc and/or politically driven processes in place now.  could go a long way towards inoculating AR4D decision making pipelines from some of the more egregious ad hoc and/or politically driven tendencies exerting an undue influence over the process today. The proposed method forces decisionmakers to think carefully about how funding aligns with AR4D pro-poor mandates, geographic focus, etc., and increases transparency around these issues. These tools also bring risk into the picture.
-
-The aim of investment here is not merely to share in the fortunes of the portfolio items, but rather to play a role in their shaping. High commodity price is an indication of demand outstripping supply. The aim of the CBOE speculator is to prosper from that scarcity and to aggravate it by removing from circulation as much of the commodity as possible, thereby raising the price further, the aim of the AR4D donor is the exact opposite of this. The donor invests in AR4D so as to increase production and quality of the crops and thereby to bring down their price.
-
-Interpretation of "price" is different from the financial context. This could reflect 1) higher kcals per unit weight, 2) higher quality kcals, 3) higher demand, or 4) some combination of all of the above.
-
-The continued absence of this translational step has left research budget allocation pipelines vulnerable to undue political pressures, opaque, ad hoc procedures, institutional inertia, and other forms of subjective whim. The situation is further aggravated by steadily darkening financial outlooks, resulting in an unprecedented level of toxicity in relations between donors and research organizations.
-   This, in turn, further aggravated by increasingly austere fiscal outlooks, has contributed to unprecedented levels of toxicity in relations between donors and research institutes.
-  
-  The urgency of filling this methodological gap was recognized more than twenty years ago by Bradford Mills. However, attention has instead focused on the development of individual project ex-ante impact assessment tools. The continued absence of a rigorous assessment tool at the portfolio level has left research budget allocation processes vulnerable to undue political pressures, ad hoc procedures, institutional inertia, and other forms of subjective whim. This, in turn, situation, further aggravated by increasingly austere fiscal outlooks, has contributed to unprecedented levels of toxicity in relations between donors and research institutes.  making it increasingly difficult to devise a budget appropriation acceptable to all stakeholders.  by replacing the revenue function with a utility function. I also present a new approach to the old problem of highly inaccurate mean-variance frontiers due to noisy data by first dimensionally reducing the portfolio from several dozen assets to just a handful of "signals". The signals are constructed from the eigenvectors of the correlation matrix that can be meaningfully distinguished from noise.
-The continued absence of this translational step has contributed to deteriorating relations between donors and research organizations.
-
-
-
-## 2. Cultural background: Mills' missing "fifth step"
-
-For a long time now, AR4D centers have been under increasing pressure to "do a lot more with a lot less" [@Alston1995], "prove their relevance" (Braunschweig, 2000), "show value for money" (Yet et al., 2016), and otherwise demonstrate "more efficient spending of resources" (Petsakos, Hareau, Kleinwechter, Wiebe, & Sulser, 2018). However, in response to these alarm bells, efforts have focused on developing and refining ex-ante impact assessment tools for the evaluation of individual research proposals (for example, see Alston & Norton, 1995; Antle et al., 2015; Mills, 1998; Nelson & Shively, 2014). Work on the problem of how to best balance investments across a portfolio of research alternatives has been scant, by comparison.
-
-
-### 3 Methodological background
-
-### 3.1 Isolating and interpreting signals
-
-In both applications, I first decompose the data into a loadings matrix in order to isolate and interpret key trends or "signals" in the data. I separate signals from noise using an old but little-utilized technique developed in the study of physical systems. Once signals have been isolated, they are interpreted in concrete terms based on how much the different portfolio items load onto them. A varimax rotation of the loadings matrix turns out to be of great assistance in this task. The interpretation of the signals is then further confirmed and illustrated by constructing the signal time series and then plotting them against their respective highest loading price series. The highest loading price series are seen to track their respective signals closely.
-
-This exploratory market analysis is a quick and inexpensive way to examine how prices are interacting with each other, and to identify which price series appear to be moving the market. This is important information to take into consideration could serve to inform and orient policy discussions, and to prepare the ground for the subsequent question of optimal funding allocations is addressed. Given enough data, it could also be used to 
-
-The AR4D and financial planning contexts differ in many important ways. The AR4D donor wants the price of staples to go down.
-
-MV analysis is, in many ways, still a work in progress.
-Negative weights... A number of unresolved methodological issues severely limit the usefulness of MV Analysis. In a nutshell, noise in the data makes accurate estimation of the returns vector and correlations matrix difficult.
-
-IMPACT future backtest
-
-
+### 2.1 Isolating and interpreting signals
 
 *Given enough observations, a large matrix of time series data $X$ can be condensed into just a handful of "signals" that capture the majority of the movement in the data. Formally, these signals are defined
 
