@@ -299,7 +299,7 @@ Before exploring the possibility of applying these tools to the AR4D context, it
 #-------------------------------------------------------------
 #devtools::install_github("thomasp85/patchwork")
 library(plyr)
-# library(tidyverse)
+library(tidyverse)
 # library(ggplot2)
 library(zoo)
 # library(FactoMineR)
@@ -1319,11 +1319,6 @@ Now the picture is very clear. The varimax rotation has removed the overlap betw
 
 These loadings vary depending on the time period and size of the time window. However, a plot of the signals against their respective highest loading items suggests that signal correlations with some items are persistent over time (Figure \ref{fig:sigs2}).
 
-\pagebreak
-
-Moving to MV Analysis now, a conventional MV frontier and optimal portfolio budget shares are calculated based on the train data and plotted in Figure \ref{fig:mvFrontConv}. This is "conventional" in the sense that it allows for negative budget shares. The frontier looks good, offering portfolio returns of 20% or more for relatively small risk. However, a backtest of the optimal weights displayed in Figure \ref{fig:backtestConv} indicates that the real return on investment in these optimal portfolios would have been much less, and the risk much higher, than the efficient fontier suggests.
-
-
 ```{r, fig.show='hold', fig.width=9, fig.height=10, fig.align='center', fig.cap="\\label{fig:sigs2}Signals plotted against their respective highest loading items, train data.", echo=FALSE}
 #=======================================================================
 plot_signals_against_associated_items <- function(mat_loads_rot_sig,
@@ -1384,7 +1379,7 @@ plot_signals_against_associated_items <- function(mat_loads_rot_sig,
         axis.title.x = element_blank(),
         axis.title.y = element_blank(),
         legend.title = element_blank(),
-        plot.title = element_text(size = 9),
+        plot.title = element_text(size = 9)
         #plot.caption = element_text(hjust = 0, size = 10)
       )
     }else{
@@ -1416,9 +1411,14 @@ plot_signals_against_associated_items(mat_loads_rot_sig_train,
                                       fig_title = this_fig_title)
 
 ```
-The MV frontier and budget shares using the utility approach presented in the methods section are plotted in Figure \ref{fig:mvFrontUshares} The frontier looks much less appealing than the conventional frontier. However, a backtest in Figure \ref{fig:backtestUshares} suggests that it is more accurate than the conventional frontier.
 
-```{r, fig.width=8, fig.height=6, fig.align='center', fig.cap="\\label{fig:mvFrontConv}Optimal frontier, negative weights allowed.", echo = FALSE}
+\pagebreak
+
+Moving to MV Analysis now, a conventional MV frontier and optimal portfolio budget shares are calculated based on the train data and plotted in Figure \ref{fig:mvFrontConv}. This is "conventional" in the sense that it allows for negative budget shares. The frontier looks good, offering portfolio returns of 20% or more for relatively small risk. However, a backtest of the optimal weights displayed in Figure \ref{fig:backtestConv} indicates that the real return on investment in these optimal portfolios would have been much less, and the risk much higher, than the efficient fontier suggests.
+
+The MV frontier and budget shares using the utility approach presented in the methods section are plotted in Figure \ref{fig:mvFrontUshares}. The frontier looks much less appealing than the conventional frontier. However, a backtest in Figure \ref{fig:backtestUshares} suggests that it is more accurate than the conventional frontier.
+
+```{r, fig.show='hold', fig.width=8, fig.height=6, fig.align='center', fig.cap="\\label{fig:mvFrontConv}Optimal frontier, negative weights allowed.", echo = FALSE}
 # Get backtest data
 fun_env = list(eigenvalue_density_plot = F,
                pca_var_plot = F,
@@ -1541,7 +1541,7 @@ plot_frontier_and_budget <- function(df_frontier, df_wStar,
   gg <- ggplot(df_plot, aes(x = `Risk (variance)`, y = `Return target`))
   gg <- gg + labs(title = fig_title)
   gg <- gg + theme(axis.title.x = element_blank(),
-                   axis.text.x = element_blank(),
+                   axis.text.x = element_blank()
                    #plot.title = element_text(size = 10)
   )
   gg <- gg + geom_point()
@@ -1824,7 +1824,249 @@ plot_frontier_wBacktest(df_frontier,
 
 # An example in the AR4D context
 
+Historical daily returns and period return are presented in Figure \ref{fig:hReturnsFAO}
+Below, I explore an analogous application of the methods used above in the AR4D context. Though the workflow is analogous, it is important to keep in mind that the AR4D context is very different from the financial context in many key respects... Limited data, motivation,.. what else?. There is not enough data to conduct a backtest. However, the historical data can be extended into a hypothetical future using IMPACT runs. The "backtest" can then be conducted over the future projection.
+The data is very low resolution. Keep in mind the very different mechanisms driving  Results vary considerably depending on geographical focus. I do export price first in order to have enough data to apply backtests and then farmgate price. The backtests diverge considerably more from the optimal frontier than in the financial context.
+Now we look at farmgate price.
+Other things to try: vap per kcal
+
+```{r, echo=F}
+
+#=======================================================================
+area_vec <- c("World","Low Income Food Deficit Countries", "Net Food Importing Developing Countries",
+              "Least Developed Countries", "Eastern Africa", "Western Africa", "South America",
+              "Southern Asia", "Southern Africa", "Middle Africa", "Asia",
+              "Sub-Saharan Africa")
+SSA_vec <- c("South Africa", "Africa", "Eastern Africa", "Middle Africa", "Southern Africa", "Western Africa")
+#------------------
+# Have to rename some crops because names in the production and value of production datasets differ somewhat from those in the trade dataset used above.
+cereal_vec <- c("Maize", "Wheat", "Sorghum", "Rice, paddy", "Millet")
+pulses_oilcrops_vec <- c("Beans, dry", "Cow peas, dry", "Chick peas", "Lentils", "Soybeans", "Groundnuts, with shell")
+RnT_vec <- c("Cassava", "Yams", "Potatoes", "Sweet potatoes")
+item_vec <- c(cereal_vec, pulses_oilcrops_vec, RnT_vec)
+#------------------------------------
+list_groups <- list(cereal_vec, pulses_oilcrops_vec, RnT_vec)
+group_names <- c("Cereals", "Pulses & Oilcrops", "Roots & Tubers")
+group_info <- list(list_groups, group_names)
+#------------------------------------
+# Get total value of ag production data
+#rm(df_expVal, df_expVal_raw)
+#gc()
+df_vap_raw <- read.csv("Value_of_Production_E_All_Data.csv", stringsAsFactors = F)
+#colnames(df_vap_raw)
+df_vap_raw$Area.Code <- NULL
+df_vap_raw$Item.Code <- NULL
+df_vap_raw$Element.Code <-NULL
+u <- colnames(df_vap_raw)
+#colnames(df_vap_raw)
+df_vap_raw <- df_vap_raw[, -grep("F", u)]
+colnames(df_vap_raw)[5:ncol(df_vap_raw)] <- as.character(c(1961:(1961 + ncol(df_vap_raw) - 5)))
+df_vap_raw <- gather(df_vap_raw,Year,Value,`1961`:`2016`)
+#------------------
+#unique(df_vap_raw$Area)[grep("africa", unique(df_vap_raw$Area), ignore.case = T)]
+#unique(df_vap_raw$Item)[grep("potato", unique(df_vap_raw$Item), ignore.case = T)]
+#------------------
+df_vap <- subset(df_vap_raw, Area %in% area_vec)
+df_vap <- subset(df_vap, Item %in% item_vec)
+#unique(df_vap_raw$Element)
+element_vec <- c("Gross Production Value (current million US$)")
+df_vap <- subset(df_vap, Element %in% element_vec)
+df_vap <- subset(df_vap, Year > 1990)
+df_vap$Unit <- NULL
+df_vap$Element <- NULL
+colnames(df_vap)[4] <- "Gross Production Value\n(current million USD)"
+#------------------------------
+# Get production data
+df_prod_raw <- read.csv("Production_Crops_E_All_Data.csv", stringsAsFactors = F)
+df_prod_raw <- subset(df_prod_raw, Item.Code != 2928)
+df_prod_raw$Area.Code <- NULL
+df_prod_raw$Item.Code <- NULL
+df_prod_raw$Element.Code <-NULL
+df_prod_raw$Unit <- NULL
+u <- colnames(df_prod_raw)
+df_prod_raw <- df_prod_raw[, -grep("F", u)]
+last_yr <- (1961 + ncol(df_prod_raw) - 4)
+colnames(df_prod_raw)[4:ncol(df_prod_raw)] <- as.character(c(1961:last_yr))
+gathercols <- colnames(df_prod_raw)[4:ncol(df_prod_raw)]
+df_prod_raw <- gather_(df_prod_raw, "Year", "Value", gathercols)
+#------------------------------
+#unique(df_prod_raw$Item)[grep("beans", unique(df_prod_raw$Item), ignore.case = T)]
+df_prod <- subset(df_prod_raw, Item %in% item_vec)
+df_prod <- subset(df_prod, Area %in% area_vec)
+df_prod <- subset(df_prod, Element == "Production")
+df_prod <- subset(df_prod, Year > 1990)
+df_prod$Element <- NULL
+colnames(df_prod)[4] <- "Production"
+#-----------------------------
+# df_prod$Group <- NA
+# u <- df_prod$Item
+# df_prod$Group[which(u %in% cereal_vec)] <- "Cereals"
+# df_prod$Group[which(u %in% pulses_oilcrops_vec)] <- "Pulses and Oilcrops"
+# df_prod$Group[which(u %in% RnT_vec)] <- "Roots & Tubers"
+# df_prod$Group <- factor(df_prod$Group)
+#-----------------------------
+df <- merge(df_vap, df_prod, by = c("Area", "Year", "Item"))
+#-----------------------------
+# Get SSA region
+df_x <- subset(df, Area %in% SSA_vec)
+df_x <- as.data.frame(df_x %>% group_by(Year, Item) %>% summarise_at(c("Gross Production Value\n(current million USD)", "Production"), sum, na.rm = T))
+df_x$Area <- "Sub-Saharan Africa"
+df_x <- df_x[, colnames(df)]
+df <- as.data.frame(rbind(df, df_x))
+df$`Gross Prod. Value / MT\n(current USD)` <- 10^6 * df$`Gross Production Value\n(current million USD)` / df$Production
+#-----------------------------
+# Get grouping info
+df$Group <- NA
+u <- df$Item
+df$Group[which(u %in% cereal_vec)] <- "Cereals"
+df$Group[which(u %in% pulses_oilcrops_vec)] <- "Pulses and Oilcrops"
+df$Group[which(u %in% RnT_vec)] <- "Roots & Tubers"
+df$Group <- factor(df$Group)
+#
+# Create grouping info for plots (required input into functions)
+list_groups <- list(cereal_vec, pulses_oilcrops_vec, RnT_vec)
+group_names <- c("Cereals", "Pulses and Oilcrops", "Roots & Tubers")
+group_info <- list(list_groups, group_names)
+n_groups <- length(group_names)
+#-------------------------------------------
+
+#-----------------------------
+# kcalMT_cereals_vec <- c(4.14, )
+# df_kcal <- data.frame(Item = item_vec, kcal_per_MT = kcalMT_vec)
+#-----------------------------
+# VAP Plots
+check_on_data <- F
+if(check_on_data){
+  df_plot <- subset(df, Year == 2016)
+  df_plot <- subset(df_plot, Area == "World")
+  xx <- df_plot$Group
+  df_plot$Item <- factor(df_plot$Item, levels = unique(df_plot$Item[order(xx)]))
+  df_plot$Production <- NULL
+  df_plot <- df_plot %>% gather_("Element", "Value", colnames(df_plot[5:6]))
+  gg <- ggplot(df_plot, aes(x = Item, y = Value, fill = Group))
+  gg <- gg + geom_bar(stat = "identity", position = "dodge")
+  gg <- gg + facet_wrap(~Element, scales = "free_y")
+  gg <- gg + theme(axis.title.x = element_blank(),
+                   axis.text.x = element_text(angle = 60, hjust = 1),
+                   axis.title.y = element_blank(),
+                   legend.title = element_blank())
+  #gg <- gg + coord_flip()
+  gg
+  #-----------------------------
+  df_plot <- subset(df, Year == 2016)
+  df_plot$Area[grep("Least Developed Countries", df_plot$Area)] <- "Least Developed\nCountries"
+  df_plot$Area[grep("Low Income Food Deficit Countries", df_plot$Area)] <- "Low Income\nFood Deficit Countries"
+  xx <- df_plot$Group
+  df_plot$Item <- factor(df_plot$Item, levels = unique(df_plot$Item[order(xx)]))
+  gg <- ggplot(df_plot, aes(x = Item, y = `Gross Prod. Value / MT\n(current USD)`, fill = Group))
+  gg <- gg + geom_bar(stat = "identity", position = "dodge")
+  gg <- gg + facet_wrap(~Area)
+  gg <- gg + theme(axis.title.y = element_blank(),
+                   axis.text.y = element_text(size = 7))
+  gg <- gg + coord_flip()
+  gg
+  
+  
+  df_plot <- subset(df_plot, Area == "World")
+  gg <- ggplot(df_plot, aes(x = Item, y = `Gross Prod. Value / MT\n(current USD)`, fill = Group))
+  gg <- gg + geom_bar(stat = "identity", position = "dodge")
+  #gg <- gg + facet_wrap(~Area)
+  gg <- gg + theme(axis.title.y = element_blank(),
+                   axis.text.y = element_text(size = 7))
+  #gg <- gg + coord_flip()
+  gg
+  #-----------------------------
+  df_plot <- df
+  df_plot$Year <- as.integer(df_plot$Year)
+  xx <- df_plot$Group
+  df_plot$Item <- factor(df_plot$Item, levels = unique(df_plot$Item[order(xx)]))
+  gg <- ggplot(df_plot, aes(x = Year, y = `Gross Prod. Value / MT (current USD)`, fill = Item))
+  gg <- gg + geom_area(position = "stack")
+  gg <- gg + facet_wrap(~Area)
+  gg
+  df_plot <- as.data.frame(df_plot %>% group_by(Area, Year) %>% mutate(sum_vap = sum(`Gross Prod. Value / MT (current USD)`)))
+  df_plot$`Gross Prod. Value / MT (share)` <- df_plot$`Gross Prod. Value / MT (current USD)` / df_plot$sum_vap
+  gg <- ggplot(df_plot, aes(x = Year, y = `Gross Prod. Value / MT (share)`, fill = Item))
+  gg <- gg + geom_area(position = "stack")
+  gg <- gg + facet_wrap(~Area)
+  gg
+  #-----------------------------
+  # Same on a per kcal basis
+  #.....
+}
+
+```
 
 
+
+```{r, fig.align='center', fig.cap="\\label{fig:hReturnsFAO}Historical daily returns and period return, farmgate prices, where?", echo=F}
+#=======================================================================
+# Examine historical returns, correlation matrix
+#-----------------------------
+# group_colors <- wesanderson::wes_palette("Moonrise1", n = n_groups, type = "continuous")
+group_colors <- RColorBrewer::brewer.pal(n = n_groups, "Dark2")
+#-----------------------------
+#"Low Income Food Deficit Countries"
+#"Net Food Importing Developing Countries"
+#"Sub-Saharan Africa"
+#"South America"
+#"Asia"
+#"World"
+this_area <- "Sub-Saharan Africa"
+period <- c(1991, 2016)
+fraction_train <- 1
+#-----------------------------
+df_in <- subset(df, Area == this_area)
+if(this_area == "South America"){df_in <- subset(df_in, !(Item %in% c("Cow peas, dry", "Millet")))}
+df_in <- df_in[, c("Item", "Year", "Gross Prod. Value / MT\n(current USD)")]
+df_in <- df_in %>% spread(Item, `Gross Prod. Value / MT\n(current USD)`)
+  if(!is.null(period)){
+    ind_ret_sinceYr <- which(df_in$Year == period[1])
+    ind_ret_toYr <- which(df_in$Year == period[2])
+    df_in <- df_in[ind_ret_sinceYr:ind_ret_toYr, ]
+  }
+  #-------------------------------------------
+  mat <- as.matrix(df_in[, -1])
+  #-------------------------------------------
+  # Replace NA with interplation
+  mat <- na.approx(mat)
+  #-------------------------------------------
+  # Get percentage difference
+  mat_pctDiff <- diff(mat) / mat[-nrow(mat), ]
+  year_vec <- df_in$Year[-1]
+# mat_pctDiff <- scale(mat)
+#   year_vec <- df_in$Year
+  #-------------------------------------------
+  row.names(mat_pctDiff) <- year_vec
+  #-------------------------------------------
+  n_items <- ncol(mat_pctDiff)
+  #-------------------------------------------
+# Separate train from test data
+  ind_train <- 1:round(nrow(mat_pctDiff) * fraction_train)
+    ind_test <- setdiff(1:nrow(mat_pctDiff), ind_train)
+    mat_pctDiff_train <- mat_pctDiff[ind_train, ]
+    mat_pctDiff_test <- mat_pctDiff[ind_test, ]
+    if(length(ind_test) == 0){
+    mat_pctDiff_test <- NULL
+    }
+
+#     this_fig_title <- "Figure 14: Historical change, farmgate prices"
+# historical_returns_and_corr_plot(mat_pctDiff_train, mat_pctDiff_test, group_info,
+#                                  returns_plot = T,
+#                                  corr_plot = F,
+#                                  group_colors = group_colors,
+#                                  fig_title_returns = this_fig_title)
+historical_returns_and_boxplot(mat_pctDiff_train,
+                               mat_pctDiff_test,
+                               group_info,
+                               group_colors = group_colors)
+
+    
+```
+
+
+
+
+\pagebreak
 
 # References
