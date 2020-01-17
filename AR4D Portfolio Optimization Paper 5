@@ -189,12 +189,12 @@ This says that the risk shadow price is inversely proportional to the ratio of t
 
 The investor's expected portfolio return is thus equal to their risk tolerance scaled by the improbability of the portfolio.
 
-Returning to the task at hand, in order to evaluate the optimal budget shares or the frontier in equations \ref{eq:rStar} and \ref{eq:budgetShares}, we must first solve for the cost and risk shadow prices $\lambda_C$ and $\lambda_V$.
+Returning to the task at hand, in order to evaluate the optimal budget shares or the frontier in equations \ref{eq:rStar} and \ref{eq:budgetShares}, we must first solve for the cost and risk shadow prices $\lambda_C$ and $\lambda_{\sigma}$.
 
 To do this, first note that the budget shares equation can be rewritten as follows:
 
 \begin{equation}
-\mathbf{w}^* = \frac{1}{2 \lambda_V} \Sigma^{-1} \cdot [\boldsymbol{\mu}, \: \mathbf{1}] \left[\begin{matrix} 1 \\ -\lambda_C \\ \end{matrix} \right]
+\mathbf{w}^* = \frac{1}{2 \lambda_{\sigma}} \Sigma^{-1} \cdot [\boldsymbol{\mu}, \: \mathbf{1}] \left[\begin{matrix} 1 \\ -\lambda_C \\ \end{matrix} \right]
 \end{equation}
 
 Now, dotting through by $[\boldsymbol{\mu}, \mathbf{1}]$ gives
@@ -203,7 +203,7 @@ Now, dotting through by $[\boldsymbol{\mu}, \mathbf{1}]$ gives
 \left[\begin{matrix}
 R \\
 \bar{C} \\
-\end{matrix} \right]  = \frac{1}{2 \lambda_{V}} M\left[\begin{matrix}
+\end{matrix} \right]  = \frac{1}{2 \lambda_{\sigma}} M\left[\begin{matrix}
 1 \\
 -\lambda_C \\
 \end{matrix} \right]
@@ -223,11 +223,11 @@ R \\
 \bar{C} \\
 \end{matrix} \right]  = \left[\begin{matrix}
 1/\lambda_V \\
--\lambda_C / \lambda_V \\
+-\lambda_C / \lambda_{\sigma} \\
 \end{matrix} \right]
 \end{equation}
 
-For any given return target $R$ and budget $\bar{C}$, then, the cost and risk shadow prices are given by this equation. With values for $\lambda_C$ and $\lambda_V$ in hand, the budget shares and risk associated with the chosen return target can be evaluated.
+For any given return target $R$ and budget $\bar{C}$, then, the cost and risk shadow prices are given by this equation. With values for $\lambda_C$ and $\lambda_{\sigma}$ in hand, the budget shares and risk associated with the chosen return target can be evaluated.
 
 
 ## Dealing with negative weights
