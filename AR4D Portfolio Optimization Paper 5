@@ -6,19 +6,18 @@ author:
     affiliation: CIAT
 address:
   - code: CIAT
-    address: Decision and Policy Analysis, International Center for Tropical Agriculture (CIAT), Km 17 Recta Cali-Palmira, Valle del Cauca, Colombia
+    address: Bioversity CIAT Alliance, Km 17 Recta Cali-Palmira, Valle del Cauca, Colombia
 abstract: |
  Conventional agricultural research for development (AR4D) priority setting exercises generate valuable insight into the strengths and weaknesses of individual agricultural research proposals, but they stop short of providing tools that can translate this insight into optimal resource allocation shares across a portfolio containing several such proposals. They also lack tools for risk accounting. Here I explore the possibility of redressing both methodological lacunae in one stroke by adapting Mean-Variance (MV) Analysis, a risk-adjusted portfolio optimization technique developed in financial contexts, to the AR4D portfolio optimization problem. Along the way, I present new approaches to two old problems in MV Analysis: negative budget shares and noise-induced inaccuracy. These innovations compare favorably to the baseline Mean-Variance model in a backtest using financial data. I then apply the modified MV model to the AR4D context using FAO farmgate price data for Sub-Saharan Africa.
 keywords: Risk-adjusted portfolio optmization, Mean-Variance Analysis, AR4D, ex-ante impact assessment, foresight
-journal: European Journal of Operational Research
-date: "`r Sys.Date()`"
+journal: Bioversity CIAT Alliance Working Paper
 bibliography: AR4D Portfolio Optimization.bib
-biblio-style: apalike
 header-includes:
   - \usepackage{float}
   - \floatplacement{figure}{H}
 #linenumbers: true
 numbersections: true
+csl: elsevier-harvard.csl
 output:
   rticles::elsevier_article:
     latex_engine: xelatex
@@ -125,46 +124,46 @@ The components of the retained rotated loadings can then be interpreted as the m
 The risk-adjusted optimization problem for a portfolio of $n$ risky assets is formulated as follows. 
 
 \begin{equation}
-\max_{\mathbf{w}}\:R \:\:\:\:s.t. \:\:\: C=\bar{C} \:, \:\:\: V = \bar{V}
+\max_{\mathbf{w}}\:R \:\:\:\:s.t. \:\:\: C=\bar{C} \:, \:\:\: \sigma^2 = \bar{\sigma}^2
 \end{equation}
 
-where $\mathbf{w}$ is the vector of budget shares, $R$ is the expected portfolio return, defined $R = \mathbf{w} \cdot \boldsymbol{\mu}$, where $\boldsymbol{\mu}$ is the vector of expected returns of each asset; $C$ is the cost, defined $C = \mathbf{w} \cdot \mathbf{1}$, constrained to sum to the budget $\bar{C}$; and $V$ is the portfolio risk, defined $V = \mathbf{w} \cdot \Sigma \cdot \mathbf{w}$, where $\Sigma$ is the asset covariance matrix, and $V$ is constrained to equal the investor's risk tolerance $\bar{V}$.
+where $\mathbf{w}$ is the vector of budget shares, $R$ is the expected portfolio return, defined $R = \mathbf{w} \cdot \boldsymbol{\mu}$, where $\boldsymbol{\mu}$ is the vector of expected returns of each asset; $C$ is the cost, defined $C = \mathbf{w} \cdot \mathbf{1}$, constrained to sum to the budget $\bar{C}$; and $\sigma^2$ is the portfolio variance (a measure of the portfolio risk), defined $\sigma^2 = \mathbf{w} \cdot \Sigma \cdot \mathbf{w}$, where $\Sigma$ is the asset covariance matrix; and $\sigma^2$ is constrained to equal a tolerance $\bar{\sigma}^2$ set by the investor.
 
 (In the financial context, the problem is usually formulated as a risk minimization problem subject to a budget constraint and return target. Both approaches yield the same outputs. In the financial context, the problem includes the option to invest in one risk free asset. There is no risk free investment in the AR4D context, so the set up here focuses on optimization of the risky portfolio only.)
 
 The Lagrangian is then
 
 \begin{equation}
-\mathcal{L} = R - \lambda_C(C - \bar{C}) + \lambda_{V}(V - \bar{V})
+\mathcal{L} = R - \lambda_C(C - \bar{C}) + \lambda_{\sigma}(\sigma^2 - \bar{\sigma}^2)
 \end{equation}
 
 with first order conditions
 
 \begin{equation}
-\nabla \mathcal{L} = \boldsymbol{\mu} - \lambda_C \mathbf{1} + 2 \lambda_{V} \Sigma \cdot \mathbf{w} = \mathbf{0}
+\nabla \mathcal{L} = \boldsymbol{\mu} - \lambda_C \mathbf{1} + 2 \lambda_{\sigma} \Sigma \cdot \mathbf{w} = \mathbf{0}
 \end{equation}
 
 and second order conditions
 
 \begin{equation}
-\mathbf{w} \cdot \nabla^2 \mathcal{L} \cdot \mathbf{w} = 2 \lambda_{V} V < 0
+\mathbf{w} \cdot \nabla^2 \mathcal{L} \cdot \mathbf{w} = 2 \lambda_{\sigma} \sigma^2 < 0
 \end{equation}
 
-(where $\nabla^2 \mathcal{L}$ is the Hessian matrix of $\mathcal{L}$.) Since $\Sigma$ is symmetric and the variances of random variables are, by definition, positive, then $\Sigma$ is positive semi-definite. Hence, a maximum or break-even point is guaranteed so long as $\lambda_{V}$ is negative.
+(where $\nabla^2 \mathcal{L}$ is the Hessian matrix of $\mathcal{L}$.) Since $\Sigma$ is symmetric and the variances of random variables are, by definition, positive, then $\Sigma$ is positive semi-definite. Hence, a maximum or break-even point is guaranteed so long as $\lambda_{\sigma}$ is negative.
 
 Dotting the first order conditions through by $\mathbf{w}$ gives the equation for the efficient frontier.
 
 \begin{equation}
-R^* = \lambda_C \bar{C} + 2 \lambda_V \bar{V}
+R^* = \lambda_C \bar{C} + 2 \lambda_{\sigma} \bar{\sigma}^2
 \label{eq:rStar}
 \end{equation}
 
-where the asterisk on $R$ indicates that this is the maximum portfolio return given budget constraint $\bar{C}$ and risk tolerance $\bar{V}$.
+where the asterisk on $R$ indicates that this is the maximum portfolio return given budget constraint $\bar{C}$ and risk tolerance $\bar{\sigma}^2$.
 
 Note, in passing, that equation \ref{eq:rStar} implies that the risk shadow price is proportional to the expected reward to risk ratio.
 
 \begin{equation}
-\lambda_V = \frac{\psi}{2\bar{V}} \: ; \:\:\: \psi = R^* - \lambda_C \bar{C}
+\lambda_{\sigma} = \frac{\psi}{2\bar{\sigma}^2} \: ; \:\:\: \psi = R^* - \lambda_C \bar{C}
 \end{equation}
 
 where $\psi = R^* - \lambda_C \bar{C}$ is the expected reward, i.e., the expected net revenue, adjusted by the budget shadow price $\lambda_C$.
@@ -172,23 +171,23 @@ where $\psi = R^* - \lambda_C \bar{C}$ is the expected reward, i.e., the expecte
 Now, dotting the first order conditions through by $\Sigma^{-1}$ and rearranging gives an equation for the optimal budget shares.
 
 \begin{equation}
-\mathbf{w}^* = -\frac{1}{2 \lambda_V} \Sigma^{-1} \cdot \nabla \psi \: ; \:\:\: \nabla \psi = \boldsymbol{\mu} - \lambda_C \mathbf{1}
+\mathbf{w}^* = -\frac{1}{2 \lambda_{\sigma}} \Sigma^{-1} \cdot \nabla \psi \: ; \:\:\: \nabla \psi = \boldsymbol{\mu} - \lambda_C \mathbf{1}
 \label{eq:budgetShares}
 \end{equation}
 
-Note, in passing, that dotting this through by $\nabla \psi$ gives another instructive equation for $\lambda_V$.
+Note, in passing, that dotting this through by $\nabla \psi$ gives another instructive equation for $\lambda_{\sigma}$.
 
 \begin{equation}
 \lambda_V = \frac{d_m^2}{2 \psi} \: ; \:\:\:\:d_m^2 = \nabla \psi \cdot \Sigma^{-1} \cdot \nabla \psi
 \end{equation}
 
-This says that the risk shadow price is inversely proportional to the ratio of the squared Mahalanobis distance ($d_m^2$) of the portfolio net reward gradient to the net reward. In this setting, the Mahalanobis distance reflects how improbable a given portfolio is. [Note that $d_m = 0$ only when $\nabla \psi = \mathbf{0}$, which occurs only when every component in the vector of asset returns equals] Moreover, combining this with the previous expression for $\lambda_V$ gives
+This says that the risk shadow price is inversely proportional to the ratio of the squared Mahalanobis distance ($d_m^2$) of the portfolio net reward gradient to the net reward. In this setting, the Mahalanobis distance reflects how improbable a given portfolio is. (Note that $d_m^2 = 0$ only when $\nabla \psi = \mathbf{0}$, which occurs only when every component in the vector of asset returns ($\mu$) equals the budget shadow price ($\lambda_C$)] Moreover, combining this with the previous expression for $\lambda_{\sigma}$ gives
 
 \begin{equation}
 \psi = d_m \bar{\sigma}
 \end{equation}
 
-The expected portfolio reward is thus equal to the the standard deviation of the portfolio scaled by the improbability of the portfolio.
+The investor's expected portfolio return is thus equal to their risk tolerance scaled by the improbability of the portfolio.
 
 Returning to the task at hand, in order to evaluate the optimal budget shares or the frontier in equations \ref{eq:rStar} and \ref{eq:budgetShares}, we must first solve for the cost and risk shadow prices $\lambda_C$ and $\lambda_V$.
 
@@ -216,7 +215,7 @@ where $M$ has been introduced to stand for the matrix
 M = [\boldsymbol{\mu}, \: \mathbf{1}]' \cdot \Sigma^{-1} \cdot [\boldsymbol{\mu}, \: \mathbf{1}]
 \end{equation}
 
-Let $M$ be called the "Merton matrix", after the man in whose footsteps I am now following [@merton1972analytic]. Pre-multiplying both sides of the previous equation by the inverse Merton matrix and rearranging gives the following expression: 
+Let $M$ be called the "Merton matrix", after the author in whose footsteps I am now following [@merton1972analytic]. Pre-multiplying both sides of the previous equation by the inverse Merton matrix and rearranging gives the following expression: 
 
 \begin{equation}
 2 M^{-1}\left[\begin{matrix}
@@ -292,11 +291,11 @@ U_R(\mathbf{w}; \boldsymbol{\mu}) = U_R(\mathbf{w}; \boldsymbol{\mu}, \ln \bar{C
 ## Dealing with noise-induced inaccuracy in MV Analysis
 
 <!-- As mentioned in the introduction, MV Analysis is of limited practical use in real life due to the difficulty involved in accurately estimating asset returns and correlations (for more details, see ()). While adapting MV Analysis to the AR4D context, I tried to address this problem in several different ways, all but one of which were ineffective. The one approach that showed some promise---at least with respect to the financial data used in this study---may be characterized as a dimensional reduction of the original problem. -->
-As mentioned in the introduction, the real world effectiveness of MV Analysis is severely limited by noise-induced inaccuracy in the efficient frontier. Real portfolio returns tend to be lower, and risk higher, than the MV frontier would suggest. To address this problem, I conduct MV Analysis over a portfolio containing only the signals (Eq. \ref{eq:signalEq}). This modified approach is compared against the conventional method below.
+As mentioned in the introduction, in practice the effectiveness of MV Analysis is severely limited by noise-induced inaccuracy in the efficient frontier. The empirical covariance matrix $\Sigma$ is typically ill conditioned, such that it is impossible to invert. A simple fix for this problem is to use the correlation matrix $K=D_{\sigma}^{-1}\Sigma D_{\sigma}^{-1}$ instead of the correlation matrix in the equations above. Even so, real portfolio returns tend to be lower, and risk higher, than the MV frontier would suggest. In the examples below, I propose a new approach to this problem. I conduct MV Analysis over a portfolio containing only the signals (Eq. \ref{eq:signalEq}). This may be characterized as a dimensional reduction of the original problem from several assets to just a few key cross-cutting trends.
 
 # An example from the financial context
 
-Before exploring the possibility of applying these tools to the AR4D context, it will be instructive to first apply them in the financial context where they have been developed. Below, daily financial data for 46 securities over the period 20 June 2018 to 8 August 2019 is downloaded directly into R from yahoo finance using the tidyquant package. The 46 securities have been chosen so as to represent the "radar screen" of a modern, broad minded investor. They are mostly exchange traded funds tracking broad categories of stocks, bonds, markets, and commodities, plus the major currency pair exchange rates traded on the FOREX market.
+Before exploring the possibility of applying these tools to the AR4D context, it will be instructive to first apply them in the financial context where they have been developed. Below, daily financial data for 46 securities over the period 20 June 2018 to 8 August 2019 is downloaded directly into R from yahoo finance using the tidyquant package. The 46 securities are meant to represent the range of markets that a modern, broad minded investor might have on their "radar screen". They are mostly exchange traded funds tracking broad categories of stocks, bonds, markets, and commodities, plus major currency pairs traded on the FOREX market.
 
 <!-- [Table here detailing the ETF names, what they track, and my category name] -->
 
@@ -788,7 +787,9 @@ if(check_on_data){
 
 ```
 
-The dataset is large enough to allow for backtesting of the optimal portfolio. The portfolio is optimized using the first two thirds of the data (the "train" data), and then backtested against the remaining third. Historical returns for these two datasets are presented in Figure \ref{fig:hReturns}. Correlation matrices for the train and test data are presented in Figure \ref{fig:corrMats}.
+The dataset is large enough to allow for backtesting of the optimal portfolio. The portfolio is optimized using the first two thirds of the data (the "train" data), and then backtested against the remaining third. Historical returns for these two datasets are presented in Figure \ref{fig:hReturns}.
+
+<!-- Correlation matrices for the train and test data are presented in Figure \ref{fig:corrMats}. -->
 
 ```{r, fig.show = 'hold', fig.cap="\\label{fig:hReturns}Historical (top) daily returns and (bottom) period return, train and test data.", fig.width=8, fig.height=12, fig.align='left', echo=FALSE}
 
@@ -1002,7 +1003,7 @@ p_corplot_test <- grid::grid.grab()
 ```
 
 ```{r, fig.show="hold", fig.cap="\\label{fig:corrMats}Correlation matrices, train and test data.", fig.width=7, fig.height=9, fig.align='center'}
-gridExtra::grid.arrange(p_corplot, p_corplot_test)
+#gridExtra::grid.arrange(p_corplot, p_corplot_test)
 
 ```
 
@@ -1058,7 +1059,6 @@ interpret_loadings(mat_loads_sig_train, fig_title = this_fig_title, fun_env)
 
 ```
 
-To further aid in analysis, an orthogonal varimax rotation is applied to the loadings matrix. The rotated loadings ($\tilde{L}_{\circlearrowright}$) are plotted in Figure \ref{fig:loadsRot}.
 
 ```{r, fig.show='hold', fig.width=10, fig.height=7, fig.align='center', fig.cap="\\label{fig:loadsRot}Rotated signal loadings, train data.", echo=FALSE}
 
@@ -1071,7 +1071,7 @@ interpret_loadings(mat_loads_rot_sig_train, fig_title = this_fig_title, fun_env)
 
 ```
 
-Now the picture is very clear. The varimax rotation has removed the overlap between signals. Even Signals 5 and 6 have a clear interpretation now. Signal 5 is highly correlated with agriculture, while Signal 6 tracks industrial metals---in contradistinction to Signal 2, which tracks precious metals.
+To further aid in analysis, I apply an orthogonal varimax rotation to the loadings matrix (Figure \ref{fig:loadsRot}). The rotated loadings ($\tilde{L}_{\circlearrowright}$) greatly clarify the picture, removing the overlap between signals. Even Signals 5 and 6 have a clear interpretation now. Signal 5 is highly correlated with agriculture, while Signal 6 tracks industrial metals---in contradistinction to Signal 2, which tracks precious metals.
 
 These loadings vary depending on the time period and size of the time window. However, a plot of the signals against their respective highest loading items suggests that signal correlations with some items are persistent over time (Figure \ref{fig:sigs2}).
 
@@ -1170,7 +1170,7 @@ plot_signals_against_associated_items(mat_loads_rot_sig_train,
 
 \pagebreak
 
-Moving to risk-adjusted portfolio optimization now, the optimal frontier and budget shares are calculated based on the train data and displayed on the left side of Figure \ref{fig:mvConv}. This is the baseline approach, allowing for negative budget shares. The frontier looks good, offering portfolio returns of 20% or more for relatively small risk. However, a backtest of the optimal weights (right side of Figure \ref{fig:mvConv}) indicates that the real return on investment in these optimal portfolios would have been much less, and the risk much higher, than the efficient fontier suggests.
+Proceeding now to the risk-adjusted portfolio optimization, the optimal frontier and budget shares are calculated based on the train data and displayed on the left side of Figure \ref{fig:mvConv}. This is the baseline approach, allowing for negative budget shares. The frontier looks good, offering portfolio returns of 20% or more for relatively small risk. However, a backtest of the optimal weights (right side of Figure \ref{fig:mvConv}) indicates that the real return on investment in these optimal portfolios would have been much less, and the risk much higher, than the efficient fontier suggests.
 
 ```{r, fig.show='hold', fig.width=10, fig.height=4, fig.align='center', fig.cap="\\label{fig:mvConv}\\textit{(Left)} Optimal frontier and budget shares, unmodified MV Analysis. \\textit{(Right)} Backtest of the optimal frontier.", echo = FALSE}
 # Get backtest data
@@ -1527,7 +1527,7 @@ gg_backtest <- plot_frontier_wBacktest(df_frontier,
 
 ```
 
-Since much of the inaccuracy of the MV frontier is attributable to noise in the data, it stands to reason that the optimal frontier of a portfolio containing only signals---i.e. the significant information in the data, purged of noise---will be more accurate. But is this true? The frontier and budget shares of the signals portfolio are displayed on the left side of in Figure \ref{fig:mvUSig}. The optimal frontier for such a portfolio is unappealing compared to the conventional frontier, but the backtest (right side of Figure \ref{fig:mvUSig}) reveals that the solutions yield a much better performance, at least over this particular dataset. More experimentation is required, of course, before this can be confirmed or rejected as a general rule. Note that a signals portfolio also has the benefit of reducing transaction costs. Were banks or other financial institutions to create products (along the lines of an ETF, for example) that track signals, investors could then invest in just a handful of signals instead of potentially several dozen securities.
+Since much of the inaccuracy of the MV frontier is attributable to noise in the data, it stands to reason that the optimal frontier of a portfolio containing only signals---i.e. the significant information in the data, purged of noise---will be more accurate. But is this true? The frontier and budget shares of the signals portfolio are displayed on the left side of in Figure \ref{fig:mvUSig}. The optimal frontier for such a portfolio is unappealing compared to the conventional frontier, but the backtest (right side of Figure \ref{fig:mvUSig}) reveals that the solutions yield a much better performance, at least over this particular dataset. More experimentation is required, of course, before this can be confirmed or rejected as a general rule. Note that a signals portfolio also has the benefit of reducing transaction costs. Were banks or other financial institutions to create products (along the lines of an ETF, for example) that track such signals, investors could then invest in just a handful of signals instead of the potentially several dozen securities that the signals are correlated with.
 
 
 ```{r, fig.show='hold', fig.width=10, fig.height=4, fig.align='center', fig.cap="\\label{fig:mvUSig}\\textit{(Left)} Optimal frontier and budget shares, signals approach (using utility functions). The signals are named in accordance with their respective highest loading items, and numbered in descending order of their respective eigenvalues. \\textit{(Right)} Backtest of the optimal frontier.", echo=F}
@@ -1588,7 +1588,8 @@ gg_backtest <- plot_frontier_wBacktest(df_frontier,
 
 # An example in the AR4D context
 
-In this section, the workflow presented above is applied to the AR4D context using FAO yearly farmgate price (Value of Agricultural Production divided by Production, 1991-2016) data for staple crops in Sub-Saharan Africa. Historical daily returns and period return are presented in Figure \ref{fig:hReturnsFAO}, and a correlation matrix is presented in Figure \ref{fig:cormatFAO}.
+In this section, the workflow presented above is applied to the AR4D context using FAO yearly farmgate price^["Value of Agricultural Production" divided by "Production"] data for staple crops in Sub-Saharan Africa for the years 1991-2016. Historical daily returns and period return are presented in Figure \ref{fig:hReturnsFAO}.
+<!-- , and a correlation matrix is presented in Figure \ref{fig:cormatFAO}. -->
 
 <!-- There is not enough data to conduct a backtest. However, the historical data is extended into two hypothetical futures using the IMPACT model. Both futures run out to 2050, but under different sets of assumptions regarding future demographic, economic, climatic, and greenhouse gas mitigation trends.  referred to as Shared Socioeconomic Pathways (SSPs). Each future is also run under . Backtests are then conducted over the future projection. -->
 
@@ -1834,8 +1835,8 @@ corr_colorRamp <- colorRampPalette(c("darkred", "white", "blue4"))(50)
 #cormat <- Hmisc::rcorr(mat_pctDiff_train[, cols_ordered_by_group])$r
 cormat <- cor(mat_pctDiff_train[, cols_ordered_by_group])
 #cormat <- cov(mat_pctDiff_train[, cols_ordered_by_group])
-corrplot::corrplot(cormat, is.corr = T, type = "lower", tl.col = group_color_vec, tl.srt = 30,
-                   col = corr_colorRamp)
+# corrplot::corrplot(cormat, is.corr = T, type = "lower", tl.col = group_color_vec, tl.srt = 30,
+#                    col = corr_colorRamp)
 
 
 # gridGraphics::grid.echo()
@@ -1930,7 +1931,7 @@ plot_signals_against_associated_items(mat_loads_rot_sig_train,
 
 \pagebreak
 
-The efficient frontier and budget allocation is displayed in Figure \ref{fig:mvUtilityFAO}, suggesting that resources should be primarily allocated across legumes, roots and tubers in this particular geographic area. Unfortunately, the FAO data is not long enough to permit backtesting of this result.
+The efficient frontier and budget allocation is displayed in Figure \ref{fig:mvUtilityFAO}, suggesting that resources should be primarily allocated across legumes, roots and tubers in this particular geographic area. Unfortunately, the FAO dataset is not large enough to permit backtesting of this result.
 
 ```{r, fig.show='hold', fig.width=5, fig.height=6, fig.align='center', fig.cap="\\label{fig:mvUtilityFAO}Efficient frontier and budget shares, Sub-Saharan farmgate price data", echo = FALSE}
 #=======================================================================
@@ -2020,7 +2021,7 @@ MV Analysis is still a work in progress even in the financial context where it o
 
 When applied to the AR4D context, the modified portfolio optimization workflow yields analagous insights. The crops loading highest onto the signals are those which are most correlated with the signals (Figures \ref{fig:loadsRotFAO} and \ref{fig:sigs2FAO}). However, the AR4D data environment is much sparser, yielding just two signals that can be meaningfully distinguished from noise, and not enough observations to conduct a backtest. As FAO resolution (number of observations) increases, the components of the system will become more clearly rendered.
 
-A key difference between the financial and AR4D contexts is that AR4D portfolio optimization usually has a specific geographic focus. In the toy exercise presented here, the geographic focus is Sub-Saharan Africa. For a wide range of risk tolerances, the model says that most of the budget should be allocated to legumes, followed by roots and tubers, and then cereals (Figure \ref{fig:mvUtilityFAO}), more or less reflecting the period returns shown in Figure \ref{fig:hReturnsFAO}.
+A key difference between the financial and AR4D contexts is that AR4D portfolio optimization usually has a specific geographic focus. In the toy exercise presented here, the geographic focus is Sub-Saharan Africa. For a wide range of risk tolerances, the model says that most of the budget should be allocated to legumes, followed by roots and tubers, and then cereals (Figure \ref{fig:mvUtilityFAO}). Note that this loosely reflects the period returns shown in Figure \ref{fig:hReturnsFAO}.
 
 This exercise has merely scratched the surface of the potential for MV analysis applications in the AR4D context. An obvious next step would be to repeat the exercise for different geographies and country groupings ("Net Food Importing Developing Countries", etc.).^[My own cursory explorations suggest that efficient frontiers and budget shares vary substantially from one geography to another.] It would also be interesting to repeat the analysis on a value per kilocalorie basis rather than the value per unit weight basis used above. Finally, the problem of small datasets could potentially be redressed by extending the FAO dataset into the future with IMPACT projections. "Future backtests" of the optimal portfolio could then be conducted for different RCP/SSP combinations.
 
