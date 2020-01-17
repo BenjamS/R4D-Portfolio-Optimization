@@ -6,18 +6,17 @@ author:
     affiliation: CIAT
 address:
   - code: CIAT
-    address: Bioversity CIAT Alliance, Km 17 Recta Cali-Palmira, Valle del Cauca, Colombia
+    address: Decision and Policy Analysis Unit, Alliance Bioversity-CIAT, Km 17 Recta Cali-Palmira, Valle del Cauca, Colombia
 abstract: |
  Conventional agricultural research for development (AR4D) priority setting exercises generate valuable insight into the strengths and weaknesses of individual agricultural research proposals, but they stop short of providing tools that can translate this insight into optimal resource allocation shares across a portfolio containing several such proposals. They also lack tools for risk accounting. Here I explore the possibility of redressing both methodological lacunae in one stroke by adapting Mean-Variance (MV) Analysis, a risk-adjusted portfolio optimization technique developed in financial contexts, to the AR4D portfolio optimization problem. Along the way, I present new approaches to two old problems in MV Analysis: negative budget shares and noise-induced inaccuracy. These innovations compare favorably to the baseline Mean-Variance model in a backtest using financial data. I then apply the modified MV model to the AR4D context using FAO farmgate price data for Sub-Saharan Africa.
 keywords: Risk-adjusted portfolio optmization, Mean-Variance Analysis, AR4D, ex-ante impact assessment, foresight
-journal: Bioversity CIAT Alliance Working Paper
+journal: Alliance Bioversity-CIAT Working Paper
 bibliography: AR4D Portfolio Optimization.bib
 header-includes:
   - \usepackage{float}
   - \floatplacement{figure}{H}
 #linenumbers: true
 numbersections: true
-csl: elsevier-harvard.csl
 output:
   rticles::elsevier_article:
     latex_engine: xelatex
@@ -295,7 +294,7 @@ As mentioned in the introduction, in practice the effectiveness of MV Analysis i
 
 # An example from the financial context
 
-Before exploring the possibility of applying these tools to the AR4D context, it will be instructive to first apply them in the financial context where they have been developed. Below, daily financial data for 46 securities over the period 20 June 2018 to 8 August 2019 is downloaded directly into R from yahoo finance using the tidyquant package. The 46 securities are meant to represent the range of markets that a modern, broad minded investor might have on their "radar screen". They are mostly exchange traded funds tracking broad categories of stocks, bonds, markets, and commodities, plus major currency pairs traded on the FOREX market.
+Before exploring the possibility of applying these tools to the AR4D context, it will be instructive to first apply them in the financial context where they have been developed. Below, daily financial data for 46 securities over the period 20 June 2018 to 8 August 2019 is downloaded directly into R from yahoo finance using the tidyquant package. The 46 securities are meant to represent the range of markets that a modern, broad minded investor might have on their "radar screen". They are mostly exchange traded funds tracking broad categories of stocks, bonds, markets, and commodities, plus major currency pairs traded on the foreign exchange market.
 
 <!-- [Table here detailing the ETF names, what they track, and my category name] -->
 
@@ -787,7 +786,9 @@ if(check_on_data){
 
 ```
 
-The dataset is large enough to allow for backtesting of the optimal portfolio. The portfolio is optimized using the first two thirds of the data (the "train" data), and then backtested against the remaining third. Historical returns for these two datasets are presented in Figure \ref{fig:hReturns}.
+The dataset is large enough to allow for backtesting of the optimal portfolio. The portfolio is optimized using the first two thirds of the data (the "train" data), and then backtested against the remaining third. Historical returns for these two datasets are presented in Figure \ref{fig:hReturns}. Returns are calculated as
+
+$$$$
 
 <!-- Correlation matrices for the train and test data are presented in Figure \ref{fig:corrMats}. -->
 
@@ -1011,7 +1012,7 @@ p_corplot_test <- grid::grid.grab()
 
 In Figure \ref{fig:eigDens}, a density plot of the correlation matrix eigenvalues is compared against one of eigenvalues derived from a random matrix. In this plot, it is evident that most eigenvalues are small and cannot be distinguished from noise, but six of them extend beyond the random matrix eigenvalue density plot. These correspond to the eigenvectors that can be meaningfully distinguished from noise.
 
-```{r, fig.show = 'hold', fig.width=4, fig.height=2, fig.align='center', fig.cap="\\label{fig:eigDens}Eigenvalue density plots for the financial data correlation matrix and a\ncorrelation matrix of a random dataset of the same dimensions.", echo=FALSE}
+```{r, fig.show = 'hold', fig.width=5, fig.height=3, fig.align='center', fig.cap="\\label{fig:eigDens}Eigenvalue density plots for the financial data correlation matrix and a\ncorrelation matrix of a random dataset of the same dimensions.", echo=FALSE}
 fun_env = list(eigenvalue_density_plot = T,
                pca_var_plot = F,
                pca_ind_plot = F,
@@ -1172,7 +1173,7 @@ plot_signals_against_associated_items(mat_loads_rot_sig_train,
 
 Proceeding now to the risk-adjusted portfolio optimization, the optimal frontier and budget shares are calculated based on the train data and displayed on the left side of Figure \ref{fig:mvConv}. This is the baseline approach, allowing for negative budget shares. The frontier looks good, offering portfolio returns of 20% or more for relatively small risk. However, a backtest of the optimal weights (right side of Figure \ref{fig:mvConv}) indicates that the real return on investment in these optimal portfolios would have been much less, and the risk much higher, than the efficient fontier suggests.
 
-```{r, fig.show='hold', fig.width=10, fig.height=4, fig.align='center', fig.cap="\\label{fig:mvConv}\\textit{(Left)} Optimal frontier and budget shares, unmodified MV Analysis. \\textit{(Right)} Backtest of the optimal frontier.", echo = FALSE}
+```{r, fig.show='hold', fig.width=9, fig.height=4, fig.align='center', fig.cap="\\label{fig:mvConv}\\textit{(Left)} Optimal frontier and budget shares, unmodified MV Analysis. \\textit{(Right)} Backtest of the optimal frontier.", echo = FALSE}
 # Get backtest data
 fun_env = list(eigenvalue_density_plot = F,
                pca_var_plot = F,
@@ -1289,7 +1290,12 @@ plot_frontier_and_budget <- function(df_frontier, df_wStar,
                                      varNames_ordered,
                                      fig_title = NULL,
                                      group_info = NULL,
-                                     group_colors = NULL){
+                                     group_colors = NULL,
+                                     group_small = NULL){
+  #-------------------------------------------
+  if(!is.null(group_info) & !is.null(group_small)){
+    print("group_info and group_small cannot both be not null!")
+  }
   #-------------------------------------------
   # Frontier plot
   #if(is.null(fig_title)){fig_title <- "Optimal Portfolio Frontier"}
@@ -1307,9 +1313,24 @@ plot_frontier_and_budget <- function(df_frontier, df_wStar,
   # Note df_w_in should have just the target risk column (i.e. don't also include the backtest risk column). At any rate, the budget risk column should be the same as the one used in the frontier plot.
   df_plot <- df_wStar
   gathercols <- colnames(df_plot)[-1]
+  #------------------------------------
+  if(!is.null(group_small)){
+    mat_plot <- as.matrix(df_plot[, -1])
+    mu_vec <- apply(mat_plot, 2, mean)
+    ind_group_small <- which(mu_vec < 10^-2)
+    other_col <- rowSums(mat_plot[, ind_group_small])
+    
+    mat_plot <- mat_plot[, -ind_group_small]
+    df_plot <- as.data.frame(mat_plot)
+    df_plot$Other <- other_col
+    df_plot$`Risk (variance)` <- df_wStar$`Risk (variance)`
+    gathercols <- colnames(df_plot)[-ncol(df_plot)]
+  }
+  #------------------------------------
   df_plot$portfolio_id <- 1:n_points_on_frontier
   df_match_V <- df_plot[, c("portfolio_id", "Risk (variance)")]
   df_plot <- df_plot %>% gather_("Item", "Budget shares", gathercols)
+  
   if(!is.null(group_info)){
     list_groups <- group_info[[1]]
     group_names <- group_info[[2]]
@@ -1363,6 +1384,7 @@ get_optimal_frontier <- function(cormat, mat_nab,
     frontier_and_budget_plot = T
     group_info = NULL
     group_colors = NULL
+    group_small = NULL
     #C_targ = 1
   }else{
     n_points_on_frontier = fun_env[[1]]
@@ -1371,6 +1393,7 @@ get_optimal_frontier <- function(cormat, mat_nab,
     frontier_and_budget_plot = fun_env[[4]]
     group_info = fun_env[[5]]
     group_colors = fun_env[[6]]
+    group_small = fun_env[[7]]
     #C_targ = fun_env[[7]]
   }
   #-------------------------------------------
@@ -1426,7 +1449,8 @@ get_optimal_frontier <- function(cormat, mat_nab,
                                            varNames_ordered = varNames_ordered,
                                            fig_title = fig_title,
                                            group_info,
-                                           group_colors)
+                                           group_colors,
+                                           group_small)
   }
   #--------------------------------------
   list_out <- list(df_wStar, df_frontier, df_backtest, outlist_gg)
@@ -1465,7 +1489,8 @@ fun_env <- list(n_points_on_frontier,
                 backtest_info = list(nab_pctRet_test, cormat_test),
                 frontier_and_budget_plot = T,
                 group_info,
-                group_colors)#,
+                group_colors,
+                group_small = NULL)#,
                 #C_targ)
 
 list_out <- get_optimal_frontier(cormat, mat_nab,
@@ -1492,18 +1517,21 @@ gg_backtest <- plot_frontier_wBacktest(df_frontier,
 
 ```
 
-The optimal frontier and budget shares using the utility approach presented in the methods section are plotted on the left in Figure \ref{fig:mvUtility}. The frontier looks much less appealing than the unmodified frontier. However, a backtest (right side of Figure \ref{fig:mvUtility}) suggests that it is more accurate than the unmodified approach.
+The optimal frontier and budget shares using the utility approach presented in the methods section are plotted on the left in Figure \ref{fig:mvUtility}. Note how the optimal budget allocations increase with risk tolerance for some asset groups while dereasing for others. Specifically, the optimal budget allocated to the U.S. Sectors, Energy, and Mineral assets increases with risk tolerance, while optimal budget allocated to the other asset groups decreases with risk tolerance.
+
+Note also that the frontier here looks much less appealing than the unmodified frontier above. However, a backtest (right side of Figure \ref{fig:mvUtility}) suggests that it is more accurate than the unmodified approach.
 
 \pagebreak
 
-```{r, fig.show='hold', fig.width=10, fig.height=4, fig.align='center', fig.cap="\\label{fig:mvUtility}\\textit{(Left)} Optimal frontier and budget shares, replacing returns and cost with utility functions. \\textit{(Right)} Backtest of the optimal frontier.", echo = FALSE}
+```{r, fig.show='hold', fig.width=9, fig.height=4, fig.align='center', fig.cap="\\label{fig:mvUtility}\\textit{(Left)} Optimal frontier and budget shares, replacing returns and cost with utility functions. \\textit{(Right)} Backtest of the optimal frontier.", echo = FALSE}
 
 fun_env <- list(n_points_on_frontier,
                 utility_interpretation = T,
                 backtest_info = list(nab_pctRet_test, cormat_test),
                 frontier_and_budget_plot = T,
                 group_info,
-                group_colors)
+                group_colors,
+                group_small = NULL)
 
 list_out <- get_optimal_frontier(cormat, mat_nab,
                                  Rtarg_limits = c(0.01, 5),
@@ -1561,7 +1589,8 @@ fun_env <- list(n_points_on_frontier,
                 backtest_info = list(nab_pctRet_test, cormat_test),
                 frontier_and_budget_plot = T,
                 group_info = NULL,
-                group_colors = NULL)
+                group_colors = NULL,
+                group_small = NULL)
 
 list_out <- get_optimal_frontier(cormat, mat_nab,
                                  Rtarg_limits = c(0.1, 0.5),
@@ -1861,7 +1890,7 @@ In Figure \ref{fig:eigDensFAO}, a density plot of the correlation matrix eigenva
 
 The signals are constructed and plotted in Figure \ref{fig:sigs1FAO}. The first signal again hews closely to the average, but not quite as tightly as in the financial context. Turning to the rotated signal loadings in Figure \ref{fig:loadsRotFAO} for more clarity, it appears that the first signal is primarily correlated with movements in the prices of sweet potato, cassava, soybean, and cowpea. Interestingly, the cereals appear to contribute little to Signal 1. Signal 2 appears mostly to reflect movements in lentil and chick pea prices. These observations are then further corroborated by a plot of the signals against their respective highest loading prices (Figure \ref{fig:sigs2FAO}).
 
-```{r, fig.show='hold', fig.width=4, fig.height=2, fig.align='center', fig.cap="\\label{fig:eigDensFAO}Eigenvalue density plots for the farmgate price data correlation matrix and a\ncorrelation matrix of a random dataset of the same dimensions.", echo=F}
+```{r, fig.show='hold', fig.width=5, fig.height=3, fig.align='center', fig.cap="\\label{fig:eigDensFAO}Eigenvalue density plots for the farmgate price data correlation matrix and a\ncorrelation matrix of a random dataset of the same dimensions.", echo=F}
 
 # mat_z <- scale(mat)
 #   year_vec <- df_in$Year
@@ -1931,9 +1960,11 @@ plot_signals_against_associated_items(mat_loads_rot_sig_train,
 
 \pagebreak
 
-The efficient frontier and budget allocation is displayed in Figure \ref{fig:mvUtilityFAO}, suggesting that resources should be primarily allocated across legumes, roots and tubers in this particular geographic area. Unfortunately, the FAO dataset is not large enough to permit backtesting of this result.
+The efficient frontier and budget allocation is displayed in Figure \ref{fig:mvUSigsFAO}. In this analysis, cost and return are replaced by the utility of cost and return, as explained in the methodology section. In this graphic, the solution suggests that, for a wide range of risk tolerances, investments should focus primarily on lentils and sweet potatoes, followed by millet, yams, and beans. Note also that the optimal budget allocation for lentils and sweet potatoes increases with risk tolerance, whereas the portions going to millet, yams, and beans increase as the investor is more risk averse.
 
-```{r, fig.show='hold', fig.width=5, fig.height=6, fig.align='center', fig.cap="\\label{fig:mvUtilityFAO}Efficient frontier and budget shares, Sub-Saharan farmgate price data", echo = FALSE}
+The signals portfolio efficient frontier and budget allocation is displayed in Figure  \ref{fig:mvUSigFAO}
+
+```{r, fig.show='hold', fig.width=9, fig.height=5, fig.align='center', fig.cap="\\label{fig:mvUSigsFAO}\textit{(Left)} Optimal frontier and budget shares, Sub-Saharan farmgate price of staple crops. \textit{(Right)} Optimal frontier and budget shares, signals. The signals are named in accordance with their respective highest loading items, and numbered in descending order of their respective eigenvalues.", echo = FALSE}
 #=======================================================================
 # Conventional risk-reward frontier
 n_items <- ncol(mat_pctDiff)
@@ -1964,7 +1995,7 @@ if(!is.null(mat_pctDiff_test)){
 
 #------------------------------------
 if(this_area == "South America"){these_Rtarg_limits <- c(1, 12)}
-if(this_area == "Sub-Saharan Africa"){these_Rtarg_limits <- c(15, 30)}
+if(this_area == "Sub-Saharan Africa"){these_Rtarg_limits <- c(10, 35)} #c(15, 30)
 if(this_area == "Asia"){these_Rtarg_limits <- c(12, 60)}
 if(this_area == "Low Income Food Deficit Countries"){these_Rtarg_limits <- c(1, 20)}
 if(this_area == "Net Food Importing Developing Countries"){these_Rtarg_limits <- c(1, 20)}
@@ -1974,8 +2005,9 @@ fun_env <- list(n_points_on_frontier,
                 utility_interpretation = T,
                 backtest_info,
                 frontier_and_budget_plot = T,
-                group_info = group_info,
-                group_colors = NULL)
+                group_info = NULL,
+                group_colors = NULL,
+                group_small = T)
 
 #this_fig_title <- paste("Figure 19: Optimal portfolio frontier, utility weights,", this_area)
 this_fig_title <- NULL
@@ -1984,12 +2016,12 @@ list_out <- get_optimal_frontier(cormat, mat_nab,
                                  fig_title = this_fig_title,
                                  fun_env)
 
-df_frontier <- list_out[[2]]
-df_backtest <- list_out[[3]]
+# df_frontier <- list_out[[2]]
+# df_backtest <- list_out[[3]]
 outlist_gg <- list_out[[4]]
 gg_frontier <- outlist_gg[1]
 gg_weights <- outlist_gg[2]
-gg_frontier[[1]] + gg_weights[[1]] + plot_layout(ncol = 1)
+gg_mvUFAO <- gg_frontier[[1]] + gg_weights[[1]] + plot_layout(ncol = 1)
 #------------------------------------
 # gg_backtest <- plot_frontier_wBacktest(df_frontier,
 #                                        df_backtest,
@@ -1997,16 +2029,57 @@ gg_frontier[[1]] + gg_weights[[1]] + plot_layout(ncol = 1)
 # #------------------------------------
 # (gg_frontier[[1]] / gg_weights[[1]] / plot_layout(ncol = 1)) | gg_backtest
 # #https://gotellilab.github.io/GotelliLabMeetingHacks/NickGotelli/ggplotPatchwork.html
+#=======================================================================
+# Signals correlation matrix risk-reward frontier
+n_signals <- ncol(mat_loads_sig_train)
+nab_C <- rep(1, n_signals)
 #------------------------------------
+#mat_pctDiff_sig_test <- mat_pctDiff_test %*% mat_eigvecs_sig_train
+#------------------------------------
+# Correlation matrix
+cormat <- cor(mat_pctDiff_sig_train)
+#cormat_test <- round(cor(mat_pctDiff_sig_test), 7)
+# covmat <- cov(mat_pctDiff_sig_train)
+# covmat_test <- round(cov(mat_pctDiff_sig_test), 7)
+# cormat <- Hmisc::rcorr(mat_pctDiff_sig_train)$r
+# cormat_test <- round(Hmisc::rcorr(mat_pctDiff_sig_test)$r, 7)
+#------------------------------------
+# Expected returns vector
+#nab_pctRet_train <- apply(mat_pctDiff_sig_train[ind_equal_test, ], 2, function(x) prod(1 + x)) - 1
+nab_pctRet_train <- apply(mat_pctDiff_sig_train, 2, function(x) prod(1 + x)) - 1
+#nab_pctRet_test <- apply(mat_pctDiff_sig_test, 2, function(x) prod(1 + x)) - 1
+#------------------------------------
+mat_nab <- cbind(nab_pctRet_train, nab_C)
+signal_names <- c("Sig. 1: Sweet Potatoes,\nCassava, Cowpeas", "Sig. 2: Lentils,\n Chickpeas")
+row.names(mat_nab) <- signal_names
+#------------------------------------
+fun_env <- list(n_points_on_frontier,
+                utility_interpretation = T,
+                backtest_info = NULL,
+                frontier_and_budget_plot = T,
+                group_info = NULL,
+                group_colors = NULL,
+                group_small = NULL)
 
+list_out <- get_optimal_frontier(cormat, mat_nab,
+                                 Rtarg_limits = c(0.8, 3),
+                                 fig_title = NULL,
+                                 fun_env)
 
+df_frontier <- list_out[[2]]
+df_backtest <- list_out[[3]]
+outlist_gg <- list_out[[4]]
+gg_frontier <- outlist_gg[1]
+gg_weights <- outlist_gg[2]
+gg_mvUSigsFAO <- gg_frontier[[1]] + gg_weights[[1]] + plot_layout(ncol = 1)
+#=======================================================================
+gg_mvUFAO | gg_mvUSigsFAO
+#=======================================================================
 
 ```
 
+```{r, fig.show='hold', fig.width=5, fig.height=5, fig.align='center', fig.cap="\\label{fig:mvUSigFAO}\\textit{(Left)}  \\textit{(Right)} Backtest of the optimal frontier.", echo=F}
 
-```{r}
-
-#future backtests using IMPACT projections under different SSP/RCP combos
 
 ```
 
@@ -2019,11 +2092,11 @@ gg_frontier[[1]] + gg_weights[[1]] + plot_layout(ncol = 1)
 
 MV Analysis is still a work in progress even in the financial context where it originated. In my adaptation to the AR4D context, I have attempted to redress the issue of negative budget shares by replacing the revenue and cost functions with utility functions. To redress the issue of noise-induced inaccuracy, I have attempted to purge the noise from the portfolio by dimensionally reducing the portfolio to a handful of signals constructed from those eigenvectors of the data correlation matrix that can be meaningfully distinguished from noise. To isolate these signals, I have applied a criterion developed in the study of phsyical systems, more rigorous than the usual rules of thumb. A backtest of these modifications compares favorably to conventional MV Analysis.
 
-When applied to the AR4D context, the modified portfolio optimization workflow yields analagous insights. The crops loading highest onto the signals are those which are most correlated with the signals (Figures \ref{fig:loadsRotFAO} and \ref{fig:sigs2FAO}). However, the AR4D data environment is much sparser, yielding just two signals that can be meaningfully distinguished from noise, and not enough observations to conduct a backtest. As FAO resolution (number of observations) increases, the components of the system will become more clearly rendered.
+When applied to the AR4D context, the modified portfolio optimization workflow yields analagous insights. The crops loading highest onto the signals are those which are most correlated with the signals (Figures \ref{fig:loadsRotFAO} and \ref{fig:sigs2FAO}). The optimal budget allocation increases with investor risk tolerance for some crops, while decreasing for others (Figure \ref{fig:mvUtilityFAO}). 
 
-A key difference between the financial and AR4D contexts is that AR4D portfolio optimization usually has a specific geographic focus. In the toy exercise presented here, the geographic focus is Sub-Saharan Africa. For a wide range of risk tolerances, the model says that most of the budget should be allocated to legumes, followed by roots and tubers, and then cereals (Figure \ref{fig:mvUtilityFAO}). Note that this loosely reflects the period returns shown in Figure \ref{fig:hReturnsFAO}.
+However, the AR4D data environment is much sparser, yielding just two signals that can be meaningfully distinguished from noise, and not enough observations to conduct a backtest. As FAO resolution (number of observations) increases, the components of the system will become more clearly rendered. In the meantime, the FAO dataset could be extended into the future using IMPACT projections. "Future backtests" of the optimal portfolio could then be conducted for different Representative Concentration Pathway and Shared Socioeconomic Pathway scenario combinations [@IMPACT citation].
 
-This exercise has merely scratched the surface of the potential for MV analysis applications in the AR4D context. An obvious next step would be to repeat the exercise for different geographies and country groupings ("Net Food Importing Developing Countries", etc.).^[My own cursory explorations suggest that efficient frontiers and budget shares vary substantially from one geography to another.] It would also be interesting to repeat the analysis on a value per kilocalorie basis rather than the value per unit weight basis used above. Finally, the problem of small datasets could potentially be redressed by extending the FAO dataset into the future with IMPACT projections. "Future backtests" of the optimal portfolio could then be conducted for different RCP/SSP combinations.
+This exercise has merely scratched the surface of the potential for MV analysis applications in the AR4D context. An obvious next step would be to repeat the exercise for different geographies and country groupings ("Net Food Importing Developing Countries", etc.).^[My own cursory explorations suggest that efficient frontiers and budget shares vary substantially from one geography to another.] It would also be interesting to repeat the analysis on a value per kilocalorie basis rather than the value per unit weight basis used above. Finally, in the AR4D context the portfolio approach need not be based on crops or price data at all. The portfolio could, rather, contain research programs; and the returns vector could reflect their respective expected impacts, measured using ex-ante impact assessment tools. This would be more in line with the AR4D resource allocation workflow articulated by Mills, referred to at the start of this paper. However, this more direct approach would require assessment not only of expected impacts, but also of the risks associated with each program. It would also require a precise assessment of synergies and tradeoffs between programs, such that a program impact covariance matrix could be estimated. Any effort to apply MV analysis to a portfolio of programs, initiatives, or projects must first adequately address these issues.
 
 
 
