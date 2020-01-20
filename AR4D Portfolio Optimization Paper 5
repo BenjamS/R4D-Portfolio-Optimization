@@ -89,10 +89,10 @@ key points of the argument:
 -In AR4D context we do not have data (which the fin context has), but we do have a good understanding of the dimensionality of the portfolio space, and of how the different portfolio items map onto it (which is lacking in the fin context).
 -I am essentially arguing that the latter can stand in for the former.
 -May not be exactly consistent with the true matrix, but it is consistent with our knowledge of the space.
--There is a real sense in which we do not want the reconstructed correlation matrix to equal the empirical correlation matrix. The reconstructed matrix purges noise.
+[-There is a real sense in which we do not want the reconstructed correlation matrix to equal the empirical correlation matrix. The reconstructed matrix purges noise.]
+-Then there comes the issue of singularity. The estimated covariance matrix will have n - k eigenvalues equal to zero. This means that the determinant will be zero, which in turn means that \hat{\Sigma} will be singular, and hence not invertible. To reintroduce invertibility, I replace the zero eigenvalues with non-negative values in accordance with a rudimentary log-linear model fitted to the signal eigenvalues.
 
-
-
+-The covariance matrix is defined up to an orthogonal rotation of its eigenvectors
 
 
 
@@ -383,7 +383,7 @@ signals_from_noise <- function(mat_pctDiff,
   eigvals <- as.data.frame(res$eig)$eigenvalue
   eigval_max <- max(eigvals)
   mat_loads <- res$var$coord
-  mat_loads_rot <- varimax(mat_loads)[[1]]
+  mat_loads_rot <- as.matrix(varimax(mat_loads)[[1]])
   mat_eigvecs <- mat_loads %*% diag(1 / sqrt(eigvals))
   # cormat <- cor(mat_pctDiff)
   # kappa(cormat)
@@ -1249,6 +1249,7 @@ mat_pctDiff_sig_test <- list_out[[5]]
 #=======================================================================
 # Define portfolio optimization function
 optimize_portfolio <- function(cormat, mat_nab, targ_vec,
+                               backtest_info = NULL,
                                utility_interpretation = F){
   cormat_inv <- solve(cormat)
   M <- t(mat_nab) %*% cormat_inv %*% mat_nab
@@ -1283,32 +1284,40 @@ optimize_portfolio <- function(cormat, mat_nab, targ_vec,
     V <- t(wStar) %*% cormat %*% wStar
   } 
   #if(l_V > 0){wStar <- rep(NA, length(wStar))}
-  list_out <- list(wStar, Rtarg, V, l_V, l_C)
+  #----------------------------------------------------
+  if(!is.null(backtest_info)){
+    nab_pctRet_test <- backtest_info[["nab_pctRet_test"]]
+    Rtest <- t(wStar) %*% nab_pctRet_test
+  }else{
+    Rtest <- NULL
+  }
+  #----------------------------------------------------
+  list_out <- list(wStar, Rtarg, V, l_V, l_C, Rtest)
   return(list_out)
   
 }
 #=======================================================================
-backtest_portfolio <- function(wStar, nab_pctRet_test, cormat_test,
-                               include_benchmark = F){
-  #----------------------------------------------------
-  # Backtest
-  R_test <- t(wStar) %*% nab_pctRet_test
-  V_test <- t(wStar) %*% cormat_test %*% wStar
-  if(include_benchmark){
-    # Benchmark portfolio
-    n_items <- ncol(cormat)
-    wBmark <- rep(1 / n_items, n_items)
-    R_test_bMark <- t(wBmark) %*% nab_pctRet_test
-    V_test_bMark <- t(wBmark) %*% cormat_test %*% wBmark
-  }else{
-    R_test_bMark <- NULL
-    V_test_bMark <- NULL
-  }
-  #----------------------------------------------------
-  outvec <- c(R_test, V_test, R_test_bMark, V_test_bMark)
-  return(outvec)
-  
-}
+# backtest_portfolio <- function(wStar, nab_pctRet_test, cormat_test,
+#                                include_benchmark = F){
+#   #----------------------------------------------------
+#   # Backtest
+#   R_test <- t(wStar) %*% nab_pctRet_test
+#   V_test <- t(wStar) %*% cormat_test %*% wStar
+#   if(include_benchmark){
+#     # Benchmark portfolio
+#     n_items <- ncol(cormat)
+#     wBmark <- rep(1 / n_items, n_items)
+#     R_test_bMark <- t(wBmark) %*% nab_pctRet_test
+#     V_test_bMark <- t(wBmark) %*% cormat_test %*% wBmark
+#   }else{
+#     R_test_bMark <- NULL
+#     V_test_bMark <- NULL
+#   }
+#   #----------------------------------------------------
+#   outvec <- c(R_test, V_test, R_test_bMark, V_test_bMark)
+#   return(outvec)
+#   
+# }
 #=======================================================================
 plot_frontier_wBacktest <- function(df_frontier,
                                     df_backtest,
@@ -1349,7 +1358,6 @@ plot_frontier_wBacktest <- function(df_frontier,
 plot_frontier_and_budget <- function(df_frontier, df_wStar,
                                      n_points_on_frontier,
                                      varNames_ordered,
-                                     fig_title = NULL,
                                      group_info = NULL,
                                      group_colors = NULL,
                                      group_small = NULL){
@@ -1360,9 +1368,15 @@ plot_frontier_and_budget <- function(df_frontier, df_wStar,
   #-------------------------------------------
   # Frontier plot
   #if(is.null(fig_title)){fig_title <- "Optimal Portfolio Frontier"}
-  df_plot <- df_frontier[, c("Risk (variance)", "Return target")]
-  gg <- ggplot(df_plot, aes(x = `Risk (variance)`, y = `Return target`))
-  gg <- gg + labs(title = fig_title)
+  #df_plot <- df_frontier[, c("Risk (variance)", "Return target")]
+  df_plot <- df_frontier
+  if(ncol(df_plot) == 3){
+    gathercols <- colnames(df_plot)[2:3]
+    df_plot <- df_plot %>% gather_("Type", "Value", gathercols)
+    gg <- ggplot(df_plot, aes(x = `Risk (variance)`, y = Value, group = Type, color = Type))
+  }else{
+    gg <- ggplot(df_plot, aes(x = `Risk (variance)`, y = `Return target`))
+  }
   gg <- gg + theme(axis.title.x = element_blank(),
                    axis.text.x = element_blank()
                    #plot.title = element_text(size = 10)
@@ -1524,46 +1538,19 @@ C_targ <- 1
 nab_C <- rep(1, n_items)
 #------------------------------------
 # Correlation matrix
-cormat <- cor(mat_pctDiff_train)
-cormat_test <- cor(mat_pctDiff_test)
-# kappa(cormat)
-# kappa(cormat_test)
-# covmat <- round(cov(mat_pctDiff_train), 5)
-# covmat_L <- round(mat_loads_sig_train %*% t(mat_loads_sig_train), 5)
-# mean((covmat - covmat_L)^2)
-# View((covmat - covmat_L)^2)
-# covmat_test <- round(cov(mat_pctDiff_test), 5)
-# cormat <- Hmisc::rcorr(mat_pctDiff_train)$r
-# cormat_test <- Hmisc::rcorr(mat_pctDiff_test)$r
-# cormat_L <- round(mat_loads_rot_sig_train %*% t(mat_loads_rot_sig_train), 7)
-cormat <- round(mat_loads_sig_train %*% t(mat_loads_sig_train), 7)
+cormat_train_emp <- cor(mat_pctDiff_train)
+cormat_train_hat <- round(mat_loads_sig_train %*% t(mat_loads_sig_train), 7)
+P_train_hat <- eigen(cormat_train_hat)$vectors
+L_train_emp <- diag(eigen(cormat_train_emp)$values)
+cormat_train_hat <- P_train_hat %*% L_train_emp %*% t(P_train_hat)
+cormat <- cormat_train_hat
 
-a <- svd(cormat)
-round(a$d, 6)
-
-cormat_pinv <- corpcor::pseudoinverse(cormat)
-cormat_pinv_pinv <- corpcor::pseudoinverse(cormat_pinv)
-# cormat_pinv %*% cormat_pinv_pinv
-cormat <- cormat_pinv_pinv
-  
-cormat_test <- round(mat_loads_sig_test %*% t(mat_loads_sig_test), 7)
-cormat_test_pinv <- corpcor::pseudoinverse(cormat_test)
-cormat_test_pinv_pinv <- corpcor::pseudoinverse(cormat_test_pinv)
-# cormat_test_pinv %*% cormat_test_pinv_pinv
-cormat_test <- cormat_test_pinv_pinv
-
-kappa(cormat)
-kappa(cormat_test)
-solve(cormat)
-# P <- eigen(cormat)$vectors
-# A <- diag(eigen(cormat)$values)
-# cormat - P %*% A %*% t(P)
-# t(P) %*% cormat %*% P %*% solve(A)
-# cormat <- diag(sqrt(diag(cormat)^-1)) %*% cormat %*% diag(sqrt(diag(cormat)^-1))
-# cormat_L <- diag(cormat_L) %*% cormat_L %*% giag(cormat_L)
-# mse <- mean((cormat - cormat_L)^2)
-# mse
-# image((cormat_L - cormat)[1:5,1:5])
+cormat_test_emp <- cor(mat_pctDiff_test)
+cormat_test_hat <- round(mat_loads_sig_test %*% t(mat_loads_sig_test), 7)
+P_test_hat <- eigen(cormat_test_hat)$vectors
+L_test_emp <- diag(eigen(cormat_test_emp)$values)
+cormat_test_hat <- P_test_hat %*% L_test_emp %*% t(P_test_hat)
+cormat_test <- cormat_test_hat
 #------------------------------------
 # Expected returns vector
 #nab_pctRet_train <- apply(mat_pctDiff_train[ind_equal_test, ], 2, function(x) prod(1 + x)) - 1
@@ -1583,7 +1570,7 @@ fun_env <- list(n_points_on_frontier,
                 #C_targ)
 
 list_out <- get_optimal_frontier(cormat, mat_nab,
-                                 Rtarg_limits = c(0.01, 0.3), #c(0.01, 0.3)
+                                 Rtarg_limits = c(0.1, .8), #c(0.01, 0.3)
                                  fig_title = NULL,
                                  fun_env)
 
