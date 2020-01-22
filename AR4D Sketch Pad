@@ -1,0 +1,58 @@
+#https://stats.stackexchange.com/questions/143905/loadings-vs-eigenvectors-in-pca-when-to-use-one-or-another
+n = 5
+t = 100
+X <- matrix(runif(n * t), t, n)
+covmat <- cov(X)
+
+eigvecs1 <- eigen(covmat)$vectors
+eigvals1 <- eigen(covmat)$values
+colSums(eigen(covmat)$vectors^2)
+rowSums(eigen(covmat)$vectors^2)
+
+
+res <- FactoMineR::PCA(X, scale.unit = F, ncp = ncol(X), graph = F)
+eigvals <- as.data.frame(res$eig)$eigenvalue
+eigval_max <- max(eigvals)
+mat_loads <- res$var$coord
+
+
+
+
+(mat_loads %*% diag(1 / sqrt(eigvals))) / eigvecs1
+
+mat_loads_rot <- varimax(mat_loads)[[1]]
+mat_loads_rot <- matrix(as.numeric(mat_loads_rot), attributes(mat_loads_rot)$dim, dimnames=attributes(mat_loads_rot)$dimnames)
+R <- as.matrix(varimax(mat_loads)[[2]])
+mat_eigvecs <- mat_loads %*% diag(1 / sqrt(eigvals))
+
+
+mat_loads_rot - mat_loads %*% R
+
+t(R) %*% t(mat_loads) %*% mat_loads %*% R
+
+round(t(mat_loads) %*% mat_loads, 4)
+
+t(R) %*% diag(eigvals)  %*% R
+
+
+
+round(covmat - mat_loads %*% t(mat_loads), 5)
+
+round(covmat - mat_loads_rot %*% t(mat_loads_rot), 5)
+
+round(t(mat_loads) %*% covmat %*% mat_loads, 5)
+
+round(t(mat_loads) %*% mat_loads,4)
+
+
+Xc <- scale(X, scale = F)
+
+S <- Xc %*% mat_loads
+round(t(S) %*% S, 4)
+round(t(S %*% R) %*% S %*% R, 4)
+round(t(R) %*% round(t(S) %*% S, 4) %*% R, 4)
+
+
+t(X) %*% X %*% mat_loads
+
+mean(S)
