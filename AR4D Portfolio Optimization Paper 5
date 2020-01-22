@@ -75,7 +75,9 @@ gg
 
 ```
 
-Of course, the AR4D context differs from the financial context in many important respects. Three of these are particular important to address when adapting MV Analysis to the research portfolio context: scaleability, negative resource allocation shares, and [lack of risk assessment].
+There is an important sense in which this reflects AR4D decisionmaking contexts. Around the time that Merton was writing his seminal paper, for example, it was common practice at the International Center for Tropical Agriculture to guide funding decisions by schematically plotting research proposals in a risk reward space such as that in Figure \ref{fig:basic_illust} [@JCock]. This paper is primarily concerned with the possibility of resuscitating and formalizing this practice.
+
+On the other hand, the AR4D context differs from the financial context in many important respects. Three of these are particularly important to address when adapting MV Analysis to the research portfolio context: scaleability, negative resource allocation shares, and [lack of risk assessment].
 
 -Scaleability: In the financial context, returns scale linearly with investment. In the AR4D context, returns tend to scale sub-linearly with investment. That is, marginal returns are typically diminishing in investment. In the workflow articulated by Mills, the relation between investment and returns would typically be determined during Step 3. If not, then one could, at Step 5, introduce an assumption of functional homogeneity, and then assign degrees of homogeneity through a consensus process. Note that if a program is not scaleable, i.e., if returns to a research program are not a continuous function of investment, then it cannot be part of an optimal portfolio (because the portfolio optimization problem is ill-posed, in that case.)
 
@@ -89,10 +91,17 @@ key points of the argument:
 -In AR4D context we do not have data (which the fin context has), but we do have a good understanding of the dimensionality of the portfolio space, and of how the different portfolio items map onto it (which is lacking in the fin context).
 -I am essentially arguing that the latter can stand in for the former.
 -May not be exactly consistent with the true matrix, but it is consistent with our knowledge of the space.
-[-There is a real sense in which we do not want the reconstructed correlation matrix to equal the empirical correlation matrix. The reconstructed matrix purges noise.]
--Then there comes the issue of singularity. The estimated covariance matrix will have n - k eigenvalues equal to zero. This means that the determinant will be zero, which in turn means that \hat{\Sigma} will be singular, and hence not invertible. To reintroduce invertibility, I replace the zero eigenvalues with non-negative values in accordance with a rudimentary log-linear model fitted to the signal eigenvalues.
+[-There is a real sense in which we do not want the reconstructed correlation matrix to equal the empirical correlation matrix. The reconstructed matrix purges noise. But it is not invertible.]
 
 -The covariance matrix is defined up to an orthogonal rotation of its eigenvectors
+
+-The eigenvalues of the Loadings corelation matrix are the same as the (purged) data correlation matrix
+
+-In a workshop, stakeholders define dimensions...
+-...
+-One would maybe want to use the purged version of the data correlation matrix (LL') in the MV analysis, but this is not possible since it is not invertible.
+-Instead, we use the correlation matrix of the elicited loadings (which will have the same eigenvalues of the data correlation matrix).
+
 
 
 
