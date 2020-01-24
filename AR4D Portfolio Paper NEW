@@ -1148,6 +1148,11 @@ plot_frontier_and_budget <- function(df_frontier, df_wStar,
   if(!is.null(group_colors)){
     ind_order_mu_color <- match(group_names,  unique(df_plot$Item[ind_order_mu]))
     gg <- gg + scale_fill_manual(values = group_colors[ind_order_mu_color])
+  }else{
+    n_items <- ncol(df_wStar) - 1
+    bag_of_colors <- randomcoloR::distinctColorPalette(k = 2 * n_items)
+    group_colors <- sample(bag_of_colors, n_items)
+    gg <- gg + scale_fill_manual(values = group_colors)
   }
   #------------------------------------
   gg <- gg + geom_area(position = "stack")
