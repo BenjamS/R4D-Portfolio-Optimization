@@ -225,13 +225,947 @@ For any given return target $R$ and budget $\bar{C}$, then, the cost and risk sh
 
 <!-- Before exploring the possibility of applying these tools to the AR4D context, it will be instructive to first apply them in the financial context where they have been developed. -->
 
-Below, daily financial data for 46 securities over the period 20 June 2018 to 8 August 2019 is downloaded directly into R from yahoo finance using the tidyquant package. The 46 securities are meant to represent the range of markets that a modern, broad minded investor might have on their "radar screen". They are mostly exchange traded funds tracking broad categories of stocks, bonds, markets, and commodities, plus major currency pairs traded on the foreign exchange market.
+An example application of MV Analysis is presented below using daily financial data for 46 securities over the period 20 June 2018 to 23 March 2019, downloaded from yahoo finance using the R tidyquant package. These assets are deliberately numerous and varied in order to demonstrate the reach and limits of MV Analysis. They are grouped into eight categories in order to facilitate interpretation.
+
+Period returns for each asset in the dataset are presented in the bottom of Figure \ref{fig:hReturns}. The period return of the $i^{th}$ portfolio asset $\bar{r}_{i}$ with given price time series $\mathbf{p}$ is calculated as 
+
+$$
+\bar{r}_i = \frac{p_T - p_1}{p_1}
+$$
+where $T$ denotes the length of the time series. A box and whiskers plot of the daily returns is also given in Figure \ref{fig:hReturns}. Daily returns are calculated
+$$
+r_{it} = \frac{p_t - p_{t-1}}{p_{t-1}}
+$$
+for any given day $t$ in the series. As a practical matter, note that the period returns can also be calculated from the daily returns as follows.
+
+$$
+\bar{r}_i = \prod_{t = 2}^T (1 + r_{it})
+$$
+<!-- They are mostly exchange traded funds tracking broad categories of stocks, bonds, markets, and commodities, plus major currency pairs traded on the foreign exchange market. -->
 
 <!-- [Table here detailing the ETF names, what they track, and my category name] -->
 
 
 ```{r, fig.width=14, fig.height=14, fig.align='center', echo = FALSE, include = FALSE}
 #options(warn = -1); options(scipen = 999)
+spy_sector_symbs <- c("XLF", "XLC", "XLY", "XLP", "XLV", "XLK", "RWR",
+                      "XLU", "XLI", "XBI", "IYT") #"TTEK"
+spy_sector_detail <- c("Financials", "Communications", "Luxury goods", "Staple goods",
+                       "Healthcare", "Technology", "Real estate", "Utilities", "Industrial",
+                       "Biotechnology", "Transportation") #"Gov. foreign aid"
+minerals_symbs <- c("GLD", "SLV", "PPLT", "JJC", "JJM") #"XME"
+minerals_detail <- c("Gold", "Silver", "Platinum", "Copper", "Industrial metals") #"US metals and mining"
+agriculture_symbs <- c("JJG", "BAL", "SOYB", "SGG", "JO", "NIB", "DBA")
+agriculture_detail <- c("Grains", "Cotton", "Soybean", "Sugar", "Coffee", "Cacao", "General agriculture")
+energy_symbs <- c("WTI", "FUE", "WOOD", "ICLN", "KOL", "UNG")
+energy_detail <- c("Oil (W&T Offshore Inc.)", "Biofuels", "Timber", "Clean energy", "Coal", "US natural gas")
+#currency_symbs <- c("EMLC", "UUP", "FXE", "FXY", "FXF", "FXC", "FXB", "FXA")
+#currency_detail <- c("Emerging mkt currencies", "USD", "EUR", "JPY", "CHF", "CND", "GBP", "AUD")
+currency_symbs <- c("EURUSD=X", "JPY=X", "CHF=X", "CAD=X",
+                    "GBPUSD=X", "AUDUSD=X", "INR=X")
+currency_detail <- c("EUR/USD", "USD/JPY",
+                     "USD/CHF", "USD/CAD", "GBP/USD", "AUD/USD", "USD/INR")
+emerg_mkt_symbs <- c("EMLC", "ELD", "BKF", "VWOB")
+emerg_mkt_detail <- c("Emerg mkts debt", "Emerg mkts gov. bonds", "BRIC countries", "Emerging mkt currencies")
+crypto_symbs <- c("BLOK", "LEGR", "BCNA")
+crypto_detail <- c("Blockchain tech.", "Blockchain companies", "Blockchain in China")
+Tbond_symbs <- c("IEI", "IEF", "TLT")#, "BIL"
+Tbond_detail <- c("T-bond 3-7 yrs", "T-bond 7-10 yrs", "T-bond 20+ yrs") #"T-bond 1-3 months"
+
+ts_symb_vec <- c(spy_sector_symbs, minerals_symbs, agriculture_symbs, energy_symbs,
+                 currency_symbs, emerg_mkt_symbs, crypto_symbs, Tbond_symbs)
+ts_detail_vec <- c(spy_sector_detail, minerals_detail, agriculture_detail, energy_detail,
+                   currency_detail, emerg_mkt_detail, crypto_detail, Tbond_detail)
+df_symb_detail <- data.frame(symbol = ts_symb_vec, detail = ts_detail_vec)
+#--
+#length(ts_symb_vec)
+#--
+# list_groups <- list(spy_sector_symbs, minerals_symbs, agriculture_symbs, energy_symbs,
+#                      currency_symbs, emerg_mkt_symbs, crypto_symbs, Tbond_symbs)
+#-------------------------------------------
+# Create grouping info for plots (required input into functions)
+list_groups <- list(spy_sector_detail, minerals_detail, agriculture_detail, energy_detail,
+                    currency_detail, emerg_mkt_detail, crypto_detail, Tbond_detail)
+group_names <- c("US Sectors", "Minerals", "Agriculture", "Energy", "Major Currency Pairs",
+                 "Emerging Markets", "Cryptocurrencies/\nBlockchain", "T-Bonds")
+n_groups <- length(list_groups)
+#group_colors <- RColorBrewer::brewer.pal(n = n_groups, "Dark2")
+# "Darjeeling"
+# group_colors <- wesanderson::wes_palette("Darjeeling1", n = n_groups, type = "continuous")
+bag_of_colors <- randomcoloR::distinctColorPalette(k = 5 * n_groups)
+group_colors <- sample(bag_of_colors, n_groups)
+#--------------------------------------------------------------
+# Define function to order data by group
+group_fn <- function(group_info){
+  list_groups <- group_info[[1]]
+  group_names <- group_info[[2]]
+  group_colors <- group_info[[3]]
+  varNames_ordered <- do.call(c, list_groups)
+  n_groups <- length(group_names)
+  n_items <- length(varNames_ordered)
+  if(is.na(group_colors)){
+    bag_of_colors <- randomcoloR::distinctColorPalette(k = 5 * n_groups)
+    group_colors <- sample(bag_of_colors, n_groups)
+    #group_colors <- viridis::viridis_pal(option = "D")(length(group_names))
+  }
+  #if(reverse_order){group_colors <- rev(group_colors)}
+  #varNames_ordered <- colnames(mat_pctDiff)
+  group_vec <- rep(NA, n_items)
+  group_color_vec <- rep(NA, n_items)
+  for(i in 1:n_groups){
+    this_group_vec <- list_groups[[i]]
+    this_group_name <- group_names[i]
+    this_group_color <- group_colors[i]
+    group_vec[which(varNames_ordered %in% this_group_vec)] <- this_group_name
+    group_color_vec[which(varNames_ordered %in% this_group_vec)] <- this_group_color
+  }
+  ind_ordered_cols <- order(factor(group_vec))
+  cols_ordered_by_group <- as.character(varNames_ordered[ind_ordered_cols])
+  group_color_vec <- group_color_vec[ind_ordered_cols]
+  group_vec_ordered <- group_vec[ind_ordered_cols]
+  out_list <- list(cols_ordered_by_group, group_color_vec, group_vec_ordered, ind_ordered_cols)
+  return(out_list)
+}
+#--------------------------------------------------------------
+group_info <- list(list_groups, group_names, group_colors)
+  outlist <- group_fn(group_info)
+  cols_ordered_by_group <- outlist[[1]]
+  group_color_vec <- outlist[[2]]
+  group_vec_ordered <- outlist[[3]]
+  ind_ordered_cols <- outlist[[4]]
+  df_match_group <- data.frame(Item = cols_ordered_by_group, Group = group_vec_ordered)
+#--------------------------------------------------------------
+#per_ema <- 13
+#fromdate = Sys.Date() - 360
+fromdate = "2018-06-20"
+todate = "2019-08-09"
+tbl_ohlcv <- tq_get(ts_symb_vec, get = "stock.prices", from = fromdate, to = todate)
+df_ohlcv <- as.data.frame(tbl_ohlcv)
+#--
+# Crypto ts can have duplicate date entries sometimes (BTC-USD)
+# Get rid of these duplicates, if any
+df_ohlcv <- as.data.frame(df_ohlcv %>% group_by(symbol) %>% mutate(dup = duplicated(date)))
+df_ohlcv <- subset(df_ohlcv, dup == F)
+df_ohlcv$dup <- NULL
+#--
+
+#df_ohlcv$p <- rowSums(df_ohlcv[, c(4:6)]) / 3
+#--
+#df <- df_ohlcv[, c("date", "symbol", "p")]
+# df <- df_ohlcv %>% group_by(symbol) %>% tq_transmute(select = adjusted, 
+#                      mutate_fun = periodReturn, 
+#                      period     = "monthly")
+#--
+df <- df_ohlcv[, c("date", "symbol", "adjusted")]
+df <- df %>% spread(symbol, adjusted)
+ind_shift <- which(colnames(df) %in% currency_symbs)
+df[, ind_shift] <- rbind(rep(NA, length(ind_shift)), df[-nrow(df), ind_shift])
+df <- df[-c(1, nrow(df)), ]
+date_vec <- df$date
+mat_ts_dy <- na.approx(df[, -1])
+
+#o <- apply(mat_ts_dy, 2, function(x) length(which(is.na(x))))
+#table(o)
+#which(o==1)
+#xts_ts_dy <- xts(mat_ts_dy, date_vec)
+#date_vec <- index(xts_ts_dy)
+#-----
+mat_pctDiff_dy <- diff(mat_ts_dy) / mat_ts_dy[-nrow(mat_ts_dy), ]
+#mat_pctDiff_dy <- diff(log(mat_ts_dy))
+row.names(mat_pctDiff_dy) <- as.character(date_vec[-1])
+ts_avg_dy <- rowMeans(mat_pctDiff_dy)
+mu_ret_dy <- colMeans(mat_pctDiff_dy)
+sd_ret_dy <- apply(mat_pctDiff_dy, 2, sd)
+
+mat_ts_wk <- to.weekly(xts(mat_ts_dy, date_vec), OHLC = F)
+mat_pctDiff_wk <- diff(mat_ts_wk) / mat_ts_wk[-nrow(mat_ts_wk), ]
+mat_pctDiff_wk <- as.matrix(mat_pctDiff_wk[-1, ])
+ts_avg_wk <- rowMeans(mat_pctDiff_wk)
+mu_ret_wk <- colMeans(mat_pctDiff_wk)
+sd_ret_wk <- apply(mat_pctDiff_wk, 2, sd)
+
+mat_ts_mo <- to.monthly(xts(mat_ts_dy, date_vec), OHLC = F)
+mat_pctDiff_mo <- diff(mat_ts_mo) / mat_ts_mo[-nrow(mat_ts_mo), ]
+mat_pctDiff_mo <- as.matrix(mat_pctDiff_mo[-1, ])
+ts_avg_mo <- rowMeans(mat_pctDiff_mo)
+mu_ret_mo <- colMeans(mat_pctDiff_mo)
+sd_ret_mo <- apply(mat_pctDiff_mo, 2, sd)
+#----------------------------------------------
+# Compare histograms of daily, weekly, and monthly returns
+# df_plot <- data.frame(ts_id = names(mu_ret_dy), mu_ret_dy, mu_ret_wk, mu_ret_mo)
+# colnames(df_plot)[-1] <- c("Mean Daily Return", "Mean Weekly Return", "Mean Monthly Return")
+# gathercols <- colnames(df_plot)[-1]
+# df_plot <- df_plot %>% gather_("Return Type", "Value", gathercols)
+# #gg <- ggplot(df_plot, aes(Value, fill = `Return Type`))
+# gg <- ggplot(df_plot, aes(Value))
+# gg <- gg + geom_density(alpha = 0.4)
+# gg <- gg + facet_wrap(~`Return Type`, nrow = 1, scales = "free")
+# #gg <- gg + coord_cartesian(xlim = c(-0.02, 0.02))
+# gg
+#----------------------------------------------
+#ind_rm_ema <- 1:(per_ema - 1)
+# mat_pctDiff <- apply(mat_pctDiff, 2, function(x) x - EMA(x, per_ema))
+# mat_pctDiff <- mat_pctDiff[-ind_rm_ema, ]
+# date_vec <- df$date[-c(ind_rm_ema, ind_rm_na)]
+#----------------------------------------------
+mat_ts_in <- mat_ts_dy
+ts_avg_in <- ts_avg_dy
+# nab_pctRet_in <- mu_ret_dy
+# sd_ret_in <- sd_ret_dy
+#----------------------------------------------
+mat_pctDiff <- mat_pctDiff_dy
+date_vec <- row.names(mat_pctDiff)
+#length(date_vec)
+row.names(mat_pctDiff) <- as.character(date_vec)
+colnames(mat_pctDiff) <- as.character(df_symb_detail$detail[order(df_symb_detail$symbol)])
+#----------------------------------------------
+check_on_data <- F
+if(check_on_data){
+  df_plot <- as.data.frame(mat_pctDiff)
+  gathercols <- colnames(df_plot)
+  df_plot$Date <- date_vec
+  df_plot <- df_plot %>% gather_("Security", "Weekly change (%)", gathercols)
+  df_plot$Type <- NA
+  df_plot$Type[which(df_plot$Security %in% spy_sector_detail)] <- "US Sectors"
+  df_plot$Type[which(df_plot$Security %in% minerals_detail)] <- "Minerals"
+  df_plot$Type[which(df_plot$Security %in% agriculture_detail)] <- "Agriculture"
+  df_plot$Type[which(df_plot$Security %in% energy_detail)] <- "Energy"
+  df_plot$Type[which(df_plot$Security %in% currency_detail)] <- "Major Currency Pairs"
+  df_plot$Type[which(df_plot$Security %in% emerg_mkt_detail)] <- "Emerging Markets"
+  df_plot$Type[which(df_plot$Security %in% crypto_detail)] <- "Cryptocurrencies/\nBlockchain"
+  df_plot$Type[which(df_plot$Security %in% Tbond_detail)] <- "T-bonds"
+  #------------------------------------------------------------
+  # gg <- ggplot(df_plot, aes(x = Year, y = Value, group = Security, color = Security))
+  # gg <- gg + geom_line()
+  # gg <- gg + facet_wrap(~ Type, nrow = 3, scales = "free")
+  # gg <- gg + theme(legend.position = "none")
+  # gg
+  #------------------------------------------------------------
+  this_type <- "US Sectors"
+  df_plot2 <- subset(df_plot, Type == this_type)
+  gg <- ggplot(df_plot2, aes(x = Date, y = `Weekly change (%)`, group = Security, color = Security))
+  gg <- gg + geom_line(lwd = 1.1)
+  gg <- gg + geom_point(size = 2)
+  gg <- gg + labs(title = this_type)
+  gg
+  this_type <- "Minerals"
+  df_plot2 <- subset(df_plot, Type == this_type)
+  gg <- ggplot(df_plot2, aes(x = Date, y = `Weekly change (%)`, group = Security, color = Security))
+  gg <- gg + geom_line(lwd = 1.1)
+  gg <- gg + geom_point(size = 2)
+  gg <- gg + labs(title = this_type)
+  gg
+  this_type <- "Agriculture"
+  df_plot2 <- subset(df_plot, Type == this_type)
+  gg <- ggplot(df_plot2, aes(x = Date, y = `Weekly change (%)`, group = Security, color = Security))
+  gg <- gg + geom_line(lwd = 1.1)
+  gg <- gg + geom_point(size = 2)
+  gg <- gg + labs(title = this_type)
+  gg
+  this_type <- "Energy"
+  df_plot2 <- subset(df_plot, Type == this_type)
+  gg <- ggplot(df_plot2, aes(x = Date, y = `Weekly change (%)`, group = Security, color = Security))
+  gg <- gg + geom_line(lwd = 1.1)
+  gg <- gg + geom_point(size = 2)
+  gg <- gg + labs(title = this_type)
+  gg
+  this_type <- "Major Currency Pairs"
+  df_plot2 <- subset(df_plot, Type == this_type)
+  gg <- ggplot(df_plot2, aes(x = Date, y = `Weekly change (%)`, group = Security, color = Security))
+  gg <- gg + geom_line(lwd = 1.1)
+  gg <- gg + geom_point(size = 2)
+  gg <- gg + labs(title = this_type)
+  gg
+  this_type <- "Emerging Markets"
+  df_plot2 <- subset(df_plot, Type == this_type)
+  gg <- ggplot(df_plot2, aes(x = Date, y = `Weekly change (%)`, group = Security, color = Security))
+  gg <- gg + geom_line(lwd = 1.1)
+  gg <- gg + geom_point(size = 2)
+  gg <- gg + labs(title = this_type)
+  gg
+  this_type <- "Cryptocurrencies/Blockchain"
+  df_plot2 <- subset(df_plot, Type == this_type)
+  gg <- ggplot(df_plot2, aes(x = Date, y = `Weekly change (%)`, group = Security, color = Security))
+  gg <- gg + geom_line(lwd = 1.1)
+  gg <- gg + geom_point(size = 2)
+  gg <- gg + labs(title = this_type)
+  gg
+  this_type <- "T-bonds"
+  df_plot2 <- subset(df_plot, Type == this_type)
+  gg <- ggplot(df_plot2, aes(x = Date, y = `Weekly change (%)`, group = Security, color = Security))
+  gg <- gg + geom_line(lwd = 1.1)
+  gg <- gg + geom_point(size = 2)
+  gg <- gg + labs(title = this_type)
+  gg
+}
+
+```
+
+
+```{r, fig.show = 'hold', fig.cap="\\label{fig:hReturns}Historical (top) daily returns and (bottom) period return, train and test data.", fig.width=5, fig.height=7, fig.align='left', echo=FALSE}
+#=======================================================================
+# Define function to plot period returns as barchart with colors
+plot_returns_barchart <- function(df_pctRet, group_colors, list_graph_options, graph_on = T){
+  
+  if(is.null(list_graph_options)){
+    fig_title <- NULL
+  }else{
+    fig_title <- list_graph_options[["fig_title"]]
+  }
+  
+  colnames(df_pctRet)[1] <- "Period Return"
+  df_plot <- df_pctRet
+  gg <- ggplot(df_plot, aes(x = Item, y = `Period Return`, fill = Group))
+  #gg <- gg + scale_color_brewer(palette = "Dark2")
+  gg <- gg + scale_fill_manual(values = group_colors)
+  gg <- gg + geom_bar(stat = "identity", color = "black", position = "dodge")
+  if("Dataset" %in% colnames(df_plot)){
+      gg <- gg + facet_wrap(~Dataset, ncol = 1)
+  }
+  if(!is.null(fig_title)){
+      gg <- gg + labs(title = fig_title)
+gg <- gg + theme(plot.title = element_text(face = "bold", size = 9))
+  }
+  gg <- gg + theme(axis.text.x = element_text(size = 9, angle = 60, hjust = 1),
+                   #axis.text.x = element_blank(),
+                   axis.title.x = element_blank(),
+                   axis.text.y = element_text(size = 9),
+                   #axis.title.y = element_text(size = 9),
+                   axis.title.y = element_blank(),
+                   legend.position = "bottom",
+                   legend.title = element_blank(),
+                   legend.text = element_text(size = 9))
+  #  gg <- gg + coord_equal()
+  #  gg <- gg + coord_flip()
+  if(graph_on){print(gg)}
+  return(gg)
+
+}
+
+#=======================================================================
+# Define function to plot daily returns box and whiskers chart 
+plot_boxchart <- function(df_pctDiff, group_colors, list_graph_options, graph_on = T){
+  if(is.null(list_graph_options)){
+    legend_position <- "right" #"none"
+    axis_titles <- "on" #"off"
+    axis_text <- "on" #"y only"
+    fig_title <- NULL
+  }else{
+    legend_position <- list_graph_options[["legend_position"]]
+    axis_titles <- list_graph_options[["axis_titles"]]
+    axis_text <- list_graph_options[["axis_text"]]
+    fig_title <- list_graph_options[["fig_title"]]
+  }
+  
+  df_plot <- df_pctDiff
+    gg <- ggplot(df_plot, aes(x = Item, y = `Daily Returns`, fill = Group))
+  #gg <- gg + scale_color_brewer(palette = "Dark2")
+  gg <- gg + scale_fill_manual(values = group_colors)
+  #gg <- gg + geom_bar(stat = "identity", color = "black", position = "dodge")
+  gg <- gg + geom_boxplot()
+  if("Dataset" %in% colnames(df_plot)){
+    gg <- gg + facet_wrap(~Dataset, ncol = 1)
+  }
+  if(!is.null(fig_title)){
+    gg <- gg + labs(title = fig_title)
+    gg <- gg + theme(plot.title = element_text(face = "bold", size = 9))
+  }
+  if(axis_titles == "off"){
+    gg <- gg + theme(axis.title = element_blank())
+  }
+  if(axis_text == "y only"){
+    gg <- gg + theme(axis.text.x = element_blank(),
+                     axis.text.y = element_text(size = 9))
+  }
+  if(axis_text == "on"){
+    gg <- gg + theme(axis.text.y = element_text(size = 9),
+                     axis.text.x = element_text(size = 9, angle = 60, hjust = 1))
+  }
+    gg <- gg + theme(legend.position = legend_position)
+    if(graph_on){print(gg)}
+    return(gg)
+
+}
+
+#=======================================================================
+# Define function to order data frames by group for period returns barchart and daily returns box and whiskers plots
+get_hist_dfs_ready <- function(mat_pctDiff, group_info){
+  #------------------------------------------------------------
+  # Group the vars according to provided group info
+  #varNames_ordered <- do.call(c, group_info[[1]])
+  outlist <- group_fn(group_info)
+  cols_ordered_by_group <- outlist[[1]]
+  group_color_vec <- outlist[[2]]
+  group_vec_ordered <- outlist[[3]]
+  ind_ordered_cols <- outlist[[4]]
+  df_match_group <- data.frame(Item = cols_ordered_by_group, Group = group_vec_ordered)
+  mat_pctDiff_ordered <- mat_pctDiff[, cols_ordered_by_group]
+  #------------------------------------------------------------
+  # Get date info
+  from_date <- row.names(mat_pctDiff_ordered)[1]
+  to_date <- row.names(mat_pctDiff_ordered)[nrow(mat_pctDiff_ordered)]
+  from_date <- gsub("-", "/", from_date)
+  to_date <- gsub("-", "/", to_date)
+  date_interval <- paste(from_date, to_date, sep = " - ")
+  #------------------------------------------------------------
+  # Get returns barchart df organized by group
+  nab_pctRet <- apply(mat_pctDiff_ordered, 2, function(x) prod(1 + x)) - 1
+  df_pctRet <- data.frame(Returns = nab_pctRet)
+  df_pctRet$Item <- row.names(df_pctRet)
+  df_pctRet$Group <- factor(group_vec_ordered)
+  df_pctRet$Item <- factor(df_pctRet$Item, levels = cols_ordered_by_group)
+  #------------------------------------------------------------
+  # Get boxplot df organized by group
+      df_pctDiff <- as.data.frame(mat_pctDiff_ordered)
+    df_pctDiff <- df_pctDiff %>% gather_("Item", "Daily Returns", colnames(df_pctDiff))
+    df_match_group <- data.frame(Item = cols_ordered_by_group, Group = group_vec_ordered)
+    df_pctDiff <- merge(df_pctDiff, df_match_group, by = "Item")
+    df_pctDiff$Item <- factor(df_pctDiff$Item, levels = cols_ordered_by_group)
+    df_pctDiff$Group <- factor(df_pctDiff$Group)
+  #------------------------------------------------------------
+  out_list <- list(df_pctRet, df_pctDiff, date_interval)
+  return(out_list)
+}
+#=======================================================================
+# End function definition
+#=======================================================================
+# Plot historical period returns, daily returns box and whiskers, for train and test data, using functions defined above
+ind_train <- 1:round(nrow(mat_pctDiff) * 2 / 3)
+ind_test <- setdiff(1:nrow(mat_pctDiff), ind_train)
+mat_pctDiff_train <- mat_pctDiff[ind_train, ]
+mat_pctDiff_test <- mat_pctDiff[ind_test, ]
+
+out_list <- get_hist_dfs_ready(mat_pctDiff_train, group_info)
+df_pctRet_train <- out_list[[1]]
+df_pctDiff_train <- out_list[[2]]
+date_interval_train <- out_list[[3]]
+
+out_list <- get_hist_dfs_ready(mat_pctDiff_test, group_info)
+df_pctRet_test <- out_list[[1]]
+df_pctDiff_test <- out_list[[2]]
+date_interval_test <- out_list[[3]]
+#----------------------------------------------------------
+fig_title <- "Period Returns"
+list_graph_options <- list()
+list_graph_options[["fig_title"]] <- fig_title
+gg_barchart <- plot_returns_barchart(df_pctRet_train, group_colors, list_graph_options, graph_on = F)
+#----------------------------------------------------------
+fig_title <- paste("Daily Returns ", date_interval_train)
+    list_graph_options <- list()
+    list_graph_options[["legend_position"]] <- "none"
+    list_graph_options[["axis_titles"]] <- "off"
+    list_graph_options[["axis_text"]] <- "y only"
+    list_graph_options[["fig_title"]] <- fig_title
+  gg_boxplot <- plot_boxchart(df_pctDiff_train, group_colors, list_graph_options, graph_on = F)
+#----------------------------------------------------------
+gg_boxplot + gg_barchart + plot_layout(ncol = 1, heights = c(2, 1))
+#----------------------------------------------------------
+# If you're going to do train and test datasets together:
+# df_pctRet_train$Dataset <- paste("Train Data ", date_interval_train)
+# df_pctDiff_train$Dataset <- paste("Train Data ", date_interval_train)
+# df_pctRet_test$Dataset <- paste("Test Data ", date_interval_test)
+# df_pctDiff_test$Dataset <- paste("Test Data ", date_interval_test)
+# df_pctRet <- rbind(df_pctRet_train, df_pctRet_test)
+# df_pctDiff <- rbind(df_pctDiff_train, df_pctDiff_test)
+# 
+#   fig_title <- "Period Returns"
+#   list_graph_options <- list()
+#   list_graph_options[["fig_title"]] <- fig_title
+#     
+# gg_barcharts <- plot_returns_barchart(df_pctRet, group_colors, list_graph_options, graph_on = F)
+# 
+# 
+# fig_title <- "Daily Returns"
+#     list_graph_options <- list()
+#     list_graph_options[["legend_position"]] <- "none"
+#     list_graph_options[["axis_titles"]] <- "off"
+#     list_graph_options[["axis_text"]] <- "y only"
+#     list_graph_options[["fig_title"]] <- fig_title
+#   gg_boxplots <- plot_boxchart(df_pctDiff, list_graph_options, graph_on = F)
+# 
+#   gg_boxplots + gg_barcharts + plot_layout(ncol = 1, heights = c(2, 1))
+
+
+```
+
+\pagebreak
+
+As explained above, MV Analysis requires the expected returns of each portfolio item, and their corresponding covariance matrix, in order to calculate the efficient frontier and budget weights. The expected returns are just the period returns. The covariance matrix $\Sigma$ is calculated from the centered daily returns as follows.
+$$
+\Sigma=\frac{1}{1 - n} X'X \:\:; \:\:\:X_{it} = r_{it}-\frac{1}{T}\sum_{t=1}^Tr_{it}
+$$
+
+The optimal frontier and budget shares based on this data are given in Figure \ref{fig:mvConv}. For clarity, the budget shares are aggregated by group. 
+
+```{r, fig.show='hold', fig.width=5, fig.height=4, fig.align='center', fig.cap="\\label{fig:mvConv}Optimal frontier and budget shares. The budget shares are aggregated by group for clarity.", echo = FALSE}
+#=======================================================================
+# Define portfolio optimization function
+optimize_portfolio <- function(covmat, mat_nab, targ_vec,
+                               backtest_info = NULL,
+                               utility_interpretation = F){
+  covmat_inv <- solve(covmat)
+  M <- t(mat_nab) %*% covmat_inv %*% mat_nab
+  M_inv <- solve(M)
+  #print(M)
+  x <- -2 * M_inv %*% targ_vec
+  # Risk shadow price
+  l_V <- 1 / x[1]
+  #if(l_V > 0){l_V <- -l_V}
+  #print(l_V)
+  # Budget shadow price (l_C = lambdas[2], l_R normalized to = 1)
+  lambdas <- l_V * x
+  l_C <- lambdas[2]
+  # Optimal budget shares
+  wStar <- -1 / (2 * l_V) * covmat_inv %*% mat_nab %*% lambdas
+  #print(sum(wStar))
+  # Portfolio variance
+  Vtarg <- t(wStar) %*% covmat %*% wStar
+  # Rtarg <- targ_vec[1]
+  Rtarg <- t(wStar) %*% mat_nab[, 1]
+  #----------------------------------------------------
+  # check <- t(lambdas) %*% targ_vec + 2*l_V * V
+  # print(check)
+  #----------------------------------------------------
+  # Utility function interpretation of equations
+  # (Makes all budget shares positive)
+  if(utility_interpretation){
+    Exp_wStar <- exp(wStar)
+    K <- sum(Exp_wStar)
+    wStar <- Exp_wStar / K
+    Rtarg <- t(wStar) %*% mat_nab[, 1]
+    Vtarg <- t(wStar) %*% covmat %*% wStar
+  } 
+  #if(l_V > 0){wStar <- rep(NA, length(wStar))}
+  #----------------------------------------------------
+  if(!is.null(backtest_info)){
+    nab_pctRet_test <- backtest_info[["nab_pctRet_test"]]
+    covmat_test <- backtest_info[["covmat_test"]]
+    Rtest <- t(wStar) %*% nab_pctRet_test
+    Vtest <- t(wStar) %*% covmat_test %*% wStar
+  }else{
+    Rtest <- NULL
+    Vtest <- NULL
+  }
+  #----------------------------------------------------
+  frontier_vec <- c(Rtarg, Vtarg, l_V, l_C, Rtest, Vtest)
+  list_out <- list(wStar, frontier_vec)
+  return(list_out)
+  
+}
+#=======================================================================
+plot_frontier_wBacktest <- function(df_frontier, graph_on = T){
+  #-------------------------------------------
+  n_points_on_frontier <- nrow(df_frontier)
+  color_vec <- c("#56B4E9", "black")
+  #-------------------------------------------
+  #if(is.null(fig_title)){fig_title <- "Optimal Portfolio Frontier"}
+  df_plot1 <- df_frontier[, c("Risk (variance)", "Return target")]
+  df_plot2 <- df_frontier[, c("Risk backtest", "Return backtest")]
+  df_plot1$Type <- "Optimal frontier"
+  df_plot2$Type <- "Backtest of optimal frontier"
+  colnames(df_plot1)[2] <- "Return"
+  colnames(df_plot2)[1:2] <- c("Risk (variance)", "Return")
+  df_plot <- as.data.frame(do.call(rbind, list(df_plot1, df_plot2)))
+  gg <- ggplot(df_plot, aes(x = `Risk (variance)`, y = `Return`, group = Type, color = Type))
+  gg <- gg + geom_point()
+  gg <- gg + scale_color_manual(values = color_vec)
+  #gg <- gg + labs(title = fig_title)
+  #gg <- gg + theme(plot.title = element_text(size = 10))
+  gg <- gg + theme(legend.title = element_blank(),
+                   legend.position = "bottom")
+  gg <- gg + coord_cartesian(xlim = c(0, max(df_plot$`Risk (variance)`)))
+  if(graph_on){print(gg)}
+  return(gg)
+}
+#=======================================================================
+# Define function for budget shares plot
+plot_budgetShares <- function(df_wStar, group_small = NULL, color_vec = NULL, graph_on = T, list_graph_options = NULL){
+    # Budget shares plot
+  # Note df_w_in should have just the target risk column (i.e. don't also include the backtest risk column). At any rate, the budget risk column should be the same as the one used in the frontier plot.
+  #df_plot <- df_wStar_prop
+  #------------------------------------
+  if(!is.null(list_graph_options)){
+    legend_position <- list_graph_options[["legend_position"]]
+    fig_title <- list_graph_options[["fig_title"]]
+    axis_titles <- list_graph_options[["axis_titles"]]
+    Xaxis_numbers_off <- list_graph_options[["Xaxis_numbers_off"]]
+  }else{
+      legend_position = "bottom"
+      fig_title = NULL
+      axis_titles = "on"
+      Xaxis_numbers_off = F
+  }
+  
+  #------------------------------------
+  df_plot <- df_wStar
+  gathercols <- colnames(df_plot)[-1]
+  #------------------------------------
+  if(!is.null(group_small)){
+    mat_plot <- as.matrix(df_plot[, -1])
+    mu_vec <- apply(mat_plot, 2, mean)
+    ind_group_small <- which(mu_vec < 10^-2)
+    other_col <- rowSums(mat_plot[, ind_group_small])
+    
+    mat_plot <- mat_plot[, -ind_group_small]
+    df_plot <- as.data.frame(mat_plot)
+    df_plot$Other <- other_col
+    df_plot$`Risk (variance)` <- df_wStar$`Risk (variance)`
+    gathercols <- colnames(df_plot)[-ncol(df_plot)]
+  }
+  #------------------------------------
+  df_plot$portfolio_id <- 1:nrow(df_wStar)
+  df_match_V <- df_plot[, c("portfolio_id", "Risk (variance)")]
+  df_plot <- df_plot %>% gather_("Item", "Budget shares", gathercols)
+  df_plot <- df_plot %>% group_by(Item) %>% 
+    mutate(mu = mean(`Budget shares`)) %>% 
+    as.data.frame()
+  ind_order_mu <- order(df_plot$mu, df_plot$Item, decreasing = T)
+  df_plot$Item <- factor(df_plot$Item,
+                         levels = unique(df_plot$Item[ind_order_mu]),
+                         ordered = T)
+    #------------------------------------
+if(is.null(color_vec)){
+  # Randomly assign a color to each portfolio item if none assigned
+  n_items <- ncol(df_wStar) - 1
+    bag_of_colors <- randomcoloR::distinctColorPalette(k = 5 * n_items)
+    color_vec <- sample(bag_of_colors, n_items)
+}
+    #------------------------------------
+  gg <- ggplot(df_plot, aes(x = `Risk (variance)`, y = `Budget shares`, fill = Item))
+  #legend_position <- "right"
+  gg <- gg + geom_area(position = "stack")
+  gg <- gg + scale_fill_manual(values = color_vec)
+
+  gg <- gg + theme(legend.title = element_blank(),
+                   legend.position = legend_position)
+  if(axis_titles == "off"){
+    gg <- gg + theme(axis.title = element_blank())
+  }
+  if(axis_titles == "x only"){
+    gg <- gg + theme(axis.title.y = element_blank())
+  }
+  if(Xaxis_numbers_off){
+    gg <- gg + theme(axis.text.x = element_blank())
+  }
+  if(!is.null(fig_title)){
+    gg <- gg + labs(title = fig_title)
+    gg <- gg + theme(plot.title = element_text(size = 8))
+  }
+  if(length(unique(df_plot$Item)) > 15){
+    gg <- gg + theme(legend.position = "none")
+  }
+  gg_weights <- gg
+  
+  if(graph_on){print(gg)}
+  
+  return(gg_weights)
+  
+}
+#=========================================================
+plot_frontier <- function(df_frontier, graph_on = T){
+    df_plot <- df_frontier
+  if(ncol(df_plot) == 3){
+    gathercols <- colnames(df_plot)[2:3]
+    df_plot <- df_plot %>% gather_("Type", "Value", gathercols)
+    gg <- ggplot(df_plot, aes(x = `Risk (variance)`, y = Value, group = Type, color = Type))
+  }else{
+    gg <- ggplot(df_plot, aes(x = `Risk (variance)`, y = `Return target`))
+  }
+  gg <- gg + theme(axis.title.x = element_blank(),
+                   axis.text.x = element_blank()
+                   #plot.title = element_text(size = 10)
+  )
+  gg <- gg + geom_point()
+  if(graph_on){print(gg)}
+  return(gg)
+}
+#=========================================================
+plot_frontier_and_budget <- function(env_plot_frontier,
+                                     env_plot_budgetShares,
+                                     graph_on = T){
+  #-------------------------------------------
+  # Frontier plot
+  #if(is.null(fig_title)){fig_title <- "Optimal Portfolio Frontier"}
+  #df_plot <- df_frontier[, c("Risk (variance)", "Return target")]
+  df_frontier <- env_plot_frontier[["df_frontier"]]
+  gg_frontier <- plot_frontier(df_frontier, graph_on = F)
+  #-------------------------------------------
+  # Budget shares plot
+  # Note df_w_in should have just the target risk column (i.e. don't also include the backtest risk column). At any rate, the budget risk column should be the same as the one used in the frontier plot.
+  df_wStar <- env_plot_budgetShares[["df_wStar"]]
+  color_vec <- env_plot_budgetShares[["color_vec"]]
+  list_graph_options <- env_plot_budgetShares[["list_graph_options"]]
+  group_small <- env_plot_budgetShares[["group_small"]]
+  gg_budgetShares <- plot_budgetShares(df_wStar, group_small, color_vec, graph_on = F, list_graph_options)
+  #-------------------------------------------
+  gg_together <- gg_frontier + gg_budgetShares + plot_layout(ncol = 1)
+  if(graph_on){print(gg_together)}
+  outlist_gg <- list(gg_frontier, gg_weights, gg_together)
+  return(outlist_gg)
+}
+#=======================================================================
+get_optimal_frontier <- function(covmat, mat_nab,
+                                 fun_env = NULL){
+  #-------------------------------------------
+  if(is.null(fun_env)){
+    n_points_on_frontier = 50
+    Rtarg_limits = c(0.001, 0.3)
+    utility_interpretation = F
+    backtest_info = NULL
+    C_targ = 1
+  }else{
+    n_points_on_frontier = fun_env[["n_points_on_frontier"]]
+    Rtarg_limits <- fun_env[["Rtarg_limits"]]
+    utility_interpretation = fun_env[["utility_interpretation"]]
+    backtest_info = fun_env[["backtest_info"]]
+    C_targ = fun_env[["C_targ"]]
+  }
+  #-------------------------------------------
+  Rtarg_vec <- seq(Rtarg_limits[1], Rtarg_limits[2], length.out = n_points_on_frontier)
+  list_wStar <- list()
+  list_frontier <- list()
+  #-------------------------------------------
+  for(i in 1:length(Rtarg_vec)){
+    this_Rtarg <- Rtarg_vec[i]
+    targ_vec <- c(this_Rtarg, C_targ)
+    list_out <- optimize_portfolio(covmat, mat_nab, targ_vec,
+                                   backtest_info,
+                                   utility_interpretation)
+    list_wStar[[i]] <- list_out[[1]]
+    list_frontier[[i]] <- list_out[[2]]
+  }
+  #-------------------------------------------
+  df_frontier <- data.frame(do.call(rbind, list_frontier))
+  colnames(df_frontier) <- c("Return target",
+                             "Risk (variance)",
+                             "Risk shadow price",
+                             "Budget shadow price",
+                             "Return backtest",
+                             "Risk backtest")
+  df_wStar <- data.frame(df_frontier$`Risk (variance)`, t(do.call(cbind, list_wStar)))
+  varNames_ordered <- row.names(mat_nab)
+  colnames(df_wStar) <- c("Risk (variance)", varNames_ordered)
+  #--------------------------------------
+  list_out <- list(df_wStar, df_frontier)
+  return(list_out)
+}
+#=======================================================================
+#=======================================================================
+# End function definitions
+#=======================================================================
+#=======================================================================
+# Conventional risk-reward frontier
+n_items <- ncol(mat_pctDiff)
+C_targ <- 1
+nab_C <- rep(1, n_items)
+utility_interpretation <- F
+#--------------------------------------------------------------
+# Covariance matrix
+covmat_train <- cor(mat_pctDiff_train)
+covmat_test <- cor(mat_pctDiff_test)
+#--------------------------------------------------------------
+# Expected returns vector
+#nab_pctRet_train <- apply(mat_pctDiff_train[ind_equal_test, ], 2, function(x) prod(1 + x)) - 1
+nab_pctRet_train <- apply(mat_pctDiff_train, 2, function(x) prod(1 + x)) - 1
+nab_pctRet_test <- apply(mat_pctDiff_test, 2, function(x) prod(1 + x)) - 1
+#--------------------------------------------------------------
+mat_nab <- cbind(nab_pctRet_train, nab_C)
+n_points_on_frontier <- 50
+Rtarg_limits <- c(0.05, 0.3)
+backtest_info <- list()
+backtest_info[["nab_pctRet_test"]] <- nab_pctRet_test
+backtest_info[["covmat_test"]] <- covmat_test
+#--------------------------------------------------------------
+fun_env_getOptFront <- list()
+fun_env_getOptFront[["n_points_on_frontier"]] <- n_points_on_frontier
+fun_env_getOptFront[["Rtarg_limits"]] <- Rtarg_limits
+fun_env_getOptFront[["utility_interpretation"]] <- utility_interpretation
+fun_env_getOptFront[["backtest_info"]] <- backtest_info
+fun_env_getOptFront[["C_targ"]] <- C_targ
+#--------------------------------------------------------------
+list_out <- get_optimal_frontier(covmat_train, mat_nab,
+                                 fun_env = fun_env_getOptFront)
+df_wStar <- list_out[[1]]
+df_frontier <- list_out[[2]]
+#--------------------------------------------------------------
+gg_frontier <- plot_frontier(df_frontier, graph_on = F)
+#--------------------------------------------------------------
+df_wStar_agg <- df_wStar %>% gather_("Item", "Budget Share", colnames(df_wStar)[-1])
+df_wStar_agg <- merge(df_wStar_agg, df_match_group, by = "Item")
+df_wStar_agg <- df_wStar_agg %>% group_by(`Risk (variance)`, Group) %>% summarise(`Budget Share` = sum(`Budget Share`)) %>% spread(Group, `Budget Share`)
+gg_budget <- plot_budgetShares(df_wStar_agg, group_small = NULL, color_vec = group_colors, graph_on = F, list_graph_options = NULL)
+#--------------------------------------------------------------
+gg_frontier + gg_budget + plot_layout(ncol = 1)
+#https://gotellilab.github.io/GotelliLabMeetingHacks/NickGotelli/ggplotPatchwork.html
+#--------------------------------------------------------------
+df_frontier_conv <- df_frontier
+
+```
+
+
+## Dealing with [SCALABILITY AND] negative budget shares
+
+The optimal budget allocation in the bottom of Figure \ref{fig:mvConv} includes some shares that are negative. As discussed in the introduction, this is unacceptable in the AR4D context. In order to force optimal budget shares, I replace the revenue $R$ and $C$ functions with utility functions $U_R$ and $U_C$, where
+
+\begin{equation}
+U_R = \boldsymbol{\mu} \cdot \ln{\mathbf{w}}
+\end{equation}
+
+and 
+
+\begin{equation}
+U_C = \mathbf{1} \cdot \ln{\mathbf{w}}
+\end{equation}
+
+Moreover, the budget $\bar{C}$ is replaced with the utility budget $\bar{U}_C$.
+
+This is tantamount to substituting $\ln \mathbf{w}$ wherever $\mathbf{w}$ appears in the equations of the previous section.
+
+I derive the utility functions $U_R$ and $U_C$ from the observation, going back perhaps as far as Aristotle [@kauder1953genesis], and certainly as far back as Bernoulli [-@bernoulli1954exposition], that
+
+>"in the absence of the unusual, the utility resulting from any small increase in wealth will be inversely proportionate to the quantity of goods previously possessed."
+
+This time honored observation can be formalized as follows:
+
+\begin{equation}
+\frac{\partial U}{\partial w_i} \sim \frac{d \ln w_i}{dw_i}
+\label{eq:uDefine}
+\end{equation}
+
+Note that multiplying through by $U / w_i$ gives an interesting alternative expression,
+
+\begin{equation}
+\frac{\partial \ln U}{\partial \ln w_i} \sim \frac{d \ln U}{dU}
+\end{equation}
+
+so that Bernoulli's statement is mathematically equivalent to saying that
+
+>"in the absence of the unusual, the _percentage increase in_ utility resulting from _a one percent_ increase in wealth will be inversely proportionate to the _utility_ of goods previously possessed."
+
+Equation \ref{eq:uDefine} can be used to arrive at an expression for $U$ as follows:
+
+\begin{equation}
+U(\mathbf{w}; \boldsymbol{\alpha}, k) = \int \nabla_{\mathbf{w}} U \cdot d\mathbf{w} = \boldsymbol{\alpha} \cdot \ln{\mathbf{w}} + k
+\end{equation}
+
+Since utility is not defined directly, but rather on the basis of the marginal relation in equation \ref{eq:uDefine}, then it is defined only up to the arbitrary constants $\boldsymbol{\alpha}$ and $k$. (In mathspeak, it is said to be defined up to an affine transformation.) However, arbitrary constants are often fixed by the specific context of the problem. In the present setting, the constants $\boldsymbol{\alpha}$ correspond to the vectors $\boldsymbol{\mu}$ and $\mathbf{1}$ in the $U_R$ and $U_C$ functions, respectively, leaving just $k$ unfixed. $U_R$ and $U_C$ are thereby defined up to translation. This means that 
+
+\begin{equation}
+U_R(\mathbf{w}; \boldsymbol{\mu}, k_1) = U_R(\mathbf{w}; \boldsymbol{\mu}, k_2)
+\label{eq:uTrans}
+\end{equation}
+
+for two different arbitrary constants $k_1$ and $k_2$. This is very important because it allows for arbitrary enforcement of the budget constraint. The substitution $\ln \mathbf{w}$ for $\mathbf{w}$ generally causes the budget shares to no longer add up to the constraint $\bar{C}$. But equation \ref{eq:uTrans} says that the weights can be divided by the constant $\bar{C} / \mathbf{1} \cdot \mathbf{w}$ so as to restore the condition $\mathbf{1} \cdot \mathbf{w} = \bar{C}$, and that $U_R$ is invariant under this operation. It is tantamount to setting $k_1 = 0$ and $k_2 = \ln \bar{C} - \ln (\mathbf{1} \cdot \mathbf{w})$.
+
+\begin{equation}
+U_R(\mathbf{w}; \boldsymbol{\mu}) = U_R(\mathbf{w}; \boldsymbol{\mu}, \ln \bar{C} - \ln (\mathbf{1} \cdot \mathbf{w}))
+\end{equation}
+
+The optimal frontier and budget shares using the utility approach presented in the methods section are plotted on the left in Figure \ref{fig:mvUtility}. Note how the optimal budget allocations increase with risk tolerance for some asset groups while dereasing for others. Specifically, the optimal budget allocated to the U.S. Sectors, Energy, and Mineral assets increases with risk tolerance, while optimal budget allocated to the other asset groups decreases with risk tolerance.
+
+
+\pagebreak
+
+```{r, fig.show='hold', fig.width=5, fig.height=4, fig.align='center', fig.cap="\\label{fig:mvUtility}Optimal frontier and budget shares, replacing returns and cost with utility functions.", echo = FALSE}
+
+# # Get backtest data
+# fun_env = list(eigenvalue_density_plot = F,
+#                pca_var_plot = F,
+#                pca_ind_plot = F,
+#                group_info,
+#                quietly = T)
+# list_out <- signals_from_noise(mat_pctDiff_test, fig_title_eigDens = NULL, fun_env)
+# # list_out <- list(mat_loads_sig, mat_loads_rot_sig, mat_loads, mat_loads_rot, mat_inData_sig, eigvals_sig, mat_eigvecs_sig, eigvals, mat_eigvecs)
+# mat_loads_sig_test <- list_out[[1]]
+# mat_loads_rot_sig_test <- list_out[[2]]
+# mat_pctDiff_sig_test <- list_out[[5]]
+#=======================================================================
+# Utility risk-reward frontier
+utility_interpretation <- T
+#--------------------------------------------------------------
+Rtarg_limits <- c(0.1, 5)#c(0.1, 5)
+#--------------------------------------------------------------
+fun_env_getOptFront[["Rtarg_limits"]] <- Rtarg_limits
+fun_env_getOptFront[["utility_interpretation"]] <- utility_interpretation
+#--------------------------------------------------------------
+list_out <- get_optimal_frontier(covmat_train, mat_nab,
+                                 fun_env = fun_env_getOptFront)
+df_wStar <- list_out[[1]]
+df_frontier <- list_out[[2]]
+#--------------------------------------------------------------
+gg_frontier <- plot_frontier(df_frontier, graph_on = F)
+#--------------------------------------------------------------
+df_wStar_agg <- df_wStar %>% gather_("Item", "Budget Share", colnames(df_wStar)[-1])
+df_wStar_agg <- merge(df_wStar_agg, df_match_group, by = "Item")
+df_wStar_agg <- df_wStar_agg %>% group_by(`Risk (variance)`, Group) %>% summarise(`Budget Share` = sum(`Budget Share`)) %>% spread(Group, `Budget Share`)
+gg_budget <- plot_budgetShares(df_wStar_agg, group_small = NULL, color_vec = group_colors, graph_on = F, list_graph_options = NULL)
+#--------------------------------------------------------------
+gg_frontier + gg_budget + plot_layout(ncol = 1)
+#--------------------------------------------------------------
+df_frontier_U <- df_frontier
+
+
+
+kappa(cov(mat_pctDiff_train[, c(colnames(mat_pctDiff_train) %in% spy_sector_detail)]))
+
+```
+
+<!-- \pagebreak -->
+Compared to the frontier in Figure \ref{fig:mvConv}, the frontier in Figure \ref{fig:mvUtility} looks inferior. However, in practice, real portfolio returns are often far lower, and far riskier, than the frontier would suggest. This is especially true when the covariance or correlation matrix used in the analysis is ill conditioned.  frontiers often diverge from reality.   the frontier is only as accurate as the data it is based on. The backtests are shown in Figure ...
+
+
+
+
+
+# Reverse engineering the covariance matrix
+
+In principlal components analysis (PCA), a centered dataset $X$, with potentially many variables, is distilled into a smaller dataset $S$ of just a few key variables capturing the main tendencies and structure in the data. This is accomplished by post-multiplying the original data $X$ by a select number of the eigenvectors of its covariance matrix $\tilde{P}$.^[Also referred to as the matrix of right singular vectors.] The number of "key variables" into which the dataset $X$ is distilled is equal to the number of eigenvectors retained from the full set of eigenvectors $P$.
+
+$$
+\begin{equation}
+S = X\tilde{P}
+\end{equation}
+$$
+
+The distilled matrix $S$ is referred to variously as the principal components (PC), or the PC scores, or the factor scores. For the purposes of this paper, I refer to the columns of $S$ as the "signals", since they are, in effect, signals extracted from noise.
+
+Signals can be 
+
+
+
+$$
+\begin{equation}
+\tilde{\Sigma} = L_{\circlearrowleft}' L_{\circlearrowleft}
+\end{equation}
+$$
+
+
+In the example presented here, a special kind of orthogonal rotation called a varimax rotation is used. Varimax rotations are useful for clarifying the interpretation of the loadings matrix.
+
+
+$$
+\begin{equation}
+\Sigma = L_{\circlearrowleft} L_{\circlearrowleft}'
+\end{equation}
+$$
+
+This is true regardless of whether $R$ is a varimax rotation, or some other kind of rotation. The important thing is that $R$ is orthogonal.
+
+
+$$
+\begin{equation}
+\tilde{\Sigma} = L_{\circlearrowleft}' L_{\circlearrowleft}
+\end{equation}
+$$
+
+Note that $\Sigma$ will be the same regardless of $R$. On the other hand, $\tilde{\Sigma}$ changes with $R$.
+
+
+
+In Figure \ref{fig:eigDens}, a density plot of the correlation matrix eigenvalues is compared against one of eigenvalues derived from a random matrix. In this plot, it is evident that most eigenvalues are small and cannot be distinguished from noise, but six of them extend beyond the random matrix eigenvalue density plot. These correspond to the eigenvectors that can be meaningfully distinguished from noise.
+
+```{r, fig.show = 'hold', fig.width=5, fig.height=3, fig.align='center', fig.cap="\\label{fig:eigDens}Eigenvalue density plots for the financial data correlation matrix and a\ncorrelation matrix of a random dataset of the same dimensions.", echo=FALSE}
+
 #=======================================================================
 # Resources:
 # Correlation matrices:
@@ -512,940 +1446,8 @@ interpret_loadings <- function(mat_loads_rot_sig, fun_env = NULL){
 #=======================================================================
 #=======================================================================
 
-spy_sector_symbs <- c("XLF", "XLC", "XLY", "XLP", "XLV", "XLK", "RWR",
-                      "XLU", "XLI", "XBI", "IYT") #"TTEK"
-spy_sector_detail <- c("Financials", "Communications", "Luxury goods", "Staple goods",
-                       "Healthcare", "Technology", "Real estate", "Utilities", "Industrial",
-                       "Biotechnology", "Transportation") #"Gov. foreign aid"
-minerals_symbs <- c("GLD", "SLV", "PPLT", "JJC", "JJM") #"XME"
-minerals_detail <- c("Gold", "Silver", "Platinum", "Copper", "Industrial metals") #"US metals and mining"
-agriculture_symbs <- c("JJG", "BAL", "SOYB", "SGG", "JO", "NIB", "DBA")
-agriculture_detail <- c("Grains", "Cotton", "Soybean", "Sugar", "Coffee", "Cacao", "General agriculture")
-energy_symbs <- c("WTI", "FUE", "WOOD", "ICLN", "KOL", "UNG")
-energy_detail <- c("Oil (W&T Offshore Inc.)", "Biofuels", "Timber", "Clean energy", "Coal", "US natural gas")
-#currency_symbs <- c("EMLC", "UUP", "FXE", "FXY", "FXF", "FXC", "FXB", "FXA")
-#currency_detail <- c("Emerging mkt currencies", "USD", "EUR", "JPY", "CHF", "CND", "GBP", "AUD")
-currency_symbs <- c("EURUSD=X", "JPY=X", "CHF=X", "CAD=X",
-                    "GBPUSD=X", "AUDUSD=X", "INR=X")
-currency_detail <- c("EUR/USD", "USD/JPY",
-                     "USD/CHF", "USD/CAD", "GBP/USD", "AUD/USD", "USD/INR")
-emerg_mkt_symbs <- c("EMLC", "ELD", "BKF", "VWOB")
-emerg_mkt_detail <- c("Emerg mkts debt", "Emerg mkts gov. bonds", "BRIC countries", "Emerging mkt currencies")
-crypto_symbs <- c("BLOK", "LEGR", "BCNA")
-crypto_detail <- c("Blockchain tech.", "Blockchain companies", "Blockchain in China")
-Tbond_symbs <- c("IEI", "IEF", "TLT")#, "BIL"
-Tbond_detail <- c("T-bond 3-7 yrs", "T-bond 7-10 yrs", "T-bond 20+ yrs") #"T-bond 1-3 months"
 
-ts_symb_vec <- c(spy_sector_symbs, minerals_symbs, agriculture_symbs, energy_symbs,
-                 currency_symbs, emerg_mkt_symbs, crypto_symbs, Tbond_symbs)
-ts_detail_vec <- c(spy_sector_detail, minerals_detail, agriculture_detail, energy_detail,
-                   currency_detail, emerg_mkt_detail, crypto_detail, Tbond_detail)
-df_symb_detail <- data.frame(symbol = ts_symb_vec, detail = ts_detail_vec)
-#--
-#length(ts_symb_vec)
-#--
-# list_groups <- list(spy_sector_symbs, minerals_symbs, agriculture_symbs, energy_symbs,
-#                      currency_symbs, emerg_mkt_symbs, crypto_symbs, Tbond_symbs)
-#-------------------------------------------
-# Create grouping info for plots (required input into functions)
-list_groups <- list(spy_sector_detail, minerals_detail, agriculture_detail, energy_detail,
-                    currency_detail, emerg_mkt_detail, crypto_detail, Tbond_detail)
-group_names <- c("US Sectors", "Minerals", "Agriculture", "Energy", "Major Currency Pairs",
-                 "Emerging Markets", "Cryptocurrencies/\nBlockchain", "T-Bonds")
-group_info <- list(list_groups, group_names)
-n_groups <- length(group_names)
-#-------------------------------------------
-#per_ema <- 13
-#fromdate = Sys.Date() - 360
-fromdate = "2018-06-20"
-todate = "2019-08-09"
-tbl_ohlcv <- tq_get(ts_symb_vec, get = "stock.prices", from = fromdate, to = todate)
-df_ohlcv <- as.data.frame(tbl_ohlcv)
-#--
-# Crypto ts can have duplicate date entries sometimes (BTC-USD)
-# Get rid of these duplicates, if any
-df_ohlcv <- as.data.frame(df_ohlcv %>% group_by(symbol) %>% mutate(dup = duplicated(date)))
-df_ohlcv <- subset(df_ohlcv, dup == F)
-df_ohlcv$dup <- NULL
-#--
 
-#df_ohlcv$p <- rowSums(df_ohlcv[, c(4:6)]) / 3
-#--
-#df <- df_ohlcv[, c("date", "symbol", "p")]
-# df <- df_ohlcv %>% group_by(symbol) %>% tq_transmute(select = adjusted, 
-#                      mutate_fun = periodReturn, 
-#                      period     = "monthly")
-#--
-df <- df_ohlcv[, c("date", "symbol", "adjusted")]
-df <- df %>% spread(symbol, adjusted)
-ind_shift <- which(colnames(df) %in% currency_symbs)
-df[, ind_shift] <- rbind(rep(NA, length(ind_shift)), df[-nrow(df), ind_shift])
-df <- df[-c(1, nrow(df)), ]
-date_vec <- df$date
-mat_ts_dy <- na.approx(df[, -1])
-
-#o <- apply(mat_ts_dy, 2, function(x) length(which(is.na(x))))
-#table(o)
-#which(o==1)
-#xts_ts_dy <- xts(mat_ts_dy, date_vec)
-#date_vec <- index(xts_ts_dy)
-#-----
-mat_pctDiff_dy <- diff(mat_ts_dy) / mat_ts_dy[-nrow(mat_ts_dy), ]
-#mat_pctDiff_dy <- diff(log(mat_ts_dy))
-row.names(mat_pctDiff_dy) <- as.character(date_vec[-1])
-ts_avg_dy <- rowMeans(mat_pctDiff_dy)
-mu_ret_dy <- colMeans(mat_pctDiff_dy)
-sd_ret_dy <- apply(mat_pctDiff_dy, 2, sd)
-
-mat_ts_wk <- to.weekly(xts(mat_ts_dy, date_vec), OHLC = F)
-mat_pctDiff_wk <- diff(mat_ts_wk) / mat_ts_wk[-nrow(mat_ts_wk), ]
-mat_pctDiff_wk <- as.matrix(mat_pctDiff_wk[-1, ])
-ts_avg_wk <- rowMeans(mat_pctDiff_wk)
-mu_ret_wk <- colMeans(mat_pctDiff_wk)
-sd_ret_wk <- apply(mat_pctDiff_wk, 2, sd)
-
-mat_ts_mo <- to.monthly(xts(mat_ts_dy, date_vec), OHLC = F)
-mat_pctDiff_mo <- diff(mat_ts_mo) / mat_ts_mo[-nrow(mat_ts_mo), ]
-mat_pctDiff_mo <- as.matrix(mat_pctDiff_mo[-1, ])
-ts_avg_mo <- rowMeans(mat_pctDiff_mo)
-mu_ret_mo <- colMeans(mat_pctDiff_mo)
-sd_ret_mo <- apply(mat_pctDiff_mo, 2, sd)
-#----------------------------------------------
-# Compare histograms of daily, weekly, and monthly returns
-# df_plot <- data.frame(ts_id = names(mu_ret_dy), mu_ret_dy, mu_ret_wk, mu_ret_mo)
-# colnames(df_plot)[-1] <- c("Mean Daily Return", "Mean Weekly Return", "Mean Monthly Return")
-# gathercols <- colnames(df_plot)[-1]
-# df_plot <- df_plot %>% gather_("Return Type", "Value", gathercols)
-# #gg <- ggplot(df_plot, aes(Value, fill = `Return Type`))
-# gg <- ggplot(df_plot, aes(Value))
-# gg <- gg + geom_density(alpha = 0.4)
-# gg <- gg + facet_wrap(~`Return Type`, nrow = 1, scales = "free")
-# #gg <- gg + coord_cartesian(xlim = c(-0.02, 0.02))
-# gg
-#----------------------------------------------
-#ind_rm_ema <- 1:(per_ema - 1)
-# mat_pctDiff <- apply(mat_pctDiff, 2, function(x) x - EMA(x, per_ema))
-# mat_pctDiff <- mat_pctDiff[-ind_rm_ema, ]
-# date_vec <- df$date[-c(ind_rm_ema, ind_rm_na)]
-#----------------------------------------------
-mat_ts_in <- mat_ts_dy
-ts_avg_in <- ts_avg_dy
-# nab_pctRet_in <- mu_ret_dy
-# sd_ret_in <- sd_ret_dy
-#----------------------------------------------
-mat_pctDiff <- mat_pctDiff_dy
-date_vec <- row.names(mat_pctDiff)
-#length(date_vec)
-row.names(mat_pctDiff) <- as.character(date_vec)
-colnames(mat_pctDiff) <- as.character(df_symb_detail$detail[order(df_symb_detail$symbol)])
-#----------------------------------------------
-check_on_data <- F
-if(check_on_data){
-  df_plot <- as.data.frame(mat_pctDiff)
-  gathercols <- colnames(df_plot)
-  df_plot$Date <- date_vec
-  df_plot <- df_plot %>% gather_("Security", "Weekly change (%)", gathercols)
-  df_plot$Type <- NA
-  df_plot$Type[which(df_plot$Security %in% spy_sector_detail)] <- "US Sectors"
-  df_plot$Type[which(df_plot$Security %in% minerals_detail)] <- "Minerals"
-  df_plot$Type[which(df_plot$Security %in% agriculture_detail)] <- "Agriculture"
-  df_plot$Type[which(df_plot$Security %in% energy_detail)] <- "Energy"
-  df_plot$Type[which(df_plot$Security %in% currency_detail)] <- "Major Currency Pairs"
-  df_plot$Type[which(df_plot$Security %in% emerg_mkt_detail)] <- "Emerging Markets"
-  df_plot$Type[which(df_plot$Security %in% crypto_detail)] <- "Cryptocurrencies/\nBlockchain"
-  df_plot$Type[which(df_plot$Security %in% Tbond_detail)] <- "T-bonds"
-  #------------------------------------------------------------
-  # gg <- ggplot(df_plot, aes(x = Year, y = Value, group = Security, color = Security))
-  # gg <- gg + geom_line()
-  # gg <- gg + facet_wrap(~ Type, nrow = 3, scales = "free")
-  # gg <- gg + theme(legend.position = "none")
-  # gg
-  #------------------------------------------------------------
-  this_type <- "US Sectors"
-  df_plot2 <- subset(df_plot, Type == this_type)
-  gg <- ggplot(df_plot2, aes(x = Date, y = `Weekly change (%)`, group = Security, color = Security))
-  gg <- gg + geom_line(lwd = 1.1)
-  gg <- gg + geom_point(size = 2)
-  gg <- gg + labs(title = this_type)
-  gg
-  this_type <- "Minerals"
-  df_plot2 <- subset(df_plot, Type == this_type)
-  gg <- ggplot(df_plot2, aes(x = Date, y = `Weekly change (%)`, group = Security, color = Security))
-  gg <- gg + geom_line(lwd = 1.1)
-  gg <- gg + geom_point(size = 2)
-  gg <- gg + labs(title = this_type)
-  gg
-  this_type <- "Agriculture"
-  df_plot2 <- subset(df_plot, Type == this_type)
-  gg <- ggplot(df_plot2, aes(x = Date, y = `Weekly change (%)`, group = Security, color = Security))
-  gg <- gg + geom_line(lwd = 1.1)
-  gg <- gg + geom_point(size = 2)
-  gg <- gg + labs(title = this_type)
-  gg
-  this_type <- "Energy"
-  df_plot2 <- subset(df_plot, Type == this_type)
-  gg <- ggplot(df_plot2, aes(x = Date, y = `Weekly change (%)`, group = Security, color = Security))
-  gg <- gg + geom_line(lwd = 1.1)
-  gg <- gg + geom_point(size = 2)
-  gg <- gg + labs(title = this_type)
-  gg
-  this_type <- "Major Currency Pairs"
-  df_plot2 <- subset(df_plot, Type == this_type)
-  gg <- ggplot(df_plot2, aes(x = Date, y = `Weekly change (%)`, group = Security, color = Security))
-  gg <- gg + geom_line(lwd = 1.1)
-  gg <- gg + geom_point(size = 2)
-  gg <- gg + labs(title = this_type)
-  gg
-  this_type <- "Emerging Markets"
-  df_plot2 <- subset(df_plot, Type == this_type)
-  gg <- ggplot(df_plot2, aes(x = Date, y = `Weekly change (%)`, group = Security, color = Security))
-  gg <- gg + geom_line(lwd = 1.1)
-  gg <- gg + geom_point(size = 2)
-  gg <- gg + labs(title = this_type)
-  gg
-  this_type <- "Cryptocurrencies/Blockchain"
-  df_plot2 <- subset(df_plot, Type == this_type)
-  gg <- ggplot(df_plot2, aes(x = Date, y = `Weekly change (%)`, group = Security, color = Security))
-  gg <- gg + geom_line(lwd = 1.1)
-  gg <- gg + geom_point(size = 2)
-  gg <- gg + labs(title = this_type)
-  gg
-  this_type <- "T-bonds"
-  df_plot2 <- subset(df_plot, Type == this_type)
-  gg <- ggplot(df_plot2, aes(x = Date, y = `Weekly change (%)`, group = Security, color = Security))
-  gg <- gg + geom_line(lwd = 1.1)
-  gg <- gg + geom_point(size = 2)
-  gg <- gg + labs(title = this_type)
-  gg
-}
-
-```
-
-Historical returns for these two datasets are presented in Figure \ref{fig:hReturns}. Returns are calculated as
-
-$$$$
-
-<!-- Correlation matrices for the train and test data are presented in Figure \ref{fig:corrMats}. -->
-
-```{r, fig.show = 'hold', fig.cap="\\label{fig:hReturns}Historical (top) daily returns and (bottom) period return, train and test data.", fig.width=8, fig.height=12, fig.align='left', echo=FALSE}
-
-# Define grouping function
-group_cols <- function(mat_pctDiff, group_info, group_colors = NULL, reverse_order = F){
-  if(is.null(group_colors)){
-    group_colors <- randomcoloR::distinctColorPalette(k = length(group_names))
-    #group_colors <- viridis::viridis_pal(option = "D")(length(group_names))
-  }
-  if(reverse_order){group_colors <- rev(group_colors)}
-  list_groups <- group_info[[1]]
-  group_names <- group_info[[2]]
-  n_groups <- length(list_groups)
-  n_items <- ncol(mat_pctDiff)
-  varNames_ordered <- colnames(mat_pctDiff)
-  group_vec <- rep(NA, n_items)
-  group_color_vec <- rep(NA, n_items)
-  for(i in 1:n_groups){
-    this_group_vec <- list_groups[[i]]
-    this_group_name <- group_names[i]
-    this_group_color <- group_colors[i]
-    group_vec[which(varNames_ordered %in% this_group_vec)] <- this_group_name
-    group_color_vec[which(varNames_ordered %in% this_group_vec)] <- this_group_color
-  }
-  ind_ordered_cols <- order(factor(group_vec))
-  cols_ordered_by_group <- as.character(colnames(mat_pctDiff)[ind_ordered_cols])
-  group_color_vec <- group_color_vec[ind_ordered_cols]
-  group_vec_ordered <- group_vec[ind_ordered_cols]
-  out_list <- list(cols_ordered_by_group, group_color_vec, group_vec_ordered, ind_ordered_cols)
-  return(out_list)
-}
-# Define historical returns and box-whiskers plotting function. The latter is for visually assessing the standard deviation of each portfolio item
-historical_returns_and_boxplot <- function(mat_pctDiff,
-                                           mat_pctDiff_test = NULL,
-                                           group_info,
-                                           group_colors){
-  #------------------------------------------------------------
-  # Group the vars according to provided group info
-  outlist <- group_cols(mat_pctDiff, group_info, group_colors)
-  cols_ordered_by_group <- outlist[[1]]
-  group_color_vec <- outlist[[2]]
-  group_vec_ordered <- outlist[[3]]
-  ind_ordered_cols <- outlist[[4]]
-  #------------------------------------------------------------
-  # Get date info
-  from_date <- row.names(mat_pctDiff)[1]
-  to_date <- row.names(mat_pctDiff)[nrow(mat_pctDiff)]
-  from_date <- gsub("-", "/", from_date)
-  to_date <- gsub("-", "/", to_date)
-  date_interval <- paste(from_date, to_date, sep = " - ")
-  fig_subtitle_returns <- date_interval
-  #------------------------------------------------------------
-  # Get returns
-  nab_pctRet <- apply(mat_pctDiff, 2, function(x) prod(1 + x)) - 1
-  #------------------------------------------------------------
-  df_plot <- data.frame(Returns = nab_pctRet)
-  df_plot$id <- row.names(df_plot)
-  df_plot <- df_plot[ind_ordered_cols, ]
-  df_plot$Type <- factor(group_vec_ordered)
-  df_plot$id <- factor(df_plot$id, levels = cols_ordered_by_group)
-  #------------------------------------------------------------
-  # Get same for test dataset, if provided
-  if(!is.null(mat_pctDiff_test)){
-    #------
-    data_type_train <- paste("Train data ", date_interval)
-    df_plot$Dataset <- data_type_train
-    #------
-    from_date <- row.names(mat_pctDiff_test)[1]
-    to_date <- row.names(mat_pctDiff_test)[nrow(mat_pctDiff_test)]
-    from_date <- gsub("-", "/", from_date)
-    to_date <- gsub("-", "/", to_date)
-    date_interval <- paste(from_date, to_date, sep = " - ")
-    data_type_test <- paste("Backtest data ", date_interval)
-    #------------------------------------------------------------
-    nab_pctRet_test <- apply(mat_pctDiff_test, 2, function(x) prod(1 + x)) - 1
-    #------------------------------------------------------------
-    df_plot_test <- data.frame(Returns = nab_pctRet_test, Dataset = data_type_test)
-    df_plot_test$id <- row.names(df_plot_test)
-    df_plot_test <- df_plot_test[ind_ordered_cols, ]
-    df_plot_test$Type <- factor(group_vec_ordered)
-    df_plot_test$id <- factor(df_plot_test$id, levels = cols_ordered_by_group)
-    df_plot <- as.data.frame(rbind(df_plot, df_plot_test))
-    df_plot$Dataset <- factor(df_plot$Dataset, levels = c(data_type_train, data_type_test))
-    
-  }
-  #------------------------------------------------------------
-  # Historical returns plot
-  #------------------------------------------------------------
-  colnames(df_plot)[1] <- "Period Return"
-  gg <- ggplot(df_plot, aes(x = id, y = `Period Return`, fill = Type))
-  #gg <- gg + scale_color_brewer(palette = "Dark2")
-  gg <- gg + scale_fill_manual(values = group_colors)
-  gg <- gg + geom_bar(stat = "identity", color = "black", position = "dodge")
-  if(!is.null(mat_pctDiff_test)){
-    gg <- gg + facet_wrap(~Dataset, ncol = 1)
-  }
-  gg <- gg + labs(title = "Period Return")
-  gg <- gg + theme(axis.text.x = element_text(size = 9, angle = 60, hjust = 1),
-                   #axis.text.x = element_blank(),
-                   axis.title.x = element_blank(),
-                   axis.text.y = element_text(size = 9),
-                   #axis.title.y = element_text(size = 9),
-                   axis.title.y = element_blank(),
-                   legend.position = "bottom",
-                   legend.title = element_blank(),
-                   legend.text = element_text(size = 9),
-                   plot.title = element_text(face = "bold", size = 9)
-  )
-  #  gg <- gg + coord_equal()
-  #  gg <- gg + coord_flip()
-  #print(gg)
-  gg_returns <- gg
-  #------------------------------------------------------------
-  # Box and whiskers plot
-  #------------------------------------------------------------
-  # Define df_plot prep function:
-  prep_df_for_boxplot <- function(mat_pctDiff, cols_ordered_by_group, group_info){
-    list_groups <- group_info[[1]]
-    group_names <- group_info[[2]]
-    df_plot <- as.data.frame(mat_pctDiff[, cols_ordered_by_group])
-    df_plot <- df_plot %>% gather_("id", "Daily Returns", colnames(df_plot))
-    df_plot$Type <- NA
-    for(i in 1:n_groups){
-      this_group <- list_groups[[i]]
-      ind <- which(df_plot$id %in% this_group)
-      df_plot$Type[ind] <- group_names[i]
-    }
-    df_plot$id <- factor(df_plot$id, levels = cols_ordered_by_group)
-    df_plot$Type <- factor(df_plot$Type)
-    return(df_plot)
-    
-  }
-  #------------------------------------------------------------
-  # Prepare df_plot
-  df_plot <- prep_df_for_boxplot(mat_pctDiff_train, cols_ordered_by_group, group_info)
-  if(!is.null(mat_pctDiff_test)){
-    df_plot$Dataset <- data_type_train
-    df_plot_test <- prep_df_for_boxplot(mat_pctDiff_test, cols_ordered_by_group, group_info)
-    df_plot_test$Dataset <- data_type_test
-    df_plot <- as.data.frame(rbind(df_plot, df_plot_test))
-    df_plot$Dataset <- factor(df_plot$Dataset, levels = c(data_type_train, data_type_test))
-  }
-  #------------------------------------------------------------
-  # Plot df_plot
-  gg <- ggplot(df_plot, aes(x = id, y = `Daily Returns`, fill = Type))
-  #gg <- gg + scale_color_brewer(palette = "Dark2")
-  gg <- gg + scale_fill_manual(values = group_colors)
-  #gg <- gg + geom_bar(stat = "identity", color = "black", position = "dodge")
-  gg <- gg + geom_boxplot()
-  if(!is.null(mat_pctDiff_test)){
-    gg <- gg + facet_wrap(~Dataset, ncol = 1)
-  }
-  gg <- gg + labs(title = "Daily Returns")
-  gg <- gg + theme(#axis.text.x = element_text(size = 9, angle = 60, hjust = 1),
-    axis.text.x = element_blank(),
-    axis.title.x = element_blank(),
-    axis.text.y = element_text(size = 9),
-    #axis.title.y = element_text(size = 9),
-    axis.title.y = element_blank(),
-    legend.position = "none",
-    # legend.title = element_blank(),
-    # legend.text = element_text(size = 9),
-    plot.title = element_text(face = "bold", size = 9))
-  gg_boxplot <- gg
-  #------------------------------------------------------------
-  gg_together <- gg_boxplot + gg_returns + plot_layout(ncol = 1, heights = c(2, 1))
-  print(gg_together)
-  
-}
-#=======================================================================
-# End function definition
-#=======================================================================
-ind_train <- 1:round(nrow(mat_pctDiff) * 2 / 3)
-ind_test <- setdiff(1:nrow(mat_pctDiff), ind_train)
-mat_pctDiff_train <- mat_pctDiff[ind_train, ]
-mat_pctDiff_test <- mat_pctDiff[ind_test, ]
-# ts_avg_test <- ts_avg_in[ind_test]
-# date_vec_test <- date_vec[ind_test]
-#group_colors <- RColorBrewer::brewer.pal(n = n_groups, "Dark2")
-# "Darjeeling"
-group_colors <- wesanderson::wes_palette("Darjeeling1", n = n_groups, type = "continuous")
-
-historical_returns_and_boxplot(mat_pctDiff_train,
-                               mat_pctDiff_test,
-                               group_info,
-                               group_colors = group_colors)
-
-```
-
-```{r, include=FALSE, echo=FALSE}
-
-outlist <- group_cols(mat_pctDiff, group_info, group_colors, reverse_order = F)
-cols_ordered_by_group <- outlist[[1]]
-group_color_vec <- outlist[[2]]
-corr_colorRamp <- colorRampPalette(c("darkred", "white", "blue4"))(50)
-#cormat <- Hmisc::rcorr(mat_pctDiff_train[, cols_ordered_by_group])$r
-cormat <- cor(mat_pctDiff_train[, cols_ordered_by_group])
-#cormat <- cov(mat_pctDiff_train[, cols_ordered_by_group])
-corrplot::corrplot(cormat, is.corr = T, type = "lower", tl.col = group_color_vec, tl.srt = 30,
-                   col = corr_colorRamp)
-gridGraphics::grid.echo()
-p_corplot <- grid::grid.grab()
-#grid::grid.draw(gg_corplot)
-cormat <- cor(mat_pctDiff_test[, cols_ordered_by_group])
-#cormat <- cov(mat_pctDiff_test[, cols_ordered_by_group])
-corrplot::corrplot(cormat, is.corr = T, type = "lower", tl.col = group_color_vec, tl.srt = 30,
-                   col = corr_colorRamp)
-gridGraphics::grid.echo()
-p_corplot_test <- grid::grid.grab()
-
-```
-
-```{r, fig.show="hold", fig.cap="\\label{fig:corrMats}Correlation matrices, train and test data.", fig.width=7, fig.height=9, fig.align='center'}
-#gridExtra::grid.arrange(p_corplot, p_corplot_test)
-
-```
-
-\pagebreak
-
-The optimal frontier and budget shares are calculated based on the train data and displayed on the left side of Figure \ref{fig:mvConv}.
-
-
-```{r, fig.show='hold', fig.width=9, fig.height=4, fig.align='center', fig.cap="\\label{fig:mvConv}\\textit{(Left)} Optimal frontier and budget shares, unmodified MV Analysis. \\textit{(Right)} Backtest of the optimal frontier.", echo = FALSE}
-# Get backtest data
-fun_env = list(eigenvalue_density_plot = F,
-               pca_var_plot = F,
-               pca_ind_plot = F,
-               group_info,
-               quietly = T)
-list_out <- signals_from_noise(mat_pctDiff_test, fig_title_eigDens = NULL, fun_env)
-# list_out <- list(mat_loads_sig, mat_loads_rot_sig, mat_loads, mat_loads_rot, mat_inData_sig, eigvals_sig, mat_eigvecs_sig, eigvals, mat_eigvecs)
-mat_loads_sig_test <- list_out[[1]]
-mat_loads_rot_sig_test <- list_out[[2]]
-mat_pctDiff_sig_test <- list_out[[5]]
-#=======================================================================
-# Define portfolio optimization function
-optimize_portfolio <- function(cormat, mat_nab, targ_vec,
-                               backtest_info = NULL,
-                               utility_interpretation = F){
-  cormat_inv <- solve(cormat)
-  M <- t(mat_nab) %*% cormat_inv %*% mat_nab
-  M_inv <- solve(M)
-  #print(M)
-  x <- -2 * M_inv %*% targ_vec
-  # Risk shadow price
-  l_V <- 1 / x[1]
-  #if(l_V > 0){l_V <- -l_V}
-  #print(l_V)
-  # Budget shadow price (l_C = lambdas[2], l_R normalized to = 1)
-  lambdas <- l_V * x
-  l_C <- lambdas[2]
-  # Optimal budget shares
-  wStar <- -1 / (2 * l_V) * cormat_inv %*% mat_nab %*% lambdas
-  #print(sum(wStar))
-  # Portfolio variance
-  V <- t(wStar) %*% cormat %*% wStar
-  # Rtarg <- targ_vec[1]
-  Rtarg <- t(wStar) %*% mat_nab[, 1]
-  #----------------------------------------------------
-  # check <- t(lambdas) %*% targ_vec + 2*l_V * V
-  # print(check)
-  #----------------------------------------------------
-  # Utility function interpretation of equations
-  # (Makes all budget shares positive)
-  if(utility_interpretation){
-    Exp_wStar <- exp(wStar)
-    K <- sum(Exp_wStar)
-    wStar <- Exp_wStar / K
-    Rtarg <- t(wStar) %*% mat_nab[, 1]
-    V <- t(wStar) %*% cormat %*% wStar
-  } 
-  #if(l_V > 0){wStar <- rep(NA, length(wStar))}
-  #----------------------------------------------------
-  if(!is.null(backtest_info)){
-    nab_pctRet_test <- backtest_info[["nab_pctRet_test"]]
-    Rtest <- t(wStar) %*% nab_pctRet_test
-  }else{
-    Rtest <- NULL
-  }
-  #----------------------------------------------------
-  list_out <- list(wStar, Rtarg, V, l_V, l_C, Rtest)
-  return(list_out)
-  
-}
-#=======================================================================
-# backtest_portfolio <- function(wStar, nab_pctRet_test, cormat_test,
-#                                include_benchmark = F){
-#   #----------------------------------------------------
-#   # Backtest
-#   R_test <- t(wStar) %*% nab_pctRet_test
-#   V_test <- t(wStar) %*% cormat_test %*% wStar
-#   if(include_benchmark){
-#     # Benchmark portfolio
-#     n_items <- ncol(cormat)
-#     wBmark <- rep(1 / n_items, n_items)
-#     R_test_bMark <- t(wBmark) %*% nab_pctRet_test
-#     V_test_bMark <- t(wBmark) %*% cormat_test %*% wBmark
-#   }else{
-#     R_test_bMark <- NULL
-#     V_test_bMark <- NULL
-#   }
-#   #----------------------------------------------------
-#   outvec <- c(R_test, V_test, R_test_bMark, V_test_bMark)
-#   return(outvec)
-#   
-# }
-#=======================================================================
-plot_frontier_wBacktest <- function(df_frontier,
-                                    df_backtest,
-                                    fig_title = NULL,
-                                    separate_plots = F){
-  #-------------------------------------------
-  n_points_on_frontier <- nrow(df_frontier)
-  color_vec <- c("#56B4E9", "black")
-  #-------------------------------------------
-  #if(is.null(fig_title)){fig_title <- "Optimal Portfolio Frontier"}
-  df_plot1 <- df_frontier[, c("Risk (variance)", "Return target")]
-  df_plot2 <- df_backtest[, c("Risk backtest", "Return backtest")]
-  df_plot1$Type <- "optimal frontier"
-  df_plot2$Type <- "Backtest of optimal frontier"
-  colnames(df_plot1)[2] <- "Return"
-  colnames(df_plot2)[1:2] <- c("Risk (variance)", "Return")
-  df_plot <- as.data.frame(do.call(rbind, list(df_plot1, df_plot2)))
-  if(separate_plots){
-    gg <- ggplot(df_plot, aes(x = `Risk (variance)`, y = `Return`))
-  }else{
-    gg <- ggplot(df_plot, aes(x = `Risk (variance)`, y = `Return`, group = Type, color = Type))
-  }
-  gg <- gg + geom_point()
-  if(separate_plots){
-    gg <- gg + facet_wrap(~Type, ncol = 1, scales = "free_y")
-  }
-  gg <- gg + scale_color_manual(values = color_vec)
-  #gg <- gg + labs(title = fig_title)
-  #gg <- gg + theme(plot.title = element_text(size = 10))
-  gg <- gg + theme(legend.title = element_blank(),
-                   legend.position = "bottom")
-  gg <- gg + coord_cartesian(xlim = c(0, max(df_plot$`Risk (variance)`)))
-  gg_frontier_wBacktest <- gg
-  #print(gg_frontier_wBacktest)
-  return(gg_frontier_wBacktest)
-}
-#=======================================================================
-plot_frontier_and_budget <- function(df_frontier, df_wStar,
-                                     n_points_on_frontier,
-                                     varNames_ordered,
-                                     group_info = NULL,
-                                     group_colors = NULL,
-                                     group_small = NULL){
-  #-------------------------------------------
-  if(!is.null(group_info) & !is.null(group_small)){
-    print("group_info and group_small cannot both be not null!")
-  }
-  #-------------------------------------------
-  # Frontier plot
-  #if(is.null(fig_title)){fig_title <- "Optimal Portfolio Frontier"}
-  #df_plot <- df_frontier[, c("Risk (variance)", "Return target")]
-  df_plot <- df_frontier
-  if(ncol(df_plot) == 3){
-    gathercols <- colnames(df_plot)[2:3]
-    df_plot <- df_plot %>% gather_("Type", "Value", gathercols)
-    gg <- ggplot(df_plot, aes(x = `Risk (variance)`, y = Value, group = Type, color = Type))
-  }else{
-    gg <- ggplot(df_plot, aes(x = `Risk (variance)`, y = `Return target`))
-  }
-  gg <- gg + theme(axis.title.x = element_blank(),
-                   axis.text.x = element_blank()
-                   #plot.title = element_text(size = 10)
-  )
-  gg <- gg + geom_point()
-  gg_frontier <- gg
-  #-------------------------------------------
-  # Budget shares plot
-  # Note df_w_in should have just the target risk column (i.e. don't also include the backtest risk column). At any rate, the budget risk column should be the same as the one used in the frontier plot.
-  df_plot <- df_wStar
-  gathercols <- colnames(df_plot)[-1]
-  #------------------------------------
-  if(!is.null(group_small)){
-    mat_plot <- as.matrix(df_plot[, -1])
-    mu_vec <- apply(mat_plot, 2, mean)
-    ind_group_small <- which(mu_vec < 10^-2)
-    other_col <- rowSums(mat_plot[, ind_group_small])
-    
-    mat_plot <- mat_plot[, -ind_group_small]
-    df_plot <- as.data.frame(mat_plot)
-    df_plot$Other <- other_col
-    df_plot$`Risk (variance)` <- df_wStar$`Risk (variance)`
-    gathercols <- colnames(df_plot)[-ncol(df_plot)]
-  }
-  #------------------------------------
-  df_plot$portfolio_id <- 1:n_points_on_frontier
-  df_match_V <- df_plot[, c("portfolio_id", "Risk (variance)")]
-  df_plot <- df_plot %>% gather_("Item", "Budget shares", gathercols)
-  #------------------------------------
-  if(!is.null(group_info)){
-    list_groups <- group_info[[1]]
-    group_names <- group_info[[2]]
-    n_items <- nrow(mat_nab)
-    group_vec <- rep(NA, n_items)
-    for(i in 1:length(list_groups)){
-      this_group_vec <- list_groups[[i]]
-      this_group_name <- group_names[i]
-      group_vec[which(varNames_ordered %in% this_group_vec)] <- this_group_name
-    }
-    df_match_group <- data.frame(Item = varNames_ordered, Type = group_vec)
-    df_plot <- merge(df_plot, df_match_group, by = "Item")
-    df_plot <- df_plot %>% group_by(portfolio_id, Type) %>% summarise(`Budget shares` = sum(`Budget shares`))
-    df_plot <- merge(df_plot, df_match_V, by = "portfolio_id")
-    colnames(df_plot)[2] <- "Item"
-  }
-  #------------------------------------
-  df_plot <- df_plot %>% group_by(Item) %>% mutate(mu = mean(`Budget shares`)) %>% as.data.frame(df_plot)
-  ind_order_mu <- order(df_plot$mu, df_plot$Item, decreasing = T)
-  df_plot$Item <- factor(df_plot$Item,
-                         levels = unique(df_plot$Item[ind_order_mu]),
-                         ordered = T)
-  #df_plot <- arrange(df_plot, Item, `Risk (variance)`)
-  gg <- ggplot(df_plot, aes(x = `Risk (variance)`, y = `Budget shares`, fill = Item))
-  #------------------------------------
-  if(!is.null(group_colors)){
-    ind_order_mu_color <- match(group_names,  unique(df_plot$Item[ind_order_mu]))
-    gg <- gg + scale_fill_manual(values = group_colors[ind_order_mu_color])
-  }else{
-    n_items <- ncol(df_wStar) - 1
-    bag_of_colors <- randomcoloR::distinctColorPalette(k = 2 * n_items)
-    group_colors <- sample(bag_of_colors, n_items)
-    gg <- gg + scale_fill_manual(values = group_colors)
-  }
-  #------------------------------------
-  gg <- gg + geom_area(position = "stack")
-  gg <- gg + theme(legend.title = element_blank(),
-                   legend.position = "bottom")
-  if(length(unique(df_plot$Item)) > 15){gg <- gg + theme(legend.position = "none")}
-  gg_weights <- gg
-  #-------------------------------------------
-  gg_together <- gg_frontier + gg_weights + plot_layout(ncol = 1)
-  #print(gg_together)
-  outlist_gg <- list(gg_frontier, gg_weights, gg_together)
-  return(outlist_gg)
-}
-
-#=======================================================================
-get_optimal_frontier <- function(cormat, mat_nab,
-                                 Rtarg_limits = c(0.001, 0.3),
-                                 fun_env = NULL){
-  #-------------------------------------------
-  if(is.null(fun_env)){
-    n_points_on_frontier = 50
-    utility_interpretation = F
-    backtest_info = NULL
-    frontier_and_budget_plot = T
-    group_info = NULL
-    group_colors = NULL
-    group_small = NULL
-    C_targ = 1
-    fig_title = NULL
-  }else{
-    n_points_on_frontier = fun_env[[1]]
-    utility_interpretation = fun_env[[2]]
-    backtest_info = fun_env[[3]]
-    frontier_and_budget_plot = fun_env[[4]]
-    group_info = fun_env[[5]]
-    group_colors = fun_env[[6]]
-    group_small = fun_env[[7]]
-    C_targ = fun_env[[8]]
-    fig_title = fun_env[[9]]
-  }
-  #-------------------------------------------
-  Rtarg_vec <- seq(Rtarg_limits[1], Rtarg_limits[2], length.out = n_points_on_frontier)
-  list_wStar <- list()
-  R_vec <- c()
-  V_vec <- c()
-  lV_vec <- c()
-  lC_vec <- c()
-  #-------------------------------------------
-  for(i in 1:length(Rtarg_vec)){
-    this_Rtarg <- Rtarg_vec[i]
-    targ_vec <- c(this_Rtarg, C_targ)
-    list_out <- optimize_portfolio(cormat, mat_nab, targ_vec,
-                                   backtest_info,
-                                   utility_interpretation)
-    list_wStar[[i]] <- list_out[[1]]
-    R_vec[i] <- list_out[[2]]
-    V_vec[i] <- list_out[[3]]
-    lV_vec[i] <- list_out[[4]]
-    lC_vec[i] <- list_out[[5]]
-  }
-  #-------------------------------------------
-  df_frontier <- data.frame(R_vec, V_vec, lV_vec, lC_vec)
-  colnames(df_frontier) <- c("Return target",
-                             "Risk (variance)",
-                             "Risk shadow price",
-                             "Budget shadow price")
-  df_wStar <- data.frame(V_vec, t(do.call(cbind, list_wStar)))
-  varNames_ordered <- row.names(mat_nab)
-  colnames(df_wStar) <- c("Risk (variance)", varNames_ordered)
-  #-------------------------------------------
-  # Backtest
-  if(!is.null(backtest_info)){
-    nab_pctRet_test <- backtest_info[[1]]
-    cormat_test <- backtest_info[[2]]
-    list_outTest <- list()
-    for(i in 1:n_points_on_frontier){
-      wStar <- list_wStar[[i]]
-      outvec <- backtest_portfolio(wStar, nab_pctRet_test, cormat_test,
-                                   include_benchmark = F)
-      list_outTest[[i]] <- outvec
-      
-    }
-    df_backtest <- as.data.frame(do.call(rbind, list_outTest))
-    colnames(df_backtest) <- c("Return backtest", "Risk backtest")
-  }else{
-    df_backtest <- NULL
-  }
-  #--------------------------------------
-  if(frontier_and_budget_plot){
-    outlist_gg <- plot_frontier_and_budget(df_frontier, df_wStar,
-                                           n_points_on_frontier = n_points_on_frontier,
-                                           varNames_ordered = varNames_ordered,
-                                           group_info,
-                                           group_colors,
-                                           group_small)
-    
-  }
-  #--------------------------------------
-  list_out <- list(df_wStar, df_frontier, df_backtest, outlist_gg)
-  return(list_out)
-}
-#=======================================================================
-# Conventional risk-reward frontier
-n_items <- ncol(mat_pctDiff)
-C_targ <- 1
-nab_C <- rep(1, n_items)
-#------------------------------------
-# Correlation matrix
-cormat_train_emp <- cor(mat_pctDiff_train)
-cormat_train_hat <- round(mat_loads_sig_train %*% t(mat_loads_sig_train), 7)
-P_train_hat <- eigen(cormat_train_hat)$vectors
-L_train_emp <- diag(eigen(cormat_train_emp)$values)
-cormat_train_hat <- P_train_hat %*% L_train_emp %*% t(P_train_hat)
-cormat <- cormat_train_hat
-
-cormat_test_emp <- cor(mat_pctDiff_test)
-cormat_test_hat <- round(mat_loads_sig_test %*% t(mat_loads_sig_test), 7)
-P_test_hat <- eigen(cormat_test_hat)$vectors
-L_test_emp <- diag(eigen(cormat_test_emp)$values)
-cormat_test_hat <- P_test_hat %*% L_test_emp %*% t(P_test_hat)
-cormat_test <- cormat_test_hat
-#------------------------------------
-# Expected returns vector
-#nab_pctRet_train <- apply(mat_pctDiff_train[ind_equal_test, ], 2, function(x) prod(1 + x)) - 1
-nab_pctRet_train <- apply(mat_pctDiff_train, 2, function(x) prod(1 + x)) - 1
-nab_pctRet_test <- apply(mat_pctDiff_test, 2, function(x) prod(1 + x)) - 1
-#------------------------------------
-mat_nab <- cbind(nab_pctRet_train, nab_C)
-n_points_on_frontier <- 50
-#------------------------------------
-fun_env <- list(n_points_on_frontier,
-                utility_interpretation = F,
-                backtest_info = list(nab_pctRet_test, cormat_test),
-                frontier_and_budget_plot = T,
-                group_info,
-                group_colors,
-                group_small = NULL)#,
-                #C_targ)
-
-list_out <- get_optimal_frontier(cormat, mat_nab,
-                                 Rtarg_limits = c(0.1, .8), #c(0.01, 0.3)
-                                 fig_title = NULL,
-                                 fun_env)
-
-df_frontier <- list_out[[2]]
-df_backtest <- list_out[[3]]
-outlist_gg <- list_out[[4]]
-gg_frontier <- outlist_gg[1]
-gg_weights <- outlist_gg[2]
-#------------------------------------
-gg_backtest <- plot_frontier_wBacktest(df_frontier,
-                                       df_backtest,
-                                       fig_title = NULL)
-#------------------------------------
-(gg_frontier[[1]] / gg_weights[[1]] / plot_layout(ncol = 1)) | gg_backtest
-#https://gotellilab.github.io/GotelliLabMeetingHacks/NickGotelli/ggplotPatchwork.html
-#------------------------------------
-
-
-
-```
-
-
-
-
-
-
-## Dealing with [SCALABILITY AND] negative budget shares
-
-In equation \ref{eq:budgetShares} it is clear that budget shares can be negative. As discussed in the introduction, this is unacceptable in the AR4D context. In order to force optimal budget shares, I replace the revenue $R$ and $C$ functions with the utility functions $U_R$ and $U_C$, where
-
-\begin{equation}
-U_R = \boldsymbol{\mu} \cdot \ln{\mathbf{w}}
-\end{equation}
-
-and 
-
-\begin{equation}
-U_C = \mathbf{1} \cdot \ln{\mathbf{w}}
-\end{equation}
-
-Moreover, the budget $\bar{C}$ is replaced with the utility budget $\bar{U}_C$.
-
-This is tantamount to substituting $\ln \mathbf{w}$ wherever $\mathbf{w}$ appears in the equations of the previous section.
-
-I derive the utility functions $U_R$ and $U_C$ from the observation, going back perhaps as far as Aristotle [@kauder1953genesis], and certainly as far back as Bernoulli [-@bernoulli1954exposition], that
-
->"in the absence of the unusual, the utility resulting from any small increase in wealth will be inversely proportionate to the quantity of goods previously possessed."
-
-This time honored observation can be formalized as follows:
-
-\begin{equation}
-\frac{\partial U}{\partial w_i} \sim \frac{d \ln w_i}{dw_i}
-\label{eq:uDefine}
-\end{equation}
-
-Note that multiplying through by $U / w_i$ gives an interesting alternative expression,
-
-\begin{equation}
-\frac{\partial \ln U}{\partial \ln w_i} \sim \frac{d \ln U}{dU}
-\end{equation}
-
-so that Bernoulli's statement is mathematically equivalent to saying that
-
->"in the absence of the unusual, the _percentage increase in_ utility resulting from _a one percent_ increase in wealth will be inversely proportionate to the _utility_ of goods previously possessed."
-
-Equation \ref{eq:uDefine} can be used to arrive at an expression for $U$ as follows:
-
-\begin{equation}
-U(\mathbf{w}; \boldsymbol{\alpha}, k) = \int \nabla_{\mathbf{w}} U \cdot d\mathbf{w} = \boldsymbol{\alpha} \cdot \ln{\mathbf{w}} + k
-\end{equation}
-
-Since utility is defined purely on the basis of the marginal relation articulated by Bernoulli and formalized in equation \ref{eq:uDefine}, then, generally speaking, it is defined only up to the arbitrary constants $\boldsymbol{\alpha}$ and $k$. (In mathspeak, it is said that utility is defined up to an affine transformation.) However, arbitrary constants are often fixed by the specific context of the problem. In the present setting, the constants $\boldsymbol{\alpha}$ correspond to the vectors $\boldsymbol{\mu}$ and $\mathbf{1}$ in the $U_R$ and $U_C$ functions, respectively, leaving just $k$ unfixed. $U_R$ and $U_C$ are thereby defined up to translation. This means that 
-
-\begin{equation}
-U_R(\mathbf{w}; \boldsymbol{\mu}, k_1) = U_R(\mathbf{w}; \boldsymbol{\mu}, k_2)
-\label{eq:uTrans}
-\end{equation}
-
-for two different arbitrary constants $k_1$ and $k_2$. This is very important because it allows for arbitrary enforcement of the budget constraint. The substitution $\ln \mathbf{w}$ for $\mathbf{w}$ generally causes the budget shares to no longer add up to the constraint $\bar{C}$. But equation \ref{eq:uTrans} says that the weights can be divided by the constant $\bar{C} / \mathbf{1} \cdot \mathbf{w}$ so as to restore the condition $\mathbf{1} \cdot \mathbf{w} = \bar{C}$, and that $U_R$ is invariant under this operation. It is tantamount to setting $k_1 = 0$ and $k_2 = \ln \bar{C} - \ln (\mathbf{1} \cdot \mathbf{w})$.
-
-\begin{equation}
-U_R(\mathbf{w}; \boldsymbol{\mu}) = U_R(\mathbf{w}; \boldsymbol{\mu}, \ln \bar{C} - \ln (\mathbf{1} \cdot \mathbf{w}))
-\end{equation}
-
-The optimal frontier and budget shares using the utility approach presented in the methods section are plotted on the left in Figure \ref{fig:mvUtility}. Note how the optimal budget allocations increase with risk tolerance for some asset groups while dereasing for others. Specifically, the optimal budget allocated to the U.S. Sectors, Energy, and Mineral assets increases with risk tolerance, while optimal budget allocated to the other asset groups decreases with risk tolerance.
-
-
-\pagebreak
-
-```{r, fig.show='hold', fig.width=9, fig.height=4, fig.align='center', fig.cap="\\label{fig:mvUtility}\\textit{(Left)} Optimal frontier and budget shares, replacing returns and cost with utility functions. \\textit{(Right)} Backtest of the optimal frontier.", echo = FALSE}
-
-fun_env <- list(n_points_on_frontier,
-                utility_interpretation = T,
-                backtest_info = list(nab_pctRet_test, cormat_test),
-                frontier_and_budget_plot = T,
-                group_info,
-                group_colors,
-                group_small = NULL)
-
-list_out <- get_optimal_frontier(cormat, mat_nab,
-                                 Rtarg_limits = c(0.01, 5),
-                                 fig_title = NULL,
-                                 fun_env)
-
-df_frontier <- list_out[[2]]
-df_backtest <- list_out[[3]]
-outlist_gg <- list_out[[4]]
-gg_frontier <- outlist_gg[1]
-gg_weights <- outlist_gg[2]
-#------------------------------------
-gg_backtest <- plot_frontier_wBacktest(df_frontier,
-                                       df_backtest,
-                                       fig_title = NULL)
-#------------------------------------
-(gg_frontier[[1]] / gg_weights[[1]] / plot_layout(ncol = 1)) | gg_backtest
-#https://gotellilab.github.io/GotelliLabMeetingHacks/NickGotelli/ggplotPatchwork.html
-#------------------------------------
-
-
-```
-
-
-\pagebreak
-
-
-# Reverse engineering the covariance matrix
-
-In the example presented here, a special kind of orthogonal rotation called a varimax rotation is used. Varimax rotations are useful for clarifying the interpretation of the loadings matrix.
-
-
-$$
-\begin{equation}
-\Sigma = L_{\circlearrowleft} L_{\circlearrowleft}'
-\end{equation}
-$$
-
-This is true regardless of whether $R$ is a varimax rotation, or some other kind of rotation. The important thing is that $R$ is orthogonal.
-
-
-$$
-\begin{equation}
-\tilde{\Sigma} = L_{\circlearrowleft}' L_{\circlearrowleft}
-\end{equation}
-$$
-
-Note that $\Sigma$ will be the same regardless of $R$. On the other hand, $\tilde{\Sigma}$ changes with $R$.
-
-
-
-In Figure \ref{fig:eigDens}, a density plot of the correlation matrix eigenvalues is compared against one of eigenvalues derived from a random matrix. In this plot, it is evident that most eigenvalues are small and cannot be distinguished from noise, but six of them extend beyond the random matrix eigenvalue density plot. These correspond to the eigenvectors that can be meaningfully distinguished from noise.
-
-```{r, fig.show = 'hold', fig.width=5, fig.height=3, fig.align='center', fig.cap="\\label{fig:eigDens}Eigenvalue density plots for the financial data correlation matrix and a\ncorrelation matrix of a random dataset of the same dimensions.", echo=FALSE}
 fun_env = list(eigenvalue_density_plot = T,
                pca_var_plot = F,
                pca_ind_plot = F,
@@ -1500,9 +1502,7 @@ interpret_loadings(mat_loads_sig_train, fig_title = this_fig_title, fun_env)
 #signal_names <- c("US / Emerg. Markets,\nEnergy, Blockchain", "Precious metals", "FOREX", "US Bonds", "Agriculture", "Industrial metals")
 signal_names <- NULL
 fun_env <- list(group_info, signal_names, group_colors)
-#this_fig_title <- "Figure 7: Rotated signal loadings, train data"
-this_fig_title <- NULL
-interpret_loadings(mat_loads_rot_sig_train, fig_title = this_fig_title, fun_env)
+interpret_loadings(mat_loads_rot_sig_train, fun_env)
 
 ```
 
@@ -1606,26 +1606,49 @@ plot_signals_against_associated_items(mat_loads_rot_sig_train,
 
 ## Toy example
 
-In practice, AR4D risk adjusted portfolio optimization would come after Step 3, either complementing or replacing the ranking of research proposals in order of priority in Step 4 ... The problem is to determine how A list of research proposals has been drawn up, and the expected impact of each proposal has been assessed and quantified.
+In practice, AR4D risk adjusted portfolio optimization would come after Step 3, either complementing or replacing the ranking of research proposals in order of priority that is slated to occur in Step 4. By this point in the resource allocation workflow, a list of research proposals has been drawn up, and the expected impact of each proposal has been assessed and quantified. This quantification of net impacts is calculated over the dimensions of interest to the stakeholders. For example, if the ... then the net impact is an aggregation of the net benefits in each of these categories. A hypothetical list of such proposals is presented in Figure \ref{fig:ExpPctRet_Examp}.^{The AR4D proposals are loosely grouped into four categories to facilitate interpretation of the gaphics, but there is no strict rule followed, and clearly some overlap, in the grouping. The "Heat Tolerant Beans" proposal has been placed in the "Smallholder Staples" category, but just as well could just have gone under "Climate Smart Agriculture".}
 
-First, the key dimensions of the portfolio space can be elicited by asking questions such as "What are our key AR4D objectives? And what are the key metrics by which to measure progress towards these objectives?" This can be ellicited via online surveys, in-person stakeholder events, or from pre-existing narratives laid out in institutional strategy documents, the Sustainable Development Goals, and so forth. [others might be gender, nutrition, food security]
+```{r, fig.show = "hold", fig.width = 8, fig.height = 4, fig.align = "center", fig.cap = "\\label{fig:ExpPctRet_Examp}A set of hypothetical AR4D proposals and their expected returns."}
 
-Say that the exercise results in ... Economic growth, income equality, environmental sustainability, and gender equality. Stakeholders are then asked to rate, from 0 to 100, each research proposal in terms of its contribution towards each of these objectives. A rating of 100 means that the research proposal is highly correlated with that objective, while a rating of 0 means that the proposal makes no contribution toward the given objective. And negative ratings mean that the research proposal works against the goal (Figure \ref{fig:loadsRotExamp}). This would be the case, for example, of a yield enhancing variety that requires increased use of chemical inputs that degrade soils, pollute water sources, and pose health risks. Such a technology might contribute toward the economic growth objective, but works against the environmental sustainability objective. Likewise, it is customary in AR4D communities to assume that a tradeoff exists between the objectives of economic growth and economic equality [@Alston].^{Recent empirical studies have cast doubt on this idea [@;@;@].} Such tradeoffs are inherent in any research proposal. It is critical that stakeholders acknowledge them. ...The AR4D proposals are loosely grouped into four categories to facilitate interpretation of the gaphics. .... The number of dimensions must generally be much less than the number of AR4D proposals. The expected returns shown in ... will have been calculated using ex-ante impact assessment tools in Step 3. Difficult questions regarding the monetization of non-market goods, environmental impacts, and so forth, would be addressed in Step 3.
+plot_returns_barchart <- function(df_pctRet, group_colors){
+    colnames(df_pctRet)[1] <- "Period Return"
+  df_plot <- df_pctRet
+  gg <- ggplot(df_plot, aes(x = id, y = `Period Return`, fill = Type))
+  #gg <- gg + scale_color_brewer(palette = "Dark2")
+  gg <- gg + scale_fill_manual(values = group_colors)
+  gg <- gg + geom_bar(stat = "identity", color = "black", position = "dodge")
+  gg <- gg + labs(title = "Period Return")
+  gg <- gg + theme(axis.text.x = element_text(size = 9, angle = 60, hjust = 1),
+                   #axis.text.x = element_blank(),
+                   axis.title.x = element_blank(),
+                   axis.text.y = element_text(size = 9),
+                   #axis.title.y = element_text(size = 9),
+                   axis.title.y = element_blank(),
+                   legend.position = "bottom",
+                   legend.title = element_blank(),
+                   legend.text = element_text(size = 9),
+                   plot.title = element_text(face = "bold", size = 9)
+  )
+  #  gg <- gg + coord_equal()
+  #  gg <- gg + coord_flip()
+  #print(gg)
+  gg
+
+}
 
 
-```{r, fig.show = "hold", fig.width = 8, fig.height = 4, fig.align = "center", fig.cap = "\\label{fig:loadsRotExamp}A hypothetical example of rotated signal loadings elicited from a stakeholder survey."}
 #---------------------------------------------
-prop_CSA <- c("Coffee Agroforestry", "Digital Agriculture", "Low Emission Silvo-Pastoril")
+prop_CSA <- c("Coffee Agroforestry", "Digital Agriculture", "Low Emission\nSilvo-Pastoril")
 econGrowth_CSA <- c(0.2, 0.3, -0.3)
 econEquality_CSA <- c(0.4, 0.7, 0.3)
 envSust_CSA <- c(0.4, 0.5, 0.8)
 #---------------------------------------------
-prop_socialCap <- c("Micro Finance and Insurance", "Multi-stakeholder Platforms", "Market Access")
+prop_socialCap <- c("Micro Finance\nand Insurance", "Multi-stakeholder\nPlatforms", "Market Access")
 econGrowth_socialCap <- c(0.2, 0.3, 0.4)
 econEquality_socialCap <- c(0.7, 0.75, 0.8)
 envSust_socialCap <- c(0.1, 0.1, 0)
 #---------------------------------------------
-prop_smallHolder <- c("Heat Tolerant Beans", "Cassava for Bio-ethanol", "Dual Purpose Sweet Potato", "Dairy Cooperative")
+prop_smallHolder <- c("Heat Tolerant Beans", "Cassava for\nBio-ethanol", "Dual Purpose\nSweet Potato", "Dairy Cooperative")
 econGrowth_smallHolder <- c(0.3, 0.4, -0.1, 0.1)
 econEquality_smallHolder <- c(0.65, 0.8, 0.63, 0.7)
 envSust_smallHolder <- c(0.5, 0.5, 0.4, -0.2)
@@ -1648,31 +1671,51 @@ list_df <- list(df_highYcommod, df_smallHolder, df_CSA, df_socialCap)
 df_Lrot <- as.data.frame(do.call(rbind, list_df))
 colnames(df_Lrot)[2:4] <- gsub("\\.", " ", colnames(df_Lrot)[2:4])
 group_names <- as.character(unique(df_Lrot$Group))
-df_Lrot$Group <- NULL
-prop_col <- df_Lrot$Proposal
-df_Lrot$Proposal <- NULL
-mat_Lrot <- as.matrix(df_Lrot)
-rownames(mat_Lrot) <- prop_col
 n_groups <- length(group_names)
 bag_of_colors <- randomcoloR::distinctColorPalette(k = 2 * n_groups)
-group_colors <- sample(bag_of_colors, n_groups)
+group_colors_arb <- sample(bag_of_colors, n_groups)
+
+# Randomly assign an expected pct. return to each AR4D proposal
+n_prop <- nrow(df_Lrot)
+n_dim <- ncol(df_Lrot) - 2
+mu_pctRet <- exp(rnorm(n_prop))
+mu_pctRet <- round(5 * mu_pctRet / sum(mu_pctRet), 2)
+df_pctRet <- data.frame(mu_pctRet, id = df_Lrot$Proposal, Type = df_Lrot$Group)
+# Plot expected returns for each AR4D proposal
+
+group_colors <- group_colors_arb
+plot_returns_barchart(df_pctRet, group_colors)
+
+```
+
+To optimize resource allocation across this portfolio of proposals such that risk is minimized, a proposal covariance matrix is required. In section ... I showed that a covariance matrix can be acquired without data if a rotated loadings can be estimated. Such a matrix can be crowdsourced from stakeholders. The crowdsourced matrix will be as accurate as the stakeholders' collective domain knowledge. The first step in crowdsourcing the rotated loadings is elicitation of the dimensions that best describe the evolution of the research proposals within the problem space that is of interest to the stakeholders. Then, the portfolio items (i.e. the AR4D proposals) are mapped to each dimension.
+
+The key dimensions of the portfolio space can be elicited by asking questions such as "What are our key AR4D objectives? And what are the key metrics by which to measure progress towards those objectives?" This can be accomplished in a variety of ways (eg.: online surveys, in-person events, consultation of strategy documents, some combination thereof, etc.). In the AR4D context, there is often pre-existing consensus on these questions, which can be found laid out in strategy documents. The Sustainable Development Goals may be considered a set of dimensions defining a very broad problem space. The key dimensions of a particular AR4D portfolio space could be selected as a subset of these. The number of portfolio dimensions generally must be a small fraction of the number of portfolio items.
+
+In the hypothetical example presented here, the stakeholders have decided that Economic Growth, Income Equality, and Environmental Sustainability are the dimensions that best register the evolution of the proposals under consideration. The next step in eliciting a rotated loadings matrix is to then invite the stakeholders to rate, from $-100$ to $100$, each research proposal in terms of its contribution towards each of these objectives. A rating of 100 means that the research proposal is exactly correlated with that objective; a rating of 0 means that the proposal makes no contribution toward the given objective; and negative ratings mean that the research proposal works against the goal. The result of this exercise for the hypothetical example considered here is presented in Figure \ref{fig:loadsRotExamp}.
+
+<!-- This would be the case, for example, of a yield enhancing variety that requires increased use of chemical inputs that degrade soils, pollute water sources, and pose health risks. Such a technology might contribute toward the economic growth objective, but works against the environmental sustainability objective. Likewise, it is customary in AR4D communities to assume that a tradeoff exists between the objectives of economic growth and economic equality [@Alston].^{Recent empirical studies have cast doubt on this idea [@;@;@].} Such tradeoffs are inherent in any research proposal. It is critical that stakeholders acknowledge them.-->
+
+
+```{r, fig.show = "hold", fig.width = 8, fig.height = 5, fig.align = "center", fig.cap = "\\label{fig:loadsRotExamp}A hypothetical example of rotated signal loadings elicited from a stakeholder survey."}
+df_x <- df_Lrot
+df_x$Group <- NULL
+prop_col <- df_x$Proposal
+df_x$Proposal <- NULL
+mat_Lrot <- as.matrix(df_x)
+rownames(mat_Lrot) <- prop_col
 list_groups <- list(prop_highYcommod, prop_smallHolder, prop_CSA, prop_socialCap)
 group_info <- list(list_groups, group_names)
 
 signal_names <- c("Economic\nGrowth", "Economic\nEquality", "Environmental\nSustainability")
 
 fig_title <- NULL
-fun_env <- list(group_info, signal_names, group_colors, fig_title)
+fun_env <- list(group_info, signal_names, group_colors_arb, fig_title)
 mat_loads_rot_sig <- mat_Lrot
 interpret_loadings(mat_loads_rot_sig, fun_env)
 
-# Randomly assign an expected pct. return to each AR4D proposal
-n_prop <- nrow(mat_Lrot)
-n_dim <- ncol(mat_Lrot)
-mu_pctRet <- exp(rnorm(n_prop))
-mu_pctRet <- round(5 * mu_pctRet / sum(mu_pctRet), 2)
 
-#df_pctRet <- data.frame(Proposal)
+
 
 ```
 
@@ -1805,8 +1848,9 @@ If the return to proposal $i$ in dimension $j$ can be expressed
 $$
 \begin{equation}
 
-\mu_{ij} = \frac{\ell_{ij}}{\sum_j \ell{ij}} \mu_i \:\:;\:\:\:\mu_i = \sum_j \mu_{ij}
+\mu_{ij} = \frac{\ell_{ij}}{\sum_j \ell_{ij}} \mu_i \:\:;\:\:\:\mu_i = \sum_j \mu_{ij}
 \end{equation}
+
 $$
 Then the expected return to each signal can be calculated
 
@@ -1817,14 +1861,16 @@ $$
 
 \end{equation}
 $$
-
-
+where $n$ is the number of proposals in the portfolio.
 
 
 ```{r, fig.show='hold', fig.width=5, fig.height=4, fig.align='center', fig.cap="\\label{fig:AR4DFrontier}Hypothetical example of the optimal frontier and budget shares in the AR4D context.", echo = FALSE}
 
-sum_rows <- as.numeric(mat_Lrot %*% as.matrix(rep(1, n_dim)))
-mat_mu <- diag(mu_pctRet / sum_rows) %*% mat_Lrot
+sum_Lrows <- as.numeric(mat_Lrot %*% as.matrix(rep(1, n_dim)))
+mat_Lrot_normdByRows <- diag(1 / sum_Lrows) %*% mat_Lrot
+#rowSums(mat_Lrot_normdByRows)
+rownames(mat_Lrot_normdByRows) <- rownames(mat_Lrot)
+mat_mu <- diag(mu_pctRet) %*% mat_Lrot_normdByRows
 #mat_mu %*% as.matrix(rep(1, n_dim)) - as.matrix(mu_pctRet)
 #mu_pctRet_dims <- colSums(mat_mu)
 mu_pctRet_dims <- colMeans(mat_mu)
@@ -1843,11 +1889,12 @@ fun_env <- list(n_points_on_frontier,
                 group_small = NULL,
                 C_targ = 1,
                 fig_title = NULL)
-
+AR4D_eg_rTarg_limits <- c(0.08, .6)
 list_out <- get_optimal_frontier(covmat, mat_nab,
-                                 Rtarg_limits = c(0.04, .6),
+                                 Rtarg_limits = AR4D_eg_rTarg_limits,
                                  fun_env)
 
+df_wStar <- list_out[[1]]
 df_frontier <- list_out[[2]]
 outlist_gg <- list_out[[4]]
 gg_frontier <- outlist_gg[1]
@@ -1855,12 +1902,98 @@ gg_weights <- outlist_gg[2]
 
 gg_frontier[[1]] + gg_weights[[1]] + plot_layout(ncol = 1)
 
+#(eigen(covmat)$vectors)^2 %*% as.matrix(mu_pctRet_dims)
 
 ```
 
 Note how the optimal solution changes with risk tolerance. At lower risk tolerances, the optimal investment focuses on economic growth, followed by environmental sustainability and economic equality. However, as risk tolerance increases, the optimal investment dictates that investments in environmental sustainability be displaced by investments in economic growth and, to a lesser extent, economic equality.
 
+The resource allocation to the individual AR4D proposals within each of these dimensions is calculated as follows. First, consider that the budget share allocated to the $i^{th}$ proposal in the $j^{th}$ dimension, for a given risk tolerance, can be expressed
 
+$$
+\begin{equation}
+
+w_{ij} = \frac{\ell_{ij}}{\sum_i \ell_{ij}} w_j \:\:;\:\:\:w_i = \sum_j w_{ij}
+
+\end{equation}
+$$
+The optimal budget allocation to the $i^{th}$ proposal then follows as
+
+$$
+\begin{equation}
+
+w_i = \sum_j w_{ij}
+
+\end{equation}
+$$
+
+```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center', fig.cap="\\label{fig:propWgts}dfgg.", echo = FALSE}
+
+fun_env <- list(n_points_on_frontier,
+                utility_interpretation = F,
+                backtest_info = NULL,
+                frontier_and_budget_plot = T,
+                group_info = NULL,
+                group_colors = NULL,
+                group_small = NULL,
+                C_targ = 1,
+                fig_title = NULL)
+
+list_out <- get_optimal_frontier(covmat, mat_nab,
+                                 Rtarg_limits = AR4D_eg_rTarg_limits,
+                                 fun_env)
+
+df_wStar <- list_out[[1]]
+#rowSums(df_wStar[, -1])
+
+mat_wStar <- as.matrix(df_wStar)
+#mat_Lrot_normdByCols <- mat_Lrot %*% diag(1 / colSums(mat_Lrot))
+#colSums(mat_Lrot_normdByCols)
+mat_wStar_prop <- mat_Lrot %*% t(mat_wStar[, -1])
+#colSums(mat_wStar_prop)
+mat_wStar_prop <- mat_wStar_prop %*% diag(1 / colSums(mat_wStar_prop))
+mat_wStar_prop <- exp(mat_wStar_prop)
+mat_wStar_prop <- mat_wStar_prop %*% diag(1 / colSums(mat_wStar_prop))
+# mat_wStar_prop <- mat_wStar_prop %*% diag(1 / colSums(mat_wStar_prop))
+#colSums(mat_wStar_prop)
+mat_wStar_prop <- cbind(df_wStar$`Risk (variance)`, t(mat_wStar_prop))
+colnames(mat_wStar_prop) <- c(colnames(df_wStar)[1], rownames(mat_Lrot_normd))
+df_wStar_prop <- as.data.frame(mat_wStar_prop)
+
+gg_wgts <- plot_budgetShares(df_wStar_prop, n_points_on_frontier, graph_on = T, group_small = NULL, group_info = group_info, group_colors = group_colors_arb, legend_position = "bottom")
+
+list_df <- list(df_highYcommod, df_CSA, df_socialCap, df_smallHolder)
+list_gg <- list()
+last_i <- length(list_df)
+axis_titles <- "off"
+Xaxis_numbers_off <- T
+for(i in 1:last_i){
+  df_this <- list_df[[i]]
+  this_group <- unique(df_this$Group)
+  ind_these <- c(1, which(colnames(df_wStar_prop) %in% df_this$Proposal))
+  df_wStar_prop_thisGroup <- df_wStar_prop[, ind_these]
+  if(i == last_i){
+    axis_titles <- "x only"
+    Xaxis_numbers_off <- F
+    }
+  gg_wgts_thisGroup <- plot_budgetShares(df_wStar_prop_thisGroup,
+                                     n_points_on_frontier, graph_on = F,
+                                     group_small = NULL, group_info = NULL,
+                                     group_colors = NULL,
+                                     legend_position = "right",
+                                     fig_title = this_group,
+                                     axis_titles,
+                                     Xaxis_numbers_off)
+  list_gg[[i]] <- gg_wgts_thisGroup
+}
+
+# ind_soCap <- c(1, which(colnames(df_wStar_prop) %in% df_socialCap$Proposal))
+# df_wStar_prop_soCap <- df_wStar_prop[, ind_soCap]
+# gg_wgts_soCap <- plot_budgetShares(df_wStar_prop_soCap, n_points_on_frontier, graph_on = T, group_small = NULL, group_info = NULL, group_colors = NULL, legend_position = "right")
+
+gg_wgts | (list_gg[[1]] / list_gg[[2]] / list_gg[[3]] / list_gg[[4]]) | plot_layout(widths = c(2, 1))
+
+```
 # Discussion
 
 * Benefit of reverse engineering: the empirical covariance matrix has a lot of noise in it, and very ill-conditioned for large datasets. Backtest. In the example in Figure ..., the frontier looks good, offering portfolio returns of 20% or more for relatively small risk. However, a backtest of the optimal weights (right side of Figure \ref{fig:mvConv}) indicates that the real return on investment in these optimal portfolios would have been much less, and the risk much higher, than the efficient fontier suggests. [ The dataset is large enough to allow for backtesting of the optimal portfolio. The portfolio is optimized using the first two thirds of the data (the "train" data), and then backtested against the remaining third. ]  [Note also that the frontier here looks much less appealing than the unmodified frontier above. However, a backtest (right side of Figure \ref{fig:mvUtility}) suggests that it is more accurate than the unmodified approach.]
@@ -2331,7 +2464,7 @@ historical_returns_and_boxplot(mat_pctDiff_train,
 ```{r, fig.show='hold', fig.align='center', fig.cap="\\label{fig:cormatFAO}Correlation matrix, Sub-Saharan Africa farmgate prices", echo=F}
 #include=FALSE
 
-outlist <- group_cols(mat_pctDiff, group_info, group_colors, reverse_order = F)
+outlist <- group_fn(mat_pctDiff, group_info, group_colors, reverse_order = F)
 cols_ordered_by_group <- outlist[[1]]
 group_color_vec <- outlist[[2]]
 corr_colorRamp <- colorRampPalette(c("darkred", "white", "blue4"))(50)
