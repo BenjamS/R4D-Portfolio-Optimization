@@ -1312,11 +1312,13 @@ mat_L <- (mat_P %*% diag(sing_values)) / sqrt(n_obs)
   mat_Lrot <- matrix(as.numeric(mat_Lrot),
                           attributes(mat_Lrot)$dim,
                           dimnames = attributes(mat_Lrot)$dimnames)
-n_signals <- 4
+n_signals <- 11
+mat_Lrot_sig <- mat_Lrot[, 1:n_signals]
 mat_S <- mat_pctDiff_in %*% mat_P[, 1:n_signals]
 #mat_S <- mat_pctDiff_in %*% mat_Lrot[, 1:n_signals]
 mat_Lrot_sig <- mat_Lrot[, 1:n_signals]
-
+mat_L_sig <- mat_L[, 1:n_signals]
+(mat_L_sig %*% t(mat_L_sig)) / covmat
 
 list_out <- list(mat_S, mat_Lrot_sig)
 return(list_out)
