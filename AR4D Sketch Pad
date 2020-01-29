@@ -1,8 +1,63 @@
 #https://stats.stackexchange.com/questions/143905/loadings-vs-eigenvectors-in-pca-when-to-use-one-or-another
-n = 5
-t = 100
-X <- matrix(runif(n * t), t, n)
+# n = 15
+# t = 100
+# X <- matrix(runif(n * t), t, n)
+X <- EuStockMarkets
+Xc <- scale(X, scale = F)
+Xcs <- scale(X)
+cormat <- cor(X)
+P <- eigen(cormat)$vectors
+eig_vals <- eigen(cormat)$values
+sing_vals <- svd(Xc)$d
+eig_vals / sing_vals^2
+Scs <- Xcs %*% P
+#P %*% diag(sqrt(eig_vals))
+P[1, 1] * sqrt(eig_vals[1])
+#P[1, 1] * sing_vals[1]
+cor(Xcs[, 1], Scs[, 1])
+cor(Xcs, Scs)
+P %*% diag(sqrt(eig_vals))
+cov(Xcs, Scs) %*% diag(1 / sqrt(eig_vals))
+#1 / (nrow(Xcs) - 1) * t(Xcs) %*% Scs %*% diag(1 / sqrt(eig_vals))
+
+cov(Xcs) %*% P
+
+apply(Scs, 2, sd) * apply(Xcs, 2, sd)
+sqrt(eig_vals)
+
+round(t(cor(Xcs, Scs)) %*% cor(Xcs, Scs), 4)
+eig_vals
+
+
+S <- X %*% P
+Sc <- Xc %*% P
 covmat <- cov(X)
+P <- eigen(covmat)$vectors
+eig_vals <- eigen(covmat)$values
+cov(Xc, Sc)
+cov(X, Sc)
+1 / (nrow(Xc) - 1) * t(Xc) %*% Sc
+cov(X) %*% P
+P %*% diag(eig_vals)
+1 / (nrow(Xc) - 1) * t(Xc) %*% Xc %*% P
+P %*% diag(eig_vals) %*% t(P) %*% P
+P %*% diag(eig_vals)
+
+cor(Xc, Sc)
+Sig_X_S <- cov(Xc, Sc)
+diag(1 / apply(Xc, 2, sd)) %*% Sig_X_S %*% diag(1 / apply(Sc, 2, sd))
+
+
+Sig_X_S
+P %*% diag(eig_vals)
+
+
+
+
+
+
+
+
 
 eigvecs1 <- eigen(covmat)$vectors
 eigvals1 <- eigen(covmat)$values
@@ -15,8 +70,9 @@ eigvals <- as.data.frame(res$eig)$eigenvalue
 eigval_max <- max(eigvals)
 mat_loads <- res$var$coord
 
+PC_scores <- X_c %*% eigvecs1
 
-
+colMeans(PC_scores)
 
 (mat_loads %*% diag(1 / sqrt(eigvals))) / eigvecs1
 
@@ -33,6 +89,13 @@ t(R) %*% t(mat_loads) %*% mat_loads %*% R
 round(t(mat_loads) %*% mat_loads, 4)
 
 t(R) %*% diag(eigvals)  %*% R
+
+L_rot <- mat_loads_rot
+
+t(L_rot) %*% L_rot
+
+L_rot_c <- scale(L_rot, scale = F)
+
 
 
 
