@@ -1,0 +1,305 @@
+
+
+# Reverse engineering the covariance matrix
+
+In principlal components analysis (PCA), a centered, (and often) scaled dataset $X$, with potentially many variables, is distilled into a smaller dataset $S$ of just a few key variables capturing the main structure in the data. This is accomplished by post-multiplying the original data $X$ by a select number of the eigenvectors $\tilde{P}$ from the correlation matrix $K$.^[The eigenvectors are also referred to as the matrix of right singular vectors.] The number of "key variables" into which the dataset $X$ is distilled is equal to the number of eigenvectors retained from the full set of eigenvectors $P$.
+
+\begin{equation}
+S = X\tilde{P}
+\label{eq:sigDefin}
+\end{equation}
+
+The columns of the distilled matrix $S$ are referred to variously as the principal components (PC), or the PC scores, or the factor scores. For the purposes of this paper, I refer to the columns of $S$ as the "signals", since they are, in effect, signals extracted from noise.
+
+[START ADDITION:]
+
+Because of how they are defined in equation \ref{eq:sigDefin}, the signals are uncorrelated with each other, and their variances are the eigenvalues from $K$.[  covariance matrix ($\tilde{\Sigma}$) is just the diagonal matrix of eigenvalues ($U$). ]
+
+\begin{equation}
+\Sigma_{SS} = \frac{1}{n-1} S'S = \frac{1}{n-1}P'X'XP \\
+=P'KP=P'PU P'P = U
+\label{eq:Svariance}
+\end{equation}
+
+Concrete meaning can be attributed to the signals in terms of how correlated they are with the observed variables in $X$. The correlation of $X$ with $S$ is derived by first finding the covariance matrix of $X$ with $S$.
+
+$$
+\begin{equation}
+\Sigma_{XS} = \frac{1}{n-1}X'S = \frac{1}{n-1}X'XP \\
+= KP = PUP'P = PU
+\end{equation}
+$$
+
+The correlation matrix $K_{XS}$ then follows as
+
+$$
+\begin{equation}
+K_{XS} = D(\mathbf{\sigma}_X)^{-1} \Sigma_{XS} D(\mathbf{\sigma}_S)^{-1} \\
+D(\mathbf{\sigma}_X)^{-1} PU D(\mathbf{\sigma}_S)^{-1}
+\end{equation}
+$$
+
+But $X$ is scaled to unit variance, so $D(\mathbf{\sigma}_X)^{-1}$ reduces to an identity matrix. The standard deviations of the signals, meanwhile, are just the square roots of the eigenvalues (as shown in equation \ref{eq:Svariance}). The correlation matrix of variables with signals thus reduces to
+
+$$
+\begin{equation}
+K_{XS} = \Sigma_{XS} U^{-{1 \over 2}} \\
+= PU U^{-{1 \over 2}} = PU^{1 \over 2}
+\end{equation}
+$$
+To illustrate this point, let $X$ equal the centered, scaled financial data used in the portfolio optimization example above. The first few columns of the correlations of $X$ with $S$ are plotted as barcharts in Figure \ref{fig:XScorrBarchart}. [Interpret signals accordingly]. This becomes particularly evident in Figure \ref{fig:signals_and_hiCorr_items}, where the time series of individual financial assets can be seen to hew closely to the signals with which they are most correlated.
+
+The correlations matrix $K_{SX}$ is sometimes referred to as the "loadings" matrix, in the sense that it indicates how much each variable in $X$ loads onto a given signal (or how much each signal loads onto a given variable).^[Although, be careful, many also call $P$ the "loadings".] Following this convention, and to reduce notational clutter, let the covariance matrix $K_{XS}$ be denoted $L$.
+
+## Selecting signals
+- The proportion of variance explained.
+There remains the question of how many signals to extract...
+
+\begin{equation}
+\frac{u_i}{\sum_i u_i}
+\end{equation}
+
+The cumulative variance explained is
+
+\begin{equation}
+\frac{\sum_{i=1}^k u_i}{\sum_i u_i}
+\end{equation}
+
+Can follow a rule such as "we are interested in signals that explain 90% of variation in the data".
+Elbow rule ... perils of such rules of thumb have been documented.
+
+The random matrix approach
+
+According to this method, all the signals should be used. In the larger financial data set, only the leading 6 should be used, explaining x% of the total variance. 
+
+## Deriving the correlation matrix from loadings
+
+The correlation matrix can be approximated by the loadings of the retained signals as follows.
+
+\begin{equation}
+
+\hat{K}_{XX} = \tilde{L}\tilde{L}'
+
+\end{equation}
+
+The difference between the data correlation matrix from the portfolio optimization example and the loadings derived correlation matrix is shown in Figure \ref{fig:compareCorMats}. The loadings derived correlation matrix is approximate in the sense that it approximates the data correlation matrix. However, it should be kept in mind that the _accuracy_ of the loadings derived correlation matrix is not necessarily inferior to that of the data correlation matrix. To the extent that the data are contaminated by noise, the loadings derived correlation matrix may even be more accurate, since it is effectively a noise-purged version of the data correlation matrix. A divergence between the two matrices should not automatically be attributed to inferior accuracy in the loadings derived approach.
+
+## Optimization over signals
+
+MV Analysis is, in many ways, still a work in progress [@Michaud...?]. One of the main issues limiting its usefulness in everyday applications is its sensitivity to noisy data, which often results in efficient frontiers that overstate returns and understate risk (as seen in the backtest in Figure \ref{fig:...}). It stands to reason, then, that replacement of the data covariance matrix with a loadings derived covariance matrix could improve performance. Unfortunately, the loadings derived correlation/covariance matrix is not invertible, and thus cannot be used in MV Analysis. However, the portfolio of assets can be replaced with a portfolio of signals. The expected return to each signal can be calculated as the sum of the expected returns to each asset weighted by their loadings onto the given signal.
+
+$$
+\begin{equation}
+
+\mathbf{\mu}_s = \mathbf{\mu}' D(\mathbf{\eta})^{-1} L  \:\:\: ;\:\:  \eta = L\mathbf{1}
+
+\end{equation}
+$$
+
+
+
+This approach outputs the optimal budget allocation to each signal. The optimal allocation to each asset can then be derived from this in proportion to loadings. [L normalized such that sum of cols of L all = 1. this ok because eigenvectors defined up to scaling anyway]
+
+$$
+\begin{equation}
+
+L D(\mathbf{\nu})^{-1} \mathbf{w}_{s}^* = \mathbf{w}_{p}^* \:\:\: ;\:\: \nu = L'\mathbf{1}
+
+\end{equation}
+$$
+The optimal frontier and budget shares for the signals portfolio are displayed on the left side of Figure \ref{fig:sigPortfolio}. A backtest is displayed on the right side of the Figure. The signals portfolio performs well in the backtest, far exceeding the efficient frontier. The budget shares are mapped to the assets in Figure \ref{fig:...}. Here it becomes clear that the excitement is premature. The required budget allocation requires extreme leveraging to obtain these positions on the frontier. In order to force positive budget shares, the utility approach is applied in... Figure \ref{fig:...}
+
+
+```{r, fig.show='hold', fig.width=5, fig.height=5, fig.align='center', fig.cap="\\label{fig:sigPortfolio}\\textit{(Left) }Optimal frontier and budget shares for the signals portfolio. \\textit{(Right) } Backtest of the frontier."}
+
+P_train <- eigen(cov(mat_pctDiff_train_mv))$vectors
+U_train <- diag(eigen(cov(mat_pctDiff_train_mv))$values)
+L_train <- P_train %*% sqrt(U_train)
+P_test <- eigen(cov(mat_pctDiff_test_mv))$vectors
+U_test <- diag(eigen(cov(mat_pctDiff_test_mv))$values)
+L_test <- P_test %*% sqrt(U_test)
+row.names(L_train) <- colnames(mat_pctDiff_train_mv)
+row.names(L_test) <- colnames(mat_pctDiff_train_mv)
+#--------------------------------------------------------------
+utility_interpretation <- F
+#--------------------------------------------------------------
+# Covariance matrix
+covmat_train <- U_train
+covmat_test <- U_test
+#--------------------------------------------------------------
+# Expected returns vector
+nab_pctRet_train <- apply(10^-2 * mat_pctDiff_train_mv, 2, function(x) prod(1 + x)) - 1
+nab_pctRet_test <- apply(10^-2 * mat_pctDiff_test_mv, 2, function(x) prod(1 + x)) - 1
+
+nab_pctRet_sigs_train <- as.numeric(t(nab_pctRet_train) %*% diag(1 / rowSums(L_train)) %*% L_train)
+nab_pctRet_sigs_test <- as.numeric(t(nab_pctRet_test) %*% diag(1 / rowSums(L_test)) %*% L_test)
+names(nab_pctRet_sigs_train) <- paste("Signal", 1:length(nab_pctRet_sigs_train))
+names(nab_pctRet_sigs_test) <- paste("Signal", 1:length(nab_pctRet_sigs_test))
+#--------------------------------------------------------------
+mat_nab <- cbind(nab_pctRet_sigs_train, nab_C)
+n_points_on_frontier <- 50
+Rtarg_limits <- c(0.1, 0.3)
+backtest_info <- list()
+backtest_info[["nab_pctRet_test"]] <- nab_pctRet_sigs_test
+backtest_info[["covmat_test"]] <- covmat_test
+#--------------------------------------------------------------
+fun_env_getOptFront <- list()
+fun_env_getOptFront[["n_points_on_frontier"]] <- n_points_on_frontier
+fun_env_getOptFront[["Rtarg_limits"]] <- Rtarg_limits
+fun_env_getOptFront[["utility_interpretation"]] <- utility_interpretation
+fun_env_getOptFront[["backtest_info"]] <- backtest_info
+fun_env_getOptFront[["C_targ"]] <- C_targ
+#--------------------------------------------------------------
+list_out <- get_optimal_frontier(covmat_train, mat_nab,
+                                 fun_env = fun_env_getOptFront)
+df_wStar <- list_out[[1]]
+df_frontier <- list_out[[2]]
+#--------------------------------------------------------------
+gg_frontier <- plot_frontier(df_frontier, graph_on = F)
+#--------------------------------------------------------------
+n_items <- ncol(df_wStar) - 1
+bag_of_colors <- randomcoloR::distinctColorPalette(k = 5 * n_items)
+color_vec_mv_eg <- sample(bag_of_colors, n_items)
+gg_budget <- plot_budgetShares(df_wStar, color_vec = color_vec_mv_eg, graph_on = F, list_graph_options = NULL)
+#--------------------------------------------------------------
+df_plot_train <- df_frontier[, c("Risk (variance)", "Return target")]
+df_plot_test <- df_frontier[, c("Risk backtest", "Return backtest")]
+df_plot_train$Type = "Optimal solution"
+df_plot_test$Type = "Backtest"
+colnames(df_plot_train)[1:2] <- c("Risk (variance)", "Return")
+colnames(df_plot_test)[1:2] <- c("Risk (variance)", "Return")
+df_plot <- rbind(df_plot_train, df_plot_test)
+
+gg <- ggplot(df_plot, aes(x = `Risk (variance)`, y = Return, group = Type, color = Type))
+gg <- gg + geom_point()
+gg <- gg + scale_color_manual(values = c("blue", "black"))
+gg <- gg + theme(axis.title.y = element_blank(),
+                 legend.title = element_blank(),
+                 legend.position = "bottom")
+gg_backtest <- gg
+#--------------------------------------------------------------
+(gg_frontier + gg_budget + plot_layout(ncol = 1)) | gg_backtest
+#--------------------------------------------------------------
+
+
+```
+
+```{rfig.show='hold', fig.width=3, fig.height=3, fig.align='center', fig.cap="\\label{fig:assetWgts} The asset budget shares derived from the signals."}
+
+# Map the signal weights back to the assets
+mat_wStar <- t(as.matrix(df_wStar[, -1]))
+mat_wStar_assets <- L_train %*% diag(1 / colSums(L_train)) %*% mat_wStar
+df_wStar_assets <- data.frame(df_wStar$`Risk (variance)`, t(mat_wStar_assets))
+colnames(df_wStar_assets) <- c("Risk (variance)", row.names(L_train))
+n_items <- ncol(df_wStar_assets) - 1
+bag_of_colors <- randomcoloR::distinctColorPalette(k = 5 * n_items)
+color_vec_mv_eg <- sample(bag_of_colors, n_items)
+gg_budget <- plot_budgetShares(df_wStar_assets, color_vec = color_vec_mv_eg, graph_on = T, list_graph_options = NULL)
+
+# rowSums(df_wStar[, -1])
+# rowSums(df_wStar_assets[, -1])
+
+```
+
+The portfolio optimization is performed using the utility approach to force positive budget shares in Figure \reg{fig:...}.
+
+
+```{r}
+#--------------------------------------------------------------
+utility_interpretation <- T
+#--------------------------------------------------------------
+Rtarg_limits <- c(0.01, 20)
+#--------------------------------------------------------------
+fun_env_getOptFront[["Rtarg_limits"]] <- Rtarg_limits
+fun_env_getOptFront[["utility_interpretation"]] <- utility_interpretation
+#--------------------------------------------------------------
+list_out <- get_optimal_frontier(covmat_train, mat_nab,
+                                 fun_env = fun_env_getOptFront)
+df_wStar <- list_out[[1]]
+df_frontier <- list_out[[2]]
+#--------------------------------------------------------------
+gg_frontier <- plot_frontier(df_frontier, graph_on = F)
+#--------------------------------------------------------------
+# df_wStar_agg <- df_wStar %>% gather_("Item", "Budget Share", colnames(df_wStar)[-1])
+# df_wStar_agg <- merge(df_wStar_agg, df_match_group, by = "Item")
+# df_wStar_agg <- df_wStar_agg %>% group_by(`Risk (variance)`, Group) %>% summarise(`Budget Share` = sum(`Budget Share`)) %>% spread(Group, `Budget Share`)
+#gg_budget <- plot_budgetShares(df_wStar_agg, group_small = NULL, color_vec = group_colors, graph_on = F, list_graph_options = NULL)
+n_items <- ncol(df_wStar) - 1
+bag_of_colors <- randomcoloR::distinctColorPalette(k = 5 * n_items)
+color_vec_mv_eg <- sample(bag_of_colors, n_items)
+gg_budget <- plot_budgetShares(df_wStar, color_vec = color_vec_mv_eg, graph_on = F, list_graph_options = NULL)
+#--------------------------------------------------------------
+df_plot_train <- df_frontier[, c("Risk (variance)", "Return target")]
+df_plot_test <- df_frontier[, c("Risk backtest", "Return backtest")]
+df_plot_train$Type = "Optimal solution"
+df_plot_test$Type = "Backtest"
+colnames(df_plot_train)[1:2] <- c("Risk (variance)", "Return")
+colnames(df_plot_test)[1:2] <- c("Risk (variance)", "Return")
+df_plot <- rbind(df_plot_train, df_plot_test)
+
+gg <- ggplot(df_plot, aes(x = `Risk (variance)`, y = Return, group = Type, color = Type))
+gg <- gg + geom_point()
+gg <- gg + scale_color_manual(values = c("blue", "black"))
+gg <- gg + theme(axis.title.y = element_blank(),
+                 legend.title = element_blank(),
+                 legend.position = "bottom")
+gg_backtest <- gg
+#--------------------------------------------------------------
+(gg_frontier + gg_budget + plot_layout(ncol = 1)) | gg_backtest
+
+
+```
+
+
+
+
+
+
+
+
+
+
+## Rotations
+- It is often instructive to apply an orthogonal rotation $R$ to the correlation matrix $L$ in order to further clarify the interpretation of signals. Let this rotated matrix be denoted $L_{\circlearrowleft}$.
+$$
+\begin{equation}
+L_{\circlearrowleft} = LR \:\: ; \:\:\: R'R = I
+\end{equation}
+$$
+
+In Figure \ref{fig:XSCorrBarchart_varimaxRot}, a certain kind of orthogonal rotation called a varimax rotation is applied to $K_{XS}$. [Refined interpretation...maybe do the expanded example with tons of assets. "To offer some idea of the reach of this method, consider an expanded example,..."]
+
+Reverse engineering the covariance matrix from rotated loadings - The 
+
+Note that orthogonal rotations of the loadings do not alter $\Sigma_{XX}$.
+
+\begin{equation}
+
+L_{\circlearrowleft}L_{\circlearrowleft} = LR'RL' = LL'
+
+\end{equation}
+
+
+
+
+
+
+
+Orthogonal rotations of the loadings do not alter the variables covariance matrix (equation \ref{eq:Sigma_invar}). The 
+
+\begin{equation}
+\Sigma = L_{\circlearrowleft} L_{\circlearrowleft}' = L R'R L' = L L' = PUP'
+\label{eq:Sigma_invar}
+\end{equation}
+
+
+This is true regardless of whether $R$ is a varimax rotation, or some other kind of rotation. The important thing is that $R$ is orthogonal.
+
+
+$$
+\begin{equation}
+\tilde{\Sigma} = L_{\circlearrowleft}' L_{\circlearrowleft}
+\end{equation}
+$$
+
+Note that $\Sigma$ will be the same regardless of $R$. On the other hand, $\tilde{\Sigma}$ changes with $R$.
