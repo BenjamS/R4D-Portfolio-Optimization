@@ -119,3 +119,49 @@ round(t(R) %*% round(t(S) %*% S, 4) %*% R, 4)
 t(X) %*% X %*% mat_loads
 
 mean(S)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+The matrix of eigenvectors $\tilde{P}$ offers insight into the concrete meaning of the otherwise abstract signals $S$. For a given signal in $S$, the elements in the corresponding column of $\tilde{P}$ indicate how prominently each variable in $X$ figures into the movements of the signal. A handful of the columns of $\tilde{P}$ extracted from the financial data used above are plotted as barcharts in Figure \ref{fig:loads_barchart}. In the literature, it is said that the columns of $\tilde{P}$ indicate how much the variables contribute to or load onto each signal. For this reason, $\tilde{P}$ is sometimes referred to as the loadings matrix. This is further illustrated in Figure \ref{fig:sigPlot}, where high loading portfolio items can be seen to hew closely to the signals.
+
+Now, the covariance matrix of signals $\tilde{\Sigma}$ is, by definition,
+
+$$
+\begin{equation}
+\tilde{\Sigma} = \frac{1}{1-n}S'S
+\end{equation}
+$$
+
+But note that, by equation \ref{eq:},
+
+$$
+\begin{equation}
+\frac{1}{1-n} S'S = \frac{1}{1-n} \tilde{P}'X'X\tilde{P} = \tilde{P}'\Sigma\tilde{P} = \frac{1}{1-n} \tilde{\Lambda}
+\end{equation}
+$$
+So, the covariance matrix of signals is essentially just the diagonal matrix of eigenvalues corresponding to the eigenvectors used in the creation of the signals.
+$$
+\begin{equation}
+\tilde{\Sigma} = \frac{1}{1-n}\tilde{\Lambda}
+\end{equation}
+$$
