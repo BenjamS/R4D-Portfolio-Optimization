@@ -68,7 +68,7 @@ b <- 1 / 3
 x <- a * sqrt(y^2 / b^2 + 1)
 gg <- ggplot(data.frame(x, y), aes(x = x, y = y))
 gg <- gg + geom_point()
-gg <- gg + labs(x = "Portfolio risk (variance)", y = "Portfolio expected return")
+gg <- gg + labs(x = "Portfolio Risk (standard deviation)", y = "Portfolio expected return")
 gg <- gg + theme(axis.text = element_blank(),
                  axis.ticks = element_blank())
 gg
@@ -819,7 +819,10 @@ optimize_portfolio <- function(covmat, mat_nab, targ_vec,
     Vtest <- NULL
   }
   #----------------------------------------------------
-  frontier_vec <- c(Rtarg, Vtarg, l_V, l_C, Rtest, Vtest)
+  #frontier_vec <- c(Rtarg, Vtarg, l_V, l_C, Rtest, Vtest)
+  sd_targ <- sqrt(Vtarg)
+  sd_test <- sqrt(Vtest)
+  frontier_vec <- c(Rtarg, sd_targ, l_V, l_C, Rtest, sd_test)
   list_out <- list(wStar, frontier_vec)
   return(list_out)
   
@@ -856,12 +859,12 @@ plot_budgetShares <- function(df_wStar, group_small = NULL, color_vec = NULL, gr
     mat_plot <- mat_plot[, -ind_group_small]
     df_plot <- as.data.frame(mat_plot)
     df_plot$Other <- other_col
-    df_plot$`Risk (variance)` <- df_wStar$`Risk (variance)`
+    df_plot$`Risk (standard deviation)` <- df_wStar$`Risk (standard deviation)`
     gathercols <- colnames(df_plot)[-ncol(df_plot)]
   }
   #------------------------------------
   df_plot$portfolio_id <- 1:nrow(df_wStar)
-  df_match_V <- df_plot[, c("portfolio_id", "Risk (variance)")]
+  df_match_V <- df_plot[, c("portfolio_id", "Risk (standard deviation)")]
   df_plot <- df_plot %>% gather_("Item", "Budget shares", gathercols)
   df_plot <- df_plot %>% group_by(Item) %>% 
     mutate(mu = mean(`Budget shares`)) %>% 
@@ -878,7 +881,7 @@ if(is.null(color_vec)){
     color_vec <- sample(bag_of_colors, n_items)
 }
     #------------------------------------
-  gg <- ggplot(df_plot, aes(x = `Risk (variance)`, y = `Budget shares`, fill = Item))
+  gg <- ggplot(df_plot, aes(x = `Risk (standard deviation)`, y = `Budget shares`, fill = Item))
   #legend_position <- "right"
   gg <- gg + geom_area(position = "stack")
   gg <- gg + scale_fill_manual(values = color_vec)
@@ -909,46 +912,35 @@ if(is.null(color_vec)){
   
 }
 #=========================================================
-plot_frontier <- function(df_frontier, graph_on = T){
-    df_plot <- df_frontier
-  if(ncol(df_plot) == 3){
-    gathercols <- colnames(df_plot)[2:3]
-    df_plot <- df_plot %>% gather_("Type", "Value", gathercols)
-    gg <- ggplot(df_plot, aes(x = `Risk (variance)`, y = Value, group = Type, color = Type))
+plot_frontier <- function(df_frontier, ROI_basis = F, list_graph_options = NULL, graph_on = T){
+  if(!is.null(list_graph_options)){
+    fig_title <- list_graph_options[["fig_title"]]
   }else{
-    gg <- ggplot(df_plot, aes(x = `Risk (variance)`, y = `Return target`))
+    fig_title <- NULL
+  }
+  
+    df_plot <- df_frontier
+  # if(ncol(df_plot) == 3){
+  #   gathercols <- colnames(df_plot)[2:3]
+  #   df_plot <- df_plot %>% gather_("Type", "Value", gathercols)
+  #   gg <- ggplot(df_plot, aes(x = `Risk (standard deviation)`, y = Value, group = Type, color = Type))
+  # }else{
+  #   gg <- ggplot(df_plot, aes(x = `Risk (standard deviation)`, y = `Return target`))
+  # }
+  if(ROI_basis){
+    gg <- ggplot(df_plot, aes(x = `Risk (standard deviation)`, y = `ROI target`))
+  }else{
+    gg <- ggplot(df_plot, aes(x = `Risk (standard deviation)`, y = `Return target`))
+  }
+  if(!is.null(fig_title)){
+    gg <- gg + labs(title = fig_title)
+    gg <- gg + theme(plot.title = element_text(face = "bold", size = 10))
   }
   gg <- gg + theme(axis.title.x = element_blank(),
-                   axis.text.x = element_blank()
-                   #plot.title = element_text(size = 10)
-  )
+                   axis.text.x = element_blank())
   gg <- gg + geom_point()
   if(graph_on){print(gg)}
   return(gg)
-}
-#=========================================================
-plot_frontier_and_budget <- function(env_plot_frontier,
-                                     env_plot_budgetShares,
-                                     graph_on = T){
-  #-------------------------------------------
-  # Frontier plot
-  #if(is.null(fig_title)){fig_title <- "Optimal Portfolio Frontier"}
-  #df_plot <- df_frontier[, c("Risk (variance)", "Return target")]
-  df_frontier <- env_plot_frontier[["df_frontier"]]
-  gg_frontier <- plot_frontier(df_frontier, graph_on = F)
-  #-------------------------------------------
-  # Budget shares plot
-  # Note df_w_in should have just the target risk column (i.e. don't also include the backtest risk column). At any rate, the budget risk column should be the same as the one used in the frontier plot.
-  df_wStar <- env_plot_budgetShares[["df_wStar"]]
-  color_vec <- env_plot_budgetShares[["color_vec"]]
-  list_graph_options <- env_plot_budgetShares[["list_graph_options"]]
-  group_small <- env_plot_budgetShares[["group_small"]]
-  gg_budgetShares <- plot_budgetShares(df_wStar, group_small, color_vec, graph_on = F, list_graph_options)
-  #-------------------------------------------
-  gg_together <- gg_frontier + gg_budgetShares + plot_layout(ncol = 1)
-  if(graph_on){print(gg_together)}
-  outlist_gg <- list(gg_frontier, gg_weights, gg_together)
-  return(outlist_gg)
 }
 #=======================================================================
 get_optimal_frontier <- function(covmat, mat_nab,
@@ -984,14 +976,18 @@ get_optimal_frontier <- function(covmat, mat_nab,
   #-------------------------------------------
   df_frontier <- data.frame(do.call(rbind, list_frontier))
   colnames(df_frontier) <- c("Return target",
-                             "Risk (variance)",
+                             "Risk (standard deviation)",
                              "Risk shadow price",
                              "Budget shadow price",
                              "Return backtest",
                              "Risk backtest")
-  df_wStar <- data.frame(df_frontier$`Risk (variance)`, t(do.call(cbind, list_wStar)))
+  df_wStar <- data.frame(df_frontier$`Risk (standard deviation)`, t(do.call(cbind, list_wStar)))
   varNames_ordered <- row.names(mat_nab)
-  colnames(df_wStar) <- c("Risk (variance)", varNames_ordered)
+  colnames(df_wStar) <- c("Risk (standard deviation)", varNames_ordered)
+  
+  df_frontier$`Tot. investment` <- rowSums(abs(df_wStar[, -1]))
+  df_frontier$`ROI target` <- df_frontier$`Return target` / df_frontier$`Tot. investment`
+  df_frontier$`ROI backtest` <- df_frontier$`Return backtest` / df_frontier$`Tot. investment`
   #--------------------------------------
   list_out <- list(df_wStar, df_frontier)
   return(list_out)
@@ -1035,11 +1031,11 @@ list_out <- get_optimal_frontier(covmat_train, mat_nab,
 df_wStar <- list_out[[1]]
 df_frontier <- list_out[[2]]
 #--------------------------------------------------------------
-gg_frontier <- plot_frontier(df_frontier, graph_on = F)
+gg_frontier <- plot_frontier(df_frontier, ROI_basis = F, list_graph_options = NULL, graph_on = F)
 #--------------------------------------------------------------
 # df_wStar_agg <- df_wStar %>% gather_("Item", "Budget Share", colnames(df_wStar)[-1])
 # df_wStar_agg <- merge(df_wStar_agg, df_match_group, by = "Item")
-# df_wStar_agg <- df_wStar_agg %>% group_by(`Risk (variance)`, Group) %>% summarise(`Budget Share` = sum(`Budget Share`)) %>% spread(Group, `Budget Share`)
+# df_wStar_agg <- df_wStar_agg %>% group_by(`Risk (standard deviation)`, Group) %>% summarise(`Budget Share` = sum(`Budget Share`)) %>% spread(Group, `Budget Share`)
 #gg_budget <- plot_budgetShares(df_wStar_agg, group_small = NULL, color_vec = group_colors, graph_on = F, list_graph_options = NULL)
 n_items <- ncol(df_wStar) - 1
 bag_of_colors <- randomcoloR::distinctColorPalette(k = 5 * n_items)
@@ -1055,25 +1051,11 @@ df_wStar_conv <- df_wStar
 ```
 
 
-## Dealing with [SCALABILITY AND] negative budget shares
+## Decreasing returns to scale and positive budget shares
 
-The optimal budget allocation in the bottom of Figure \ref{fig:mvConv} includes some shares that are negative. As discussed in the introduction, this is unacceptable in the AR4D context. In order to force optimal budget shares, I replace the revenue $R$ and $C$ functions with utility functions $U_R$ and $U_C$, where
+In the financial context, investment scales linearly. A doubling of the investment doubles expected return. In the AR4D context, on the other hand, returns to investment are marginally diminishing.
 
-\begin{equation}
-U_R = \boldsymbol{\mu} \cdot \ln{\mathbf{w}}
-\end{equation}
-
-and 
-
-\begin{equation}
-U_C = \mathbf{1} \cdot \ln{\mathbf{w}}
-\end{equation}
-
-Moreover, the budget $\bar{C}$ is replaced with the utility budget $\bar{U}_C$.
-
-This is tantamount to substituting $\ln \mathbf{w}$ wherever $\mathbf{w}$ appears in the equations of the previous section.
-
-I derive the utility functions $U_R$ and $U_C$ from the observation, going back perhaps as far as Aristotle [@kauder1953genesis], and certainly as far back as Bernoulli [-@bernoulli1954exposition], that
+the observation, going back perhaps as far as Aristotle [@kauder1953genesis], and certainly as far back as Bernoulli [-@bernoulli1954exposition], that
 
 >"in the absence of the unusual, the utility resulting from any small increase in wealth will be inversely proportionate to the quantity of goods previously possessed."
 
@@ -1093,6 +1075,28 @@ Note that multiplying through by $U / w_i$ gives an interesting alternative expr
 so that Bernoulli's statement is mathematically equivalent to saying that
 
 >"in the absence of the unusual, the _percentage increase in_ utility resulting from _a one percent_ increase in wealth will be inversely proportionate to the _utility_ of goods previously possessed."
+
+
+The optimal budget allocation in the bottom of Figure \ref{fig:mvConv} includes some shares that are negative. As discussed in the introduction, this is unacceptable in the AR4D context. In order to force optimal budget shares, I replace the revenue $R$ and $C$ functions with utility functions $U_R$ and $U_C$, where
+
+\begin{equation}
+U_R = \boldsymbol{\mu} \cdot \ln{\mathbf{w}}
+\end{equation}
+
+and 
+
+\begin{equation}
+U_C = \mathbf{1} \cdot \ln{\mathbf{w}}
+\end{equation}
+
+Moreover, the budget $\bar{C}$ is replaced with the utility budget $\bar{U}_C$.
+
+This is tantamount to substituting $\ln \mathbf{w}$ wherever $\mathbf{w}$ appears in the equations of the previous section.
+
+I derive the utility functions $U_R$ and $U_C$ from 
+
+
+
 
 Equation \ref{eq:uDefine} can be used to arrive at an expression for $U$ as follows:
 
@@ -1145,11 +1149,11 @@ list_out <- get_optimal_frontier(covmat_train, mat_nab,
 df_wStar <- list_out[[1]]
 df_frontier <- list_out[[2]]
 #--------------------------------------------------------------
-gg_frontier <- plot_frontier(df_frontier, graph_on = F)
+gg_frontier <- plot_frontier(df_frontier, ROI_basis = F, list_graph_options = NULL, graph_on = F)
 #--------------------------------------------------------------
 # df_wStar_agg <- df_wStar %>% gather_("Item", "Budget Share", colnames(df_wStar)[-1])
 # df_wStar_agg <- merge(df_wStar_agg, df_match_group, by = "Item")
-# df_wStar_agg <- df_wStar_agg %>% group_by(`Risk (variance)`, Group) %>% summarise(`Budget Share` = sum(`Budget Share`)) %>% spread(Group, `Budget Share`)
+# df_wStar_agg <- df_wStar_agg %>% group_by(`Risk (standard deviation)`, Group) %>% summarise(`Budget Share` = sum(`Budget Share`)) %>% spread(Group, `Budget Share`)
 # gg_budget <- plot_budgetShares(df_wStar_agg, group_small = NULL, color_vec = group_colors, graph_on = F, list_graph_options = NULL)
 gg_budget <- plot_budgetShares(df_wStar, group_small = NULL, color_vec = color_vec_mv_eg, graph_on = F, list_graph_options = NULL)
 #--------------------------------------------------------------
@@ -1187,7 +1191,7 @@ df_plot_U$Tot_investment <- rowSums(abs(df_wStar_U[, -1]))
 df_plot_U$`ROI target` <- df_plot_U$`Return target` / df_plot_U$Tot_investment
 df_plot_U$`Budget shares` <- "Utility\n(positive only)"
 df_plot <- rbind(df_plot_conv, df_plot_U)
-gg <- ggplot(df_plot, aes(x = `Risk (variance)`, y = `ROI target`, group = `Budget shares`, color = `Budget shares`))
+gg <- ggplot(df_plot, aes(x = `Risk (standard deviation)`, y = `ROI target`, group = `Budget shares`, color = `Budget shares`))
 gg <- gg + geom_point()
 gg <- gg + scale_color_manual(values = mv_conv_U_compare_colors)
 gg
@@ -1211,14 +1215,14 @@ df_plot_U$`ROI backtest` <- df_plot_U$`Return backtest` / df_plot_U$Tot_investme
 #   color_vec <- c("#56B4E9", "black")
 #   #-------------------------------------------
 #   #if(is.null(fig_title)){fig_title <- "Optimal Portfolio Frontier"}
-#   df_plot1 <- df_frontier[, c("Risk (variance)", "Return target")]
+#   df_plot1 <- df_frontier[, c("Risk (standard deviation)", "Return target")]
 #   df_plot2 <- df_frontier[, c("Risk backtest", "Return backtest")]
 #   df_plot1$Type <- "Optimal frontier"
 #   df_plot2$Type <- "Backtest of optimal frontier"
 #   colnames(df_plot1)[2] <- "Return"
-#   colnames(df_plot2)[1:2] <- c("Risk (variance)", "Return")
+#   colnames(df_plot2)[1:2] <- c("Risk (standard deviation)", "Return")
 #   df_plot <- as.data.frame(do.call(rbind, list(df_plot1, df_plot2)))
-#   gg <- ggplot(df_plot, aes(x = `Risk (variance)`, y = `Return`, group = Type, color = Type))
+#   gg <- ggplot(df_plot, aes(x = `Risk (standard deviation)`, y = `Return`, group = Type, color = Type))
 #   gg <- gg + geom_point()
 #   gg <- gg + scale_color_manual(values = color_vec)
 #   if(!is.null(fig_title)){
@@ -1228,7 +1232,7 @@ df_plot_U$`ROI backtest` <- df_plot_U$`Return backtest` / df_plot_U$Tot_investme
 #   #gg <- gg + theme(plot.title = element_text(size = 10))
 #   gg <- gg + theme(legend.title = element_blank(),
 #                    legend.position = legend_position)
-#   gg <- gg + coord_cartesian(xlim = c(0, max(df_plot$`Risk (variance)`)))
+#   gg <- gg + coord_cartesian(xlim = c(0, max(df_plot$`Risk (standard deviation)`)))
 #   if(graph_on){print(gg)}
 #   return(gg)
 # }
@@ -1309,50 +1313,61 @@ The correlations between the financial assets from the example above and their f
 
 ```{r, fig.show='hold', fig.width=6, fig.height=3, fig.align='center', fig.cap="\\label{fig:corrXS_barchart}Correlation of portfolio items with leading signals."}
 
+
 # Calculate variable-signal correlations, financial data
-get_S_and_corrXS <- function(mat_X_in, n_signals){
+get_S_and_corrXS <- function(mat_X_in){
   # mat_P = eigenvectors of the data correlation matrix
   # mat_U = corresponding eigenvalues
   mat_X_centered <- scale(mat_X_in, scale = F)
-  out_svd <- svd(mat_X_centered)
-sing_values <- out_svd$d
-n_obs <- nrow(mat_X_centered)
-eig_values <- sing_values^2 / (n_obs - 1)
-mat_P <- out_svd$v
+  # out_svd <- svd(mat_X_centered)
+  # sing_values <- out_svd$d
+  # n_obs <- nrow(mat_X_centered)
+  # eig_values <- sing_values^2 / (n_obs - 1)
+  # mat_P <- out_svd$v
+
+mat_P <- eigen(cov(mat_X_in))$vectors
 if(mean(mat_P[, 1]) < 0){mat_P <- -mat_P}
-#mat_P_sigs <- mat_P[, 1:n_signals]
-# eig_values[1:n_signals] / eigen(cov(mat_X_centered))$values[1:n_signals]
-# mat_P / eigen(cov(mat_X_in))$vectors
+eig_values <- eigen(cov(mat_X_in))$values
 mat_U <- diag(eig_values)
+  
+#mat_P_sigs <- mat_P[, 1:n_signals]
+# eig_values[1:n_signals] / eigen(cov(mat_X_centered))$values[1:n_signals] #check
+# mat_P / eigen(cov(mat_X_in))$vectors #check
+
+#mat_U <- diag(eig_values)
+
 #mat_U_sigs <- matU[, 1:n_signals]
 #---------------------------------------------
+#mat_L <- diag(1 / apply(mat_X_in, 2, sd)) %*% mat_P %*% sqrt(mat_U)
 sd_X <- apply(mat_X_in, 2, sd)
 D_sdX_inv <- diag(1 / sd_X)
-cormat_XS <- D_sdX_inv %*% mat_P %*% mat_U^{1/2}
+cormat_XS <- D_sdX_inv %*% mat_P %*% sqrt(mat_U)
 row.names(cormat_XS) <- colnames(mat_X_in)
 #---------------------------------------------
-cormat_XS_sigs <- cormat_XS[, 1:n_signals]
 # res <- FactoMineR::PCA(mat_pctDiff_in, scale.unit = F, ncp = ncol(mat_pctDiff_in), graph = F)
 # mat_L_FactoMiner <- res$var$coord
 # mat_L / mat_L_FactoMiner
-mat_S <- mat_X_centered %*% mat_P[, 1:n_signals]
-list_out <- list(mat_S, cormat_XS_sigs, eig_values)
+mat_S_all <- mat_X_centered %*% mat_P
+list_out <- list(mat_S_all, cormat_XS, eig_values)
 return(list_out)
 }
 #====================================================
 n_signals <- 4
 mat_pctDiff_in <- mat_pctDiff_train_mv
 mat_X_in <- mat_pctDiff_in
-list_out <- get_S_and_corrXS(mat_X_in, n_signals)
-mat_S <- list_out[[1]]
-cormat_XS_sigs <- list_out[[2]]
+list_out <- get_S_and_corrXS(mat_X_in)
+mat_S_all <- list_out[[1]]
+cormat_XS <- list_out[[2]]
 eig_values <- list_out[[3]]
+mat_S <- mat_S_all[, 1:n_signals]
+mat_L <- cormat_XS[, 1:n_signals]
+
 #eigen(cov(mat_S))$values / eig_values[1:n_signals]
 #====================================================
 # Barchart of variable-signal correlations
-plot_corrXS_barchart <- function(cormat_XS_sigs, xAxis_title = NULL){
-  n_signals <- ncol(cormat_XS_sigs)
-    df_plot <- data.frame(id = row.names(cormat_XS_sigs), cormat_XS_sigs)
+plot_corrXS_barchart <- function(mat_L, xAxis_title = NULL){
+  n_signals <- ncol(mat_L)
+    df_plot <- data.frame(id = row.names(mat_L), mat_L)
   signal_id <- paste("Signal", c(1:n_signals))
   colnames(df_plot)[2:(n_signals + 1)] <- signal_id
   gathercols <- as.character(signal_id) 
@@ -1378,7 +1393,7 @@ plot_corrXS_barchart <- function(cormat_XS_sigs, xAxis_title = NULL){
 
 }
 
-plot_corrXS_barchart(cormat_XS_sigs)
+plot_corrXS_barchart(mat_L)
 
 ```
 
@@ -1395,11 +1410,10 @@ $$
 <!-- SR = XP -->
 <!-- \end{equation} -->
 
-In Figure \ref{fig:} a special kind of orthogonal rotation, called a varimax rotation, is applied to $L$. Varimax rotations flesh out structure by maximizing sparseness in the rotated matrix. After applying this rotation, it becomes clear that Signal 1 is representative of Biotechnology and Healthcare; and so Signal 1 might be called the "Pharmaceutical Signal". Signal 2 remains more than 50% correlated with a variety of portfolio items, but Financials, Industrial, and Transportation now stand out as particularly.... Signal 2 might thus be called the "Financial and Physical Infrastructure Signal."
+In Figure \ref{fig:} a special kind of orthogonal rotation, called a varimax rotation, is applied to $L$. Varimax rotations flesh out structure by maximizing sparseness in the rotated matrix. After applying this rotation, it becomes clear that Signal 1 is representative of Biotechnology and Healthcare; and so Signal 1 might be called the "Pharmaceutical Signal". Signal 2 loadings are now more pronounced, especially Financials, Industrial, and Transportation. Signal 2 might thus be called the "Financial and Physical Infrastructure Signal."
 
 ```{r, fig.show='hold', fig.width=6, fig.height=3, fig.align='center', fig.cap="\\label{fig:corrXS_barchart}Varimax rotated correlation of portfolio items with leading signals."}
 
-mat_L <- cormat_XS_sigs
 mat_Lrot <- varimax(mat_L)[[1]]
 mat_Lrot <- matrix(as.numeric(mat_Lrot),
                           attributes(mat_Lrot)$dim,
@@ -1408,7 +1422,8 @@ mat_R <- varimax(mat_L)[[2]]
 mat_R <- matrix(as.numeric(mat_R),
                           attributes(mat_R)$dim,
                           dimnames = attributes(mat_R)$dimnames)
-mat_Srot <- mat_S %*% mat_R
+
+
   
 xAxis_title <- "Varimax Rotated Correlation"
 plot_corrXS_barchart(mat_Lrot, xAxis_title)
@@ -1420,8 +1435,8 @@ In Figure \ref{fig:signals_with_hiCorr_items}, it becomes particularly evident h
 
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center', fig.cap="\\label{fig:signals_with_hiCorr_items}Signals plotted together with their most highly correlated assets. The signals are plotted as thick grey lines."}
 # Define function to plot signals with their highest loading items.
-plot_sigs_wHiLoad_items <- function(mat_X_in, mat_S, cormat_XS_sigs, sigNames = NULL, load_threshold = 0.55, n_display_max = 4){
-n_signals <- ncol(cormat_XS_sigs)
+plot_sigs_wHiLoad_items <- function(mat_X_in, mat_S, mat_L, sigNames = NULL, load_threshold = 0.55, n_display_max = 4){
+n_signals <- ncol(mat_L)
 if(is.null(sigNames)){
   fig_title_vec <- paste("Signal", 1:n_signals)
 }else{
@@ -1432,7 +1447,7 @@ if(is.null(sigNames)){
   xAxis_labels <- date_vec[seq(1, nrow(mat_S), length.out = 5)]
   list_gg <- list()
   for(i in 1:n_signals){
-    this_loadvec <- cormat_XS_sigs[, i]
+    this_loadvec <- mat_L[, i]
     ind_tracks <- which(abs(this_loadvec) >= load_threshold)
     if(length(ind_tracks) == 0){
         ind_tracks <- which(abs(this_loadvec) == max(abs(this_loadvec)))
@@ -1499,7 +1514,7 @@ if(is.null(sigNames)){
 #               "Communications (Inverse)")
 # 
 # mat_X_in <- mat_pctDiff_in
-# plot_sigs_wHiLoad_items(mat_X_in, mat_S, cormat_XS_sigs, sigNames, load_threshold = 0.55, n_display_max = 4)
+# plot_sigs_wHiLoad_items(mat_X_in, mat_S, mat_L, sigNames, load_threshold = 0.55, n_display_max = 4)
 
 sigNames <- c("Pharmaceutical",
               "Financial and Physical Infrastructure",
@@ -1536,8 +1551,8 @@ ck_vec <- cumsum(c_vec)
                            levels = unique(df_plot$Signal),
                            ordered = T)
     gg <- ggplot(df_plot, aes(x = Signal, y = Value, fill = `Portion explained`))
-  gg <- gg + geom_bar(stat = "identity", color = "white", position = "dodge")
-  gg <- gg + scale_fill_manual(values = c("purple", "khaki"))
+  gg <- gg + geom_bar(stat = "identity", color = "black", position = "dodge")
+  gg <- gg + scale_fill_manual(values = c("wheat3", "paleturquoise"))
   gg <- gg + geom_hline(yintercept = 0.9, color = "coral", size = 1, linetype = "dashed")
   gg <- gg + theme(axis.text.y = element_text(size = 9),
                    axis.text.x = element_text(size = 9, angle = 60, hjust = 1),
@@ -1620,21 +1635,28 @@ The difference between the financial data correlation matrix and the signals der
 
 ```{r, fig.show='hold', fig.width=6, fig.height=4, fig.align='center', fig.cap="\\label{fig:compareCovMats}The data covariance matrix minus the covariance matrix derived from the retained signals."}
 #====================================================
-n_signals <- which(ck_vec > 0.9)[1]
+n_signals <- which(ck_vec > 0.91)[1]
 #n_signals <- 3
 #====================================================
-mat_X_in <- mat_pctDiff_train_mv
-list_out <- get_S_and_corrXS(mat_X_in, n_signals)
-mat_S <- list_out[[1]]
-cormat_XS_sigs <- list_out[[2]]
-eig_values <- list_out[[3]]
+mat_S <- mat_S_all[, 1:n_signals]
+mat_L <- cormat_XS[, 1:n_signals]
+eig_values_sigs <- eig_values[1:n_signals]
 
-mat_L <- cormat_XS_sigs
-covmat_XX <- cov(mat_X_in)
+covmat_XX <- cov(mat_pctDiff_train_mv)
 covmat_XX_derived <- mat_L %*% t(mat_L)
 mat_diff_covmats <- covmat_XX - covmat_XX_derived
 
 plot_covmat(mat_diff_covmats, graph_on = F)
+
+
+mat_Lrot <- varimax(mat_L)[[1]]
+mat_Lrot <- matrix(as.numeric(mat_Lrot),
+                          attributes(mat_Lrot)$dim,
+                          dimnames = attributes(mat_Lrot)$dimnames)
+mat_R <- varimax(mat_L)[[2]]
+mat_R <- matrix(as.numeric(mat_R),
+                          attributes(mat_R)$dim,
+                          dimnames = attributes(mat_R)$dimnames)
 
 
 ```
@@ -1646,7 +1668,7 @@ It stands to reason, moreover, that replacement of the data covariance matrix wi
 # Back tests
 mv_conv_U_compare_colors <- rev(mv_conv_U_compare_colors)
 #--------------------------------------------------------
-df_plot_conv_mod <- df_plot_conv[, c("Risk (variance)", "ROI target")]
+df_plot_conv_mod <- df_plot_conv[, c("Risk (standard deviation)", "ROI target")]
 df_plot_conv_btest <- df_plot_conv[, c("Risk backtest", "ROI backtest")]
 df_plot_conv_mod$Type <- "Optimal\nsolution"
 df_plot_conv_btest$Type <- "Backtest"
@@ -1661,7 +1683,7 @@ gg <- gg + theme(legend.position = "none",
                  plot.title = element_text(face = "bold", size = 10))
 gg_conv_backtest <- gg + scale_color_manual(values = mv_conv_U_compare_colors)
 # #--------------------------------------------------------
-df_plot_U_mod <- df_plot_U[, c("Risk (variance)", "ROI target")]
+df_plot_U_mod <- df_plot_U[, c("Risk (standard deviation)", "ROI target")]
 df_plot_U_btest <- df_plot_U[, c("Risk backtest", "ROI backtest")]
 df_plot_U_mod$Type <- "Optimal\nsolution"
 df_plot_U_btest$Type <- "Backtest"
@@ -1694,9 +1716,9 @@ gg_conv_backtest + gg_U_backtest + plot_layout(ncol = 2)
 
 ```
 
-But the signals derived correlation/covariance matrix contains eigenvalues equal to zero, and is thus is not invertible. Being uninvertible, it cannot be used in MV Analysis. Nonetheless, there is an alternative route to the same goal of reducing noise in MV Analysis. The portfolio of assets can be replaced with a portfolio of signals.
+But the signals derived covariance matrix contains eigenvalues equal to zero, and is thus is not invertible. Being uninvertible, it cannot be used in MV Analysis. Nonetheless, there is an alternative route to the same goal of reducing noise in MV Analysis: the portfolio of assets can be replaced with a portfolio of signals.
 
-That is to say, instead of optimizing over a portfolio of $n$ assets, the problem is reduced to one of optimizing over just the $k$ retained signals. Instead of using the data covariance matrix in MV Analysis, the signals covariance matrix is used, which is just the diagonal eigenvalue matrix $\tilde{U}$ (recall equation \ref{eq:covmat_SS}) [truncated to the number of signals]. The vector of signal expected returns $\mathbf{\mu}_S$ can be aggregated up from the asset expected returns on the basis of signal-asset correlations.
+That is to say, instead of optimizing over a portfolio of $n$ assets, the problem is reduced to one of optimizing over just the $k$ retained signals. Instead of using the data covariance matrix in MV Analysis, the signals covariance matrix is used, which is just the first $k$ rows and columns of the diagonal eigenvalue matrix $\tilde{U}$ (recall equation \ref{eq:covmat_SS}). The vector of signal expected returns $\mathbf{\mu}_S$, meanwhile, can be aggregated up from the asset expected returns on the basis of the signal-asset correlations in K_{XS}.
 <!-- The expected return to each signal can be calculated as the sum of the expected returns to each asset weighted by their loadings onto the given signal.  -->
 
 $$
@@ -1704,71 +1726,93 @@ $$
 \mathbf{\mu}_S = \mathbf{\mu}' D(\mathbf{\eta})^{-1} L  \:\:\: ;\:\:  \eta = L\mathbf{1}
 \end{equation}
 $$
-MV Analysis then outputs the optimal budget shares to be allocated to each signal ($\mathbf{w}_S$), rather than to each asset. These signal budget shares can then be disaggregated down to individual allocations to each portfolio item ($\mathbf{w}_p$) again on the basis of signal-asset correlations.
-<!-- [L normalized such that sum of cols of L all = 1. this ok because eigenvectors defined up to scaling anyway] -->
 
-$$
-\begin{equation}
-\mathbf{w}_{p}^* = L D(\mathbf{\nu})^{-1} \mathbf{w}_{s}^* \:\:\: ;\:\: \nu = L'\mathbf{1}
-\end{equation}
-$$
-The optimal frontier and budget shares for the signals portfolio are displayed on the left side of Figure \ref{fig:sigPortfolio}. A backtest is displayed on the right side of the Figure. The signals portfolio performs well in the backtest, far exceeding the efficient frontier. The budget shares are mapped to the assets in Figure \ref{fig:...}.  In order to force positive budget shares, the utility approach is applied in... Figure \ref{fig:...}
+To test this idea, the signals portfolio efficient frontier and budget shares are calculated using the financial data, and displayed in Figure \ref{fig:sigPortfolio}. The backtest on the right side of the Figure indicates that the signals portfolio frontier is far more accurate than that of the conventional approach in Figure \ref{fig:backtest}. The real ROI even exceeds the expected ROI over a substantial part of the frontier.
 
 ```{r, fig.show='hold', fig.width=6, fig.height=3, fig.align='center', fig.cap="\\label{fig:sigPortfolio}\\textit{(Left) }Optimal frontier and budget shares for the signals portfolio. \\textit{(Right) } Backtest of the frontier."}
 
-n_signals <- 6
-P_train <- eigen(cov(mat_pctDiff_train_mv))$vectors
-U_train <- diag(eigen(cov(mat_pctDiff_train_mv))$values)
-L_train <- diag(1 / apply(mat_pctDiff_train_mv, 2, sd)) %*% P_train %*% sqrt(U_train)
-P_test <- eigen(cov(mat_pctDiff_test_mv))$vectors
-U_test <- diag(eigen(cov(mat_pctDiff_test_mv))$values)
-L_test <- diag(1 / apply(mat_pctDiff_test_mv, 2, sd)) %*% P_test %*% sqrt(U_test)
-row.names(L_train) <- colnames(mat_pctDiff_train_mv)
-row.names(L_test) <- colnames(mat_pctDiff_train_mv)
-L_train <- L_train[, 1:n_signals]
-L_test <- L_test[, 1:n_signals]
+# n_signals <- 6
+# P_train <- eigen(cov(mat_pctDiff_train_mv))$vectors
+# U_train <- diag(eigen(cov(mat_pctDiff_train_mv))$values)
+# L_train <- diag(1 / apply(mat_pctDiff_train_mv, 2, sd)) %*% P_train %*% sqrt(U_train)
+# P_test <- eigen(cov(mat_pctDiff_test_mv))$vectors
+# U_test <- diag(eigen(cov(mat_pctDiff_test_mv))$values)
+# L_test <- diag(1 / apply(mat_pctDiff_test_mv, 2, sd)) %*% P_test %*% sqrt(U_test)
+# row.names(L_train) <- colnames(mat_pctDiff_train_mv)
+# row.names(L_test) <- colnames(mat_pctDiff_train_mv)
+# L_train <- L_train[, 1:n_signals]
+# L_test <- L_test[, 1:n_signals]
+# mat_L / L_train_sigs
 
-
-# mat_pctDiff_in <- mat_pctDiff_test_mv
-# mat_X_in <- mat_pctDiff_in
-# list_out <- get_S_and_corrXS(mat_X_in, n_signals)
-# mat_S_test <- list_out[[1]]
-# cormat_XS_sigs_test <- list_out[[2]]
-# eig_values_test <- list_out[[3]]
-# #cov(mat_S_test)
-# mat_L_test <- cormat_XS_sigs_test
+mat_pctDiff_in <- mat_pctDiff_test_mv
+mat_X_in <- mat_pctDiff_in
+list_out <- get_S_and_corrXS(mat_X_in)
+mat_S_test_all <- list_out[[1]]
+cormat_XS_test <- list_out[[2]]
+eig_values_test <- list_out[[3]]
+mat_S_test <- mat_S_test[, 1:n_signals]
+mat_L_test <- cormat_XS_test[, 1:n_signals]
+eig_values_sigs_test <- eig_values_sigs[1:n_signals]
+# mat_L_test / L_test
+# eig_values_test / eigen(cov(mat_X_in))$values
+#cov(mat_S_test)
+#--------------------------------------------------------------
+# mat_Lrot <- varimax(cormat_XS)[[1]]
+# mat_Lrot <- matrix(as.numeric(mat_Lrot),
+#                           attributes(mat_Lrot)$dim,
+#                           dimnames = attributes(mat_Lrot)$dimnames)
+# mat_Lrot <- mat_Lrot[, 1:n_signals]
+# mat_R <- varimax(mat_L)[[2]]
+# mat_R <- matrix(as.numeric(mat_R),
+#                           attributes(mat_R)$dim,
+#                           dimnames = attributes(mat_R)$dimnames)
+# mat_R <- mat_R[1:n_signals, 1:n_signals]
+# mat_Lrot_test <- varimax(cormat_XS_test)[[1]]
+# mat_Lrot_test <- matrix(as.numeric(mat_Lrot_test),
+#                           attributes(mat_Lrot_test)$dim,
+#                           dimnames = attributes(mat_Lrot_test)$dimnames)
+# mat_Lrot_test <- mat_Lrot_test[, 1:n_signals]
+# mat_R_test <- varimax(mat_L_test)[[2]]
+# mat_R_test <- matrix(as.numeric(mat_R_test),
+#                           attributes(mat_R_test)$dim,
+#                           dimnames = attributes(mat_R_test)$dimnames)
+# mat_R_test <- mat_R_test[1:n_signals, 1:n_signals]
+# xAxis_title <- "Varimax Rotated Correlation Test"
+# plot_corrXS_barchart(mat_Lrot, xAxis_title)
 #--------------------------------------------------------------
 nab_C <- rep(1, n_signals)
 utility_interpretation <- F
 #--------------------------------------------------------------
 # Covariance matrix
-covmat_train <- U_train[1:n_signals, 1:n_signals]
-covmat_test <- U_test[1:n_signals, 1:n_signals]
+# covmat_train <- U_train[1:n_signals, 1:n_signals]
+# covmat_test <- U_test[1:n_signals, 1:n_signals]
 #round(cov(mat_S), 3) / U_train[1:n_signals, 1:n_signals]
 
-# covmat_train <- round(cov(mat_S), 3)
-# covmat_test <- cov(mat_S_test)
+covmat_train <- cov(mat_S)
+covmat_test <- cov(mat_S_test)
+
+# covmat_train <- t(mat_R) %*% diag(eig_values[1:n_signals]) %*% mat_R
+# covmat_test <- t(mat_R_test) %*% diag(eig_values_test[1:n_signals]) %*% mat_R_test
+
 # diag(covmat_train) / eig_values[1:n_signals]
 # diag(covmat_test) / eig_values_test[1:n_signals]
 #--------------------------------------------------------------
 # Expected returns vector
 nab_pctRet_train <- apply(10^-2 * mat_pctDiff_train_mv, 2, function(x) prod(1 + x)) - 1
 nab_pctRet_test <- apply(10^-2 * mat_pctDiff_test_mv, 2, function(x) prod(1 + x)) - 1
+nab_pctRet_sigs_train <- as.numeric(t(nab_pctRet_train) %*% diag(1 / rowSums(mat_L)) %*% mat_L)
+nab_pctRet_sigs_test <- as.numeric(t(nab_pctRet_test) %*% diag(1 / rowSums(mat_L_test)) %*% mat_L_test)
 
-nab_pctRet_sigs_train <- as.numeric(t(nab_pctRet_train) %*% diag(1 / rowSums(L_train)) %*% L_train)
-nab_pctRet_sigs_test <- as.numeric(t(nab_pctRet_test) %*% diag(1 / rowSums(L_test)) %*% L_test)
+# nab_pctRet_sigs_train <- as.numeric(t(nab_pctRet_train) %*% diag(1 / rowSums(L_train)) %*% L_train)
+# nab_pctRet_sigs_test <- as.numeric(t(nab_pctRet_test) %*% diag(1 / rowSums(L_test)) %*% L_test)
+# nab_pctRet_sigs_train <- as.numeric(t(nab_pctRet_train) %*% diag(1 / rowSums(mat_Lrot)) %*% mat_Lrot)
+# nab_pctRet_sigs_test <- as.numeric(t(nab_pctRet_test) %*% diag(1 / rowSums(mat_Lrot_test)) %*% mat_Lrot_test)
 names(nab_pctRet_sigs_train) <- paste("Signal", 1:length(nab_pctRet_sigs_train))
 names(nab_pctRet_sigs_test) <- paste("Signal", 1:length(nab_pctRet_sigs_test))
-
-
-# nab_pctRet_sigs_train <- as.numeric(t(nab_pctRet_train) %*% diag(1 / rowSums(mat_L)) %*% mat_L)
-# nab_pctRet_sigs_test <- as.numeric(t(nab_pctRet_test) %*% diag(1 / rowSums(mat_L_test)) %*% mat_L_test)
-# names(nab_pctRet_sigs_train) <- paste("Signal", 1:length(nab_pctRet_sigs_train))
-# names(nab_pctRet_sigs_test) <- paste("Signal", 1:length(nab_pctRet_sigs_test))
 #--------------------------------------------------------------
 mat_nab <- cbind(nab_pctRet_sigs_train, nab_C)
 n_points_on_frontier <- 50
-Rtarg_limits <- c(0.1, 0.3)
+Rtarg_limits <- c(0.2, 0.3)
 backtest_info <- list()
 backtest_info[["nab_pctRet_test"]] <- nab_pctRet_sigs_test
 backtest_info[["covmat_test"]] <- covmat_test
@@ -1785,27 +1829,31 @@ list_out <- get_optimal_frontier(covmat_train, mat_nab,
 df_wStar <- list_out[[1]]
 df_frontier <- list_out[[2]]
 #--------------------------------------------------------------
-gg_frontier <- plot_frontier(df_frontier, graph_on = F)
+list_graph_options <- list()
+list_graph_options[["fig_title"]] <- "Efficient frontier and budget shares"
+gg_frontier <- plot_frontier(df_frontier, ROI_basis = T, list_graph_options, graph_on = F)
 #--------------------------------------------------------------
 n_items <- ncol(df_wStar) - 1
 bag_of_colors <- randomcoloR::distinctColorPalette(k = 5 * n_items)
-color_vec_mv_eg <- sample(bag_of_colors, n_items)
-gg_budget <- plot_budgetShares(df_wStar, color_vec = color_vec_mv_eg, graph_on = F, list_graph_options = NULL)
+color_vec_mv_sigs_eg <- sample(bag_of_colors, n_items)
+gg_budget <- plot_budgetShares(df_wStar, color_vec = color_vec_mv_sigs_eg, graph_on = F, list_graph_options = NULL)
 #--------------------------------------------------------------
-df_plot_train <- df_frontier[, c("Risk (variance)", "Return target")]
-df_plot_test <- df_frontier[, c("Risk backtest", "Return backtest")]
-df_plot_train$Type = "Optimal solution"
+df_plot_train <- df_frontier[, c("Risk (standard deviation)", "ROI target")]
+df_plot_test <- df_frontier[, c("Risk backtest", "ROI backtest")]
+df_plot_train$Type = "Efficient frontier"
 df_plot_test$Type = "Backtest"
-colnames(df_plot_train)[1:2] <- c("Risk (variance)", "Return")
-colnames(df_plot_test)[1:2] <- c("Risk (variance)", "Return")
+colnames(df_plot_train)[1:2] <- c("Risk (standard deviation)", "ROI")
+colnames(df_plot_test)[1:2] <- c("Risk (standard deviation)", "ROI")
 df_plot <- rbind(df_plot_train, df_plot_test)
 
-gg <- ggplot(df_plot, aes(x = `Risk (variance)`, y = Return, group = Type, color = Type))
+gg <- ggplot(df_plot, aes(x = `Risk (standard deviation)`, y = ROI, group = Type, color = Type))
 gg <- gg + geom_point()
 gg <- gg + scale_color_manual(values = c("blue", "black"))
+gg <- gg + labs(title = "Backtest")
 gg <- gg + theme(axis.title.y = element_blank(),
                  legend.title = element_blank(),
-                 legend.position = "bottom")
+                 legend.position = "bottom",
+                 plot.title = element_text(face = "bold", size = 10))
 gg_backtest <- gg
 #--------------------------------------------------------------
 (gg_frontier + gg_budget + plot_layout(ncol = 1)) | gg_backtest
@@ -1814,31 +1862,103 @@ gg_backtest <- gg
 
 ```
 
-```{r, fig.show='hold', fig.width=3, fig.height=3, fig.align='center', fig.cap="\\label{fig:assetWgts} The asset budget shares derived from the signals."}
+It is not possible to invest in signals as such. But it is possible to invest in securities that are highly correlated with signals, and to thereby synthesize or approximate an investment in a signal. One way to do this is to subdivide the optimal budget share allocated to a given signal across individual securities in proportion to each security's correlation with the signal. The total allocation to a given portfolio item is then a weighted sum of its correlations with each signal, where the weights are the respective signal budget shares (equation \ref{eq:w_disagg}).
+
+\begin{equation}
+w_i^* = \sum_j \rho_{i,j} \tilde{w}^*_j
+\label{eq:w_disagg}
+\end{equation}
+
+The utility approach is then applied, whereby the $w_i^*$ are replaced with $\frac{\ln(w_i^*)}{\sum_i \ln(w_i^*)}$, enforcing positive budget shares and decreasing returns to scale.
+
+
+
+The optimal signal budget shares in Figure \ref{fig:sigPortfolio} are disaggregated down to individual portfolio items using this procedure in Figure \ref{fig:wDisagg}
+
+
+MV Analysis then outputs the optimal budget shares to be allocated to each signal ($\mathbf{w}_S$), rather than to each asset. These signal budget shares can then be disaggregated down to individual allocations to each portfolio item ($\mathbf{w}_p$) again on the basis of signal-asset correlations.
+<!-- [L normalized such that sum of cols of L all = 1. this ok because eigenvectors defined up to scaling anyway] -->
+
+\begin{equation}
+\mathbf{w}_{p}^* = L D(\mathbf{\nu})^{-1} \mathbf{w}_{s}^* \:\:\: ;\:\: \nu = L'\mathbf{1}
+\label{eq:wsig_to_witem}
+\end{equation}
+
+
+
+```{r, fig.show='hold', fig.width=5, fig.height=5, fig.align='center', fig.cap="\\label{fig:wDisagg} The asset budget shares derived from the signals."}
 
 # Map the signal weights back to the assets
 mat_wStar <- t(as.matrix(df_wStar[, -1]))
-mat_wStar_assets <- L_train %*% diag(1 / colSums(L_train)) %*% mat_wStar
-df_wStar_assets <- data.frame(df_wStar$`Risk (variance)`, t(mat_wStar_assets))
-colnames(df_wStar_assets) <- c("Risk (variance)", row.names(L_train))
-n_items <- ncol(df_wStar_assets) - 1
-bag_of_colors <- randomcoloR::distinctColorPalette(k = 5 * n_items)
-color_vec_mv_eg <- sample(bag_of_colors, n_items)
+#colSums(mat_L %*% diag(1 / colSums(mat_L)))
+mat_wStar_assets <- mat_Lrot %*% mat_wStar
+mat_wStar_assets <- exp(mat_wStar_assets)
+mat_wStar_assets <- apply(mat_wStar_assets, 2, function(x) x / sum(x))
+df_wStar_assets <- data.frame(df_wStar$`Risk (standard deviation)`, t(mat_wStar_assets))
+colnames(df_wStar_assets) <- c("Risk (standard deviation)", row.names(mat_Lrot))
 gg_budget <- plot_budgetShares(df_wStar_assets, color_vec = color_vec_mv_eg, graph_on = T, list_graph_options = NULL)
+gg_budget
+#==========================================================
 
-# rowSums(df_wStar[, -1])
-# rowSums(df_wStar_assets[, -1])
+
+
+
+
+# covmat_XX_test <- cov(mat_pctDiff_test_mv)
+# Vtarg <- c()
+# ROItarg <- c()
+# Vtarg_test <- c()
+# ROItarg_test <- c()
+# 
+# for(i in 1:ncol(mat_wStar_assets)){
+#   wStar <- mat_wStar_assets[, i]
+#   # Exp_wStar <- exp(wStar)
+#   # K <- sum(Exp_wStar)
+#   # wStar <- Exp_wStar / K
+#   Vtarg[i] <- t(wStar) %*% covmat_XX %*% wStar
+#   Rtarg <- wStar %*% nab_pctRet_train
+#   ROItarg[i] <- Rtarg / sum(abs(wStar))
+#   Vtarg_test[i] <- t(wStar) %*% covmat_XX_test %*% wStar
+#   Rtarg_test <- wStar %*% nab_pctRet_test
+#   ROItarg_test[i] <- Rtarg_test / sum(abs(wStar))
+# }
+# 
+#   df_frontier <- data.frame(sqrt(Vtarg), ROItarg, sqrt(Vtarg_test), ROItarg_test)
+#   colnames(df_frontier) <- c("Risk (standard deviation)", "ROI target", "Risk backtest", "ROI backtest")
+#   #plot_frontier(df_frontier, ROI_basis = T, graph_on = F)
+# 
+# df_plot_train <- df_frontier[, c("Risk (standard deviation)", "ROI target")]
+# df_plot_test <- df_frontier[, c("Risk backtest", "ROI backtest")]
+# df_plot_train$Type = "Efficient frontier"
+# df_plot_test$Type = "Backtest"
+# colnames(df_plot_train)[1:2] <- c("Risk (standard deviation)", "ROI")
+# colnames(df_plot_test)[1:2] <- c("Risk (standard deviation)", "ROI")
+# df_plot <- rbind(df_plot_train, df_plot_test)
+# 
+# gg <- ggplot(df_plot, aes(x = `Risk (standard deviation)`, y = ROI, group = Type, color = Type))
+# gg <- gg + geom_point()
+# gg <- gg + scale_color_manual(values = c("blue", "black"))
+# gg <- gg + labs(title = "Backtest")
+# gg <- gg + theme(axis.title.y = element_blank(),
+#                  legend.title = element_blank(),
+#                  legend.position = "bottom",
+#                  plot.title = element_text(face = "bold", size = 10))
+# gg_backtest <- gg
+
+
+  
+
+
 
 ```
 
-The portfolio optimization is performed using the utility approach to force positive budget shares in Figure \reg{fig:...}.
 
 
-```{r}
+```{r, fig.show='hold', fig.width=6, fig.height=3, fig.align='center', fig.cap="\\label{fig:sigPortfolio_U}\\textit{(Left) }Optimal frontier and budget shares for the signals portfolio, using the utility approach to account for diminishing returns and to force positive budget shares. \\textit{(Right) } Backtest of the frontier."}
 #--------------------------------------------------------------
 utility_interpretation <- T
 #--------------------------------------------------------------
-Rtarg_limits <- c(10^(-9), 1.5)
+Rtarg_limits <- c(10^(-9), 1.3)
 #--------------------------------------------------------------
 fun_env_getOptFront[["Rtarg_limits"]] <- Rtarg_limits
 fun_env_getOptFront[["utility_interpretation"]] <- utility_interpretation
@@ -1848,31 +1968,32 @@ list_out <- get_optimal_frontier(covmat_train, mat_nab,
 df_wStar <- list_out[[1]]
 df_frontier <- list_out[[2]]
 #--------------------------------------------------------------
-gg_frontier <- plot_frontier(df_frontier, graph_on = F)
+list_graph_options[["fig_title"]] <- "Efficient frontier and budget shares"
+gg_frontier <- plot_frontier(df_frontier, ROI_basis = T, list_graph_options, graph_on = F)
 #--------------------------------------------------------------
 # df_wStar_agg <- df_wStar %>% gather_("Item", "Budget Share", colnames(df_wStar)[-1])
 # df_wStar_agg <- merge(df_wStar_agg, df_match_group, by = "Item")
-# df_wStar_agg <- df_wStar_agg %>% group_by(`Risk (variance)`, Group) %>% summarise(`Budget Share` = sum(`Budget Share`)) %>% spread(Group, `Budget Share`)
+# df_wStar_agg <- df_wStar_agg %>% group_by(`Risk (standard deviation)`, Group) %>% summarise(`Budget Share` = sum(`Budget Share`)) %>% spread(Group, `Budget Share`)
 #gg_budget <- plot_budgetShares(df_wStar_agg, group_small = NULL, color_vec = group_colors, graph_on = F, list_graph_options = NULL)
 n_items <- ncol(df_wStar) - 1
-bag_of_colors <- randomcoloR::distinctColorPalette(k = 5 * n_items)
-color_vec_mv_eg <- sample(bag_of_colors, n_items)
-gg_budget <- plot_budgetShares(df_wStar, color_vec = color_vec_mv_eg, graph_on = F, list_graph_options = NULL)
+gg_budget <- plot_budgetShares(df_wStar, color_vec = color_vec_mv_sigs_eg, graph_on = F, list_graph_options = NULL)
 #--------------------------------------------------------------
-df_plot_train <- df_frontier[, c("Risk (variance)", "Return target")]
+df_plot_train <- df_frontier[, c("Risk (standard deviation)", "Return target")]
 df_plot_test <- df_frontier[, c("Risk backtest", "Return backtest")]
 df_plot_train$Type = "Optimal solution"
 df_plot_test$Type = "Backtest"
-colnames(df_plot_train)[1:2] <- c("Risk (variance)", "Return")
-colnames(df_plot_test)[1:2] <- c("Risk (variance)", "Return")
+colnames(df_plot_train)[1:2] <- c("Risk (standard deviation)", "Return")
+colnames(df_plot_test)[1:2] <- c("Risk (standard deviation)", "Return")
 df_plot <- rbind(df_plot_train, df_plot_test)
 
-gg <- ggplot(df_plot, aes(x = `Risk (variance)`, y = Return, group = Type, color = Type))
+gg <- ggplot(df_plot, aes(x = `Risk (standard deviation)`, y = Return, group = Type, color = Type))
 gg <- gg + geom_point()
 gg <- gg + scale_color_manual(values = c("blue", "black"))
+gg <- gg + labs(title = "Backtest")
 gg <- gg + theme(axis.title.y = element_blank(),
                  legend.title = element_blank(),
-                 legend.position = "bottom")
+                 legend.position = "bottom",
+                 plot.title = element_text(face = "bold", size = 10))
 gg_backtest <- gg
 #--------------------------------------------------------------
 (gg_frontier + gg_budget + plot_layout(ncol = 1)) | gg_backtest
@@ -1880,666 +2001,11 @@ gg_backtest <- gg
 
 ```
 
-...rotating signals
-
-
-```{r}  
-  mat_Lrot <- varimax(mat_L)[[1]]
-  mat_Lrot <- matrix(as.numeric(mat_Lrot),
-                          attributes(mat_Lrot)$dim,
-                          dimnames = attributes(mat_Lrot)$dimnames)
-  
-  mat_Prot <- varimax(mat_P)[[1]]
-  mat_Prot <- matrix(as.numeric(mat_Prot),
-                          attributes(mat_Prot)$dim,
-                          dimnames = attributes(mat_Prot)$dimnames)
-
-mat_Lrot_sig <- mat_Lrot[, 1:n_signals]
-mat_Lrot_sig <- mat_Lrot[, 1:n_signals]
-mat_L_sig <- mat_L[, 1:n_signals]
-#(mat_L_sig %*% t(mat_L_sig)) / covmat
-
-
-
-
-  
-
-
-```
-
-## Rotations
-- It is often instructive to apply an orthogonal rotation $R$ to the correlation matrix $L$ in order to further clarify the interpretation of signals. Let this rotated matrix be denoted $L_{\circlearrowleft}$.
+In Figure \ref{fig:assetWgts}, the signal budget shares are disaggregated down to individual portfolio item shares using equation \ref{eq:wsig_to_witem}.
 $$
-\begin{equation}
-L_{\circlearrowleft} = LR \:\: ; \:\:\: R'R = I
-\end{equation}
+\mathbf{w}_{p}^* = L D(\mathbf{\nu})^{-1} \mathbf{w}_{s}^* \:\:\: ;\:\: \nu = L'\mathbf{1}
 $$
 
-In Figure \ref{fig:XSCorrBarchart_varimaxRot}, a certain kind of orthogonal rotation called a varimax rotation is applied to $K_{XS}$. [Refined interpretation...maybe do the expanded example with tons of assets. "To offer some idea of the reach of this method, consider an expanded example,..."]
-
-Reverse engineering the covariance matrix from rotated loadings - The 
-
-Note that orthogonal rotations of the loadings do not alter $\Sigma_{XX}$.
-
-\begin{equation}
-
-L_{\circlearrowleft}L_{\circlearrowleft} = LR'RL' = LL'
-
-\end{equation}
-
-
-
-
-
-
-
-Orthogonal rotations of the loadings do not alter the variables covariance matrix (equation \ref{eq:Sigma_invar}). The 
-
-\begin{equation}
-\Sigma = L_{\circlearrowleft} L_{\circlearrowleft}' = L R'R L' = L L' = PUP'
-\label{eq:Sigma_invar}
-\end{equation}
-
-
-This is true regardless of whether $R$ is a varimax rotation, or some other kind of rotation. The important thing is that $R$ is orthogonal.
-
-
-$$
-\begin{equation}
-\tilde{\Sigma} = L_{\circlearrowleft}' L_{\circlearrowleft}
-\end{equation}
-$$
-
-Note that $\Sigma$ will be the same regardless of $R$. On the other hand, $\tilde{\Sigma}$ changes with $R$.
-
-
-
-
-
-
-
-
-
-
-
-
-
-When interpreting the signals, an orthogonal rotation is sometimes applied to clarify the loadings.
-
-
-In the example presented here, a special kind of orthogonal rotation called a varimax rotation is used. Varimax rotations are useful for clarifying the interpretation of the loadings matrix.
-
-
-$$
-\begin{equation}
-\Sigma = L_{\circlearrowleft} L_{\circlearrowleft}'
-\end{equation}
-$$
-
-This is true regardless of whether $R$ is a varimax rotation, or some other kind of rotation. The important thing is that $R$ is orthogonal.
-
-
-$$
-\begin{equation}
-\tilde{\Sigma} = L_{\circlearrowleft}' L_{\circlearrowleft}
-\end{equation}
-$$
-
-Note that $\Sigma$ will be the same regardless of $R$. On the other hand, $\tilde{\Sigma}$ changes with $R$.
-
-
-
-In Figure \ref{fig:eigDens}, a density plot of the correlation matrix eigenvalues is compared against one of eigenvalues derived from a random matrix. In this plot, it is evident that most eigenvalues are small and cannot be distinguished from noise, but six of them extend beyond the random matrix eigenvalue density plot. These correspond to the eigenvectors that can be meaningfully distinguished from noise.
-
-```{r, fig.show = 'hold', fig.width=5, fig.height=3, fig.align='center', fig.cap="\\label{fig:eigDens}Eigenvalue density plots for the financial data correlation matrix and a\ncorrelation matrix of a random dataset of the same dimensions.", echo=FALSE}
-
-#=======================================================================
-# Resources:
-# Correlation matrices:
-# http://www.sthda.com/english/wiki/correlation-matrix-a-quick-start-guide-to-analyze-format-and-visualize-a-correlation-matrix-using-r-software
-# https://cran.r-project.org/web/packages/corrplot/vignettes/corrplot-intro.html
-#=======================================================================
-# Define functions
-#=======================================================================
-  # res <- FactoMineR::PCA(mat_pctDiff_in, scale.unit = F, ncp = ncol(mat_pctDiff_in), graph = F)
-  # eigvals <- as.data.frame(res$eig)$eigenvalue
-  # eigval_max <- max(eigvals)
-  # mat_loads <- res$var$coord
-  # mat_eigvecs <- mat_loads %*% diag(1 / sqrt(eigvals))
-
-signals_from_noise <- function(mat_pctDiff_in){
-  mat_pctDiff_in <- mat_pctDiff_train_mv
-out_svd <- svd(scale(mat_pctDiff_in, scale = F))
-#out_svd <- svd(scale(mat_pctDiff_in, scale = F))
-sing_values <- out_svd$d
-n_obs <- nrow(mat_pctDiff_in)
-eig_values <- sing_values^2 / n_obs
-mat_P <- out_svd$v
-if(mean(mat_P[, 1]) < 0){mat_P <- -mat_P}
-#covmat <- cor(mat_pctDiff_in)
-#eig_values[1:4] / eigen(covmat)$values[1:4]
-#t(mat_P) %*% eigen(covmat)$vectors
-mat_L <- (mat_P %*% diag(sing_values)) / sqrt(n_obs)
-# res <- FactoMineR::PCA(mat_pctDiff_in, scale.unit = F, ncp = ncol(mat_pctDiff_in), graph = F)
-# mat_L_FactoMiner <- res$var$coord
-# mat_L / mat_L_FactoMiner
-  mat_Lrot <- varimax(mat_L)[[1]]
-  mat_Lrot <- matrix(as.numeric(mat_Lrot),
-                          attributes(mat_Lrot)$dim,
-                          dimnames = attributes(mat_Lrot)$dimnames)
-  
-  mat_Prot <- varimax(mat_P)[[1]]
-  mat_Prot <- matrix(as.numeric(mat_Prot),
-                          attributes(mat_Prot)$dim,
-                          dimnames = attributes(mat_Prot)$dimnames)
-
-n_signals <- 5
-mat_Lrot_sig <- mat_Lrot[, 1:n_signals]
-mat_P_sig <- mat_P[, 1:n_signals]
-mat_S <- mat_pctDiff_in %*% mat_P_sig
-#mat_S <- mat_pctDiff_in %*% mat_Lrot[, 1:n_signals]
-mat_Lrot_sig <- mat_Lrot[, 1:n_signals]
-mat_L_sig <- mat_L[, 1:n_signals]
-#(mat_L_sig %*% t(mat_L_sig)) / covmat
-
-list_out <- list(mat_S, mat_Lrot_sig)
-return(list_out)
-}
-
-
-
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-
-# Plot signals (against average )
-  facet_ncol <- 1
-  ts_avg <- rowMeans(mat_pctDiff_in)
-  date_vec <- row.names(mat_pctDiff_in)
-  df_plot1 <- data.frame(Date = date_vec, ts_avg)
-  df_plot2 <- data.frame(Date = date_vec, mat_S)
-  df_plot1$Date <- factor(format(df_plot1$Date, format = "%y-%m-%d%"), ordered = T)
-  df_plot2$Date <- factor(format(df_plot2$Date, format = "%y-%m-%d%"), ordered = T)
-  xAxis_labels <- df_plot1$Date[seq(1, nrow(df_plot1), length.out = 5)]
-  signal_id <- paste("Signal", c(1:n_signals))
-  colnames(df_plot2)[2:(n_signals + 1)] <- signal_id
-  gathercols <- signal_id
-  df_plot2 <- df_plot2 %>% gather_("Signal", "Value", gathercols)
-  gg <- ggplot()
-  gg <- gg + geom_line(data = df_plot1, aes(x = Date, y = ts_avg, group = 1), color = "orange", lwd = 2)
-  gg <- gg + geom_line(data = df_plot2, aes(x = Date, y = Value, group = 1))
-  gg <- gg + scale_x_discrete(breaks = xAxis_labels)
-  gg <- gg + facet_wrap(~ Signal, ncol = facet_ncol)
-  gg <- gg + theme(axis.title.y = element_blank(),
-                   axis.title.x = element_blank(),
-                   axis.text.x = element_text(size = 9),
-                   strip.text = element_text(size = 9)
-                   #plot.caption = element_text(size = 10, hjust = 0)
-  )
-  #gg <- gg + labs(caption = fig_title)
-  print(gg)
-
-  
-#=======================================================================
-interpret_loadings <- function(mat_Lrot_sig, fun_env = NULL){
-  #---------------------------------------------------------
-  if(is.null(fun_env)){
-    group_info = NULL
-    signal_names = NULL
-    group_colors = NULL
-    fig_title = "Each item's contribution to each signal"
-  }else{
-    group_info = fun_env[[1]]
-    signal_names = fun_env[[2]]
-    group_colors = fun_env[[3]]
-    fig_title = fun_env[[4]]
-  }
-  #---------------------------------------------------------
-  # Handle case where there's just 1 signal
-  # (In such cases, mat_Lrot_sig will be of class "numeric")
-  if(class(mat_Lrot_sig) == "numeric"){
-    n_items <- length(mat_Lrot_sig)
-    n_signals <- 1
-    varNames_ordered <- names(mat_Lrot_sig)
-  }
-  if(class(mat_Lrot_sig) == "matrix"){
-    n_items <- nrow(mat_Lrot_sig)
-    n_signals <- ncol(mat_Lrot_sig)
-    varNames_ordered <- row.names(mat_Lrot_sig)
-  }
-  #------------------------------------------------------------
-  # Plot loadings barcharts
-  df_plot <- data.frame(id = colnames(mat_pctDiff_in), mat_Lrot_sig)
-  #--------------
-  # Name the signals, if names provided
-  if(is.null(signal_names)){
-    signal_id <- paste("Signal", c(1:n_signals))
-  }else{
-    signal_id <- signal_names
-  }
-  #--------------
-  colnames(df_plot)[2:(n_signals + 1)] <- signal_id
-  gathercols <- as.character(signal_id) 
-  df_plot <- gather_(df_plot, "Signal", "Loading", gathercols)
-  df_plot <- transform(df_plot,
-                       Signal = factor(Signal, levels = gathercols))
-  #--------------
-  # Group the vars if group info is provided
-  if(!is.null(group_info)){
-    list_groups <- group_info[[1]]
-    group_names <- group_info[[2]]
-    group_vec <- rep(NA, n_items)
-    for(i in 1:length(list_groups)){
-      this_group_vec <- list_groups[[i]]
-      this_group_name <- group_names[i]
-      group_vec[which(varNames_ordered %in% this_group_vec)] <- this_group_name
-    }
-    #--------------
-    df_plot$Type <- factor(group_vec)
-    xx <- df_plot$Type
-    df_plot$id <- factor(df_plot$id, levels = unique(df_plot$id[order(xx)]))
-    gg <- ggplot(df_plot, aes(x = id, y = Loading, fill = Type))
-    gg <- gg + scale_fill_manual(values = group_colors)
-  }else{
-    gg <- ggplot(df_plot, aes(x = id, y = Loading))
-  }
-  gg <- gg + geom_bar(stat = "identity", color = "black", position = "dodge")
-  gg <- gg + facet_wrap(~ Signal, nrow = 1)
-  gg <- gg + theme(axis.text.y = element_text(size = 9),
-                   axis.text.x = element_text(size = 9),
-                   axis.title.y = element_blank(),
-                   axis.title.x = element_text(size = 9),
-                   legend.title = element_blank(),
-                   legend.text = element_text(size = 9)
-                   #plot.caption = element_text(size = 10, hjust = 0)
-  )
-  #gg <- gg + labs(caption = fig_title)
-  gg <- gg + coord_equal()
-  gg <- gg + coord_flip()
-  print(gg)
-  
-}
-#=======================================================================
-
-mat_S <- signals_from_noise(mat_pctDiff_in)
-
-
-
-
-signals_from_noise <- function(mat_pctDiff_in,
-                               fun_env = NULL){
-  
-  if(is.null(fun_env)){
-    eigenvalue_density_plot = T
-    pca_var_plot = T
-    pca_ind_plot = T
-    group_info = NULL
-    quietly = F
-  }else{
-    eigenvalue_density_plot = fun_env[[1]]
-    pca_var_plot = fun_env[[2]]
-    pca_ind_plot = fun_env[[3]]
-    group_info = fun_env[[4]]
-    quietly = fun_env[[5]]
-    
-  }
-  #---------------------------------------------------------
-  # Separate signals from noise
-  #---------------------------------------------------------
-
-  # res <- FactoMineR::PCA(mat_pctDiff_in, scale.unit = F, ncp = ncol(mat_pctDiff_in), graph = F)
-  # eigvals <- as.data.frame(res$eig)$eigenvalue
-  # eigval_max <- max(eigvals)
-  # mat_loads <- res$var$coord
-  # mat_Lrot <- varimax(mat_loads)[[1]]
-  # mat_Lrot <- matrix(as.numeric(mat_Lrot),
-  #                         attributes(mat_Lrot)$dim,
-  #                         dimnames = attributes(mat_Lrot)$dimnames)
-  
-  #---------------------------------------------------------
-  # Apply random matrix theory () to determine eigenvalue distribution of a 
-  # correlation matrix of random data.
-  n_items <- ncol(mat_pctDiff_in)
-  Q <- n_obs / n_items
-  s_sq <- 1 - eigval_max / n_items
-  #s_sq <- 1
-  eigvals_rand_max <- s_sq * (1 + 1 / Q + 2 / sqrt(Q))
-  eigvals_rand_min <- s_sq * (1 + 1 / Q - 2 / sqrt(Q))
-  eigvals_rand <- seq(eigvals_rand_min, eigvals_rand_max, length.out = n_items)
-  eigvals_rand_density <- Q / (2 * pi * s_sq) * sqrt((eigvals_rand_max - eigvals_rand) * (eigvals_rand - eigvals_rand_min)) / eigvals_rand
-  #---------------------------------------------------------
-  # Plot eigenvalue density vs. random matrix eigenvalue density
-  df_plot_data <- data.frame(Eigenvalue = eig_values, Type = "Data")
-  df_plot_rand <- data.frame(Eigenvalue = eigvals_rand, Type = "Random")
-  df_plot <- rbind(df_plot_data, df_plot_rand)
-  
-  if(eigenvalue_density_plot){
-    #if(is.null(fig_title_eigDens)){fig_title_eigDens <- "Eigenvalue density"}
-    gg <- ggplot(df_plot, aes(x = Eigenvalue, fill = Type))
-    gg <- gg + geom_density(alpha = .3)
-    gg <- gg + theme(axis.title.y = element_blank(),
-                     axis.text.y = element_blank(),
-                     axis.title.x = element_text(size = 9),
-                     #plot.caption = element_text(size = 9, hjust = 0),
-                     legend.title = element_blank(),
-                     legend.text = element_text(size = 9))
-    #gg <- gg + labs(caption = fig_title_eigDens)
-    print(gg)
-    
-    # gg <- ggplot()
-    # gg <- gg + geom_density(data = df_plot, aes(x = Eigenvalues, color = "Correlation Matrix"), lwd = 1.1)
-    # gg <- gg + geom_line(data = data.frame(x = eigvals_rand, y = eigvals_rand_density), aes(x = x, y = y, color = "Random matrix"), lwd = 1.1)
-    # gg <- gg + scale_colour_manual(name = "density", 
-    #                                values = c(`Correlation Matrix` = "blue", `Random matrix` = "magenta"))
-  }
-  #---------------------------------------------------------
-  # Which data eigenvalues can be meaningfully distinguished from noise?
-  ind_deviating_from_noise <- which(eig_values > eigvals_rand_max) # (eigvals_rand_max + 5 * 10^-1))
-  #---------------------------------------------------------
-  # Extract signal loadings matrix from noise
-  mat_loads_sig <- mat_loads[, ind_deviating_from_noise]
-  eigvals_sig <- eigvals[ind_deviating_from_noise]
-  mat_Lrot_sig <- mat_Lrot[, ind_deviating_from_noise]
-  #---------------------------------------------------------
-  n_signals <- length(eigvals_sig)
-  if(!quietly){print(paste("Number of signals: ", n_signals))}
-  #---------------------------------------------------------
-  # Get dimensionally reduced version of original input data
-  mat_eigvecs_sig <- mat_eigvecs[, ind_deviating_from_noise]
-  mat_inData_sig <- mat_pctDiff %*% mat_eigvecs_sig
-  if(n_signals == 1){
-    mat_inData_sig <- mat_inData_sig / eigvals_sig
-  }else{
-    mat_inData_sig <- mat_inData_sig %*% diag(1 / eigvals_sig)
-  }
-  #---------------------------------------------------------
-  # Set sign of eigenvectors such that they
-  # best conform to the input time series
-  inData_avg <- rowMeans(mat_pctDiff)
-  # if(n_signals == 1){
-  #   mse <- mean((mat_inData_sig - inData_avg)^2)
-  #   mse_neg <- mean((-mat_inData_sig - inData_avg)^2)
-  #   if(mse_neg < mse){
-  #     mat_eigvecs <- -mat_eigvecs
-  #     mat_inData_sig <- -mat_inData_sig
-  #     mat_Lrot_sig <- -mat_Lrot_sig
-  #   }
-  # }else{
-  #   for(i in 1:n_signals){
-  #     mse <- mean((mat_inData_sig[, i] - inData_avg)^2)
-  #     mse_neg <- mean((-mat_inData_sig[, i] - inData_avg)^2)
-  #     if(mse_neg < mse){
-  #       mat_eigvecs_sig[, i] <- -mat_eigvecs_sig[, i]
-  #       mat_inData_sig[, i] <- -mat_inData_sig[, i]
-  #       mat_Lrot_sig[, i] <- -mat_Lrot_sig[, i]
-  #     }
-  #   }
-  #   
-  # }
-  
-  #---------------------------------------------------------
-  # PCA cluster plots to examine natural grouping in the data
-  #---------------------------------------------------------
-  # By variable
-  if(pca_var_plot){
-    if(n_signals == 1){
-      print("Only 1 signal, can't do PCA plots.")
-    }else{
-      gg <- factoextra::fviz_pca_var(res, habillage = factor(group_vec))
-      print(gg)
-    }
-    
-  }
-  #---------------------------------------------------------
-  # By individual
-  if(pca_ind_plot){
-    if(n_signals == 1){
-      print("Only 1 signal, can't do PCA plots.")
-    }else{
-      res <- FactoMineR::PCA(t(mat_pctDiff), graph = F)
-      gg <- factoextra::fviz_pca_ind(res, habillage = factor(group_vec), addEllipses = T)
-      print(gg)
-    }
-    
-  }
-  #---------------------------------------------------------
-  # Cluster plot using Mclust()
-  # mc <- mclust::Mclust(t(mat_pctDiff))
-  # summary(mc)
-  # View(mc$classification)
-  # factoextra::fviz_cluster(mc, frame.type = "norm", geom = "text")
-  #---------------------------------------------------------
-  
-  
-  list_out <- list(mat_loads_sig, mat_Lrot_sig, mat_loads, mat_Lrot, mat_inData_sig, eigvals_sig, mat_eigvecs_sig, eigvals, mat_eigvecs)
-  return(list_out)
-}
-#=======================================================================
-plot_signals_against_avg <- function(mat_inData_sig, mat_inData,
-                                     fig_title = NULL, facet_ncol = 1){
-  # (mat_inData = mat_pctDiff)
-  #---------------------------------------------------------
-  # Dimensionally reduced plot of data (signal plots)
-  #---------------------------------------------------------
-  n_signals <- ncol(mat_inData_sig)
-  #if(is.null(fig_title)){fig_title <- "Signals"}
-  #---------------------------------------------------------
-  # Plot signal data against average
-  inData_avg <- rowMeans(mat_inData)
-  date_vec <- row.names(mat_inData)
-  df_plot1 <- data.frame(Date = date_vec, inData_avg)
-  df_plot2 <- data.frame(Date = date_vec, mat_inData_sig)
-  df_plot1$Date <- factor(format(df_plot1$Date, format = "%y-%m-%d%"), ordered = T)
-  df_plot2$Date <- factor(format(df_plot2$Date, format = "%y-%m-%d%"), ordered = T)
-  xAxis_labels <- df_plot1$Date[seq(1, nrow(df_plot1), length.out = 5)]
-  signal_id <- paste("Signal", c(1:n_signals))
-  colnames(df_plot2)[2:(n_signals + 1)] <- signal_id
-  gathercols <- signal_id
-  df_plot2 <- df_plot2 %>% gather_("Signal", "Value", gathercols)
-  gg <- ggplot()
-  gg <- gg + geom_line(data = df_plot1, aes(x = Date, y = inData_avg, group = 1), color = "orange", lwd = 2)
-  gg <- gg + geom_line(data = df_plot2, aes(x = Date, y = Value, group = 1))
-  gg <- gg + scale_x_discrete(breaks = xAxis_labels)
-  gg <- gg + facet_wrap(~ Signal, ncol = facet_ncol)
-  gg <- gg + theme(axis.title.y = element_blank(),
-                   axis.title.x = element_blank(),
-                   axis.text.x = element_text(size = 9),
-                   strip.text = element_text(size = 9)
-                   #plot.caption = element_text(size = 10, hjust = 0)
-  )
-  #gg <- gg + labs(caption = fig_title)
-  print(gg)
-  
-  
-}
-#=======================================================================
-#=======================================================================
-# End function definition
-#=======================================================================
-#=======================================================================
-
-
-
-fun_env = list(eigenvalue_density_plot = T,
-               pca_var_plot = F,
-               pca_ind_plot = F,
-               group_info,
-               quietly = T)
-# this_fig_title <- "Figure 4: Eigenvalue density plots for the financial data correlation matrix and a\ncorrelation matrix of a random dataset of the same dimensions."
-this_fig_title <- NULL
-list_out <- signals_from_noise(mat_pctDiff_train, fig_title_eigDens = this_fig_title, fun_env)
-# list_out <- list(mat_loads_sig, mat_Lrot_sig, mat_loads, mat_Lrot, mat_inData_sig, eigvals_sig, mat_eigvecs_sig, eigvals, mat_eigvecs)
-mat_loads_sig_train <- list_out[[1]]
-mat_Lrot_sig_train <- list_out[[2]]
-mat_pctDiff_sig_train <- list_out[[5]]
-mat_eigvecs_sig_train <- list_out[[7]]
-
-```
-
-Six signals are then constructed from these eigenvectors and plotted in Figure \ref{fig:sigs1}. The data set average ($\bar{x}$) is included in these plots as an orienting reference (thick yellow line).
-
-Note how Signal 1 hews closely to the average, while the other signals capture movements in the data placing upward or downward pressure on the average.
-
-```{r, fig.show = 'hold', fig.width=6, fig.height=9, fig.cap="\\label{fig:sigs1}Signals (black lines) plotted against the average (yellow line), train data.", echo=FALSE}
-
-# this_fig_title <- "Figure 5: Signals (black lines) plotted against the average (yellow line), train data"
-this_fig_title <- NULL
-plot_signals_against_avg(mat_pctDiff_sig_train, mat_pctDiff_train,
-                         fig_title = this_fig_title,
-                         facet_ncol = 1)
-
-```
-
-
-But what do these signals represent in concrete terms? Figure \ref{fig:sigs1} already offers insight into Signal 1, but what about the other signals? Do they track closely to particular market sectors?
-
-Turning to the signal loadings, we see that the first signal is highly correlated with a broad range of items, consistent with what is observed in Figure \ref{fig:sigs1}. The second, third, and fourth signals are highly correlated with specific markets (precious metals, forex trading, and US Treasury bonds, respectively). This begins to offer insight into the concrete character of these signals. However, there remains considerable fuzziness in the picture. There is considerable overlap between signals, with many items loading moderately onto several different signals at once. The interpretation of the fifth and sixth signals is particularly blurry.
-
-\pagebreak
-
-```{r, fig.show='hold', fig.width=10, fig.height=7, fig.align='center', fig.cap="\\label{fig:loads}Signal loadings, train data.", echo=FALSE}
-
-# signal_names <- c("US / Emerg. Markets,\nEnergy, Blockchain", "Precious metals", "FOREX", "US Bonds", "Agriculture", "Industrial metals")
-signal_names <- NULL
-fun_env <- list(group_info, signal_names, group_colors)
-#this_fig_title <- "Figure 6: Signal loadings, train data"
-this_fig_title <- NULL
-interpret_loadings(mat_loads_sig_train, fig_title = this_fig_title, fun_env)
-
-```
-
-
-```{r, fig.show='hold', fig.width=10, fig.height=7, fig.align='center', fig.cap="\\label{fig:loadsRot}Rotated signal loadings, train data.", echo=FALSE}
-
-#signal_names <- c("US / Emerg. Markets,\nEnergy, Blockchain", "Precious metals", "FOREX", "US Bonds", "Agriculture", "Industrial metals")
-signal_names <- NULL
-fun_env <- list(group_info, signal_names, group_colors)
-interpret_loadings(mat_Lrot_sig_train, fun_env)
-
-```
-
-To further aid in analysis, I apply an orthogonal varimax rotation to the loadings matrix (Figure \ref{fig:loadsRot}). The rotated loadings ($\tilde{L}_{\circlearrowright}$) greatly clarify the picture, removing the overlap between signals. Even Signals 5 and 6 have a clear interpretation now. Signal 5 is highly correlated with agriculture, while Signal 6 tracks industrial metals---in contradistinction to Signal 2, which tracks precious metals.
-
-These loadings vary depending on the time period and size of the time window. However, a plot of the signals against their respective highest loading items suggests that signal correlations with some items are persistent over time (Figure \ref{fig:sigs2}).
-
-```{r, fig.show='hold', fig.width=10, fig.height=12, fig.align='center', fig.cap="\\label{fig:sigs2}Signals plotted against their respective highest loading items, train data.", echo=FALSE}
-#=======================================================================
-plot_signals_against_associated_items <- function(mat_Lrot_sig,
-                                                  mat_pctDiff,
-                                                  mat_pctDiff_sig,
-                                                  load_threshold = 0.5,
-                                                  n_display_max = 5,
-                                                  fig_title = NULL){
-  #---------------------------------------------------------
-  #if(is.null(fig_title)){fig_title = "Signals plotted against their associated portfolio items"}
-  #---------------------------------------------------------
-  # Handle case where there's just 1 signal
-  # (In such cases, mat_Lrot_sig will be of class "numeric")
-  if(class(mat_Lrot_sig) == "numeric"){
-    n_signals <- 1
-  }
-  if(class(mat_Lrot_sig) == "matrix"){
-    n_signals <- ncol(mat_Lrot_sig)
-  }
-  #------------------------------------------------------------
-  date_vec <- row.names(mat_pctDiff)
-  xAxis_labels <- date_vec[seq(1, nrow(mat_pctDiff), length.out = 5)]
-  list_gg <- list()
-  for(i in 1:n_signals){
-    this_loadvec <- mat_Lrot_sig[, i]
-    ind_tracks <- which(this_loadvec >= load_threshold)
-    #ind_tracks <- which(this_loadvec >= load_threshold | this_loadvec <= -load_threshold)
-    if(length(ind_tracks) == 0){
-      ind_tracks <- which(this_loadvec == max(this_loadvec))
-    }
-    mat_pctDiff_tracks <- mat_pctDiff[, ind_tracks]
-    #------------
-    n_display <- length(ind_tracks)
-    if(n_display > n_display_max){
-      n_to_omit <- n_display - n_display_max
-      random_omission <- sample(1:n_display, n_to_omit)
-      mat_pctDiff_tracks <- mat_pctDiff_tracks[, -random_omission]
-    }
-    #------------
-    df_plot_sig <- data.frame(Date = date_vec, Value = mat_pctDiff_sig[, i])
-    df_plot_tracks <- data.frame(Date = date_vec, mat_pctDiff_tracks)
-    if(ncol(df_plot_tracks) > 2){
-      gathercols <- colnames(mat_pctDiff_tracks)
-      colnames(df_plot_tracks)[-1] <- gathercols
-      df_plot_tracks <- df_plot_tracks %>% gather_("ts", "Value", gathercols)
-    }else{
-      colnames(df_plot_tracks)[-1] <- "Value"
-      df_plot_tracks$ts <- colnames(mat_pctDiff)[ind_tracks]
-    }
-    #-----
-    gg <- ggplot()
-    gg <- gg + geom_line(data = df_plot_sig, aes(x = Date, y = Value, group = 1), color = "grey", lwd = 1.3)
-    gg <- gg + geom_line(data = df_plot_tracks, aes(x = Date, y = Value, group = ts, color = ts))
-    gg <- gg + scale_x_discrete(breaks = xAxis_labels)
-    if(i == n_signals){
-      gg <- gg + labs(title = paste("Signal", i), caption = fig_title)
-      gg <- gg + theme(#axis.text.x = element_text(angle = 60, hjust = 1),
-        axis.title.x = element_blank(),
-        axis.title.y = element_blank(),
-        legend.title = element_blank(),
-        plot.title = element_text(size = 9)
-        #plot.caption = element_text(hjust = 0, size = 10)
-      )
-    }else{
-      gg <- gg + labs(title = paste("Signal", i))
-      gg <- gg + theme(axis.text.x = element_blank(),
-                       axis.title.x = element_blank(),
-                       axis.title.y = element_blank(),
-                       legend.title = element_blank(),
-                       plot.title = element_text(size = 9))
-    }
-    
-    list_gg[[i]] <- gg
-    
-  }
-  
-  gg_all <- wrap_plots(list_gg) + plot_layout(ncol = 1)
-  print(gg_all)
-  
-  
-}
-#=======================================================================
-#this_fig_title <- "Figure 8: Signals plotted with their respective highest loading items, train data"
-this_fig_title <- NULL
-# plot_signals_against_associated_items(mat_Lrot_sig_train,
-#                                       mat_pctDiff_train,
-#                                       mat_pctDiff_sig_train,
-#                                       load_threshold = 0.5,
-#                                       n_display_max = 4,
-#                                       fig_title = this_fig_title)
-
-plot_signals_against_associated_items(mat_Lrot[, 1:n_signals],
-                                      mat_pctDiff_in,
-                                      mat_S,
-                                      load_threshold = 0.5,
-                                      n_display_max = 4,
-                                      fig_title = this_fig_title)
-
-
-```
 
 
 ## Toy example
@@ -2894,7 +2360,7 @@ mat_wStar_prop <- exp(mat_wStar_prop)
 mat_wStar_prop <- mat_wStar_prop %*% diag(1 / colSums(mat_wStar_prop))
 # mat_wStar_prop <- mat_wStar_prop %*% diag(1 / colSums(mat_wStar_prop))
 #colSums(mat_wStar_prop)
-mat_wStar_prop <- cbind(df_wStar$`Risk (variance)`, t(mat_wStar_prop))
+mat_wStar_prop <- cbind(df_wStar$`Risk (standard deviation)`, t(mat_wStar_prop))
 colnames(mat_wStar_prop) <- c(colnames(df_wStar)[1], rownames(mat_Lrot_normd))
 df_wStar_prop <- as.data.frame(mat_wStar_prop)
 
@@ -3032,80 +2498,12 @@ gg_wgts | (list_gg[[1]] / list_gg[[2]] / list_gg[[3]] / list_gg[[4]]) | plot_lay
 
 
 
-
-Since much of the inaccuracy of the MV frontier is attributable to noise in the data, it stands to reason that the optimal frontier of a portfolio containing only signals---i.e. the significant information in the data, purged of noise---will be more accurate. But is this true? The frontier and budget shares of the signals portfolio are displayed on the left side of in Figure \ref{fig:mvUSig}. The optimal frontier for such a portfolio is unappealing compared to the conventional frontier, but the backtest (right side of Figure \ref{fig:mvUSig}) reveals that the solutions yield a much better performance, at least over this particular dataset. More experimentation is required, of course, before this can be confirmed or rejected as a general rule. Note that a signals portfolio also has the benefit of reducing transaction costs. Were banks or other financial institutions to create products (along the lines of an ETF, for example) that track such signals, investors could then invest in just a handful of signals instead of the potentially several dozen securities that the signals are correlated with.
-
-
-```{r, fig.show='hold', fig.width=10, fig.height=4, fig.align='center', fig.cap="\\label{fig:mvUSig}\\textit{(Left)} Optimal frontier and budget shares, signals approach (using utility functions). The signals are named in accordance with their respective highest loading items, and numbered in descending order of their respective eigenvalues. \\textit{(Right)} Backtest of the optimal frontier.", echo=F}
-
-#=======================================================================
-# Signals correlation matrix risk-reward frontier
-n_signals <- ncol(mat_loads_sig_train)
-nab_C <- rep(1, n_signals)
-#------------------------------------
-mat_pctDiff_sig_test <- mat_pctDiff_test %*% mat_eigvecs_sig_train
-#------------------------------------
-# Correlation matrix
-cormat <- cor(mat_pctDiff_sig_train)
-cormat_test <- round(cor(mat_pctDiff_sig_test), 7)
-# covmat <- cov(mat_pctDiff_sig_train)
-# covmat_test <- round(cov(mat_pctDiff_sig_test), 7)
-# cormat <- Hmisc::rcorr(mat_pctDiff_sig_train)$r
-# cormat_test <- round(Hmisc::rcorr(mat_pctDiff_sig_test)$r, 7)
-#------------------------------------
-# Expected returns vector
-#nab_pctRet_train <- apply(mat_pctDiff_sig_train[ind_equal_test, ], 2, function(x) prod(1 + x)) - 1
-nab_pctRet_train <- apply(mat_pctDiff_sig_train, 2, function(x) prod(1 + x)) - 1
-nab_pctRet_test <- apply(mat_pctDiff_sig_test, 2, function(x) prod(1 + x)) - 1
-#------------------------------------
-mat_nab <- cbind(nab_pctRet_train, nab_C)
-signal_names <- c("Sig. 1: US / Emerg. Markets,\nEnergy, Blockchain", "Sig. 2: Precious metals", "Sig. 3: FOREX", "Sig. 4: US Bonds", "Sig. 5: Agriculture", "Sig. 6: Industrial metals")
-row.names(mat_nab) <- signal_names
-#------------------------------------
-fun_env <- list(n_points_on_frontier,
-                utility_interpretation = T,
-                backtest_info = list(nab_pctRet_test, cormat_test),
-                frontier_and_budget_plot = T,
-                group_info = NULL,
-                group_colors = NULL,
-                group_small = NULL)
-
-list_out <- get_optimal_frontier(cormat, mat_nab,
-                                 Rtarg_limits = c(0.1, 0.5),
-                                 fig_title = NULL,
-                                 fun_env)
-
-df_frontier <- list_out[[2]]
-df_backtest <- list_out[[3]]
-outlist_gg <- list_out[[4]]
-gg_frontier <- outlist_gg[1]
-gg_weights <- outlist_gg[2]
-#------------------------------------
-gg_backtest <- plot_frontier_wBacktest(df_frontier,
-                                       df_backtest,
-                                       fig_title = NULL)
-#------------------------------------
-(gg_frontier[[1]] / gg_weights[[1]] / plot_layout(ncol = 1)) | gg_backtest
-#https://gotellilab.github.io/GotelliLabMeetingHacks/NickGotelli/ggplotPatchwork.html
-#------------------------------------
-
-```
-
-
-
-
-
-To build intuition, I first walk through an application of MV Analysis in its native financial context using daily price data downloaded from yahoo finance, including a backtest of the optimal solutions frontier. Then, I move to an application in the AR4D context using yearly farmgate price data for staple crops downloaded from the Food and Agriculture Organization (FAO).
-<!-- The FAO price series are not long enough to conduct a backtest of the optimal frontier. [However, I extend the dataset into the future using the International Model for Policy Analysis of Agricultural Commodities and Trade (IMPACT) and conduct "future backtests" over this extension. These backtests are conducted under a variety of assumptions regarding future demographic and economic growth, as well as future emissions scenarios.] -->
-
-
 ## Separating signals from noise, identifying main assets contributing to market movements
 
 MV analysis is, in many ways, still a work in progress, with unresolved methodological issues severely limiting its usefulness even in its native financial context. In particular, covariance matrices estimated from price data tend to contain a lot of noise; and the optimal solutions then tend to diverge considerably from reality as a result of this [@michaud1989markowitz]. In my adaptation below, I propose a new approach to this problem by first dimensionally reducing the portfolio from several dozen assets to just a handful of "signals" constructed from the eigenvectors of the correlation matrix that can be meaningfully distinguished from noise.
 
 The meaningful eigenvectors are separated out from the noisy eigenvectors using an old, but little-utilized technique developed in the study of physical systems. Once signals have been isolated, their meaning is interpreted based on how much the different portfolio items load onto them. A varimax rotation of the loadings matrix turns out to be of great assistance in this task. The interpretation of the signals is then further confirmed and illustrated by constructing the signal time series and then plotting them against their respective highest loading price series. The highest loading price series are seen to track their respective signals closely.
 
-## Reverse engineering the covariance matrix
 
 
 
@@ -3115,531 +2513,6 @@ The meaningful eigenvectors are separated out from the noisy eigenvectors using 
 <!-- “The failure of reforms is attributed to the unwillingness of donors, and the World Bank leadership of the CGIAR, to take on entrenched center interests” [@mccalla2014cgiar]. Interpretation of "price" is different from the financial context. This could reflect 1) higher kcals per unit weight, 2) higher quality kcals, 3) higher demand, or 4) some combination of all of the above. -->
 
 <!-- ] -->
-
-# Method
-
-## Isolating and interpreting signals
-
-Given enough observations, a large matrix of time series data $X$ can be condensed into just a handful of "signals" that capture the majority of the movement in the data. Formally, these signals are defined
-
-\begin{equation}
-S = X \tilde{P}
-\label{eq:signalEq}
-\end{equation}
-
-where $P$ is the matrix of eigenvectors of $X'X$, and $\tilde{P}$ is this same matrix truncated to retain only the eigenvectors containing significant information---i.e. information that can meaningfully be distinguished from noise. In principle components (PC) analysis, these signals are sometimes referred to as the "PC scores".
-
-A number of different rules of thumb are often followed to determing which vectors of $P$ contain information (as opposed to noise) and should be retained. "Keep only the signals that describe 90% of the variation", for example, or "the scree test", or "keep only those with eigenvalues greater than 1". The perils of using these arbitrary cutoff rules has been well documented [@russell2002search]. Here I follow Laloux, Cizeau, Bouchaud, and Potters [-@laloux1999noise] who apply a more rigorous technique developed by physicists in the 1960s [@dehesa1983mathematical; @mehta2004random]. The technique is based on a key theorem of Random Matrix Theory that says that the distribution of the eigenvalues of any random correlation matrix is a function of the dimensions of the underlying matrix. Physicists have used this theorem to identify the important components ("collective modes") in complexly interacting systems by comparing the eigenvalue density plot of their data correlation matrix against that of a random matrix. The eigenvalues of the data correlation matrix that extend beyond the random matrix eigenvalue density can be identified as corresponding to components of the system that can be meaningfully distinguished from noise.
-
-Signal separation effectively reduces the problem of making sense of several dozen complexly interacting indicators to the more mangeable problem of making sense of just a few cross cutting trends. The next step is to interpret these cross cutting trends in concrete terms. This can be achieved by looking at a varimax rotation of the loadings corresponding to each signal. The loadings indicate how correlated each portfolio item is with each signal. Signals can then be characterized in concrete terms based on which items are most strongly associated with their movement.
-
-The signal loadings are defined
-
-\begin{equation}
-\tilde{L} = \tilde{P}\tilde{\Lambda}^{1/2}
-\end{equation}
-
-where $\Lambda$ is the diagonal matrix of eigenvalues of the correlation matrix of $X$, and where, as before, the squiggly lines on top indicate that the respective matrix is truncated to contain only the columns that can be meaningfully separated from noise.
-
-A varimax rotation is then applied to $\tilde{L}$ to throw any existing structure in data into stark relief.
-
-\begin{equation}
-\tilde{L}_{\circlearrowright} = V\tilde{L}
-\end{equation}
-
-where $\tilde{L}_{\circlearrowright}$ is the matrix of rotated loadings and $V$ is an orthogonal matrix (the varimax rotation). We are then interested in only the retained rotated loadings $\tilde{L}_{\circlearrowright}$.
-
-The components of the retained rotated loadings can then be interpreted as the magnitude and direction of the influence of each portfolio item over the average movement of the dataset. Loadings with opposite signs indicate a tradeoff, while loadings with the same sign are indicative of synergy. When there is structure in the data, the rotated loadings tend to be thematically organized, such that each loading vector corresponds to a particular aspect of the overall evolution of the system.^[Gopikrishnan, Rosenow, Plerou, and Stanley [-@gopikrishnan2001quantifying] pursued a similar line of inquiry when they looked at the components of the eigenvectors of a financial data correlation matrix. But they did not first apply a rigorous signal separation technique as I have done here. Nor did they apply a varimax rotation to clarify the interpretation.]
-
-
-
-\pagebreak
-
-# An example in the AR4D context
-
-In this section, the workflow presented above is applied to the AR4D context using FAO yearly farmgate price^["Value of Agricultural Production" divided by "Production"] data for staple crops in Sub-Saharan Africa for the years 1991-2016. Historical daily returns and period return are presented in Figure \ref{fig:hReturnsFAO}.
-
-There are, of course, many differences between the financial and AR4D contexts that must be kept in mind. First and foremost of these differences is the motivation for investment. By investing in AR4D of key staple crops, the donor aims to increase their quality and production, thereby lowering their price and making them more accessible to consumers and producers. A financial investor, on the other hand, typically has no expectation that their investment will move the price in any way, but would hope that the price goes up. Another difference is in time horizons. AR4D investment time horizons are on the order of 20-40 years, whereas the time horizon of the typical investor is on the order of 5-10 years. Data environments also differ between the two contexts. Financial data are available on a daily, even intradaily, time scale. Completeness becomes an issue when conducting analyses extending back to before 2005 or so, but given the shorter time horizons this is hardly necessary in practice. Agricultural commmodity farmgate price series, on the other hand, go back considerably further, but are typically available only on a yearly scale. Also, a whole new dimension enters into play when moving from finance to AR4D: _geography_. Where does the donor want to see impacts?
-
-
-
-<!-- , and a correlation matrix is presented in Figure \ref{fig:cormatFAO}. -->
-
-<!-- There is not enough data to conduct a backtest. However, the historical data is extended into two hypothetical futures using the IMPACT model. Both futures run out to 2050, but under different sets of assumptions regarding future demographic, economic, climatic, and greenhouse gas mitigation trends.  referred to as Shared Socioeconomic Pathways (SSPs). Each future is also run under . Backtests are then conducted over the future projection. -->
-
-<!-- The efficient frontier and budget shares are given in Figure \ref{fig:mvUtilityFAO}. The scenarios are explained in Table ...(SSP2/RCP4.5, SSP3/RCP8.5). Future backtests of the optimal portfolio under three different IMPACT projections (Figure ...) suggests that the frontier is accurate/understates under scenario x but is inaccurate/overstates under scenarios y and z. -->
-
-```{r, echo=F}
-
-#=======================================================================
-area_vec <- c("World","Low Income Food Deficit Countries", "Net Food Importing Developing Countries",
-              "Least Developed Countries", "Eastern Africa", "Western Africa", "South America",
-              "Southern Asia", "Southern Africa", "Middle Africa", "Asia",
-              "Sub-Saharan Africa")
-SSA_vec <- c("South Africa", "Africa", "Eastern Africa", "Middle Africa", "Southern Africa", "Western Africa")
-#------------------
-# Have to rename some crops because names in the production and value of production datasets differ somewhat from those in the trade dataset used above.
-cereal_vec <- c("Maize", "Wheat", "Sorghum", "Rice, paddy", "Millet")
-legumes_oilcrops_vec <- c("Beans, dry", "Cow peas, dry", "Chick peas", "Lentils", "Soybeans", "Groundnuts, with shell")
-RnT_vec <- c("Cassava", "Yams", "Potatoes", "Sweet potatoes")
-item_vec <- c(cereal_vec, legumes_oilcrops_vec, RnT_vec)
-#------------------------------------
-list_groups <- list(cereal_vec, legumes_oilcrops_vec, RnT_vec)
-group_names <- c("Cereals", "Legumes", "Roots & Tubers")
-group_info <- list(list_groups, group_names)
-#------------------------------------
-# Get total value of ag production data
-#rm(df_expVal, df_expVal_raw)
-#gc()
-df_vap_raw <- read.csv("Value_of_Production_E_All_Data.csv", stringsAsFactors = F)
-#colnames(df_vap_raw)
-df_vap_raw$Area.Code <- NULL
-df_vap_raw$Item.Code <- NULL
-df_vap_raw$Element.Code <-NULL
-u <- colnames(df_vap_raw)
-#colnames(df_vap_raw)
-df_vap_raw <- df_vap_raw[, -grep("F", u)]
-colnames(df_vap_raw)[5:ncol(df_vap_raw)] <- as.character(c(1961:(1961 + ncol(df_vap_raw) - 5)))
-df_vap_raw <- gather(df_vap_raw,Year,Value,`1961`:`2016`)
-#------------------
-#unique(df_vap_raw$Area)[grep("africa", unique(df_vap_raw$Area), ignore.case = T)]
-#unique(df_vap_raw$Item)[grep("potato", unique(df_vap_raw$Item), ignore.case = T)]
-#------------------
-df_vap <- subset(df_vap_raw, Area %in% area_vec)
-df_vap <- subset(df_vap, Item %in% item_vec)
-#unique(df_vap_raw$Element)
-element_vec <- c("Gross Production Value (current million US$)")
-df_vap <- subset(df_vap, Element %in% element_vec)
-df_vap <- subset(df_vap, Year > 1990)
-df_vap$Unit <- NULL
-df_vap$Element <- NULL
-colnames(df_vap)[4] <- "Gross Production Value\n(current million USD)"
-#------------------------------
-# Get production data
-df_prod_raw <- read.csv("Production_Crops_E_All_Data.csv", stringsAsFactors = F)
-df_prod_raw <- subset(df_prod_raw, Item.Code != 2928)
-df_prod_raw$Area.Code <- NULL
-df_prod_raw$Item.Code <- NULL
-df_prod_raw$Element.Code <-NULL
-df_prod_raw$Unit <- NULL
-u <- colnames(df_prod_raw)
-df_prod_raw <- df_prod_raw[, -grep("F", u)]
-last_yr <- (1961 + ncol(df_prod_raw) - 4)
-colnames(df_prod_raw)[4:ncol(df_prod_raw)] <- as.character(c(1961:last_yr))
-gathercols <- colnames(df_prod_raw)[4:ncol(df_prod_raw)]
-df_prod_raw <- gather_(df_prod_raw, "Year", "Value", gathercols)
-#------------------------------
-#unique(df_prod_raw$Item)[grep("beans", unique(df_prod_raw$Item), ignore.case = T)]
-df_prod <- subset(df_prod_raw, Item %in% item_vec)
-df_prod <- subset(df_prod, Area %in% area_vec)
-df_prod <- subset(df_prod, Element == "Production")
-df_prod <- subset(df_prod, Year > 1990)
-df_prod$Element <- NULL
-colnames(df_prod)[4] <- "Production"
-#-----------------------------
-# df_prod$Group <- NA
-# u <- df_prod$Item
-# df_prod$Group[which(u %in% cereal_vec)] <- "Cereals"
-# df_prod$Group[which(u %in% legumes_oilcrops_vec)] <- "Legumes"
-# df_prod$Group[which(u %in% RnT_vec)] <- "Roots & Tubers"
-# df_prod$Group <- factor(df_prod$Group)
-#-----------------------------
-df <- merge(df_vap, df_prod, by = c("Area", "Year", "Item"))
-#-----------------------------
-# Get SSA region
-df_x <- subset(df, Area %in% SSA_vec)
-df_x <- as.data.frame(df_x %>% group_by(Year, Item) %>% summarise_at(c("Gross Production Value\n(current million USD)", "Production"), sum, na.rm = T))
-df_x$Area <- "Sub-Saharan Africa"
-df_x <- df_x[, colnames(df)]
-df <- as.data.frame(rbind(df, df_x))
-df$`Gross Prod. Value / MT\n(current USD)` <- 10^6 * df$`Gross Production Value\n(current million USD)` / df$Production
-#-----------------------------
-# Get grouping info
-df$Group <- NA
-u <- df$Item
-df$Group[which(u %in% cereal_vec)] <- "Cereals"
-df$Group[which(u %in% legumes_oilcrops_vec)] <- "Legumes"
-df$Group[which(u %in% RnT_vec)] <- "Roots & Tubers"
-df$Group <- factor(df$Group)
-#
-# Create grouping info for plots (required input into functions)
-list_groups <- list(cereal_vec, legumes_oilcrops_vec, RnT_vec)
-group_names <- c("Cereals", "Legumes", "Roots & Tubers")
-group_info <- list(list_groups, group_names)
-n_groups <- length(group_names)
-#-------------------------------------------
-
-#-----------------------------
-# kcalMT_cereals_vec <- c(4.14, )
-# df_kcal <- data.frame(Item = item_vec, kcal_per_MT = kcalMT_vec)
-#-----------------------------
-# VAP Plots
-check_on_data <- F
-if(check_on_data){
-  df_plot <- subset(df, Year == 2016)
-  df_plot <- subset(df_plot, Area == "World")
-  xx <- df_plot$Group
-  df_plot$Item <- factor(df_plot$Item, levels = unique(df_plot$Item[order(xx)]))
-  df_plot$Production <- NULL
-  df_plot <- df_plot %>% gather_("Element", "Value", colnames(df_plot[5:6]))
-  gg <- ggplot(df_plot, aes(x = Item, y = Value, fill = Group))
-  gg <- gg + geom_bar(stat = "identity", position = "dodge")
-  gg <- gg + facet_wrap(~Element, scales = "free_y")
-  gg <- gg + theme(axis.title.x = element_blank(),
-                   axis.text.x = element_text(angle = 60, hjust = 1),
-                   axis.title.y = element_blank(),
-                   legend.title = element_blank())
-  #gg <- gg + coord_flip()
-  gg
-  #-----------------------------
-  df_plot <- subset(df, Year == 2016)
-  df_plot$Area[grep("Least Developed Countries", df_plot$Area)] <- "Least Developed\nCountries"
-  df_plot$Area[grep("Low Income Food Deficit Countries", df_plot$Area)] <- "Low Income\nFood Deficit Countries"
-  xx <- df_plot$Group
-  df_plot$Item <- factor(df_plot$Item, levels = unique(df_plot$Item[order(xx)]))
-  gg <- ggplot(df_plot, aes(x = Item, y = `Gross Prod. Value / MT\n(current USD)`, fill = Group))
-  gg <- gg + geom_bar(stat = "identity", position = "dodge")
-  gg <- gg + facet_wrap(~Area)
-  gg <- gg + theme(axis.title.y = element_blank(),
-                   axis.text.y = element_text(size = 7))
-  gg <- gg + coord_flip()
-  gg
-  
-  
-  df_plot <- subset(df_plot, Area == "World")
-  gg <- ggplot(df_plot, aes(x = Item, y = `Gross Prod. Value / MT\n(current USD)`, fill = Group))
-  gg <- gg + geom_bar(stat = "identity", position = "dodge")
-  #gg <- gg + facet_wrap(~Area)
-  gg <- gg + theme(axis.title.y = element_blank(),
-                   axis.text.y = element_text(size = 7))
-  #gg <- gg + coord_flip()
-  gg
-  #-----------------------------
-  df_plot <- df
-  df_plot$Year <- as.integer(df_plot$Year)
-  xx <- df_plot$Group
-  df_plot$Item <- factor(df_plot$Item, levels = unique(df_plot$Item[order(xx)]))
-  gg <- ggplot(df_plot, aes(x = Year, y = `Gross Prod. Value / MT (current USD)`, fill = Item))
-  gg <- gg + geom_area(position = "stack")
-  gg <- gg + facet_wrap(~Area)
-  gg
-  df_plot <- as.data.frame(df_plot %>% group_by(Area, Year) %>% mutate(sum_vap = sum(`Gross Prod. Value / MT (current USD)`)))
-  df_plot$`Gross Prod. Value / MT (share)` <- df_plot$`Gross Prod. Value / MT (current USD)` / df_plot$sum_vap
-  gg <- ggplot(df_plot, aes(x = Year, y = `Gross Prod. Value / MT (share)`, fill = Item))
-  gg <- gg + geom_area(position = "stack")
-  gg <- gg + facet_wrap(~Area)
-  gg
-  #-----------------------------
-  # Same on a per kcal basis
-  #.....
-}
-
-```
-
-
-
-```{r, fig.show='hold', fig.align='center', fig.width=4, fig.height=5, fig.cap="\\label{fig:hReturnsFAO}Historical daily returns and period return, Sub-Saharan Africa farmgate prices", echo=F}
-#=======================================================================
-# Examine historical returns, correlation matrix
-#-----------------------------
-# group_colors <- wesanderson::wes_palette("Moonrise1", n = n_groups, type = "continuous")
-group_colors <- RColorBrewer::brewer.pal(n = n_groups, "Dark2")
-#-----------------------------
-#"Low Income Food Deficit Countries"
-#"Net Food Importing Developing Countries"
-#"Sub-Saharan Africa"
-#"South America"
-#"Asia"
-#"World"
-this_area <- "Sub-Saharan Africa"
-period <- c(1991, 2016)
-fraction_train <- 1
-#-----------------------------
-df_in <- subset(df, Area == this_area)
-if(this_area == "South America"){df_in <- subset(df_in, !(Item %in% c("Cow peas, dry", "Millet")))}
-df_in <- df_in[, c("Item", "Year", "Gross Prod. Value / MT\n(current USD)")]
-df_in <- df_in %>% spread(Item, `Gross Prod. Value / MT\n(current USD)`)
-if(!is.null(period)){
-  ind_ret_sinceYr <- which(df_in$Year == period[1])
-  ind_ret_toYr <- which(df_in$Year == period[2])
-  df_in <- df_in[ind_ret_sinceYr:ind_ret_toYr, ]
-}
-#-------------------------------------------
-mat <- as.matrix(df_in[, -1])
-#-------------------------------------------
-# Replace NA with interplation
-mat <- na.approx(mat)
-#-------------------------------------------
-# Get percentage difference
-mat_pctDiff <- diff(mat) / mat[-nrow(mat), ]
-year_vec <- df_in$Year[-1]
-# mat_pctDiff <- scale(mat)
-#   year_vec <- df_in$Year
-#-------------------------------------------
-row.names(mat_pctDiff) <- year_vec
-#-------------------------------------------
-n_items <- ncol(mat_pctDiff)
-#-------------------------------------------
-# Separate train from test data
-ind_train <- 1:round(nrow(mat_pctDiff) * fraction_train)
-ind_test <- setdiff(1:nrow(mat_pctDiff), ind_train)
-mat_pctDiff_train <- mat_pctDiff[ind_train, ]
-mat_pctDiff_test <- mat_pctDiff[ind_test, ]
-if(length(ind_test) == 0){
-  mat_pctDiff_test <- NULL
-}
-
-
-historical_returns_and_boxplot(mat_pctDiff_train,
-                               mat_pctDiff_test,
-                               group_info,
-                               group_colors = group_colors)
-
-
-```
-
-
-```{r, fig.show='hold', fig.align='center', fig.cap="\\label{fig:cormatFAO}Correlation matrix, Sub-Saharan Africa farmgate prices", echo=F}
-#include=FALSE
-
-outlist <- group_fn(mat_pctDiff, group_info, group_colors, reverse_order = F)
-cols_ordered_by_group <- outlist[[1]]
-group_color_vec <- outlist[[2]]
-corr_colorRamp <- colorRampPalette(c("darkred", "white", "blue4"))(50)
-#cormat <- Hmisc::rcorr(mat_pctDiff_train[, cols_ordered_by_group])$r
-cormat <- cor(mat_pctDiff_train[, cols_ordered_by_group])
-#cormat <- cov(mat_pctDiff_train[, cols_ordered_by_group])
-# corrplot::corrplot(cormat, is.corr = T, type = "lower", tl.col = group_color_vec, tl.srt = 30,
-#                    col = corr_colorRamp)
-
-
-# gridGraphics::grid.echo()
-# p_corplot <- grid::grid.grab()
-
-#grid::grid.draw(gg_corplot)
-# cormat <- cor(mat_pctDiff_test[, cols_ordered_by_group])
-# #cormat <- cov(mat_pctDiff[, cols_ordered_by_group])
-# corrplot::corrplot(cormat, is.corr = T, type = "lower", tl.col = group_color_vec, tl.srt = 30,
-#                    col = corr_colorRamp)
-# gridGraphics::grid.echo()
-# p_corplot_test <- grid::grid.grab()
-
-```
-
-```{r, fig.show="hold", fig.cap="\\label{fig:corrMats}Correlation matrices, train and test data.", fig.width=7, fig.height=9, fig.align='center'}
-#gridExtra::grid.arrange(p_corplot, p_corplot_test)
-
-```
-
-In Figure \ref{fig:eigDensFAO}, a density plot of the correlation matrix eigenvalues is compared against one of eigenvalues derived from a random matrix. In this case, only two of them extend beyond the random matrix eigenvalue density plot. Just two of the eigenvectors, then, can be meaningfully distinguished from noise.
-
-The signals are constructed and plotted in Figure \ref{fig:sigs1FAO}. The first signal again hews closely to the average, but not quite as tightly as in the financial context. Turning to the rotated signal loadings in Figure \ref{fig:loadsRotFAO} for more clarity, it appears that the first signal is primarily correlated with movements in the prices of sweet potato, cassava, soybean, and cowpea. Interestingly, the cereals appear to contribute little to Signal 1. Signal 2 appears mostly to reflect movements in lentil and chick pea prices. These observations are then further corroborated by a plot of the signals against their respective highest loading prices (Figure \ref{fig:sigs2FAO}).
-
-```{r, fig.show='hold', fig.width=5, fig.height=3, fig.align='center', fig.cap="\\label{fig:eigDensFAO}Eigenvalue density plots for the farmgate price data correlation matrix and a\ncorrelation matrix of a random dataset of the same dimensions.", echo=F}
-
-# mat_z <- scale(mat)
-#   year_vec <- df_in$Year
-#   #-------------------------------------------
-#   row.names(mat_z) <- year_vec
-#   #-------------------------------------------
-#   n_items <- ncol(mat)
-#   #-------------------------------------------
-# # Separate train from test data
-#   ind_train <- 1:round(nrow(mat_z) * fraction_train)
-#     ind_test <- setdiff(1:nrow(mat_z), ind_train)
-#     mat_z_train <- mat_z[ind_train, ]
-#     mat_z_test <- mat_z[ind_test, ]
-# 
-#===========================================
-# Extract signals from noise
-#-------------------------------------------
-fun_env = list(eigenvalue_density_plot = T,
-               pca_var_plot = F,
-               pca_ind_plot = F,
-               group_info,
-               quietly = T)
-# this_fig_title <- "Figure 17: Eigenvalue density plots for the farmgate price data correlation matrix and a\ncorrelation matrix of a random dataset of the same dimensions."
-this_fig_title <- NULL
-list_out <- signals_from_noise(mat_pctDiff_train, fig_title_eigDens = this_fig_title, fun_env)
-# list_out <- list(mat_loads_sig, mat_Lrot_sig, mat_loads, mat_Lrot, mat_inData_sig, eigvals_sig, mat_eigvecs_sig, eigvals, mat_eigvecs)
-mat_loads_sig_train <- list_out[[1]]
-mat_Lrot_sig_train <- list_out[[2]]
-mat_pctDiff_sig_train <- list_out[[5]]
-mat_eigvecs_sig_train <- list_out[[7]]
-
-covmat <- cor(mat_pctDiff_train)
-covmat_L <- mat_Lrot_sig_train %*% t(mat_Lrot_sig_train)
-View(covmat - covmat_L)
-mean((covmat - covmat_L)^2)
-
-
-
-
-```
-
-
-```{r, fig.show = 'hold', fig.width=4, fig.height=3, fig.align='center', fig.cap="\\label{fig:sigs1FAO}Signals (black lines) plotted against the average (yellow line), Sub-Saharan Africa farmgate prices.", echo=FALSE}
-
-this_fig_title <- NULL
-plot_signals_against_avg(mat_pctDiff_sig_train, mat_pctDiff_train,
-                         fig_title = this_fig_title,
-                         facet_ncol = 1)
-
-```
-
-
-```{r, fig.show='hold', fig.width=6, fig.height=4, fig.align='center', fig.cap="\\label{fig:loadsRotFAO}Rotated signal loadings, Sub-Saharan Africa farmgate prices."}
-signal_names <- NULL
-fun_env <- list(group_info, signal_names, group_colors)
-#this_fig_title <- "Figure 18: Signal loadings, farmgate price data"
-this_fig_title <- NULL
-interpret_loadings(mat_Lrot_sig_train, fig_title = this_fig_title, fun_env)
-```
-
-
-
-```{r, fig.show='hold', fig.width=4, fig.height=3, fig.align='center', fig.cap="\\label{fig:sigs2FAO}Signals, represented by the thicker gray line, plotted against their respective highest loading items, Sub-Saharan Africa farmgate prices.", echo=FALSE}
-
-#this_fig_title <- "Figure 8: Signals plotted with their respective highest loading items, train data"
-this_fig_title <- NULL
-plot_signals_against_associated_items(mat_Lrot_sig_train,
-                                      mat_pctDiff_train,
-                                      mat_pctDiff_sig_train,
-                                      load_threshold = 0.5,
-                                      n_display_max = 4,
-                                      fig_title = this_fig_title)
-
-```
-
-\pagebreak
-
-The efficient frontier and budget allocation is displayed in Figure \ref{fig:mvUSigsFAO}. In this analysis, cost and return are replaced by the utility of cost and return, as explained in the methodology section. In this graphic, the solution suggests that, for a wide range of risk tolerances, investments should focus primarily on lentils and sweet potatoes, followed by millet, yams, and beans. Note also that the optimal budget allocation for lentils and sweet potatoes increases with risk tolerance, whereas the portions going to millet, yams, and beans increase as the investor is more risk averse.
-
-The signals portfolio efficient frontier and budget allocation is displayed in Figure  \ref{fig:mvUSigFAO}
-
-```{r, fig.show='hold', fig.width=9, fig.height=5, fig.align='center', fig.cap="\\label{fig:mvUSigsFAO}\textit{(Left)} Optimal frontier and budget shares, Sub-Saharan farmgate price of staple crops. \textit{(Right)} Optimal frontier and budget shares, signals. The signals are named in accordance with their respective highest loading items, and numbered in descending order of their respective eigenvalues.", echo = FALSE}
-#=======================================================================
-# Conventional risk-reward frontier
-n_items <- ncol(mat_pctDiff)
-C_targ <- 1
-nab_C <- rep(1, n_items)
-#------------------------------------
-# Correlation matrix
-cormat <- cor(mat_pctDiff_train)
-#cormat <- round(mat_Lrot_sig %*% t(mat_Lrot_sig), 7)
-#cormat <- round(mat_loads_sig %*% t(mat_loads_sig), 7)
-# mse <- mean((cor(mat_pctDiff) - cormat)^2)
-# mse
-#------------------------------------
-# Expected returns vector
-nab_pctDiff_train <- apply(mat_pctDiff_train, 2, function(x) prod(1 + x)) - 1
-#------------------------------------
-mat_nab <- cbind(nab_pctDiff_train, nab_C)
-n_points_on_frontier <- 50
-#------------------------------------
-if(!is.null(mat_pctDiff_test)){
-  cormat_test <- cor(mat_pctDiff_test)
-  nab_pctDiff_test <- apply(mat_pctDiff_test, 2, function(x) prod(1 + x)) - 1
-  backtest_info <- list(nab_pctRet_test, cormat_test)
-  
-}else{
-  backtest_info <- NULL
-}
-
-#------------------------------------
-if(this_area == "South America"){these_Rtarg_limits <- c(1, 12)}
-if(this_area == "Sub-Saharan Africa"){these_Rtarg_limits <- c(10, 35)} #c(15, 30)
-if(this_area == "Asia"){these_Rtarg_limits <- c(12, 60)}
-if(this_area == "Low Income Food Deficit Countries"){these_Rtarg_limits <- c(1, 20)}
-if(this_area == "Net Food Importing Developing Countries"){these_Rtarg_limits <- c(1, 20)}
-if(this_area == "World"){these_Rtarg_limits <- c(1, 15)}
-this_fig_title <- paste("Optimal Portfolio Frontier,", this_area)
-fun_env <- list(n_points_on_frontier,
-                utility_interpretation = T,
-                backtest_info,
-                frontier_and_budget_plot = T,
-                group_info = NULL,
-                group_colors = NULL,
-                group_small = T)
-
-#this_fig_title <- paste("Figure 19: Optimal portfolio frontier, utility weights,", this_area)
-this_fig_title <- NULL
-list_out <- get_optimal_frontier(cormat, mat_nab,
-                                 Rtarg_limits = these_Rtarg_limits,
-                                 fig_title = this_fig_title,
-                                 fun_env)
-
-# df_frontier <- list_out[[2]]
-# df_backtest <- list_out[[3]]
-outlist_gg <- list_out[[4]]
-gg_frontier <- outlist_gg[1]
-gg_weights <- outlist_gg[2]
-gg_mvUFAO <- gg_frontier[[1]] + gg_weights[[1]] + plot_layout(ncol = 1)
-#------------------------------------
-# gg_backtest <- plot_frontier_wBacktest(df_frontier,
-#                                        df_backtest,
-#                                        fig_title = NULL)
-# #------------------------------------
-# (gg_frontier[[1]] / gg_weights[[1]] / plot_layout(ncol = 1)) | gg_backtest
-# #https://gotellilab.github.io/GotelliLabMeetingHacks/NickGotelli/ggplotPatchwork.html
-#=======================================================================
-# Signals correlation matrix risk-reward frontier
-n_signals <- ncol(mat_loads_sig_train)
-nab_C <- rep(1, n_signals)
-#------------------------------------
-#mat_pctDiff_sig_test <- mat_pctDiff_test %*% mat_eigvecs_sig_train
-#------------------------------------
-# Correlation matrix
-cormat <- cor(mat_pctDiff_sig_train)
-#cormat_test <- round(cor(mat_pctDiff_sig_test), 7)
-# covmat <- cov(mat_pctDiff_sig_train)
-# covmat_test <- round(cov(mat_pctDiff_sig_test), 7)
-# cormat <- Hmisc::rcorr(mat_pctDiff_sig_train)$r
-# cormat_test <- round(Hmisc::rcorr(mat_pctDiff_sig_test)$r, 7)
-#------------------------------------
-# Expected returns vector
-#nab_pctRet_train <- apply(mat_pctDiff_sig_train[ind_equal_test, ], 2, function(x) prod(1 + x)) - 1
-nab_pctRet_train <- apply(mat_pctDiff_sig_train, 2, function(x) prod(1 + x)) - 1
-#nab_pctRet_test <- apply(mat_pctDiff_sig_test, 2, function(x) prod(1 + x)) - 1
-#------------------------------------
-mat_nab <- cbind(nab_pctRet_train, nab_C)
-signal_names <- c("Sig. 1: Sweet Potatoes,\nCassava, Cowpeas", "Sig. 2: Lentils,\n Chickpeas")
-row.names(mat_nab) <- signal_names
-#------------------------------------
-fun_env <- list(n_points_on_frontier,
-                utility_interpretation = T,
-                backtest_info = NULL,
-                frontier_and_budget_plot = T,
-                group_info = NULL,
-                group_colors = NULL,
-                group_small = NULL)
-
-list_out <- get_optimal_frontier(cormat, mat_nab,
-                                 Rtarg_limits = c(0.8, 3),
-                                 fig_title = NULL,
-                                 fun_env)
-
-df_frontier <- list_out[[2]]
-df_backtest <- list_out[[3]]
-outlist_gg <- list_out[[4]]
-gg_frontier <- outlist_gg[1]
-gg_weights <- outlist_gg[2]
-gg_mvUSigsFAO <- gg_frontier[[1]] + gg_weights[[1]] + plot_layout(ncol = 1)
-#=======================================================================
-gg_mvUFAO | gg_mvUSigsFAO
-#=======================================================================
-
-```
-
-```{r, fig.show='hold', fig.width=5, fig.height=5, fig.align='center', fig.cap="\\label{fig:mvUSigFAO}\\textit{(Left)}  \\textit{(Right)} Backtest of the optimal frontier.", echo=F}
-
-
-```
-
-
-<!-- The frontier of a dimensionally reduced portfolio, containing just the two signals (Figures \ref{fig:sigs1FAO} and \ref{fig:sigs2FAO}), on the other hand, is much more accurate/understates. -->
-
-\pagebreak
 
 # Discussion and conclusion
 
