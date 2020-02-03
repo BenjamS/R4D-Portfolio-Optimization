@@ -657,7 +657,7 @@ plot_covmat <- function(covmat, graph_on = T){
   gg <- ggplot(df_plot, aes((ItemX), (ItemY)))
   gg <- gg + geom_tile(aes(fill = Value))#, width = 4, height = 4)
   gg <- gg + geom_text(aes(label = round(Value, 2)), size = 3)
-  gg <- gg + labs(title = "Covariance Matrix")
+  #gg <- gg + labs(title = "Covariance Matrix")
   gg <- gg + theme_bw()
   gg <- gg + theme(axis.text.x = element_text(angle = 60, hjust = 1),
                  axis.title = element_blank(),
@@ -1176,23 +1176,25 @@ This comparison is presented in Figure \ref{fig:mv_roiCompare}. When viewed in t
 <!-- [in practice, real portfolio returns are often far lower, and far riskier, than the optimal frontier would suggest. This is evident in the portfolio backtests in Figure \ref{fig:...}.   This is especially true when the covariance or correlation matrix used in the analysis is ill conditioned.  frontiers often diverge from reality.   the frontier is only as accurate as the data it is based on. The backtests are shown in Figure \ref{fig:mvBacktest} ... Also to be expected that the conventional frontier backtest is higher than the utility frontier backtest simply because negative weights require that the total investment is greater than that of the portfolio with only positive weights. If we look not just at the return, but at the return on investment, then the utility weights approach performs better than the conventional approach. Keep in mind this is just one scenario. you'd have to look at many before concluding definitively one way or the other.] -->
 
 
-```{r, fig.show='hold', fig.width=5, fig.height=3, fig.align='center', fig.cap="\\label{fig:mv_roiCompare}Backtest of optimal frontiers. \\textit{Left}The conventional approach, \\textit{Right}The utility approach.", echo = FALSE}
-
+```{r, fig.show='hold', fig.width=5, fig.height=3, fig.align='center', fig.cap="\\label{fig:mv_roiCompare}"Comparison of the conventional and utility efficient frontiers on an ROI basis.", echo = FALSE}
+mv_conv_U_compare_colors <- c("black", "blue")
 df_plot_conv <- df_frontier_conv
 df_plot_conv$Tot_investment <- rowSums(abs(df_wStar_conv[, -1]))
-df_plot_conv$`Return on investment` <- df_plot_conv$`Return target` / df_plot_conv$Tot_investment
+df_plot_conv$`ROI target` <- df_plot_conv$`Return target` / df_plot_conv$Tot_investment
 df_plot_conv$`Budget shares` <- "Conventional\n(can be negative)"
 df_plot_U <- df_frontier_U
 df_plot_U$Tot_investment <- rowSums(abs(df_wStar_U[, -1]))
-df_plot_U$`Return on investment` <- df_plot_U$`Return target` / df_plot_U$Tot_investment
+df_plot_U$`ROI target` <- df_plot_U$`Return target` / df_plot_U$Tot_investment
 df_plot_U$`Budget shares` <- "Utility\n(positive only)"
 df_plot <- rbind(df_plot_conv, df_plot_U)
-these_colors <- c("black", "blue")
-gg <- ggplot(df_plot, aes(x = `Risk (variance)`, y = `Return on investment`, group = `Budget shares`, color = `Budget shares`))
+gg <- ggplot(df_plot, aes(x = `Risk (variance)`, y = `ROI target`, group = `Budget shares`, color = `Budget shares`))
 gg <- gg + geom_point()
-gg <- gg + scale_color_manual(values = these_colors)
+gg <- gg + scale_color_manual(values = mv_conv_U_compare_colors)
 gg
-
+#--------------------------------------------------------
+# Prepare for the backtest plots farther ahead
+df_plot_conv$`ROI backtest` <- df_plot_conv$`Return backtest` / df_plot_conv$Tot_investment
+df_plot_U$`ROI backtest` <- df_plot_U$`Return backtest` / df_plot_U$Tot_investment
 #--------------------------------------------------------
 
 #=======================================================================
@@ -1231,89 +1233,42 @@ gg
 #   return(gg)
 # }
 # #=======================================================================
-# df_plot_conv_mod <- df_plot_conv[, c("Risk (variance)", "Return target")]
-# df_plot_conv_btest <- df_plot_conv[, c("Risk backtest", "Return backtest")]
-# df_plot_conv_mod$`Return on investment` <- df_plot_conv_mod$`Return target` / df_plot_conv$Tot_investment
-# df_plot_conv_btest$`Return on investment` <- df_plot_conv_btest$`Return backtest` / df_plot_conv$Tot_investment
-# df_plot_conv_mod$Type <- "Optimal\nsolution"
-# df_plot_conv_btest$Type <- "Backtest"
-# colnames(df_plot_conv_mod) <- c("Risk", "Return", "Return on investment", "Type")
-# colnames(df_plot_conv_btest) <- c("Risk", "Return", "Return on investment", "Type")
-# #--------------------------------------------------------
-# df_plot <- rbind(df_plot_conv_mod, df_plot_conv_btest)
-# gg <- ggplot(df_plot, aes(x = Risk, y = Return, group = Type, color = Type))
-# gg <- gg + geom_point()
-# gg <- gg + labs(title = "Conventional budget shares\n(can be negative)")
-# gg <- gg + theme(legend.position = "none",
-#                  plot.title = element_text(face = "bold", size = 10))
-# gg_conv_backtest <- gg + scale_color_manual(values = these_colors)
-# # ROI basis
-# gg <- ggplot(df_plot, aes(x = Risk, y = `Return on investment`, group = Type, color = Type))
-# gg <- gg + geom_point()
-# gg <- gg + labs(title = "Conventional budget shares\n(can be negative)")
-# gg <- gg + theme(legend.position = "none",
-#                  plot.title = element_text(face = "bold", size = 10))
-# gg_conv_backtest_roi <- gg + scale_color_manual(values = these_colors)
-# #--------------------------------------------------------
-# df_plot_U_mod <- df_plot_U[, c("Risk (variance)", "Return target")]
-# df_plot_U_btest <- df_plot_U[, c("Risk backtest", "Return backtest")]
-# df_plot_U_mod$Type <- "Optimal\nsolution"
-# df_plot_U_btest$Type <- "Backtest"
-# colnames(df_plot_U_mod) <- c("Risk", "Return", "Type")
-# colnames(df_plot_U_btest) <- c("Risk", "Return", "Type")
-# #--------------------------------------------------------
-# df_plot <- rbind(df_plot_U_mod, df_plot_U_btest)
-# gg <- ggplot(df_plot, aes(x = Risk, y = Return, group = Type, color = Type))
-# gg <- gg + geom_point()
-# gg <- gg + labs(title = "Utility budget shares\n(positive only)")
-# gg <- gg + theme(legend.title = element_blank(),
-#                  axis.title.y = element_blank(),
-#                  plot.title = element_text(face = "bold", size = 10))
-# gg_U_backtest <- gg + scale_color_manual(values = these_colors)
-# #--------------------------------------------------------
-# gg_conv_backtest_roi + gg_U_backtest + plot_layout(ncol = 2)
-# #--------------------------------------------------------
-
-
-
-
-# gg <- ggplot()
-# gg <- gg + geom_point(data = df_plot_conv, aes(x = `Risk backtest`, y = `Return on investment`))
-# gg <- gg + geom_point(data = df_plot_U, aes(x = `Risk backtest`, y = `Return backtest`), color = "blue")
-# gg
-# 
-# 
-# 
-# 
-# gg_backTest_conv <- plot_frontier_wBacktest(df_frontier_conv, graph_on = T)
-# gg_backTest_U <- plot_frontier_wBacktest(df_frontier_U, graph_on = T)
-# gg_backTest_conv + gg_backTest_U + plot_layout(ncol = 2)
 
 ```
 
 
 
-# Reverse engineering the covariance matrix
+# The signals portfolio
 
-In principlal components analysis (PCA), a centered dataset $X$, with potentially many variables, is distilled into a smaller dataset $S$ of just a few key variables capturing the main tendencies and structure in the data. This is accomplished by post-multiplying the original data $X$ by a select number of the eigenvectors of its covariance matrix $\tilde{P}$.^[Also referred to as the matrix of right singular vectors.] ...[The number of "key variables" into which the dataset $X$ is distilled is equal to the number of eigenvectors retained from the full set of eigenvectors $P$.]
-
-$$
-\begin{equation}
-S = X\tilde{P}
-\end{equation}
-$$
-
-The columns of the distilled matrix $S$ are referred to as the principal components (PC), or the PC scores, or the factor scores. When dealing with noisy time series, as in this paper, the columns of $S$ might just as well be reffered to as the "signals", in the sense that they are signals extracted from noise.
-
-Because of how they are defined in equation \ref{eq:sigDefin}, the signals are uncorrelated with each other, and their variances are the eigenvalues from $K$.[  covariance matrix ($\tilde{\Sigma}$) is just the diagonal matrix of eigenvalues ($U$). ]
+In principlal components analysis, a dataset $X$ containing $t$ observations of $n$ variables is distilled into a dataset $S$ of just $k<n$ variables that capture the main tendencies and structure in the data.^[The data is always centered. If the variables in $X$ follow diverse scalings and/or units of measurement (i.e. if apples are being compared to oranges), then $X$ should also be scaled to unit variance. In this exposition, $X$ is centered but not scaled.] The distilled matrix $S$ is defined
 
 \begin{equation}
-\Sigma_{SS} = \frac{1}{n-1} S'S = \frac{1}{n-1}P'X'XP \\
-=P'KP=P'PU P'P = U
-\label{eq:Svariance}
+S = X \tilde{P}
+\label{eq:sigs_def}
 \end{equation}
 
-Concrete meaning can be attributed to the signals in terms of how correlated they are with the observed variables in $X$. The correlation of $X$ with $S$ is derived by first finding the covariance matrix of $X$ with $S$.
+where $\tilde{P}$ is a matrix containing the $k$ leading eigenvectors of the full set of eigenvectors $P$, which is taken from the eigendecomposition of the data covariance matrix $\Sigma_{XX}$ (equation \ref{eq:eigDecomp}).
+
+\begin{equation}
+\Sigma_{XX} = PUP'
+\label{eq:eigDecomp}
+\end{equation}
+
+where $U$ is the diagonal matrix of eigenvalues of $\Sigma_{XX}$. 
+
+From the definition (\ref{eq:sigs_def}), it follows that the signals are uncorrelated with each other, and that their variance is given by the eigenvalues of the data covariance matrix.
+
+\begin{equation}
+\begin{matrix}
+\Sigma_{SS} = \frac{1}{n-1}S'S = \frac{1}{n-1} \tilde{P}'X'X\tilde{P} \\
+=\tilde{P}'\Sigma_{XX}\tilde{P}=\tilde{P}'PUP'\tilde{P}=\tilde{U}
+\end{matrix}
+\label{eq:covmat_SS}
+\end{equation}
+
+The columns of the distilled matrix $S$ are referred to as the principal components (PC), or the PC scores, or the factor scores. When dealing with noisy time series, as in this paper, they might just as well be reffered to as the "signals", in the sense that they are signals extracted from noise.
+
+The meaning of the signals can be interpreted based on how correlated they are with the variables in the original dataset. These correlations ($K_{XS}$) are found by first finding their corresponding covariances ($\Sigma_{XS}$).
 
 $$
 \begin{equation}
@@ -1326,98 +1281,475 @@ The correlation matrix $K_{XS}$ then follows as
 
 $$
 \begin{equation}
+\begin{matrix}
 K_{XS} = D(\mathbf{\sigma}_X)^{-1} \Sigma_{XS} D(\mathbf{\sigma}_S)^{-1} \\
 D(\mathbf{\sigma}_X)^{-1} PU D(\mathbf{\sigma}_S)^{-1}
+\end{matrix}
 \end{equation}
 $$
-
-But $X$ is scaled to unit variance, so $D(\mathbf{\sigma}_X)^{-1}$ reduces to an identity matrix. The standard deviations of the signals, meanwhile, are just the square roots of the eigenvalues (as shown in equation \ref{eq:Svariance}). The correlation matrix of variables with signals thus reduces to
-
-$$
-\begin{equation}
-K_{XS} = \Sigma_{XS} U^{-{1 \over 2}} \\
-= PU U^{-{1 \over 2}} = PU^{1 \over 2}
-\end{equation}
-$$
-To illustrate this point, let $X$ equal the centered, scaled financial data used in the portfolio optimization example above. The first few columns of the correlations of $X$ with $S$ are plotted as barcharts in Figure \ref{fig:XScorrBarchart}. [Interpret signals accordingly]. This becomes particularly evident in Figure \ref{fig:signals_and_hiCorr_items}, where the time series of individual financial assets can be seen to hew closely to the signals with which they are most correlated.
-
-The correlations matrix $K_{SX}$ is sometimes referred to as the "loadings" matrix, in the sense that it indicates how much each variable in $X$ loads onto a given signal (or how much each signal loads onto a given variable).^[Although, be careful, many also call $P$ the "loadings".] Following this convention, and to reduce notational clutter, let the covariance matrix $K_{XS}$ be denoted $L$.
-
-## Selecting signals
-- The proportion of variance explained.
-There remains the question of how many signals to extract...
-
-\begin{equation}
-\frac{u_i}{\sum_i u_i}
-\end{equation}
-
-The cumulative variance explained is
-
-\begin{equation}
-\frac{\sum_{i=1}^k u_i}{\sum_i u_i}
-\end{equation}
-
-Can follow a rule such as "we are interested in signals that explain 90% of variation in the data".
-Elbow rule ... perils of such rules of thumb have been documented.
-
-The random matrix approach
-
-According to this method, all the signals should be used. In the larger financial data set, only the leading 6 should be used, explaining x% of the total variance. 
-
-## Deriving the correlation matrix from loadings
-
-The correlation matrix can be approximated by the loadings of the retained signals as follows.
-
-\begin{equation}
-
-\hat{K}_{XX} = \tilde{L}\tilde{L}'
-
-\end{equation}
-
-The difference between the data correlation matrix from the portfolio optimization example and the loadings derived correlation matrix is shown in Figure \ref{fig:compareCorMats}. The loadings derived correlation matrix is approximate in the sense that it approximates the data correlation matrix. However, it should be kept in mind that the _accuracy_ of the loadings derived correlation matrix is not necessarily inferior to that of the data correlation matrix. To the extent that the data are contaminated by noise, the loadings derived correlation matrix may even be more accurate, since it is effectively a noise-purged version of the data correlation matrix. A divergence between the two matrices should not automatically be attributed to inferior accuracy in the loadings derived approach.
-
-## Optimization over signals
-
-MV Analysis is, in many ways, still a work in progress [@Michaud...?]. One of the main issues limiting its usefulness in everyday applications is its sensitivity to noisy data, which often results in efficient frontiers that overstate returns and understate risk (as seen in the backtest in Figure \ref{fig:...}). It stands to reason, then, that replacement of the data covariance matrix with a loadings derived covariance matrix could improve performance. Unfortunately, the loadings derived correlation/covariance matrix is not invertible, and thus cannot be used in MV Analysis. However, the portfolio of assets can be replaced with a portfolio of signals. The expected return to each signal can be calculated as the sum of the expected returns to each asset weighted by their loadings onto the given signal.
+The standard deviations of the signals are just the square roots of the eigenvalues (as shown in equation \ref{eq:covmat_SS}), so this reduces to
 
 $$
 \begin{equation}
-
-\mathbf{\mu}_s = \mathbf{\mu}' D(\mathbf{\eta})^{-1} L  \:\:\: ;\:\:  \eta = L\mathbf{1}
-
+\begin{matrix}
+K_{XS} = D(\mathbf{\sigma}_X)^{-1}\Sigma_{XS} U^{-{1 \over 2}} \\
+= D(\mathbf{\sigma}_X)^{-1}PU U^{-{1 \over 2}} = D(\mathbf{\sigma}_X)^{-1}PU^{1 \over 2}
+\end{matrix}
 \end{equation}
 $$
+Note that if $X$ were scaled to unit variance, then this would reduce further to
 
+\begin{equation}
+K_{XS} = PU^{1 \over 2}
+\end{equation}
 
+The correlations matrix $K_{SX}$ is sometimes referred to as the "loadings" matrix, in the sense that it indicates how much each variable in $X$ loads onto a given signal (or how much each signal loads onto a given variable).^[Although many prefer to call $P$ the "loadings".] In keeping with this convention, and in order to reduce notational clutter, $K_{XS}$ is henceforth relabeled $L$.
 
-This approach outputs the optimal budget allocation to each signal. The optimal allocation to each asset can then be derived from this in proportion to loadings. [L normalized such that sum of cols of L all = 1. this ok because eigenvectors defined up to scaling anyway]
+The correlations between the financial assets from the example above and their four leading signals are presented in Figure \ref{fig:corrXS_barchart}. Concrete meaning can be attributed to each of these otherwise abstract signals by examining how correlated they are with the portfolio items.
+
+```{r, fig.show='hold', fig.width=6, fig.height=3, fig.align='center', fig.cap="\\label{fig:corrXS_barchart}Correlation of portfolio items with leading signals."}
+
+# Calculate variable-signal correlations, financial data
+get_S_and_corrXS <- function(mat_X_in, n_signals){
+  # mat_P = eigenvectors of the data correlation matrix
+  # mat_U = corresponding eigenvalues
+  mat_X_centered <- scale(mat_X_in, scale = F)
+  out_svd <- svd(mat_X_centered)
+sing_values <- out_svd$d
+n_obs <- nrow(mat_X_centered)
+eig_values <- sing_values^2 / (n_obs - 1)
+mat_P <- out_svd$v
+if(mean(mat_P[, 1]) < 0){mat_P <- -mat_P}
+#mat_P_sigs <- mat_P[, 1:n_signals]
+# eig_values[1:n_signals] / eigen(cov(mat_X_centered))$values[1:n_signals]
+# mat_P / eigen(cov(mat_X_in))$vectors
+mat_U <- diag(eig_values)
+#mat_U_sigs <- matU[, 1:n_signals]
+#---------------------------------------------
+sd_X <- apply(mat_X_in, 2, sd)
+D_sdX_inv <- diag(1 / sd_X)
+cormat_XS <- D_sdX_inv %*% mat_P %*% mat_U^{1/2}
+row.names(cormat_XS) <- colnames(mat_X_in)
+#---------------------------------------------
+cormat_XS_sigs <- cormat_XS[, 1:n_signals]
+# res <- FactoMineR::PCA(mat_pctDiff_in, scale.unit = F, ncp = ncol(mat_pctDiff_in), graph = F)
+# mat_L_FactoMiner <- res$var$coord
+# mat_L / mat_L_FactoMiner
+mat_S <- mat_X_centered %*% mat_P[, 1:n_signals]
+list_out <- list(mat_S, cormat_XS_sigs, eig_values)
+return(list_out)
+}
+#====================================================
+n_signals <- 4
+mat_pctDiff_in <- mat_pctDiff_train_mv
+mat_X_in <- mat_pctDiff_in
+list_out <- get_S_and_corrXS(mat_X_in, n_signals)
+mat_S <- list_out[[1]]
+cormat_XS_sigs <- list_out[[2]]
+eig_values <- list_out[[3]]
+#eigen(cov(mat_S))$values / eig_values[1:n_signals]
+#====================================================
+# Barchart of variable-signal correlations
+plot_corrXS_barchart <- function(cormat_XS_sigs, xAxis_title = NULL){
+  n_signals <- ncol(cormat_XS_sigs)
+    df_plot <- data.frame(id = row.names(cormat_XS_sigs), cormat_XS_sigs)
+  signal_id <- paste("Signal", c(1:n_signals))
+  colnames(df_plot)[2:(n_signals + 1)] <- signal_id
+  gathercols <- as.character(signal_id) 
+  df_plot <- gather_(df_plot, "Signal", "Correlation", gathercols)
+  df_plot <- transform(df_plot,
+                       Signal = factor(Signal, levels = gathercols))
+    gg <- ggplot(df_plot, aes(x = id, y = Correlation))
+  gg <- gg + geom_bar(stat = "identity", color = "black", position = "dodge")
+  gg <- gg + ylim(limits = c(-1, 1))
+  gg <- gg + facet_wrap(~ Signal, nrow = 1)
+  if(!is.null(xAxis_title)){
+    gg <- gg + labs(y = xAxis_title)
+  }
+  gg <- gg + theme(axis.text.y = element_text(size = 9),
+                   axis.text.x = element_text(size = 9),
+                   axis.title.y = element_blank(),
+                   axis.title.x = element_text(size = 9),
+                   legend.title = element_blank(),
+                   legend.text = element_text(size = 9))
+  gg <- gg + coord_equal()
+  gg <- gg + coord_flip()
+  gg
+
+}
+
+plot_corrXS_barchart(cormat_XS_sigs)
+
+```
+
+Clearly, Signal 4 is mostly about communications. Signal 3 is concerned with Utilities and Real Estate, and so might be called the "Housing & Urban Development Signal". The interpretation of Signals 1 and 2 is not so straightforward, since they are correlated with many portfolio items. In such cases, it is often useful to apply an orthogonal rotation to $L$ in order to clarify the picture. That is to say, instead of examining $L$, one examines
 
 $$
 \begin{equation}
-
-L D(\mathbf{\nu})^{-1} \mathbf{w}_{s}^* = \mathbf{w}_{p}^* \:\:\: ;\:\: \nu = L'\mathbf{1}
-
+L_{\circlearrowleft} = LR \:\:;\:\:\: R'R = I
 \end{equation}
 $$
-The optimal frontier and budget shares for the signals portfolio are displayed on the left side of Figure \ref{fig:sigPortfolio}. A backtest is displayed on the right side of the Figure. The signals portfolio performs well in the backtest, far exceeding the efficient frontier. The budget shares are mapped to the assets in Figure \ref{fig:...}. Here it becomes clear that the excitement is premature. The required budget allocation requires extreme leveraging to obtain these positions on the frontier. In order to force positive budget shares, the utility approach is applied in... Figure \ref{fig:...}
+<!-- Note that a rotation of $L$ implies a rotation of the signals, since -->
+
+<!-- \begin{equation} -->
+<!-- SR = XP -->
+<!-- \end{equation} -->
+
+In Figure \ref{fig:} a special kind of orthogonal rotation, called a varimax rotation, is applied to $L$. Varimax rotations flesh out structure by maximizing sparseness in the rotated matrix. After applying this rotation, it becomes clear that Signal 1 is representative of Biotechnology and Healthcare; and so Signal 1 might be called the "Pharmaceutical Signal". Signal 2 remains more than 50% correlated with a variety of portfolio items, but Financials, Industrial, and Transportation now stand out as particularly.... Signal 2 might thus be called the "Financial and Physical Infrastructure Signal."
+
+```{r, fig.show='hold', fig.width=6, fig.height=3, fig.align='center', fig.cap="\\label{fig:corrXS_barchart}Varimax rotated correlation of portfolio items with leading signals."}
+
+mat_L <- cormat_XS_sigs
+mat_Lrot <- varimax(mat_L)[[1]]
+mat_Lrot <- matrix(as.numeric(mat_Lrot),
+                          attributes(mat_Lrot)$dim,
+                          dimnames = attributes(mat_Lrot)$dimnames)
+mat_R <- varimax(mat_L)[[2]]
+mat_R <- matrix(as.numeric(mat_R),
+                          attributes(mat_R)$dim,
+                          dimnames = attributes(mat_R)$dimnames)
+mat_Srot <- mat_S %*% mat_R
+  
+xAxis_title <- "Varimax Rotated Correlation"
+plot_corrXS_barchart(mat_Lrot, xAxis_title)
 
 
-```{r, fig.show='hold', fig.width=5, fig.height=5, fig.align='center', fig.cap="\\label{fig:sigPortfolio}\\textit{(Left) }Optimal frontier and budget shares for the signals portfolio. \\textit{(Right) } Backtest of the frontier."}
+```
 
+In Figure \ref{fig:signals_with_hiCorr_items}, it becomes particularly evident how each signal hews closely to its most highly correlated items, offering visual confirmation of the signal interpretations above. 
+
+```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center', fig.cap="\\label{fig:signals_with_hiCorr_items}Signals plotted together with their most highly correlated assets. The signals are plotted as thick grey lines."}
+# Define function to plot signals with their highest loading items.
+plot_sigs_wHiLoad_items <- function(mat_X_in, mat_S, cormat_XS_sigs, sigNames = NULL, load_threshold = 0.55, n_display_max = 4){
+n_signals <- ncol(cormat_XS_sigs)
+if(is.null(sigNames)){
+  fig_title_vec <- paste("Signal", 1:n_signals)
+}else{
+  fig_title_vec <- paste("Signal", 1:n_signals, "-", sigNames)
+}
+# Plot signals against highest correlated variables
+  date_vec <- row.names(mat_S)
+  xAxis_labels <- date_vec[seq(1, nrow(mat_S), length.out = 5)]
+  list_gg <- list()
+  for(i in 1:n_signals){
+    this_loadvec <- cormat_XS_sigs[, i]
+    ind_tracks <- which(abs(this_loadvec) >= load_threshold)
+    if(length(ind_tracks) == 0){
+        ind_tracks <- which(abs(this_loadvec) == max(abs(this_loadvec)))
+    }
+
+    n_display <- length(ind_tracks)
+    loadvec_kept <- this_loadvec[ind_tracks]
+    if(n_display > n_display_max){
+      n_to_omit <- n_display - n_display_max
+      #random_omission <- sample(1:n_display, n_to_omit)
+      #mat_pctDiff_tracks <- mat_pctDiff_tracks[, -random_omission]
+      ind_omit <- order(loadvec_kept)[c(1:n_to_omit)]
+      ind_tracks <- ind_tracks[-ind_omit]
+      loadvec_kept <- this_loadvec[ind_tracks]
+    }
+    mat_X_tracks <- mat_X_in[, ind_tracks]
+    #------------
+    df_plot_sig <- data.frame(Date = date_vec, Value = mat_S[, i])
+    df_plot_tracks <- data.frame(Date = date_vec, mat_X_tracks)
+    if(ncol(df_plot_tracks) > 2){
+      gathercols <- colnames(mat_X_tracks)
+      colnames(df_plot_tracks)[-1] <- gathercols
+      df_plot_tracks <- df_plot_tracks %>% gather_("ts", "Value", gathercols)
+    }else{
+      colnames(df_plot_tracks)[-1] <- "Value"
+      df_plot_tracks$ts <- colnames(mat_X_in)[ind_tracks]
+    }
+    #-----
+    gg <- ggplot()
+    gg <- gg + geom_line(data = df_plot_sig, aes(x = Date, y = Value, group = 1), color = "grey", lwd = 1.3)
+    gg <- gg + geom_line(data = df_plot_tracks, aes(x = Date, y = Value, group = ts, color = ts))
+    gg <- gg + scale_x_discrete(breaks = xAxis_labels)
+    gg <- gg + labs(title = fig_title_vec[i])
+
+    if(i == n_signals){
+      #gg <- gg + labs(title = paste("Signal", i), caption = fig_title)
+      gg <- gg + theme(#axis.text.x = element_text(angle = 60, hjust = 1),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        legend.title = element_blank(),
+        plot.title = element_text(size = 9)
+        #plot.caption = element_text(hjust = 0, size = 10)
+      )
+    }else{
+      gg <- gg + theme(axis.text.x = element_blank(),
+                       axis.title.x = element_blank(),
+                       axis.title.y = element_blank(),
+                       legend.title = element_blank(),
+                       plot.title = element_text(size = 9))
+    }
+    
+    list_gg[[i]] <- gg
+    
+  }
+  
+  gg_all <- wrap_plots(list_gg) + plot_layout(ncol = 1)
+  gg_all
+}
+
+# Name signals based on correlations
+# sigNames <- c("Portfolio average\n(Especially Pharmaceutical, Technology, and Luxury Goods)",
+#               "Transportation and Industrial",
+#               "Housing & Urban Development (Inverse)",
+#               "Communications (Inverse)")
+# 
+# mat_X_in <- mat_pctDiff_in
+# plot_sigs_wHiLoad_items(mat_X_in, mat_S, cormat_XS_sigs, sigNames, load_threshold = 0.55, n_display_max = 4)
+
+sigNames <- c("Pharmaceutical",
+              "Financial and Physical Infrastructure",
+              "Housing & Urban Development (Inverse)",
+              "Communications (Inverse)")
+
+plot_sigs_wHiLoad_items(mat_X_in, mat_S, mat_Lrot, sigNames, load_threshold = 0.7, n_display_max = 4)
+  
+```  
+
+In practice, the number of signals that should be distilled from the original data set $X$ depends upon how much of the variance in $X$ the researcher wishes to capture or reflect in the signals, and how many signals are required to reach this subjectively determined threshold. The portion of the system's evolution reflected in any given signal ($c_i$) is defined as the signal's variance divided by the sum of all signal variances. Recalling from equation \ref{eq:covmat_SS} that a signal's variance is just the corresponding eigenvalue $u_i$ extracted from $K_{XX}$, this is expressed
+
+\begin{equation}
+c_i = \frac{u_i}{\sum_{i = 1}^n u_i}
+\end{equation}
+
+The cumulative variance captured by a group of $k$ signals is then
+
+\begin{equation}
+c_k <- \frac{\sum_{i=1}^k u_i}{\sum_{i = 1}^n u_i}
+\end{equation}
+
+The individual and cumulative portions explained by each signal are plotted in Figure \ref{fig:varExplained_barchart}. Customarily, researchers like to retain signals such that at least 90% of the variance in the original data is explained. The horizontal dashed line in the plot marks this subjective threshold. The plot thus shows that the leading six signals are sufficient to meet this criterion.
+
+```{r, fig.show='hold', fig.width=5, fig.height=3, fig.align='center', fig.cap="\\label{fig:varExplained_barchart}Plot of the individual and cumulative portions of variance explained by each signal."}
+c_vec <- eig_values / sum(eig_values)
+ck_vec <- cumsum(c_vec)
+
+  df_plot <- data.frame(Signal = paste("Signal", 1:length(eig_values)), Portion_explained = c_vec, Portion_explained_cumul = ck_vec)
+  colnames(df_plot)[2:3] <- c("Individually", "Cumulatively")
+  gathercols <- colnames(df_plot)[2:3]
+  df_plot <- gather_(df_plot, "Portion explained", "Value", gathercols)
+  df_plot$Signal <- factor(df_plot$Signal,
+                           levels = unique(df_plot$Signal),
+                           ordered = T)
+    gg <- ggplot(df_plot, aes(x = Signal, y = Value, fill = `Portion explained`))
+  gg <- gg + geom_bar(stat = "identity", color = "white", position = "dodge")
+  gg <- gg + scale_fill_manual(values = c("purple", "khaki"))
+  gg <- gg + geom_hline(yintercept = 0.9, color = "coral", size = 1, linetype = "dashed")
+  gg <- gg + theme(axis.text.y = element_text(size = 9),
+                   axis.text.x = element_text(size = 9, angle = 60, hjust = 1),
+                   axis.title = element_blank(),
+                   legend.title = element_text(size = 9),
+                   legend.text = element_text(size = 9))
+
+  gg
+  
+```
+<!-- ... perils of such rules of thumb have been documented [@...]. A more rigorous alternative has been proposed by ...[@...], building off of earlier work...theorem in random matrix theory...etc. An advantage of this method is that it tells the researcher how much of the data can be meaningfully distinguished from noise, rather than the researcher arbitrarily imposing a fidelity upon the data which it may not possess. -->
+
+<!-- The perils of using these arbitrary cutoff rules has been well documented [@russell2002search]. Here I follow Laloux, Cizeau, Bouchaud, and Potters [-@laloux1999noise] who apply a more rigorous technique developed by physicists in the 1960s [@dehesa1983mathematical; @mehta2004random]. The technique is based on a key theorem of Random Matrix Theory that says that the distribution of the eigenvalues of any random correlation matrix is a function of the dimensions of the underlying matrix. Physicists have used this theorem to identify the important components ("collective modes") in complexly interacting systems by comparing the eigenvalue density plot of their data correlation matrix against that of a random matrix. The eigenvalues of the data correlation matrix that extend beyond the random matrix eigenvalue density can be identified as corresponding to components of the system that can be meaningfully distinguished from noise. -->
+
+
+<!-- \begin{equation} -->
+<!-- \sigma = 1 - {u_{max} \over n} -->
+<!-- \end{equation} -->
+
+<!-- \begin{equation} -->
+<!-- \hat{u}_{max} = \sigma (1 + {n \over \tau} + 2 \sqrt{n \over \tau}) -->
+<!-- \label{eq:eigvalMax_randMat} -->
+<!-- \end{equation} -->
+
+<!-- # ```{r} -->
+<!--   n_items <- ncol(mat_pctDiff_in) -->
+<!--   Q <- n_obs / n_items -->
+
+<!--       eigvalDens_fn <- function(sigma2_rand, Q){ -->
+<!--       eigvalRand_max <- sigma2_rand * (1 + 1 / Q + 2 / sqrt(Q)) -->
+<!--   eigvalRand_min <- sigma2_rand * (1 + 1 / Q - 2 / sqrt(Q)) -->
+<!--     eig_values <- seq(eigvalRand_min, eigvalRand_max, length.out = 50) -->
+<!--   eigvalDensity_rand <- Q / (2 * pi * sigma2_rand) * sqrt((eigvalRand_max - eig_values) * (eig_values - eigvalRand_min)) / eig_values -->
+<!-- return(data.frame(x = eig_values, y = eigvalDensity_rand)) -->
+<!--   } -->
+
+
+<!--   #list_dens <- density(eig_values) -->
+<!--   #sigma2_rand <- 1 - sum(eig_values[1]) / n_items -->
+<!--   sigma2_rand <- 0.4 -->
+<!--   df_eigvalDens <- eigvalDens_fn(sigma2_rand, Q) -->
+<!--   eigvalRand_max <- max(df_eigvalDens$x) -->
+<!-- which(eig_values > eigvalRand_max) -->
+
+<!--   #df_plot <- data.frame(x = list_dens$x, y = list_dens$y) -->
+<!--   df_plot <- data.frame(x = eig_values) -->
+<!--   gg <- ggplot() -->
+<!--   #gg <- gg + geom_histogram(data = df_plot, aes(x)) -->
+<!--   gg <- gg + geom_histogram(data = df_plot, aes(x = x, y = ..count../sum(..count..))) -->
+<!--   gg <- gg + geom_line(data = df_eigvalDens, aes(x, y), color = "blue") -->
+<!-- gg -->
+
+<!-- x <- df_eigvalDens$x -->
+<!-- y <- df_eigvalDens$y -->
+<!-- pracma::trapz(x, y) -->
+
+<!-- sum(diff(x)*rollmean(y,2)) -->
+
+
+
+<!--   s_sq <- 1 - eigval_max / n_items -->
+<!--   #s_sq <- 1 -->
+<!--   ind_keep <- which(eig_values > eigvalRand_max) -->
+<!--   eig_values[ind_keep] -->
+  
+<!-- #``` -->
+
+<!-- Evaluating this formula at the parameters $u_{max}$, $n$, and $\tau$ from the financial data gives $\hat{u}_{max}=$ `eigvalRand_max`. Only the 3 leading eigenvalues of $K_{XX}$ are greater than this value, suggesting that only the first 3 signals should be retained. The remainder of signals, by implication, are not meaningfully distinguishable from noise. ...suggests that 75% of the variance can be meaningfully distinguished from noise. -->
+
+<!-- ...approximating the assets covariance matrix [which leads directly to] -->
+<!-- ...signal portfolio optimization (inc. backtests?) -->
+
+The data correlation matrix can be approximated from the six retained signals as follows.
+
+\begin{equation}
+\hat{\Sigma}_{XX} = \tilde{L}\tilde{L}'
+\end{equation}
+
+The difference between the financial data correlation matrix and the signals derived correlation matrix is shown in Figure \ref{fig:compareCorMats}. The signals derived correlation matrix is approximate in the sense that it approximates the data correlation matrix. However, it should be kept in mind that the accuracy of the signals derived correlation matrix is not necessarily inferior to that of the data correlation matrix. To the extent that the original data are contaminated by noise, the signals derived correlation matrix may even be more accurate with respect to (unobservable) uncontaminated data, since it is effectively a noise-purged version of the data correlation matrix. A divergence between the two matrices should therefore not automatically be attributed to inferior accuracy in the signals derived matrix.
+
+```{r, fig.show='hold', fig.width=6, fig.height=4, fig.align='center', fig.cap="\\label{fig:compareCovMats}The data covariance matrix minus the covariance matrix derived from the retained signals."}
+#====================================================
+n_signals <- which(ck_vec > 0.9)[1]
+#n_signals <- 3
+#====================================================
+mat_X_in <- mat_pctDiff_train_mv
+list_out <- get_S_and_corrXS(mat_X_in, n_signals)
+mat_S <- list_out[[1]]
+cormat_XS_sigs <- list_out[[2]]
+eig_values <- list_out[[3]]
+
+mat_L <- cormat_XS_sigs
+covmat_XX <- cov(mat_X_in)
+covmat_XX_derived <- mat_L %*% t(mat_L)
+mat_diff_covmats <- covmat_XX - covmat_XX_derived
+
+plot_covmat(mat_diff_covmats, graph_on = F)
+
+
+```
+
+<!-- MV Analysis is still a work in progress [@Michaud...?]. One of the main issues limiting its usefulness in everyday applications is its sensitivity to noisy data, which often results in efficient frontiers that overstate returns and understate risk (as seen in the backtest in Figure \ref{fig:...}).-->
+It stands to reason, moreover, that replacement of the data covariance matrix with a signals derived covariance matrix in MV Analysis could improve the accuracy of the efficient frontier. Indeed, inaccuracy in the efficient frontier due to noisy covariance matrices severely limits the real usefulness of MV Analysis in everyday practice [@Michaud...]; and a backtest of the efficient frontiers from the exercise above reaffirms this (Figure \ref{fig:backtest}).
+
+```{r, fig.show='hold', fig.width=7, fig.height=3, fig.align='center', fig.cap="\\label{fig:backtest}Backtest of the efficient frontier using both conventional and utility shares. In both cases, real return on investment over the subsequent period turns out to be much lower, and risk much higher, than the efficient frontier would suggest."}
+# Back tests
+mv_conv_U_compare_colors <- rev(mv_conv_U_compare_colors)
+#--------------------------------------------------------
+df_plot_conv_mod <- df_plot_conv[, c("Risk (variance)", "ROI target")]
+df_plot_conv_btest <- df_plot_conv[, c("Risk backtest", "ROI backtest")]
+df_plot_conv_mod$Type <- "Optimal\nsolution"
+df_plot_conv_btest$Type <- "Backtest"
+colnames(df_plot_conv_mod) <- c("Risk", "ROI", "Type")
+colnames(df_plot_conv_btest) <- c("Risk", "ROI", "Type")
+#--------------------------------------------------------
+df_plot <- rbind(df_plot_conv_mod, df_plot_conv_btest)
+gg <- ggplot(df_plot, aes(x = Risk, y = ROI, group = Type, color = Type))
+gg <- gg + geom_point()
+gg <- gg + labs(title = "Conventional budget shares")
+gg <- gg + theme(legend.position = "none",
+                 plot.title = element_text(face = "bold", size = 10))
+gg_conv_backtest <- gg + scale_color_manual(values = mv_conv_U_compare_colors)
+# #--------------------------------------------------------
+df_plot_U_mod <- df_plot_U[, c("Risk (variance)", "ROI target")]
+df_plot_U_btest <- df_plot_U[, c("Risk backtest", "ROI backtest")]
+df_plot_U_mod$Type <- "Optimal\nsolution"
+df_plot_U_btest$Type <- "Backtest"
+colnames(df_plot_U_mod) <- c("Risk", "ROI", "Type")
+colnames(df_plot_U_btest) <- c("Risk", "ROI", "Type")
+# #--------------------------------------------------------
+df_plot <- rbind(df_plot_U_mod, df_plot_U_btest)
+gg <- ggplot(df_plot, aes(x = Risk, y = ROI, group = Type, color = Type))
+gg <- gg + geom_point()
+gg <- gg + labs(title = "Utility budget shares")
+gg <- gg + theme(legend.title = element_blank(),
+                 axis.title.y = element_blank(),
+                 plot.title = element_text(face = "bold", size = 10))
+gg_U_backtest <- gg + scale_color_manual(values = mv_conv_U_compare_colors)
+# #--------------------------------------------------------
+gg_conv_backtest + gg_U_backtest + plot_layout(ncol = 2)
+# #--------------------------------------------------------
+# gg <- ggplot()
+# gg <- gg + geom_point(data = df_plot_conv, aes(x = `Risk backtest`, y = `Return on investment`))
+# gg <- gg + geom_point(data = df_plot_U, aes(x = `Risk backtest`, y = `Return backtest`), color = "blue")
+# gg
+# 
+# 
+# 
+# 
+# gg_backTest_conv <- plot_frontier_wBacktest(df_frontier_conv, graph_on = T)
+# gg_backTest_U <- plot_frontier_wBacktest(df_frontier_U, graph_on = T)
+# gg_backTest_conv + gg_backTest_U + plot_layout(ncol = 2)
+
+
+```
+
+But the signals derived correlation/covariance matrix contains eigenvalues equal to zero, and is thus is not invertible. Being uninvertible, it cannot be used in MV Analysis. Nonetheless, there is an alternative route to the same goal of reducing noise in MV Analysis. The portfolio of assets can be replaced with a portfolio of signals.
+
+That is to say, instead of optimizing over a portfolio of $n$ assets, the problem is reduced to one of optimizing over just the $k$ retained signals. Instead of using the data covariance matrix in MV Analysis, the signals covariance matrix is used, which is just the diagonal eigenvalue matrix $\tilde{U}$ (recall equation \ref{eq:covmat_SS}) [truncated to the number of signals]. The vector of signal expected returns $\mathbf{\mu}_S$ can be aggregated up from the asset expected returns on the basis of signal-asset correlations.
+<!-- The expected return to each signal can be calculated as the sum of the expected returns to each asset weighted by their loadings onto the given signal.  -->
+
+$$
+\begin{equation}
+\mathbf{\mu}_S = \mathbf{\mu}' D(\mathbf{\eta})^{-1} L  \:\:\: ;\:\:  \eta = L\mathbf{1}
+\end{equation}
+$$
+MV Analysis then outputs the optimal budget shares to be allocated to each signal ($\mathbf{w}_S$), rather than to each asset. These signal budget shares can then be disaggregated down to individual allocations to each portfolio item ($\mathbf{w}_p$) again on the basis of signal-asset correlations.
+<!-- [L normalized such that sum of cols of L all = 1. this ok because eigenvectors defined up to scaling anyway] -->
+
+$$
+\begin{equation}
+\mathbf{w}_{p}^* = L D(\mathbf{\nu})^{-1} \mathbf{w}_{s}^* \:\:\: ;\:\: \nu = L'\mathbf{1}
+\end{equation}
+$$
+The optimal frontier and budget shares for the signals portfolio are displayed on the left side of Figure \ref{fig:sigPortfolio}. A backtest is displayed on the right side of the Figure. The signals portfolio performs well in the backtest, far exceeding the efficient frontier. The budget shares are mapped to the assets in Figure \ref{fig:...}.  In order to force positive budget shares, the utility approach is applied in... Figure \ref{fig:...}
+
+```{r, fig.show='hold', fig.width=6, fig.height=3, fig.align='center', fig.cap="\\label{fig:sigPortfolio}\\textit{(Left) }Optimal frontier and budget shares for the signals portfolio. \\textit{(Right) } Backtest of the frontier."}
+
+n_signals <- 6
 P_train <- eigen(cov(mat_pctDiff_train_mv))$vectors
 U_train <- diag(eigen(cov(mat_pctDiff_train_mv))$values)
-L_train <- P_train %*% sqrt(U_train)
+L_train <- diag(1 / apply(mat_pctDiff_train_mv, 2, sd)) %*% P_train %*% sqrt(U_train)
 P_test <- eigen(cov(mat_pctDiff_test_mv))$vectors
 U_test <- diag(eigen(cov(mat_pctDiff_test_mv))$values)
-L_test <- P_test %*% sqrt(U_test)
+L_test <- diag(1 / apply(mat_pctDiff_test_mv, 2, sd)) %*% P_test %*% sqrt(U_test)
 row.names(L_train) <- colnames(mat_pctDiff_train_mv)
 row.names(L_test) <- colnames(mat_pctDiff_train_mv)
+L_train <- L_train[, 1:n_signals]
+L_test <- L_test[, 1:n_signals]
+
+
+# mat_pctDiff_in <- mat_pctDiff_test_mv
+# mat_X_in <- mat_pctDiff_in
+# list_out <- get_S_and_corrXS(mat_X_in, n_signals)
+# mat_S_test <- list_out[[1]]
+# cormat_XS_sigs_test <- list_out[[2]]
+# eig_values_test <- list_out[[3]]
+# #cov(mat_S_test)
+# mat_L_test <- cormat_XS_sigs_test
 #--------------------------------------------------------------
+nab_C <- rep(1, n_signals)
 utility_interpretation <- F
 #--------------------------------------------------------------
 # Covariance matrix
-covmat_train <- U_train
-covmat_test <- U_test
+covmat_train <- U_train[1:n_signals, 1:n_signals]
+covmat_test <- U_test[1:n_signals, 1:n_signals]
+#round(cov(mat_S), 3) / U_train[1:n_signals, 1:n_signals]
+
+# covmat_train <- round(cov(mat_S), 3)
+# covmat_test <- cov(mat_S_test)
+# diag(covmat_train) / eig_values[1:n_signals]
+# diag(covmat_test) / eig_values_test[1:n_signals]
 #--------------------------------------------------------------
 # Expected returns vector
 nab_pctRet_train <- apply(10^-2 * mat_pctDiff_train_mv, 2, function(x) prod(1 + x)) - 1
@@ -1427,6 +1759,12 @@ nab_pctRet_sigs_train <- as.numeric(t(nab_pctRet_train) %*% diag(1 / rowSums(L_t
 nab_pctRet_sigs_test <- as.numeric(t(nab_pctRet_test) %*% diag(1 / rowSums(L_test)) %*% L_test)
 names(nab_pctRet_sigs_train) <- paste("Signal", 1:length(nab_pctRet_sigs_train))
 names(nab_pctRet_sigs_test) <- paste("Signal", 1:length(nab_pctRet_sigs_test))
+
+
+# nab_pctRet_sigs_train <- as.numeric(t(nab_pctRet_train) %*% diag(1 / rowSums(mat_L)) %*% mat_L)
+# nab_pctRet_sigs_test <- as.numeric(t(nab_pctRet_test) %*% diag(1 / rowSums(mat_L_test)) %*% mat_L_test)
+# names(nab_pctRet_sigs_train) <- paste("Signal", 1:length(nab_pctRet_sigs_train))
+# names(nab_pctRet_sigs_test) <- paste("Signal", 1:length(nab_pctRet_sigs_test))
 #--------------------------------------------------------------
 mat_nab <- cbind(nab_pctRet_sigs_train, nab_C)
 n_points_on_frontier <- 50
@@ -1476,7 +1814,7 @@ gg_backtest <- gg
 
 ```
 
-```{rfig.show='hold', fig.width=3, fig.height=3, fig.align='center', fig.cap="\\label{fig:assetWgts} The asset budget shares derived from the signals."}
+```{r, fig.show='hold', fig.width=3, fig.height=3, fig.align='center', fig.cap="\\label{fig:assetWgts} The asset budget shares derived from the signals."}
 
 # Map the signal weights back to the assets
 mat_wStar <- t(as.matrix(df_wStar[, -1]))
@@ -1500,7 +1838,7 @@ The portfolio optimization is performed using the utility approach to force posi
 #--------------------------------------------------------------
 utility_interpretation <- T
 #--------------------------------------------------------------
-Rtarg_limits <- c(0.01, 20)
+Rtarg_limits <- c(10^(-9), 1.5)
 #--------------------------------------------------------------
 fun_env_getOptFront[["Rtarg_limits"]] <- Rtarg_limits
 fun_env_getOptFront[["utility_interpretation"]] <- utility_interpretation
@@ -1542,14 +1880,32 @@ gg_backtest <- gg
 
 ```
 
+...rotating signals
+
+
+```{r}  
+  mat_Lrot <- varimax(mat_L)[[1]]
+  mat_Lrot <- matrix(as.numeric(mat_Lrot),
+                          attributes(mat_Lrot)$dim,
+                          dimnames = attributes(mat_Lrot)$dimnames)
+  
+  mat_Prot <- varimax(mat_P)[[1]]
+  mat_Prot <- matrix(as.numeric(mat_Prot),
+                          attributes(mat_Prot)$dim,
+                          dimnames = attributes(mat_Prot)$dimnames)
+
+mat_Lrot_sig <- mat_Lrot[, 1:n_signals]
+mat_Lrot_sig <- mat_Lrot[, 1:n_signals]
+mat_L_sig <- mat_L[, 1:n_signals]
+#(mat_L_sig %*% t(mat_L_sig)) / covmat
 
 
 
 
+  
 
 
-
-
+```
 
 ## Rotations
 - It is often instructive to apply an orthogonal rotation $R$ to the correlation matrix $L$ in order to further clarify the interpretation of signals. Let this rotated matrix be denoted $L_{\circlearrowleft}$.
@@ -1691,90 +2047,6 @@ return(list_out)
 }
 
 
-#Plot rotated loadings (interpret_loadings)
-  df_plot <- data.frame(id = colnames(mat_pctDiff_in), mat_Lrot)
-  signal_id <- paste("Signal", c(1:n_signals))
-  colnames(df_plot)[2:(n_signals + 1)] <- signal_id
-  gathercols <- as.character(signal_id) 
-  df_plot <- gather_(df_plot, "Signal", "Loading", gathercols)
-  df_plot <- transform(df_plot,
-                       Signal = factor(Signal, levels = gathercols))
-    gg <- ggplot(df_plot, aes(x = id, y = Loading))
-  gg <- gg + geom_bar(stat = "identity", color = "black", position = "dodge")
-  gg <- gg + facet_wrap(~ Signal, nrow = 1)
-  gg <- gg + theme(axis.text.y = element_text(size = 9),
-                   axis.text.x = element_text(size = 9),
-                   axis.title.y = element_blank(),
-                   axis.title.x = element_text(size = 9),
-                   legend.title = element_blank(),
-                   legend.text = element_text(size = 9)
-                   #plot.caption = element_text(size = 10, hjust = 0)
-                   )
-  #gg <- gg + labs(caption = fig_title)
-  gg <- gg + coord_equal()
-  gg <- gg + coord_flip()
-
-
-
-  
-  load_threshold <- 0.3
-  n_display_max <- 5
-  
-    date_vec <- row.names(mat_pctDiff_in)
-  xAxis_labels <- date_vec[seq(1, nrow(mat_pctDiff_in), length.out = 5)]
-  list_gg <- list()
-  for(i in 1:n_signals){
-    this_loadvec <- mat_P_sig[, i]
-    #ind_tracks <- which(abs(this_loadvec) >= load_threshold)
-    ind_tracks <- which(abs(this_loadvec) == max(abs(this_loadvec)))
-    mat_pctDiff_tracks <- mat_pctDiff_in[, ind_tracks]
-    #------------
-    # n_display <- length(ind_tracks)
-    # if(n_display > n_display_max){
-    #   n_to_omit <- n_display - n_display_max
-    #   random_omission <- sample(1:n_display, n_to_omit)
-    #   mat_pctDiff_tracks <- mat_pctDiff_tracks[, -random_omission]
-    # }
-    #------------
-    df_plot_sig <- data.frame(Date = date_vec, Value = mat_S[, i])
-    df_plot_tracks <- data.frame(Date = date_vec, mat_pctDiff_tracks)
-    if(ncol(df_plot_tracks) > 2){
-      gathercols <- colnames(mat_pctDiff_tracks)
-      colnames(df_plot_tracks)[-1] <- gathercols
-      df_plot_tracks <- df_plot_tracks %>% gather_("ts", "Value", gathercols)
-    }else{
-      colnames(df_plot_tracks)[-1] <- "Value"
-      df_plot_tracks$ts <- colnames(mat_pctDiff_in)[ind_tracks]
-    }
-    #-----
-    gg <- ggplot()
-    gg <- gg + geom_line(data = df_plot_sig, aes(x = Date, y = Value, group = 1), color = "grey", lwd = 1.3)
-    gg <- gg + geom_line(data = df_plot_tracks, aes(x = Date, y = Value, group = ts, color = ts))
-    gg <- gg + scale_x_discrete(breaks = xAxis_labels)
-    if(i == n_signals){
-      gg <- gg + labs(title = paste("Signal", i), caption = fig_title)
-      gg <- gg + theme(#axis.text.x = element_text(angle = 60, hjust = 1),
-        axis.title.x = element_blank(),
-        axis.title.y = element_blank(),
-        legend.title = element_blank(),
-        plot.title = element_text(size = 9)
-        #plot.caption = element_text(hjust = 0, size = 10)
-      )
-    }else{
-      gg <- gg + labs(title = paste("Signal", i))
-      gg <- gg + theme(axis.text.x = element_blank(),
-                       axis.title.x = element_blank(),
-                       axis.title.y = element_blank(),
-                       legend.title = element_blank(),
-                       plot.title = element_text(size = 9))
-    }
-    
-    list_gg[[i]] <- gg
-    
-  }
-  
-  gg_all <- wrap_plots(list_gg) + plot_layout(ncol = 1)
-  print(gg_all)
 
   
   
