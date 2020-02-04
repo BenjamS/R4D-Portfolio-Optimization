@@ -1291,7 +1291,7 @@ D(\mathbf{\sigma}_X)^{-1} PU D(\mathbf{\sigma}_S)^{-1}
 \end{matrix}
 \end{equation}
 $$
-The standard deviations of the signals are just the square roots of the eigenvalues (as shown in equation \ref{eq:covmat_SS}), so this reduces to
+But the standard deviations of the signals are just the square roots of the eigenvalues (recall equation \ref{eq:covmat_SS}), so this reduces to
 
 $$
 \begin{equation}
@@ -1348,17 +1348,18 @@ row.names(cormat_XS) <- colnames(mat_X_in)
 # mat_L_FactoMiner <- res$var$coord
 # mat_L / mat_L_FactoMiner
 mat_S_all <- mat_X_centered %*% mat_P
-list_out <- list(mat_S_all, cormat_XS, eig_values)
+list_out <- list(mat_S_all, cormat_XS, eig_values, mat_P)
 return(list_out)
 }
 #====================================================
 n_signals <- 4
 mat_pctDiff_in <- mat_pctDiff_train_mv
-mat_X_in <- mat_pctDiff_in
+mat_X_in <- mat_pctDiff_in * 10^-2
 list_out <- get_S_and_corrXS(mat_X_in)
 mat_S_all <- list_out[[1]]
 cormat_XS <- list_out[[2]]
 eig_values <- list_out[[3]]
+mat_P <- list_out[[4]]
 mat_S <- mat_S_all[, 1:n_signals]
 mat_L <- cormat_XS[, 1:n_signals]
 
@@ -1397,20 +1398,22 @@ plot_corrXS_barchart(mat_L)
 
 ```
 
-Clearly, Signal 4 is mostly about communications. Signal 3 is concerned with Utilities and Real Estate, and so might be called the "Housing & Urban Development Signal". The interpretation of Signals 1 and 2 is not so straightforward, since they are correlated with many portfolio items. In such cases, it is often useful to apply an orthogonal rotation to $L$ in order to clarify the picture. That is to say, instead of examining $L$, one examines
+Clearly, Signal 4 represents movements in communications. Signal 3 is concerned with Utilities and Real Estate, and so might be called the "Housing & Urban Development Signal". The interpretation of Signals 1 and 2 is not so straightforward, since they are correlated with many portfolio items. In such cases, it is often useful to apply an orthogonal rotation to $L$ in order to clarify the picture. That is to say, instead of examining $L$, one examines $L_{\circlearrowleft}$.
 
 $$
 \begin{equation}
-L_{\circlearrowleft} = LR \:\:;\:\:\: R'R = I
+L_{\circlearrowleft} = LR
 \end{equation}
 $$
+
+where $R$ is the orthogonal rotation matrix, such that $R'R = I$.
 <!-- Note that a rotation of $L$ implies a rotation of the signals, since -->
 
 <!-- \begin{equation} -->
 <!-- SR = XP -->
 <!-- \end{equation} -->
 
-In Figure \ref{fig:} a special kind of orthogonal rotation, called a varimax rotation, is applied to $L$. Varimax rotations flesh out structure by maximizing sparseness in the rotated matrix. After applying this rotation, it becomes clear that Signal 1 is representative of Biotechnology and Healthcare; and so Signal 1 might be called the "Pharmaceutical Signal". Signal 2 loadings are now more pronounced, especially Financials, Industrial, and Transportation. Signal 2 might thus be called the "Financial and Physical Infrastructure Signal."
+In Figure \ref{fig:} a special kind of orthogonal rotation, called a varimax rotation, is applied to $L$. Varimax rotations flesh out structure by maximizing sparseness in the rotated matrix. After applying this rotation, it becomes clear that Signal 1 is representative of Biotechnology and Healthcare; and so Signal 1 might be called the "Pharmaceutical Signal". Signal 2 loadings are now more pronounced, especially Financials, Industrial, and Transportation. Signal 2 might thus be called the "Financial and Physical Infrastructure Signal." In Figure \ref{fig:signals_with_hiCorr_items}, it becomes particularly evident how each signal hews closely to its most highly correlated items, offering visual confirmation of these interpretations. 
 
 ```{r, fig.show='hold', fig.width=6, fig.height=3, fig.align='center', fig.cap="\\label{fig:corrXS_barchart}Varimax rotated correlation of portfolio items with leading signals."}
 
@@ -1431,7 +1434,6 @@ plot_corrXS_barchart(mat_Lrot, xAxis_title)
 
 ```
 
-In Figure \ref{fig:signals_with_hiCorr_items}, it becomes particularly evident how each signal hews closely to its most highly correlated items, offering visual confirmation of the signal interpretations above. 
 
 ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center', fig.cap="\\label{fig:signals_with_hiCorr_items}Signals plotted together with their most highly correlated assets. The signals are plotted as thick grey lines."}
 # Define function to plot signals with their highest loading items.
@@ -1517,9 +1519,9 @@ if(is.null(sigNames)){
 # plot_sigs_wHiLoad_items(mat_X_in, mat_S, mat_L, sigNames, load_threshold = 0.55, n_display_max = 4)
 
 sigNames <- c("Pharmaceutical",
-              "Financial and Physical Infrastructure",
+              "Financial and Physical Infrastructure (Inverse)",
               "Housing & Urban Development (Inverse)",
-              "Communications (Inverse)")
+              "Communications")
 
 plot_sigs_wHiLoad_items(mat_X_in, mat_S, mat_Lrot, sigNames, load_threshold = 0.7, n_display_max = 4)
   
@@ -1624,14 +1626,13 @@ ck_vec <- cumsum(c_vec)
 
 <!-- ...approximating the assets covariance matrix [which leads directly to] -->
 <!-- ...signal portfolio optimization (inc. backtests?) -->
-
 The data correlation matrix can be approximated from the six retained signals as follows.
 
 \begin{equation}
 \hat{\Sigma}_{XX} = \tilde{L}\tilde{L}'
 \end{equation}
 
-The difference between the financial data correlation matrix and the signals derived correlation matrix is shown in Figure \ref{fig:compareCorMats}. The signals derived correlation matrix is approximate in the sense that it approximates the data correlation matrix. However, it should be kept in mind that the accuracy of the signals derived correlation matrix is not necessarily inferior to that of the data correlation matrix. To the extent that the original data are contaminated by noise, the signals derived correlation matrix may even be more accurate with respect to (unobservable) uncontaminated data, since it is effectively a noise-purged version of the data correlation matrix. A divergence between the two matrices should therefore not automatically be attributed to inferior accuracy in the signals derived matrix.
+The difference between the financial data correlation matrix and the signals derived correlation matrix is shown in Figure \ref{fig:compareCorMats}. The signals derived correlation matrix is approximate in the sense that it approximates the data correlation matrix, but it should not necessarily be considered inferior in terms of accuracy. To the extent that the original data are contaminated by noise, the signals derived correlation matrix may even be more accurate with respect to the "true process" that generates the data.
 
 ```{r, fig.show='hold', fig.width=6, fig.height=4, fig.align='center', fig.cap="\\label{fig:compareCovMats}The data covariance matrix minus the covariance matrix derived from the retained signals."}
 #====================================================
@@ -1642,27 +1643,17 @@ mat_S <- mat_S_all[, 1:n_signals]
 mat_L <- cormat_XS[, 1:n_signals]
 eig_values_sigs <- eig_values[1:n_signals]
 
-covmat_XX <- cov(mat_pctDiff_train_mv)
+covmat_XX <- cov(mat_X_in)
 covmat_XX_derived <- mat_L %*% t(mat_L)
 mat_diff_covmats <- covmat_XX - covmat_XX_derived
 
 plot_covmat(mat_diff_covmats, graph_on = F)
 
 
-mat_Lrot <- varimax(mat_L)[[1]]
-mat_Lrot <- matrix(as.numeric(mat_Lrot),
-                          attributes(mat_Lrot)$dim,
-                          dimnames = attributes(mat_Lrot)$dimnames)
-mat_R <- varimax(mat_L)[[2]]
-mat_R <- matrix(as.numeric(mat_R),
-                          attributes(mat_R)$dim,
-                          dimnames = attributes(mat_R)$dimnames)
-
-
 ```
 
 <!-- MV Analysis is still a work in progress [@Michaud...?]. One of the main issues limiting its usefulness in everyday applications is its sensitivity to noisy data, which often results in efficient frontiers that overstate returns and understate risk (as seen in the backtest in Figure \ref{fig:...}).-->
-It stands to reason, moreover, that replacement of the data covariance matrix with a signals derived covariance matrix in MV Analysis could improve the accuracy of the efficient frontier. Indeed, inaccuracy in the efficient frontier due to noisy covariance matrices severely limits the real usefulness of MV Analysis in everyday practice [@Michaud...]; and a backtest of the efficient frontiers from the exercise above reaffirms this (Figure \ref{fig:backtest}).
+Inaccuracy in the efficient frontier due to noisy covariance matrices severely limits the usefulness of MV Analysis in everyday practice [@Michaud...]. A backtest of the efficient frontiers from the example pursued in this paper reaffirms this (Figure \ref{fig:backtest}). It stands to reason that replacement of the data covariance matrix with a signals derived covariance matrix could improve the accuracy of the efficient frontier. But the signals derived covariance matrix contains eigenvalues equal to zero, and is thus is not invertible; and hence cannot be used in MV Analysis. Nonetheless, there is an alternative route to the same goal of reducing noise in MV Analysis: the portfolio of assets can be replaced with a portfolio of signals.
 
 ```{r, fig.show='hold', fig.width=7, fig.height=3, fig.align='center', fig.cap="\\label{fig:backtest}Backtest of the efficient frontier using both conventional and utility shares. In both cases, real return on investment over the subsequent period turns out to be much lower, and risk much higher, than the efficient frontier would suggest."}
 # Back tests
@@ -1716,9 +1707,7 @@ gg_conv_backtest + gg_U_backtest + plot_layout(ncol = 2)
 
 ```
 
-But the signals derived covariance matrix contains eigenvalues equal to zero, and is thus is not invertible. Being uninvertible, it cannot be used in MV Analysis. Nonetheless, there is an alternative route to the same goal of reducing noise in MV Analysis: the portfolio of assets can be replaced with a portfolio of signals.
-
-That is to say, instead of optimizing over a portfolio of $n$ assets, the problem is reduced to one of optimizing over just the $k$ retained signals. Instead of using the data covariance matrix in MV Analysis, the signals covariance matrix is used, which is just the first $k$ rows and columns of the diagonal eigenvalue matrix $\tilde{U}$ (recall equation \ref{eq:covmat_SS}). The vector of signal expected returns $\mathbf{\mu}_S$, meanwhile, can be aggregated up from the asset expected returns on the basis of the signal-asset correlations in K_{XS}.
+That is to say, instead of optimizing over a portfolio of $n$ assets, the problem is reduced to one of optimizing over just the $k$ retained signals. Instead of using the data covariance matrix in MV Analysis, the signals covariance matrix is used, which is just the first $k$ rows and columns of the diagonal eigenvalue matrix $\tilde{U}$ (recall equation \ref{eq:covmat_SS}). The vector of expected returns to signals $\mathbf{\mu}_S$ can be aggregated up from the asset expected returns based on the .
 <!-- The expected return to each signal can be calculated as the sum of the expected returns to each asset weighted by their loadings onto the given signal.  -->
 
 $$
@@ -1731,29 +1720,31 @@ To test this idea, the signals portfolio efficient frontier and budget shares ar
 
 ```{r, fig.show='hold', fig.width=6, fig.height=3, fig.align='center', fig.cap="\\label{fig:sigPortfolio}\\textit{(Left) }Optimal frontier and budget shares for the signals portfolio. \\textit{(Right) } Backtest of the frontier."}
 
-# n_signals <- 6
-# P_train <- eigen(cov(mat_pctDiff_train_mv))$vectors
-# U_train <- diag(eigen(cov(mat_pctDiff_train_mv))$values)
-# L_train <- diag(1 / apply(mat_pctDiff_train_mv, 2, sd)) %*% P_train %*% sqrt(U_train)
-# P_test <- eigen(cov(mat_pctDiff_test_mv))$vectors
-# U_test <- diag(eigen(cov(mat_pctDiff_test_mv))$values)
-# L_test <- diag(1 / apply(mat_pctDiff_test_mv, 2, sd)) %*% P_test %*% sqrt(U_test)
-# row.names(L_train) <- colnames(mat_pctDiff_train_mv)
-# row.names(L_test) <- colnames(mat_pctDiff_train_mv)
-# L_train <- L_train[, 1:n_signals]
-# L_test <- L_test[, 1:n_signals]
-# mat_L / L_train_sigs
 
-mat_pctDiff_in <- mat_pctDiff_test_mv
-mat_X_in <- mat_pctDiff_in
+mat_Lrot <- varimax(mat_L)[[1]]
+mat_Lrot <- matrix(as.numeric(mat_Lrot),
+                          attributes(mat_Lrot)$dim,
+                          dimnames = attributes(mat_Lrot)$dimnames)
+# mat_R <- varimax(mat_L)[[2]]
+# mat_R <- matrix(as.numeric(mat_R),
+#                           attributes(mat_R)$dim,
+#                           dimnames = attributes(mat_R)$dimnames)
+
+
+mat_X_in_test <- mat_pctDiff_test_mv * 10^-2
 list_out <- get_S_and_corrXS(mat_X_in)
 mat_S_test_all <- list_out[[1]]
 cormat_XS_test <- list_out[[2]]
 eig_values_test <- list_out[[3]]
-mat_S_test <- mat_S_test[, 1:n_signals]
+mat_S_test <- mat_S_test_all[, 1:n_signals]
 mat_L_test <- cormat_XS_test[, 1:n_signals]
 eig_values_sigs_test <- eig_values_sigs[1:n_signals]
 # mat_L_test / L_test
+mat_Lrot_test <- varimax(mat_L_test)[[1]]
+mat_Lrot_test <- matrix(as.numeric(mat_Lrot_test),
+                          attributes(mat_Lrot_test)$dim,
+                          dimnames = attributes(mat_Lrot_test)$dimnames)
+
 # eig_values_test / eigen(cov(mat_X_in))$values
 #cov(mat_S_test)
 #--------------------------------------------------------------
@@ -1798,10 +1789,15 @@ covmat_test <- cov(mat_S_test)
 # diag(covmat_test) / eig_values_test[1:n_signals]
 #--------------------------------------------------------------
 # Expected returns vector
-nab_pctRet_train <- apply(10^-2 * mat_pctDiff_train_mv, 2, function(x) prod(1 + x)) - 1
-nab_pctRet_test <- apply(10^-2 * mat_pctDiff_test_mv, 2, function(x) prod(1 + x)) - 1
-nab_pctRet_sigs_train <- as.numeric(t(nab_pctRet_train) %*% diag(1 / rowSums(mat_L)) %*% mat_L)
-nab_pctRet_sigs_test <- as.numeric(t(nab_pctRet_test) %*% diag(1 / rowSums(mat_L_test)) %*% mat_L_test)
+# nab_pctRet_train <- apply(10^-2 * mat_pctDiff_train_mv, 2, function(x) prod(1 + x)) - 1
+# nab_pctRet_test <- apply(10^-2 * mat_pctDiff_test_mv, 2, function(x) prod(1 + x)) - 1
+# 
+# nab_pctRet_sigs_train <- apply(mat_S, 2, function(x) prod(1 + x)) - 1
+# nab_pctRet_sigs_test <- apply(mat_S_test, 2, function(x) prod(1 + x)) - 1
+
+nab_pctRet_sig_train <- runif(n_signals) * 10^-1
+#nab_pctRet_sigs_train <- as.numeric(t(nab_pctRet_train) %*% diag(1 / rowSums(mat_Lrot)) %*% mat_Lrot)
+nab_pctRet_sigs_test <- as.numeric(t(nab_pctRet_test) %*% diag(1 / rowSums(mat_Lrot_test)) %*% mat_Lrot_test)
 
 # nab_pctRet_sigs_train <- as.numeric(t(nab_pctRet_train) %*% diag(1 / rowSums(L_train)) %*% L_train)
 # nab_pctRet_sigs_test <- as.numeric(t(nab_pctRet_test) %*% diag(1 / rowSums(L_test)) %*% L_test)
@@ -1812,7 +1808,7 @@ names(nab_pctRet_sigs_test) <- paste("Signal", 1:length(nab_pctRet_sigs_test))
 #--------------------------------------------------------------
 mat_nab <- cbind(nab_pctRet_sigs_train, nab_C)
 n_points_on_frontier <- 50
-Rtarg_limits <- c(0.2, 0.3)
+Rtarg_limits <- c(0.26, 1.1)
 backtest_info <- list()
 backtest_info[["nab_pctRet_test"]] <- nab_pctRet_sigs_test
 backtest_info[["covmat_test"]] <- covmat_test
@@ -1891,7 +1887,7 @@ MV Analysis then outputs the optimal budget shares to be allocated to each signa
 # Map the signal weights back to the assets
 mat_wStar <- t(as.matrix(df_wStar[, -1]))
 #colSums(mat_L %*% diag(1 / colSums(mat_L)))
-mat_wStar_assets <- mat_Lrot %*% mat_wStar
+mat_wStar_assets <- mat_P[, 1:n_signals] %*% mat_wStar
 mat_wStar_assets <- exp(mat_wStar_assets)
 mat_wStar_assets <- apply(mat_wStar_assets, 2, function(x) x / sum(x))
 df_wStar_assets <- data.frame(df_wStar$`Risk (standard deviation)`, t(mat_wStar_assets))
@@ -2008,9 +2004,57 @@ $$
 
 
 
-## Toy example
+# In the AR4D context...
+
+Having elicited $L_{\circlearrowleft}$ and $\mathbf{\sigma}_X$... the $k$ leading eigenvectors and eigenvalues of the unobserved data matrix' covariance matrix can be derived from this information as follows... Define a new matrix as
+
+$$
+\begin{equation}
+Q = D(\mathbf{\sigma}_X) L_{\circlearrowleft}
+\end{equation}
+$$
+By equation ... it follows that 
+
+$$
+\begin{equation}
+Q = P U^{1 \over 2} R
+\end{equation}
+$$
+and hence
+
+$$
+\begin{equation}
+Q'Q= L_{\circlearrowleft}' D(\mathbf{\sigma}^2_X) L_{\circlearrowleft} = R'U R
+\end{equation}
+$$
+Therefore, $U$ and $R$ can be obtained through the eigendecomposition of $Q'Q$, which is elicited from stakeholders. The $k$ leading eigenvectors of the unobserved data matrix can then be obtained by post multiplying $Q$ by these matrices as follows.
+
+$$
+\begin{eqnarray}
+Q R' U^{-{1 \over 2}} &=& PU^{1 \over 2}RR'U^{-{1 \over 2}} \\ &=& P
+\end{eqnarray}
+$$
+```{r}
+
+#D_sdX <- diag(apply(mat_pctDiff_train_mv, 2, sd))
+n_proj <- 11
+n_sig <- 4
+D_sdX <- diag(runif(n_proj)) #stand devs of projects, elicited
+mat_Lrot_eg <- matrix(rnorm(66), n_proj, n_sig)
+mat_Lrot_eg[which(mat_Lrot_eg > 1)] <- 0.98
+mat_Lrot_eg[which(mat_Lrot_eg < -1)] <- -0.98 #rotated loadings (X<->S correlations), elicited
+#Now derive U, R, P
+Q <- D_sdX %*% mat_Lrot_eg
+R <- t(eigen(t(Q) %*% Q)$vectors) #orthog rotation matrix
+eigvals <- eigen(t(Q) %*% Q)$values #signal variances
+P_dervd <- D_sdX %*% mat_Lrot_eg %*% t(R) %*% diag(1 / eigvals^(1 / 2)) #eigenvectors of covmat of X
+round(t(P_dervd) %*% P_dervd, 3) #check orthogonality
+
+
+```
 
 In practice, AR4D risk adjusted portfolio optimization would come after Step 3, either complementing or replacing the ranking of research proposals in order of priority that is slated to occur in Step 4. By this point in the resource allocation workflow, a list of research proposals has been drawn up, and the expected impact of each proposal has been assessed and quantified. This quantification of net impacts is calculated over the dimensions of interest to the stakeholders. For example, if the ... then the net impact is an aggregation of the net benefits in each of these categories. A hypothetical list of such proposals is presented in Figure \ref{fig:ExpPctRet_Examp}.^{The AR4D proposals are loosely grouped into four categories to facilitate interpretation of the gaphics, but there is no strict rule followed, and clearly some overlap, in the grouping. The "Heat Tolerant Beans" proposal has been placed in the "Smallholder Staples" category, but just as well could just have gone under "Climate Smart Agriculture".}
+
 
 ```{r, fig.show = "hold", fig.width = 8, fig.height = 4, fig.align = "center", fig.cap = "\\label{fig:ExpPctRet_Examp}A set of hypothetical AR4D proposals and their expected returns."}
 
