@@ -641,7 +641,7 @@ get_hist_dfs_ready <- function(mat_pctDiff, group_info){
 
 #=======================================================================
 # Define function to plot covariance/correlation matrices
-plot_covmat <- function(covmat, graph_on = T){
+plot_covmat <- function(covmat, fig_title = "Covariance Matrix", graph_on = T){
   #covmat <- cov(mat_pctDiff_train_mv)
   covmat[upper.tri(covmat)] <- NA
   df_plot <- covmat %>% tbl_df()
@@ -657,7 +657,9 @@ plot_covmat <- function(covmat, graph_on = T){
   gg <- ggplot(df_plot, aes((ItemX), (ItemY)))
   gg <- gg + geom_tile(aes(fill = Value))#, width = 4, height = 4)
   gg <- gg + geom_text(aes(label = round(Value, 2)), size = 3)
-  #gg <- gg + labs(title = "Covariance Matrix")
+  if(!is.null(fig_title)){
+    gg <- gg + labs(title = fig_title)
+  }
   gg <- gg + theme_bw()
   gg <- gg + theme(axis.text.x = element_text(angle = 60, hjust = 1),
                  axis.title = element_blank(),
@@ -675,8 +677,13 @@ plot_covmat <- function(covmat, graph_on = T){
 # ind_train <- 1:round(nrow(mat_pctDiff) * 1 / 2)
 # ind_test <- setdiff(1:nrow(mat_pctDiff), ind_train)
 length_Q <- 67
-ind_train <- (nrow(mat_pctDiff) - 2 * length_Q + 1):(nrow(mat_pctDiff) -  length_Q)
-ind_test <- (nrow(mat_pctDiff) - length_Q + 1):nrow(mat_pctDiff)
+buffer <- 34
+# min_pctRet <- c()
+# cv_pctRet <- c()
+# for(i in 1:80){
+# buffer <- 2+i
+ind_train <- (nrow(mat_pctDiff) - 2 * length_Q - buffer + 1):(nrow(mat_pctDiff) -  length_Q - buffer)
+ind_test <- (nrow(mat_pctDiff) - length_Q - buffer + 1):(nrow(mat_pctDiff) - buffer)
 
 mat_pctDiff_train <- mat_pctDiff[ind_train, ]
 mat_pctDiff_test <- mat_pctDiff[ind_test, ]
@@ -708,6 +715,11 @@ ind_keep <- which(colnames(mat_pctDiff_train) %in% these_items)
 mat_pctDiff_train_mv <- mat_pctDiff_train[, ind_keep]
 mat_pctDiff_test_mv <- mat_pctDiff_test[, ind_keep]
 #covmat <- cov(mat_pctDiff_train_mv); kappa(covmat)
+mu_pctRet <- apply(10^-2 * mat_pctDiff_train_mv, 2, function(x) prod(1 + x)) - 1
+# min_pctRet[i] <- min(mu_pctRet)
+# cv_pctRet[i] <- sd(mu_pctRet) / mean(mu_pctRet)
+# }
+# View(data.frame(min_pctRet, cv_pctRet))
 #----------------------------------------------------------
 fig_title <- "Period Returns"
 list_graph_options <- list()
@@ -1163,7 +1175,7 @@ df_frontier_U <- df_frontier
 df_wStar_U <- df_wStar
 
 
-kappa(cov(mat_pctDiff_train[, c(colnames(mat_pctDiff_train) %in% spy_sector_detail)]))
+#kappa(cov(mat_pctDiff_train[, c(colnames(mat_pctDiff_train) %in% spy_sector_detail)]))
 
 ```
 
@@ -1239,8 +1251,6 @@ df_plot_U$`ROI backtest` <- df_plot_U$`Return backtest` / df_plot_U$Tot_investme
 # #=======================================================================
 
 ```
-
-
 
 # The signals portfolio
 
@@ -1643,7 +1653,7 @@ mat_S <- mat_S_all[, 1:n_signals]
 mat_L <- cormat_XS[, 1:n_signals]
 eig_values_sigs <- eig_values[1:n_signals]
 
-covmat_XX <- cov(mat_X_in)
+covmat_XX <- cov(mat_pctDiff_train_mv)
 covmat_XX_derived <- mat_L %*% t(mat_L)
 mat_diff_covmats <- covmat_XX - covmat_XX_derived
 
@@ -1732,7 +1742,7 @@ mat_Lrot <- matrix(as.numeric(mat_Lrot),
 
 
 mat_X_in_test <- mat_pctDiff_test_mv * 10^-2
-list_out <- get_S_and_corrXS(mat_X_in)
+list_out <- get_S_and_corrXS(mat_X_in_test)
 mat_S_test_all <- list_out[[1]]
 cormat_XS_test <- list_out[[2]]
 eig_values_test <- list_out[[3]]
@@ -1789,16 +1799,15 @@ covmat_test <- cov(mat_S_test)
 # diag(covmat_test) / eig_values_test[1:n_signals]
 #--------------------------------------------------------------
 # Expected returns vector
-# nab_pctRet_train <- apply(10^-2 * mat_pctDiff_train_mv, 2, function(x) prod(1 + x)) - 1
-# nab_pctRet_test <- apply(10^-2 * mat_pctDiff_test_mv, 2, function(x) prod(1 + x)) - 1
-# 
 # nab_pctRet_sigs_train <- apply(mat_S, 2, function(x) prod(1 + x)) - 1
 # nab_pctRet_sigs_test <- apply(mat_S_test, 2, function(x) prod(1 + x)) - 1
-
+#---
+nab_pctRet_train <- apply(10^-2 * mat_pctDiff_train_mv, 2, function(x) prod(1 + x)) - 1
+nab_pctRet_test <- apply(10^-2 * mat_pctDiff_test_mv, 2, function(x) prod(1 + x)) - 1
 nab_pctRet_sig_train <- runif(n_signals) * 10^-1
-#nab_pctRet_sigs_train <- as.numeric(t(nab_pctRet_train) %*% diag(1 / rowSums(mat_Lrot)) %*% mat_Lrot)
+nab_pctRet_sigs_train <- as.numeric(t(nab_pctRet_train) %*% diag(1 / rowSums(mat_Lrot)) %*% mat_Lrot)
 nab_pctRet_sigs_test <- as.numeric(t(nab_pctRet_test) %*% diag(1 / rowSums(mat_Lrot_test)) %*% mat_Lrot_test)
-
+#---
 # nab_pctRet_sigs_train <- as.numeric(t(nab_pctRet_train) %*% diag(1 / rowSums(L_train)) %*% L_train)
 # nab_pctRet_sigs_test <- as.numeric(t(nab_pctRet_test) %*% diag(1 / rowSums(L_test)) %*% L_test)
 # nab_pctRet_sigs_train <- as.numeric(t(nab_pctRet_train) %*% diag(1 / rowSums(mat_Lrot)) %*% mat_Lrot)
@@ -2569,31 +2578,11 @@ Discussion
 -[BUT] Adaptation of MV analysis to the AR4D context requires clearing some non-trivial methodological hurdles, which have also been of concern in the financial context: addressing the negative budget allocations and noise reduction. Here I have explored the possibility of redressing these issues in a novel ways (...) .
 -Here I am mainly concerned with introduction and adaptation of these methods to the AR4D context. and pointing towards their potential. In the financial example, there is enough data to conduct a backtest. The results of the backtest are encouraging, but do not necessarily prove that the methods presented here will always generate portfolio frontiers that are more accurate than the conventional frontier. More empirical tests are necessary for that.
 
-When applied to the AR4D context, the modified portfolio optimization workflow yields analagous insights. The crops loading highest onto the signals are those which are most correlated with the signals (Figures \ref{fig:loadsRotFAO} and \ref{fig:sigs2FAO}). The optimal budget allocation increases with investor risk tolerance for some crops, while decreasing for others (Figure \ref{fig:mvUtilityFAO}).
-
--COPARE The noise reduced [signal] portfolio vs. the conventional portfolio.
-
-However, the AR4D data environment is much sparser, yielding just two signals that can be meaningfully distinguished from noise, and not enough observations to conduct a backtest.
-
-Suggested future research
-
-As FAO resolution (number of observations) increases, the components of the system will become more clearly rendered. In the meantime, the FAO dataset could be extended into the future using IMPACT projections. "Future backtests" of the optimal portfolio could then be conducted for different Representative Concentration Pathway and Shared Socioeconomic Pathway scenario combinations [@IMPACT citation].
-
-This exercise has merely scratched the surface of the potential for MV analysis applications in the AR4D context. An obvious next step would be to repeat the exercise for different geographies and country groupings ("Net Food Importing Developing Countries", etc.).^[My own cursory explorations suggest that efficient frontiers and budget shares vary substantially from one geography to another.] It would also be interesting to repeat the analysis on a value per kilocalorie basis rather than the value per unit weight basis used above. Finally, in the AR4D context the portfolio approach need not be based on crops or price data at all. The portfolio could, rather, contain research programs; and the returns vector could reflect their respective expected impacts, measured using ex-ante impact assessment tools. This would be more in line with the AR4D resource allocation workflow articulated by Mills, referred to at the start of this paper. However, this more direct approach would require assessment not only of expected impacts, but also of the risks associated with each program. It would also require a precise assessment of synergies and tradeoffs between programs, such that a program impact covariance matrix could be estimated. Any effort to apply MV analysis to a portfolio of programs, initiatives, or projects must first adequately address these issues. [In addition to redressing the issue of negative budget weights and noise, which I have done in this paper, diminishing returns and risk assessment] Millsian Workflow diagram?
 
 [end]
 
 MV Analysis is still a work in progress even in the financial context where it originated. In my adaptation to the AR4D context, I have attempted to redress the issue of negative budget shares by replacing the revenue and cost functions with utility functions. To redress the issue of noise-induced inaccuracy, I have attempted to purge the noise from the portfolio by dimensionally reducing the portfolio to a handful of signals constructed from those eigenvectors of the data correlation matrix that can be meaningfully distinguished from noise. To isolate these signals, I have applied a criterion developed in the study of phsyical systems, more rigorous than the usual rules of thumb. A backtest of these modifications compares favorably to conventional MV Analysis.
 
-<!-- An important implication of the theorem is that signal extraction is as much a function of data quality (i.e. whether there really is structure in the observed system, and how well this is captured in the data) as it is of data quantity. If none or very few of the eigenvalues of a given data correlation matrix can be distinguished from noise, this can be either because there is no structure to be found in the observed system, or because there are not enough observations to fully flesh out the structure. Just as a low resolution image of a person is difficult to distinguish from an image of randomly shaded pixels, underlying structure in the FAO data may be difficult to discern due to the low number of observations currently available. -->
-
-<!-- * Efficient frontiers and budget shares vary substantially with geographic focus. The accuracy of those frontiers in future backtests, moreover, varies substantially with assumptions about future climate, demographic, and economic growth projections, as well as assumptions about government commitment to mitigating. -->
-
-<!-- * Other things to try: other geographical areas or categories ("Net Food Importing Developing Countries"), future scenarios, vap per kcal -->
-
-<!-- [Removed from abstract:  There is not enough FAO data for an historical backtest, but I introduce the notion of a "future backtest" based on hypothetical extensions of the FAO data into the future using the IMPACT sector equilibrium model. Future backtest results are compared under a range of different assumptions regarding future socioeconomic and emissions trajectories.] -->
-
-   <!-- dimensionally reduce the portfolio from the number of items it contains to the number of signals that can be meaningfully distinguished from noise. I then conduct MV Analysis over the signals portfolio. In a backtest over the present financial dataset, this method generates a frontier that offers more accurate, better peforming portfolios than the conventional approach. This may be of interest to financial analysts, as it has not yet appeared in the financial literature. whereby the noisy dimensions are purged from the data and only the "signally" dimensions retained. -->
 
 \pagebreak
 
