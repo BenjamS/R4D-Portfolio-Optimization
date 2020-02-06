@@ -1459,7 +1459,7 @@ mat_R <- matrix(as.numeric(mat_R),
 
   
 xAxis_title <- "Varimax Rotated Correlation"
-plot_corrXS_barchart(mat_Lrot, xAxis_title)
+plot_corrXS_barchart(mat_Lrot, group_info = NULL, xAxis_title)
 
 
 ```
@@ -2119,7 +2119,10 @@ df_x$Proposal <- NULL
 mat_Lrot <- as.matrix(df_x)
 rownames(mat_Lrot) <- prop_col
 list_groups <- list(prop_highYcommod, prop_smallHolder, prop_CSA, prop_socialCap)
-group_info <- list(list_groups, group_names)
+n_groups <- length(list_groups)
+bag_of_colors <- randomcoloR::distinctColorPalette(k = 5 * n_groups)
+group_colors <- sample(bag_of_colors, n_groups)
+group_info <- list(list_groups, group_names, group_colors)
 
 sigNames <- c("Economic\nGrowth", "Economic\nEquality", "Environmental\nSustainability")
 xAxis_title <- "Rotated Correlations"
@@ -2190,32 +2193,9 @@ This offers insight into the implicit risk of each research proposal---the diago
 ```{r, fig.show = "hold", fig.width = 6, fig.height = 4, fig.align = "center", fig.cap = "\\label{fig:covmatProps}AR4D proposal covariance matrix derived from the elicited loadings."}
 
 covmat_XX_derived <- mat_Lrot %*% t(mat_Lrot)
-fig_title <- "AR4D Proposal Covariance Matrix\nDerived from Loadings"
+fig_title <- "Crowdsourced AR4D Proposal Covariance Matrix"
 plot_covmat(covmat_XX_derived, fig_title, graph_on = F)
 
-
-
-covmat <- mat_Lrot %*% t(mat_Lrot)
-n_col <- ncol(covmat)
-df_plot <- covmat %>% tbl_df()
-these_levels <- colnames(df_plot)
-df_plot$Proposal1 <- colnames(df_plot)
-gathercols <- colnames(df_plot)[-ncol(df_plot)]
-df_plot <- df_plot %>% gather_("Proposal2", "Value", gathercols)
-
-df_plot$Proposal1 <- factor(df_plot$Proposal1, levels = these_levels)
-df_plot$Proposal2 <- factor(df_plot$Proposal2, levels = these_levels)
-
-#midpoint <- min(covmat) + (max(covmat) - min(covmat)) / 2
-midpoint <- 0
-gg <- ggplot(df_plot, aes(Proposal1, Proposal2))
-gg <- gg + geom_tile(aes(fill = Value))#, width = 4, height = 4)
-gg <- gg + geom_text(aes(label = round(Value, 2)), size = 3)
-gg <- gg + theme(axis.text.x = element_text(angle = 60, hjust = 1),
-                 axis.title = element_blank(),
-                 legend.title = element_blank())
-gg <- gg + scale_fill_gradient2(low = "magenta", mid = "khaki", high = "cyan", midpoint)
-gg
 
 
 ```
