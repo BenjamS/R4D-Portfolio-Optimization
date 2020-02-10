@@ -6,9 +6,9 @@ author:
     affiliation: CIAT
 address:
   - code: CIAT
-    address: Decision and Policy Analysis Unit, Alliance Bioversity-CIAT, Km 17 Recta Cali-Palmira, Valle del Cauca, Colombia
+    address: Alliance Bioversity-CIAT, Km 17 Recta Cali-Palmira, Valle del Cauca, Colombia
 abstract: |
- Conventional agricultural research for development (AR4D) priority setting exercises generate valuable insight into the strengths and weaknesses of individual agricultural research proposals, but they stop short of providing tools that can translate this insight into optimal resource allocation shares across a portfolio containing several such proposals. They also lack tools for risk accounting. Here I explore the possibility of redressing both methodological lacunae in one stroke by adapting Mean-Variance (MV) Analysis, a risk-adjusted portfolio optimization technique developed in financial contexts, to the AR4D portfolio optimization problem. Along the way, I present new approaches to two old problems in MV Analysis: negative budget shares and noise-induced inaccuracy. These innovations compare favorably to the baseline Mean-Variance model in a backtest using financial data. I then apply the modified MV model to the AR4D context using FAO farmgate price data for Sub-Saharan Africa.
+ Conventional agricultural research for development (AR4D) priority setting exercises can generate insight into the strengths and weaknesses of individual agricultural research proposals, but they stop short of providing tools that can translate this insight into optimal resource allocation shares across a portfolio containing several such proposals. They also lack tools for risk accounting. Here I explore the possibility of redressing both methodological lacunae in one stroke by adapting Mean-Variance (MV) Analysis, a risk-adjusted portfolio optimization technique developed in financial contexts, to the AR4D portfolio optimization problem.
 keywords: Risk-adjusted portfolio optmization, Mean-Variance Analysis, AR4D, ex-ante impact assessment, foresight
 journal: Alliance Bioversity-CIAT Working Paper
 bibliography: AR4D Portfolio Optimization.bib
@@ -51,8 +51,9 @@ However, he went on to observe that these steps were insufficient. An as of yet 
 
 Mills identified this lacuna at a time when AR4D centers were just beginning to come under pressure from public and private donors to "do a lot more with a lot less" [@Alston1995]. Methodological work in response to this pressure focused on Steps 1-4. The emergence and refinement of numerous ex-ante impact assessment models for the evaluation of individual research alternatives, in particular, is remarkable (see, for example, @Alston1995; @Antle1999; @Antle2015; Mills, 1998; and @nelson2014modeling). However, work has still not begun on Mills' missing fifth step.
 
-![Mill's missing fifth step in the resource allocation workflow. Adapted from Mills [-@Mills1998]](Mills_missing_step5.png)
-
+```{r, fig.show = 'hold', out.width="15cm", fig.align='left'}
+knitr::include_graphics("Mills_missing_step5.png")
+```
 In hindsight, Mills' concern was well founded. Budgetary pressure on AR4D centers to "prove their relevance" [@Braunschweig2000], "show value for money" [@yet2016bayesian], and otherwise demonstrate "more efficient spending of resources" [@petsakos2018comparing] has only increased since the 1990s. Between Step 4 and the final allocation of funds, stakeholder politics, institutional inertia, ad hoc procedures and criteria, and other subjective forces have repeatedly undercut any careful, objective rigor occurring in Steps 1-4 [@Birner2016; @mccalla2014cgiar]. This  inconsistency, opacity, and subjectivity in resource allocation decisions, has, in turn, aggravated scientists' already longstanding distrust of budget allocation mechanisms. Relations between donors and the research programs they fund have, as a result, reached an historic level of toxicity [@Birner2016; @leeuwis2018reforming; @mccalla2014cgiar].
 
 A rigorous tool _at the portfolio level_, along the lines suggested by Mills over twenty years ago, could go a long ways in guaranteeing the consistency, transparency, and objectivity that is, in large part, responsible for this toxicity. [has been lacking from the resource allocation process.] It would also be nice if such a method took explicit account of the risk associated with each research alternative, and were quick and inexpensive to implement relative to consensus building mechanisms such as the Analytical Hierarchy Process [@Braunschweig2000]. In this paper, I explore the possibility of building such a tool based on risk-adjusted portfolio optimization techniques developed in the financial context.
@@ -86,8 +87,11 @@ _Negative budget shares:_ To each point along the efficient frontier in Figure \
 
 _Lack of a covariance matrix:_ MV Analysis requires information regarding the tradeoffs and synergies between portfolio items. Another word for these tradeoffs and synergies is covariance. A positive covariance may be considered a synergy, while a negative covariance is a tradeoff. In the financial context, covariances can be calculated from data. In the AR4D context, no such data exists.
 
-After a brief introduction to MV Analysis in the following section, I redress each of these issues. In Section 3, I redress both the scalability and negative budget share issues by replacing the linear returns function used in MV Analysis with a logarithmic form derived from the law of diminishing marginal returns. In Section 4, I show how a lack of data can be compensated by domain knowledge in order to "reverse engineer" a covariance matrix. The deduced matrix is useful for orienting stakeholder discussions, but cannot be used in portfolio optimization. For optimization, I first reduce the portfolio of AR4D proposals to a portfolio of thematic objectives or "signals", mathematically defined by how correlated they are with each portfolio item. The signal covariance matrix, based on the same domain knowledge used to estimate the project covariance matrix, _can_ be used in portfolio optimization. I then show how the optimal budget shares allocated to each thematic objective can be mapped back to individual portfolio items. Finally I walk through a an illustrative example of what this AR4D-adapted version of MV Analysis might look like in practice.
+After a brief introduction to MV Analysis in the following section, I redress each of these issues. In Section 3, I redress both the scalability and negative budget share issues by replacing the linear returns function used in MV Analysis with a logarithmic form derived from the law of diminishing marginal returns. In Section 4, I draw on principal components analysis to show how a lack of data can be compensated by domain knowledge in order to "reverse engineer" a covariance matrix. The deduced matrix is useful for orienting stakeholder discussions, but cannot be used in portfolio optimization. To find the optimal risk adjusted resource allocation, I introduce the "signals portfolio", a dimensionally reduced portfolio of principal components. The optimal resource allocation to individual portfolio items can be disaggregated from the optimal signals portfolio based on each item's correlation with each given signal. Finally I walk through a an illustrative example of what this AR4D-adapted version of MV Analysis might look like in practice.
+[These asjustments may be of interest to the financial context... The introduction of diminishing marginal returns, which forces positive budget weights, compares favorably to the unmodified approach on an ROI basis...and in a backtest.]
 <!-- Alston and Norton acknowledged in 1995 that the treatment of risk in impact assessment models was "rudimentary and in need of further refinement" [-@Alston1995]. This remains true today. -->
+
+
 
 # Brief introduction to risk adjusted portfolio optimization
 
@@ -97,9 +101,7 @@ The risk-adjusted optimization problem for a portfolio of $n$ risky assets is fo
 \max_{\mathbf{w}}\:R - C \:\:\:\:s.t. \:\:\: C=\bar{C} \:, \:\:\: \sigma^2 = \bar{\sigma}^2
 \end{equation}
 
-where $\mathbf{w}$ is the vector of budget shares, $R$ is the expected portfolio return, defined $R = \mathbf{w} \cdot \boldsymbol{\mu}$, where $\boldsymbol{\mu}$ is the vector of expected returns of each asset; $C$ is the cost, defined $C = \mathbf{w} \cdot \mathbf{1}$, constrained to sum to the budget $\bar{C}$; and $\sigma^2$ is the portfolio variance (a measure of the portfolio risk), defined $\sigma^2 = \mathbf{w} \cdot \Sigma \cdot \mathbf{w}$, where $\Sigma$ is the asset covariance matrix; and $\sigma^2$ is constrained to equal a tolerance $\bar{\sigma}^2$ set by the investor.
-
-(In the financial context, the problem is usually formulated as a risk minimization problem subject to a budget constraint and return target. Both approaches yield the same outputs. In the financial context, the problem includes the option to invest in one risk free asset. There is no risk free investment in the AR4D context, so the set up here focuses on optimization of the risky portfolio only.)
+where $\mathbf{w}$ is the vector of budget shares, $R$ is the expected portfolio return, defined $R = \mathbf{w} \cdot \boldsymbol{\mu}$, where $\boldsymbol{\mu}$ is the vector of expected returns of each asset; $C$ is the cost, defined $C = \mathbf{w} \cdot \mathbf{1}$, constrained to sum to the budget $\bar{C}$; and $\sigma^2$ is the portfolio variance (a measure of the portfolio risk), defined $\sigma^2 = \mathbf{w} \cdot \Sigma \cdot \mathbf{w}$, where $\Sigma$ is the asset covariance matrix; and $\sigma^2$ is constrained to equal a tolerance $\bar{\sigma}^2$ set by the investor.^[In the financial context, the problem is usually formulated as a risk minimization problem subject to a budget constraint and return target. Both approaches yield the same outputs. In the financial context, the problem includes the option to invest in one risk free asset. There is no risk free investment in the AR4D context, so the set up here focuses on optimization of the risky portfolio only.]
 
 The Lagrangian is then
 
@@ -119,7 +121,7 @@ and second order conditions
 \mathbf{w} \cdot \nabla^2 \mathcal{L} \cdot \mathbf{w} = 2 \lambda_{\sigma} \sigma^2 < 0
 \end{equation}
 
-where $\nabla^2 \mathcal{L}$ is the Hessian matrix of $\mathcal{L}$. Since $\Sigma$ is symmetric and the variances of random variables are, by definition, positive, then $\Sigma$ is positive semi-definite. Hence, a maximum is guaranteed so long as $\lambda_{\sigma}$ is negative.
+where $\nabla^2 \mathcal{L}$ is the Hessian matrix of $\mathcal{L}$. Since $\Sigma$ is symmetric and variances are, by definition, positive, then $\Sigma$ is positive semi-definite. Hence, a maximum is guaranteed so long as $\lambda_{\sigma}$ is negative.
 
 Dotting the first order conditions through by $\mathbf{w}$ gives the equation for the efficient frontier.
 
@@ -148,57 +150,45 @@ Now, dotting the first order conditions through by $\Sigma^{-1}$ and rearranging
 Note, in passing, that dotting this through by $\nabla \psi$ gives another instructive equation for $\lambda_{\sigma}$.
 
 \begin{equation}
-\lambda_V = \frac{d_m^2}{2 \psi} \: ; \:\:\:\:d_m^2 = \nabla \psi \cdot \Sigma^{-1} \cdot \nabla \psi
+\lambda_{\sigma} = \frac{d_m^2}{2 \psi} \: ; \:\:\:\:d_m^2 = \nabla \psi \cdot \Sigma^{-1} \cdot \nabla \psi
 \end{equation}
 
-This says that the risk shadow price is inversely proportional to the ratio of the squared Mahalanobis distance ($d_m^2$) of the portfolio net reward gradient to the net reward. In this setting, the Mahalanobis distance reflects how improbable a given portfolio is. (Note that $d_m^2 = 0$ only when $\nabla \psi = \mathbf{0}$, which occurs only when every component in the vector of asset returns ($\mu$) equals the budget shadow price ($\gamma$)] Moreover, combining this with the previous expression for $\lambda_{\sigma}$ gives an instructive expression.
+This says that the risk shadow price is inversely proportional to the ratio of the squared Mahalanobis distance ($d_m^2$) of the portfolio net reward gradient to the net reward. In this setting, the Mahalanobis distance reflects how improbable a given portfolio is. Note, then, that portfolio improbability goes to zero (and hence probability is greater) as $\nabla \psi = \mathbf{0}$, which occurs only when every component in the vector of asset returns ($\boldsymbol{\mu}$) equals the budget shadow price ($\gamma$). Moreover, note that this can be combined with the previous expression for $\lambda_{\sigma}$ to obtain
 
 \begin{equation}
-\psi = d_m \bar{\sigma}
+{1 \over d_m}  &=& {\bar{\sigma} \over \psi}
 \end{equation}
 
-This says that the investor's expected portfolio return is thus equal to their risk tolerance scaled by the improbability of the portfolio. Alternatively, this can be rearranged to give another instructive expression
+which says that the probability of the optimal portfolio equals its risk to reward ratio.
 
-\begin{equation}
-p  = \bar{\sigma} \over \psi \: ; \:\: p = 1 \over d_m
-\end{equation}
-
-which says that the probability of the optimal portfolio ($p$) is proportional to the ratio of the portfolio risk to portfolio expected return.
-
-Returning to the task at hand, in order to evaluate the optimal budget shares or the frontier in equations \ref{eq:rStar} and \ref{eq:budgetShares}, we must first solve for the cost and risk shadow prices $\gamma$ and $\lambda_{\sigma}$.
+Returning to the task at hand, evaluation of the optimal budget shares or the frontier in equations \ref{eq:rStar} and \ref{eq:budgetShares}, requires first solving for the cost and risk shadow prices $\gamma$ and $\lambda_{\sigma}$.
 
 To do this, first note that the budget shares equation can be rewritten as follows:
-$$
+
 \begin{equation}
-\mathbf{w}^* = -\frac{1}{2 \lambda_{\sigma}} \Sigma^{-1} \cdot [\boldsymbol{\mu}, \: -\mathbf{1}] \left[\begin{matrix} 1 \\ \gamma \\ \end{matrix} \right]
+\mathbf{w}^* = -\frac{1}{2 \lambda_{\sigma}} \Sigma^{-1} \cdot [\boldsymbol{\mu}, -\mathbf{1}] \left[\begin{matrix} 1 \\ \gamma \end{matrix} \right]
 \end{equation}
-$$
 
 Now, dotting through by $[\boldsymbol{\mu}, -\mathbf{1}]$ gives
 
-$$
 \begin{equation}
 \left[\begin{matrix}
 R \\
 -\bar{C} \\
 \end{matrix} \right]  = -\frac{1}{2 \lambda_{\sigma}} M\left[\begin{matrix}
 1 \\
-\gamma \\
+\gamma
 \end{matrix} \right]
 \end{equation}
-$$
 
 where $M$ has been introduced to stand for the matrix
 
-$$
 \begin{equation}
 M = [\boldsymbol{\mu}, \: -\mathbf{1}]' \cdot \Sigma^{-1} \cdot [\boldsymbol{\mu}, \: -\mathbf{1}]
 \end{equation}
-$$
 
 Let $M$ be called the "Merton matrix", after the author in whose footsteps I am now following [@merton1972analytic]. Pre-multiplying both sides of the previous equation by the inverse Merton matrix and rearranging gives the following expression: 
 
-$$
 \begin{equation}
 -2 M^{-1}\left[\begin{matrix}
 R \\
@@ -208,38 +198,14 @@ R \\
 \gamma / \lambda_{\sigma} \\
 \end{matrix} \right]
 \end{equation}
-$$
 
 For any given return target $R$ and budget $\bar{C}$, then, the cost and risk shadow prices are given by this equation. With values for $\gamma$ and $\lambda_{\sigma}$ in hand, the budget shares and risk associated with the chosen return target can be evaluated.
-
-<!-- Before exploring the possibility of applying these tools to the AR4D context, it will be instructive to first apply them in the financial context where they have been developed. -->
-
-An example application of MV Analysis is presented below using daily financial data for 46 securities over the period 20 June 2018 to 23 March 2019, downloaded from yahoo finance using the R tidyquant package. These assets are deliberately numerous and varied in order to demonstrate the reach and limits of MV Analysis. They are grouped into eight categories in order to facilitate interpretation.
-
-Period returns for each asset in the dataset are presented in the bottom of Figure \ref{fig:hReturns}. The period return of the $i^{th}$ portfolio asset $\bar{r}_{i}$ with given price time series $\mathbf{p}$ is calculated as 
-
-$$
-\bar{r}_i = \frac{p_T - p_1}{p_1}
-$$
-where $T$ denotes the length of the time series. A box and whiskers plot of the daily returns is also given in Figure \ref{fig:hReturns}. Daily returns are calculated
-$$
-r_{it} = \frac{p_t - p_{t-1}}{p_{t-1}}
-$$
-for any given day $t$ in the series. As a practical matter, note that the period returns can also be calculated from the daily returns as follows.
-
-$$
-\bar{r}_i = \prod_{t = 2}^T (1 + r_{it}) - 1
-$$
-<!-- They are mostly exchange traded funds tracking broad categories of stocks, bonds, markets, and commodities, plus major currency pairs traded on the foreign exchange market. -->
-
-<!-- [Table here detailing the ETF names, what they track, and my category name] -->
-
 
 ```{r, fig.width=14, fig.height=14, fig.align='center', echo = FALSE, include = FALSE}
 #options(warn = -1); options(scipen = 999)
 spy_sector_symbs <- c("XLF", "XLC", "XLY", "XLP", "XLV", "XLK", "RWR",
                       "XLU", "XLI", "XBI", "IYT") #"TTEK"
-spy_sector_detail <- c("Financials", "Communications", "Luxury goods", "Consumer Goods",
+spy_sector_detail <- c("Financials", "Communications", "Luxury goods", "Consumer\nGoods",
                        "Healthcare", "Technology", "Real estate", "Utilities", "Industrial",
                        "Biotechnology", "Transportation") #"Gov. foreign aid"
 minerals_symbs <- c("GLD", "SLV", "PPLT", "JJC", "JJM") #"XME"
@@ -490,7 +456,7 @@ if(check_on_data){
 ```
 
 
-```{r, fig.show = 'hold', fig.cap="\\label{fig:hReturns}Historical (top) daily returns and (bottom) period return, train and test data.", fig.width=7, fig.height=7, fig.align='left', echo=FALSE}
+```{r, fig.show = 'hold', fig.cap="\\label{fig:hReturns}Historical (top) daily returns and (bottom) period return, financial data.", fig.width=6, fig.height=6, fig.align='left', echo=FALSE}
 #=======================================================================
 # Define function to plot period returns as barchart with colors
 plot_returns_barchart <- function(df_pctRet, group_colors, list_graph_options, graph_on = T){
@@ -504,6 +470,12 @@ plot_returns_barchart <- function(df_pctRet, group_colors, list_graph_options, g
     ylab <- list_graph_options[["ylab"]]
   }
 
+  if(is.null(group_colors)){
+    n_groups <- length(unique(df_pctRet$Group))
+    bag_of_colors <- randomcoloR::distinctColorPalette(k = 5 * n_groups)
+    group_colors <- sample(bag_of_colors, n_groups)
+  }
+  
   colnames(df_pctRet)[1] <- "Period Return"
   df_plot <- df_pctRet
   gg <- ggplot(df_plot, aes(x = Item, y = `Period Return`, fill = Group))
@@ -543,49 +515,48 @@ gg <- gg + theme(plot.title = element_text(face = "bold", size = 9))
 
 #=======================================================================
 # Define function to plot daily returns box and whiskers chart 
-plot_boxchart <- function(df_pctDiff, group_colors, list_graph_options, graph_on = T){
-  if(is.null(list_graph_options)){
-    legend_position <- "right" #"none"
-    axis_titles <- "on" #"off"
-    axis_text <- "on" #"y only"
-    fig_title <- NULL
-  }else{
-    legend_position <- list_graph_options[["legend_position"]]
-    axis_titles <- list_graph_options[["axis_titles"]]
-    axis_text <- list_graph_options[["axis_text"]]
-    fig_title <- list_graph_options[["fig_title"]]
-  }
-  
-  df_plot <- df_pctDiff
-    gg <- ggplot(df_plot, aes(x = Item, y = `Daily Returns`, fill = Group))
-  #gg <- gg + scale_color_brewer(palette = "Dark2")
-  gg <- gg + scale_fill_manual(values = group_colors)
-  #gg <- gg + geom_bar(stat = "identity", color = "black", position = "dodge")
-  gg <- gg + geom_boxplot()
-  if("Dataset" %in% colnames(df_plot)){
-    gg <- gg + facet_wrap(~Dataset, ncol = 1)
-  }
-  if(!is.null(fig_title)){
-    gg <- gg + labs(title = fig_title)
-    gg <- gg + theme(plot.title = element_text(face = "bold", size = 9))
-  }
-  if(axis_titles == "off"){
-    gg <- gg + theme(axis.title = element_blank())
-  }
-  if(axis_text == "y only"){
-    gg <- gg + theme(axis.text.x = element_blank(),
-                     axis.text.y = element_text(size = 9))
-  }
-  if(axis_text == "on"){
-    gg <- gg + theme(axis.text.y = element_text(size = 9),
-                     axis.text.x = element_text(size = 9, angle = 60, hjust = 1))
-  }
-    gg <- gg + theme(legend.position = legend_position)
-    if(graph_on){print(gg)}
-    return(gg)
-
-}
-
+# plot_boxchart <- function(df_pctDiff, group_colors, list_graph_options, graph_on = T){
+#   if(is.null(list_graph_options)){
+#     legend_position <- "right" #"none"
+#     axis_titles <- "on" #"off"
+#     axis_text <- "on" #"y only"
+#     fig_title <- NULL
+#   }else{
+#     legend_position <- list_graph_options[["legend_position"]]
+#     axis_titles <- list_graph_options[["axis_titles"]]
+#     axis_text <- list_graph_options[["axis_text"]]
+#     fig_title <- list_graph_options[["fig_title"]]
+#   }
+#   
+#   df_plot <- df_pctDiff
+#     gg <- ggplot(df_plot, aes(x = Item, y = `Daily Returns`, fill = Group))
+#   #gg <- gg + scale_color_brewer(palette = "Dark2")
+#   gg <- gg + scale_fill_manual(values = group_colors)
+#   #gg <- gg + geom_bar(stat = "identity", color = "black", position = "dodge")
+#   gg <- gg + geom_boxplot()
+#   if("Dataset" %in% colnames(df_plot)){
+#     gg <- gg + facet_wrap(~Dataset, ncol = 1)
+#   }
+#   if(!is.null(fig_title)){
+#     gg <- gg + labs(title = fig_title)
+#     gg <- gg + theme(plot.title = element_text(face = "bold", size = 9))
+#   }
+#   if(axis_titles == "off"){
+#     gg <- gg + theme(axis.title = element_blank())
+#   }
+#   if(axis_text == "y only"){
+#     gg <- gg + theme(axis.text.x = element_blank(),
+#                      axis.text.y = element_text(size = 9))
+#   }
+#   if(axis_text == "on"){
+#     gg <- gg + theme(axis.text.y = element_text(size = 9),
+#                      axis.text.x = element_text(size = 9, angle = 60, hjust = 1))
+#   }
+#     gg <- gg + theme(legend.position = legend_position)
+#     if(graph_on){print(gg)}
+#     return(gg)
+# 
+# }
 #=======================================================================
 # Define function to order data frames by group for period returns barchart and daily returns box and whiskers plots
 get_hist_dfs_ready <- function(mat_ts_in, group_info){
@@ -636,7 +607,6 @@ get_hist_dfs_ready <- function(mat_ts_in, group_info){
 #=======================================================================
 # Define function to plot covariance/correlation matrices
 plot_covmat <- function(covmat, fig_title = "Covariance Matrix", graph_on = T){
-  #covmat <- cov(mat_pctDiff_train_mv)
   covmat[upper.tri(covmat)] <- NA
   df_plot <- covmat %>% tbl_df()
   these_levels <- colnames(df_plot)
@@ -707,16 +677,48 @@ mat_ts_eg_test <- mat_ts_eg[ind_test, ]
 mat_pctDiff_eg_train <- 100 * diff(mat_ts_eg_train) / mat_ts_eg_train[-nrow(mat_ts_eg_train), ]
 mat_pctDiff_eg_test <- 100 * diff(mat_ts_eg_test) / mat_ts_eg_test[-nrow(mat_ts_eg_test), ]
 #----------------------------------------------------------
+train_start_date <- row.names(mat_pctDiff_eg_train)[1]
+train_stop_date <- row.names(mat_pctDiff_eg_train)[nrow(mat_pctDiff_eg_train)]
+test_start_date <- row.names(mat_pctDiff_eg_test)[1]
+test_stop_date <- row.names(mat_pctDiff_eg_test)[nrow(mat_pctDiff_eg_test)]
+#----------------------------------------------------------
+
+```
+
+
+An example application of MV Analysis is presented below using daily financial data for `r ncol(mat_pctDiff_eg_train)` securities over the period `r train_start_date` to `r train_stop_date`, downloaded from yahoo finance using the R tidyquant package. These securities were chosen so as to be broadly representative of the U.S. economy. Details can be found in the appendix.
+
+Period returns for each asset in the dataset are presented in the bottom of Figure \ref{fig:hReturns}. The period return of a given portfolio asset $\bar{r}$ with given price time series $\mathbf{p}$ is calculated as 
+
+$$
+\bar{r} = \frac{p_T - p_1}{p_1}
+$$
+where $T$ denotes the length of the time series. Daily returns are calculated
+$$
+r_{t} = \frac{p_t - p_{t-1}}{p_{t-1}}
+$$
+for any given day $t$ in the series. As a practical matter, note that the period returns can also be calculated from the daily returns as follows.
+
+$$
+\bar{r} = \prod_{t = 2}^T (1 + r_{t}) - 1
+$$
+<!-- They are mostly exchange traded funds tracking broad categories of stocks, bonds, markets, and commodities, plus major currency pairs traded on the foreign exchange market. -->
+
+<!-- [Table here detailing the ETF names, what they track, and my category name] -->
+
+
+```{r, fig.show = 'hold', fig.cap="\\label{fig:hReturns}Historical (top) daily returns and (bottom) period return, financial data.", fig.width=6, fig.height=6, fig.align='left', echo=FALSE}
 # Plot historical returns for period and items defined above
 fig_title <- "Period Returns"
 list_graph_options <- list()
 list_graph_options[["fig_title"]] <- fig_title
 list_graph_options[["legend_position"]] <- "none"
 list_graph_options[["ylab"]] <- "Percent"
-gg_barchart <- plot_returns_barchart(df_pctRet_train_mv, group_colors, list_graph_options, graph_on = F)
+df_pctRet <- data.frame(Value = nab_pctRet, Item = names(nab_pctRet), Group = demonstration_group)
+gg_barchart <- plot_returns_barchart(df_pctRet, group_colors, list_graph_options, graph_on = F)
 #----------------------------------------------------------
 # Covariance matrix plot
-covmat <- cov(mat_pctDiff_train_mv)
+covmat <- cov(mat_pctDiff_eg_train)
 #kappa(covmat)
 gg_covmat <- plot_covmat(covmat, graph_on = F)
 #----------------------------------------------------------
@@ -730,13 +732,15 @@ gg_barchart + gg_covmat + plot_layout(ncol = 1, heights = c(1, 2))
 \pagebreak
 
 As explained above, MV Analysis requires the expected returns of each portfolio item, and their corresponding covariance matrix, in order to calculate the efficient frontier and budget weights. The expected returns are just the period returns. The covariance matrix $\Sigma$ is calculated from the centered daily returns as follows.
+
 $$
 \Sigma=\frac{1}{1 - n} X'X \:\:; \:\:\:X_{it} = r_{it}-\frac{1}{T}\sum_{t=1}^Tr_{it}
 $$
+where the $i$ subscript indexes the portfolio item.
 
-The optimal frontier and budget shares based on this data are given in Figure \ref{fig:mvConv}. For clarity, the budget shares are aggregated by group. 
+The optimal frontier and budget shares based on this data are given in Figure \ref{fig:mvConv}.
 
-```{r, fig.show='hold', fig.width=5, fig.height=4, fig.align='center', fig.cap="\\label{fig:mvConv}Optimal frontier and budget shares. The budget shares are aggregated by group for clarity.", echo = FALSE}
+```{r, fig.show = "hold", fig.width = 5, fig.height=5, fig.align='left', fig.cap="\\label{fig:mvConv}Optimal frontier and budget shares, financial data.", echo = FALSE}
 #=======================================================================
 # Define portfolio optimization function
 optimize_portfolio <- function(covmat, mat_nab, targ_vec,
@@ -769,11 +773,17 @@ optimize_portfolio <- function(covmat, mat_nab, targ_vec,
   # Utility function interpretation of equations
   # (Makes all budget shares positive)
   if(utility_interpretation){
-    Exp_wStar <- exp(wStar)
-    K <- sum(Exp_wStar)
-    wStar <- Exp_wStar / K
-    Rtarg <- t(wStar) %*% mat_nab[, 1]
-    Vtarg <- t(wStar) %*% covmat %*% wStar
+    wStar <- exp(wStar)
+    #wNorm_factr <- 1 / sum(wStar)
+    #wStar <- wNorm_factr * wStar
+    #Rtarg <- t(log(wStar)) %*% mat_nab[, 1] + log(wNorm_factr)
+    #print(log(wNorm_factr))
+    Rtarg_raw <- t(log(wStar)) %*% mat_nab[, 1]
+    k <- targ_vec[1] - Rtarg_raw
+    Rtarg <- Rtarg_raw + k
+    print(k)
+    Vtarg <- t(log(wStar)) %*% covmat %*% log(wStar)
+    wStar <- exp(k) * wStar
   } 
   sd_targ <- sqrt(Vtarg)
   #if(l_V > 0){wStar <- rep(NA, length(wStar))}
@@ -835,11 +845,12 @@ plot_budgetShares <- function(df_wStar, group_small = NULL, color_vec = NULL, gr
   df_match_V <- df_plot[, c("portfolio_id", "Risk (standard deviation)")]
   df_plot <- df_plot %>% gather_("Item", "Budget shares", gathercols)
   df_plot <- df_plot %>% group_by(Item) %>% 
-    mutate(mu = mean(`Budget shares`)) %>% 
+    mutate(mu = median(`Budget shares`)) %>% 
     as.data.frame()
-  ind_order_mu <- order(df_plot$mu, df_plot$Item, decreasing = T)
+  df_plot <- df_plot[order(df_plot$mu, decreasing = T), ]
+  #ind_order_mu <- order(df_plot$mu, df_plot$Item, decreasing = T)
   df_plot$Item <- factor(df_plot$Item,
-                         levels = unique(df_plot$Item[ind_order_mu]),
+                         levels = unique(df_plot$Item),
                          ordered = T)
     #------------------------------------
 if(is.null(color_vec)){
@@ -849,13 +860,19 @@ if(is.null(color_vec)){
     color_vec <- sample(bag_of_colors, n_items)
 }
     #------------------------------------
+#  df_plot$`Risk (standard deviation)` <- as.factor(df_plot$`Risk (standard deviation)`)
   gg <- ggplot(df_plot, aes(x = `Risk (standard deviation)`, y = `Budget shares`, fill = Item))
   #legend_position <- "right"
   gg <- gg + geom_area(position = "stack")
+ # gg <- gg + geom_bar(stat = "identity")
   gg <- gg + scale_fill_manual(values = color_vec)
 
   gg <- gg + theme(legend.title = element_blank(),
-                   legend.position = legend_position)
+                   legend.position = legend_position,
+                   legend.text = element_text(size = 8),
+                   axis.title = element_text(size = 8),
+                   axis.text = element_text(size = 8)
+                   )
   if(axis_titles == "off"){
     gg <- gg + theme(axis.title = element_blank())
   }
@@ -905,7 +922,9 @@ plot_frontier <- function(df_frontier, ROI_basis = F, list_graph_options = NULL,
     gg <- gg + theme(plot.title = element_text(face = "bold", size = 10))
   }
   gg <- gg + theme(axis.title.x = element_blank(),
-                   axis.text.x = element_blank())
+                   axis.text.x = element_blank(),
+                   axis.title.y = element_text(size = 8),
+                   axis.text.y = element_text(size = 8))
   gg <- gg + geom_point()
   if(graph_on){print(gg)}
   return(gg)
@@ -916,7 +935,7 @@ get_optimal_frontier <- function(covmat, mat_nab,
   #-------------------------------------------
   if(is.null(fun_env)){
     n_points_on_frontier = 50
-    Rtarg_limits = c(0.001, 0.3)
+    Rtarg_limits = c(0.01, 0.3)
     utility_interpretation = F
     backtest_info = NULL
     C_targ = 1
@@ -986,7 +1005,7 @@ nab_pctRet_test <- (mat_ts_eg_test[nrow(mat_ts_eg_test), ] - mat_ts_eg_test[1, ]
 #--------------------------------------------------------------
 mat_nab <- cbind(nab_pctRet_train, nab_C)
 n_points_on_frontier <- 50
-Rtarg_limits <- c(0.05, 0.3)
+Rtarg_limits <- c(0.06, 0.3)
 backtest_info <- list()
 backtest_info[["nab_pctRet_test"]] <- nab_pctRet_test
 backtest_info[["covmat_test"]] <- covmat_test
@@ -1042,37 +1061,33 @@ As explained in the introduction, in financial contexts investments scale linear
 
 <!-- The _percentage increase in_ return resulting from _a one percent_ increase in investment in the $i^{th}$ portfolio item will be inversely proportionate to the _return_ already achieved. -->
 
-Equation \ref{eq:uDefine} can be used to arrive at an expression for $U$ as follows:
-$$
+Equation \ref{eq:uDefine} can be used to arrive at an expression for $R$ as follows:
+
 \begin{eqnarray}
 R(\mathbf{w}; \boldsymbol{\alpha}, k) &=& \int \nabla_{\mathbf{w}} R \cdot d\mathbf{w} \\
 &=& \int \nabla_{\mathbf{w}} \ln(\mathbf{w}) \cdot d\mathbf{w} \\
 &=& \boldsymbol{\alpha} \cdot \ln(\mathbf{w}) + k
 \end{eqnarray}
-$$
 
-where the proportionality constants $\boldsymbol{\alpha}$ are determined by context. In the present setting, the constants $\boldsymbol{\alpha}$ correspond to the vector $\boldsymbol{\mu}$ in the $R$ function. This leaves just $k$, the constant of integration, unfixed. $R$ is said to be defined up to translation.
+where the proportionality constants $\boldsymbol{\alpha}$ are determined by context. In the present setting, the constants $\boldsymbol{\alpha}$ correspond to the vector $\boldsymbol{\mu}$ in the $R$ function. This leaves just $k$, the constant of integration, unfixed. $R$ is thus said to be defined up to translation.
 
-$$
 \begin{equation}
 R(\mathbf{w}; \boldsymbol{\mu}, k) = \boldsymbol{\mu} \cdot \ln(\mathbf{w}) + k
 \end{equation}
-$$
-By deducing a return function from the law of diminishing marginal returns, the budget shares $\mathbf{w}$ are effectively replaced with a measure of their usefulness or utlity $\ln(\mathbf{w})$. The problem then becomes one of allocating optimal "usefulness shares" rather than budget shares. For optimization purposes, then, the budget constraint must likewise be adapted from its monetary form
 
-$$
+By deducing a return function from the law of diminishing marginal returns, the budget shares $\mathbf{w}$ in the portfolio optimization set up above are effectively replaced with $\ln(\mathbf{w})$, which can be interpreted as a measure of their usefulness or utlity. The problem then becomes one of allocating optimal "utility shares" rather than budget shares. For optimization purposes, then, the budget constraint must likewise be adapted from its monetary form
+
 \begin{equation}
 C = \mathbf{1} \cdot \mathbf{w}
 \end{equation}
-$$
+
 to a utility budget form
 
-$$
 \begin{equation}
-C = \mathbf{1} \cdot \ln(\mathbf{w}) + k
+C = \mathbf{1} \cdot \ln(\mathbf{w})
 \end{equation}
-$$
-Making these replacements to the portfolio optimization set up in equation \ref{eq:}, and differentiating with respect to $\ln(\mathbf{w})$ instead of $\mathbf{w}$, MV Analysis outputs the optimal utility budget shares $\ln(\mathbf{w}^*)+k$, rather than the optimal monetary budget shares. The optimal monetary budget shares, up to a factor $e^k$, are then easily obtained by applying the exponential function. Note that utility shares may be positive or negative, but the monetary budget shares $\mathbf{w}^*$ must always be positive. By enforcing the law of diminishing marginal returns, then, one also forces monetary budget shares to be positive.
+
+Making these replacements to the portfolio optimization set up above, and differentiating with respect to $\ln(\mathbf{w})$ instead of $\mathbf{w}$, MV Analysis outputs the optimal utility budget shares $\ln(\mathbf{w}^*)+k$, rather than the optimal monetary budget shares. The optimal monetary budget shares, up to a factor $e^k$, are then easily obtained by applying the exponential function. As a result, utility shares may be positive or negative, but the monetary budget shares $\mathbf{w}^*$ must always be positive. By enforcing the law of diminishing marginal returns, then, one also forces monetary budget shares to be positive.
 
 Of course, the investor or donor is constrained by a real monetary budget, and so will only be interested in solutions $e^k\mathbf{w}^*$ such that the elements in $e^k\mathbf{w}^*$ sum to that monetary budget. To enforce this requirement, then, simply choose $k$ such that the elements $e^k \mathbf{w}^*$ sum to the budget constraint.
 
@@ -1099,7 +1114,7 @@ Of course, the investor or donor is constrained by a real monetary budget, and s
 
 \pagebreak
 
-```{r, fig.show='hold', fig.width=5, fig.height=5, fig.align='center', fig.cap="\\label{fig:mvUtility}Optimal frontier and budget shares, replacing returns and cost with utility functions.", echo = FALSE}
+```{r, fig.show='hold', fig.width=5, fig.height=5, fig.align='center', fig.cap="\\label{fig:mvUtility}Optimal frontier and budget shares when the law of diminishing marginal returns to investment is applied.", echo = FALSE}
 
 # # Get backtest data
 # fun_env = list(eigenvalue_density_plot = F,
@@ -1116,7 +1131,7 @@ Of course, the investor or donor is constrained by a real monetary budget, and s
 # Utility risk-reward frontier
 utility_interpretation <- T
 #--------------------------------------------------------------
-Rtarg_limits <- c(0.5, 2)#c(0.1, 5)
+Rtarg_limits <- c(0, 1)#c(0.5, 2)#c(0.1, 5)
 #--------------------------------------------------------------
 fun_env_getOptFront[["Rtarg_limits"]] <- Rtarg_limits
 fun_env_getOptFront[["utility_interpretation"]] <- utility_interpretation
@@ -1142,10 +1157,10 @@ df_wStar_U <- df_wStar
 ```
 
 <!-- \pagebreak -->
-The optimal frontier and budget shares for a portfolio with diminishing marginal returns is presented in Figure \ref{fig:mvUtility}. At first glance, this frontier appears inferior to the efficient frontier resulting from conventional MV Analysis (Figure \ref{fig:mvConv}). However, the high expected returns observed in the conventional approach are mostly attributable to unrealistic leveraging of the portfolio, resulting from negative budget shares. That is to say, a sum of the absolute values of the budget shares displayed in Figure \ref{fig:mvConv} would indicate that the investor must be prepared to borrow sums in excess of 2 to 4 times their budget in order to take up the corresponding positions on the frontier. To be fair, then, a comparison between the conventional approach and the diminishing returns approach must be made on the basis of expected return on investment (equation \ref{eq:roi_def}), rather than expected return alone.
+The optimal frontier and budget shares for a portfolio with diminishing marginal returns is presented in Figure \ref{fig:mvUtility}. At first glance, this frontier appears inferior to the efficient frontier resulting from conventional MV Analysis (Figure \ref{fig:mvConv}). However, the high expected returns observed in the conventional approach are mostly attributable to unrealistic leveraging of the portfolio, resulting from negative budget shares. That is to say, a sum of the absolute values of the budget shares displayed in Figure \ref{fig:mvConv} would indicate that the investor must be prepared to borrow sums in excess of 2 to 6 times their budget in order to take up the corresponding positions on the frontier. To be fair, then, a comparison between the conventional approach and the diminishing returns approach must be made on the basis of expected return on investment (equation \ref{eq:roi_def}), rather than expected return alone.
 
 \begin{equation}
-\frac{ROI=R-C}{C}
+ROI = \frac{R-C}{C}
 \label{eq:roi_def}
 \end{equation}
 
@@ -1154,7 +1169,7 @@ This comparison is presented in Figure \ref{fig:mv_roiCompare}. On an ROI basis,
 <!-- [in practice, real portfolio returns are often far lower, and far riskier, than the optimal frontier would suggest. This is evident in the portfolio backtests in Figure \ref{fig:...}.   This is especially true when the covariance or correlation matrix used in the analysis is ill conditioned.  frontiers often diverge from reality.   the frontier is only as accurate as the data it is based on. The backtests are shown in Figure \ref{fig:mvBacktest} ... Also to be expected that the conventional frontier backtest is higher than the utility frontier backtest simply because negative weights require that the total investment is greater than that of the portfolio with only positive weights. If we look not just at the return, but at the return on investment, then the utility weights approach performs better than the conventional approach. Keep in mind this is just one scenario. you'd have to look at many before concluding definitively one way or the other.] -->
 
 
-```{r, fig.show='hold', fig.width=5, fig.height=3, fig.align='center', fig.cap="\\label{fig:mv_roiCompare}"Comparison of the conventional and utility efficient frontiers on an ROI basis.", echo = FALSE}
+```{r, fig.show='hold', fig.width=4, fig.height=2, fig.align='center', fig.cap="\\label{fig:mv_roiCompare}Comparison of the conventional and utility efficient frontiers on an ROI basis.", echo = FALSE}
 mv_conv_U_compare_colors <- c("black", "blue")
 df_plot_conv <- df_frontier_conv
 df_plot_conv$Tot_investment <- rowSums(abs(df_wStar_conv[, -1]))
@@ -1177,9 +1192,10 @@ df_plot_U$`ROI backtest` <- df_plot_U$`Return backtest` / df_plot_U$Tot_investme
 
 ```
 
+
 ## "Reverse engineering" the covariance matrix
 
-In principlal components analysis, a dataset $X$ containing $t$ observations of $n$ variables is distilled into a dataset $S$ of just $k<n$ variables that capture the main tendencies and structure in the data.^[The data is always centered. If the variables in $X$ follow diverse scalings and/or units of measurement (i.e. if apples are being compared to oranges), then $X$ should also be scaled to unit variance. In this exposition, the variables are all of the same type, and so $X$ is centered but not scaled.] The distilled matrix $S$ is defined
+In principal components analysis, a dataset $X$ containing $t$ observations of $n$ variables is distilled into a dataset $S$ of just $k<n$ variables that capture the main tendencies and structure in the data.^[The data is always centered. If the variables in $X$ follow diverse scalings and/or units of measurement (i.e. if apples are being compared to oranges), then $X$ should also be scaled to unit variance. In this exposition, the variables are all of the same type, and so $X$ is centered but not scaled. See [@AbdiPCA] for an introduction to principal components analysis.] The distilled matrix $S$ is defined
 
 \begin{equation}
 S = X \tilde{P}
@@ -1200,7 +1216,7 @@ From the definition (\ref{eq:sigs_def}), it follows that the signals are uncorre
 \begin{eqnarray}
 \Sigma_{SS} &=& \frac{1}{n-1}S'S \\
 &=& \frac{1}{n-1} \tilde{P}'X'X\tilde{P} \\
-&=& \tilde{P}'\Sigma_{XX}\tilde{P}
+&=& \tilde{P}'\Sigma_{XX}\tilde{P} \\
 &=& \tilde{P}'PUP'\tilde{P}=\tilde{U}
 \label{eq:covmat_SS}
 \end{eqnarray}
@@ -1209,43 +1225,40 @@ The columns of the distilled matrix $S$ are referred to as the principal compone
 
 The meaning of the signals can be interpreted based on how correlated they are with the variables in the original dataset. These correlations ($K_{XS}$) are found by first finding their corresponding covariances ($\Sigma_{XS}$).
 
-$$
 \begin{eqnarray}
 \Sigma_{XS} &=& \frac{1}{n-1}X'S \\
 &=& \frac{1}{n-1}X'XP \\
 &=& KP = PUP'P \\
 &=& PU
 \end{eqnarray}
-$$
 
 The correlation matrix $K_{XS}$ then follows as
 
-$$
 \begin{eqnarray}
-K_{XS} &=& D(\mathbf{\sigma}_X)^{-1} \Sigma_{XS} D(\mathbf{\sigma}_S)^{-1} \\
-&=&D(\mathbf{\sigma}_X)^{-1} PU D(\mathbf{\sigma}_S)^{-1}
+K_{XS} &=& D(\boldsymbol{\sigma}_X)^{-1} \Sigma_{XS} D(\boldsymbol{\sigma}_S)^{-1} \\
+&=&D(\boldsymbol{\sigma}_X)^{-1} PU D(\boldsymbol{\sigma}_S)^{-1}
 \end{eqnarray}
-$$
+
 But the standard deviations of the signals are just the square roots of the eigenvalues (recall equation \ref{eq:covmat_SS}), so this reduces to
 
-$$
 \begin{eqnarray}
-K_{XS} &=& D(\mathbf{\sigma}_X)^{-1}\Sigma_{XS} U^{-{1 \over 2}} \\
-&=& D(\mathbf{\sigma}_X)^{-1}PU U^{-{1 \over 2}} \\
-&=& D(\mathbf{\sigma}_X)^{-1}PU^{1 \over 2}
+K_{XS} &=& D(\boldsymbol{\sigma}_X)^{-1}\Sigma_{XS} U^{-{1 \over 2}} \\
+&=& D(\boldsymbol{\sigma}_X)^{-1}PU U^{-{1 \over 2}} \\
+&=& D(\boldsymbol{\sigma}_X)^{-1}PU^{1 \over 2}
 \end{eqnarray}
-$$
+
 Note that if $X$ were scaled to unit variance, then this would reduce further to
 
 \begin{equation}
 K_{XS} = PU^{1 \over 2}
 \end{equation}
 
-The correlations matrix $K_{SX}$ is sometimes referred to as the "loadings" matrix, in the sense that it indicates how much each variable in $X$ loads onto a given signal (or, vice versa, how much each signal loads onto a given variable).^[Although many prefer to call $P$ the "loadings".] In keeping with this convention, and in order to reduce notational clutter, $K_{XS}$ is henceforth relabeled $L$.
+The correlations matrix $K_{XS}$ is sometimes referred to as the "loadings" matrix, in the sense that it indicates how much each variable in $X$ loads onto a given signal (or, vice versa, how much each signal loads onto a given variable).^[Although many prefer to call $P$ the loadings.] In keeping with this convention, and in order to reduce notational clutter, $K_{XS}$ is henceforth relabeled $L$.
 
 The correlations between the financial assets from the example above and their four leading signals are presented in Figure \ref{fig:corrXS_barchart}. Concrete meaning can be attributed to each of these otherwise abstract signals by examining how correlated they are with the portfolio items.
 
-```{r, fig.show='hold', fig.width=6, fig.height=3, fig.align='center', fig.cap="\\label{fig:corrXS_barchart}Correlation of portfolio items with leading signals."}
+
+```{r, fig.show='hold', fig.width=6, fig.height=3, fig.align='right', fig.cap="\\label{fig:corrXS_barchart}Correlation of portfolio items with leading signals."}
 
 
 # Define function to calculate variable-signal correlations, financial data
@@ -1286,19 +1299,6 @@ list_out <- list(mat_S_all, cormat_XS, eig_values, mat_P)
 return(list_out)
 }
 #====================================================
-n_signals <- 4
-mat_X_in <- mat_pctDiff_eg_train * 10^-2
-#mat_X_in <- mat_ts_eg_train
-list_out <- get_S_and_corrXS(mat_X_in)
-mat_S_all <- list_out[[1]]
-cormat_XS <- list_out[[2]]
-eig_values <- list_out[[3]]
-mat_P <- list_out[[4]]
-mat_S <- mat_S_all[, 1:n_signals]
-mat_L <- cormat_XS[, 1:n_signals]
-
-#eigen(cov(mat_S))$values / eig_values[1:n_signals]
-#====================================================
 # Barchart of variable-signal correlations
 plot_corrXS_barchart <- function(mat_L, group_info = NULL, xAxis_title = NULL, sigNames = NULL){
   
@@ -1309,7 +1309,7 @@ plot_corrXS_barchart <- function(mat_L, group_info = NULL, xAxis_title = NULL, s
     if(is.null(sigNames)){
   signal_id <- paste("Signal", 1:n_signals)
 }else{
-  signal_id <- paste("Signal", 1:n_signals, ": ", sigNames)
+  signal_id <- paste("Signal", 1:n_signals, "-", sigNames)
 }
   colnames(df_plot)[2:(n_signals + 1)] <- signal_id
   #-------------------------------------------------------
@@ -1338,17 +1338,31 @@ plot_corrXS_barchart <- function(mat_L, group_info = NULL, xAxis_title = NULL, s
   if(!is.null(xAxis_title)){
     gg <- gg + labs(y = xAxis_title)
   }
-  gg <- gg + theme(axis.text.y = element_text(size = 9),
-                   axis.text.x = element_text(size = 9),
+  gg <- gg + theme(axis.text = element_text(size = 8),
+                   axis.title.x = element_text(size = 8),
                    axis.title.y = element_blank(),
-                   axis.title.x = element_text(size = 9),
                    legend.title = element_blank(),
-                   legend.text = element_text(size = 9))
+                   legend.text = element_text(size = 8),
+                   strip.text = element_text(size = 8))
   gg <- gg + coord_equal()
   gg <- gg + coord_flip()
   gg
 
 }
+
+#====================================================
+n_signals <- 4
+mat_X_in <- mat_pctDiff_eg_train * 10^-2
+#mat_X_in <- mat_ts_eg_train
+list_out <- get_S_and_corrXS(mat_X_in)
+mat_S_all <- list_out[[1]]
+cormat_XS <- list_out[[2]]
+eig_values <- list_out[[3]]
+mat_P <- list_out[[4]]
+mat_S <- mat_S_all[, 1:n_signals]
+mat_L <- cormat_XS[, 1:n_signals]
+
+#eigen(cov(mat_S))$values / eig_values[1:n_signals]
 
 plot_corrXS_barchart(mat_L)
 
@@ -1356,11 +1370,9 @@ plot_corrXS_barchart(mat_L)
 
 Clearly, Signal 4 represents movements in communications. Signal 3 is concerned with Utilities and Real Estate, and so might be called the "Housing & Urban Development Signal". The interpretation of Signals 1 and 2 is not so straightforward, since they are correlated with many portfolio items. In such cases, it is often useful to apply an orthogonal rotation to $L$ in order to clarify the picture. That is to say, instead of examining $L$, one examines $L_{\circlearrowleft}$.
 
-$$
 \begin{equation}
 L_{\circlearrowleft} = LB
 \end{equation}
-$$
 
 where $B$ is the orthogonal rotation matrix, such that $B'B = I$.
 <!-- Note that a rotation of $L$ implies a rotation of the signals, since -->
@@ -1371,7 +1383,7 @@ where $B$ is the orthogonal rotation matrix, such that $B'B = I$.
 
 In Figure \ref{fig:corrXS_barchart_rot} a special kind of orthogonal rotation, called a varimax rotation, is applied to $L$. Varimax rotations flesh out structure by maximizing sparseness in the rotated matrix. After applying this rotation, it becomes clear that Signal 1 is representative of Biotechnology and Healthcare; and so Signal 1 might be called the "Pharmaceutical Signal". Signal 2 loadings are now more pronounced, especially Financials, Industrial, and Transportation. Signal 2 might thus be called the "Financial and Physical Infrastructure Signal." In Figure \ref{fig:signals_with_hiCorr_items}, it becomes particularly evident how each signal hews closely to its most highly correlated items, offering visual confirmation of these interpretations. 
 
-```{r, fig.show='hold', fig.width=6, fig.height=3, fig.align='center', fig.cap="\\label{fig:corrXS_barchart_rot}Varimax rotated correlation of portfolio items with leading signals."}
+```{r, fig.show='hold', fig.width=6, fig.height=3, fig.align='left', fig.cap="\\label{fig:corrXS_barchart_rot}Varimax rotated correlation of portfolio items with leading signals."}
 
 mat_Lrot <- varimax(mat_L)[[1]]
 mat_Lrot <- matrix(as.numeric(mat_Lrot),
@@ -1382,23 +1394,21 @@ mat_R <- matrix(as.numeric(mat_R),
                           attributes(mat_R)$dim,
                           dimnames = attributes(mat_R)$dimnames)
 
-
-  
 xAxis_title <- "Varimax Rotated Correlation"
-plot_corrXS_barchart(mat_Lrot, group_info = NULL, xAxis_title)
+plot_corrXS_barchart(mat_Lrot, group_info = NULL, xAxis_title, sigNames = NULL)
 
 
 ```
 
 
-```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center', fig.cap="\\label{fig:signals_with_hiCorr_items}Signals plotted together with their most highly correlated assets. The signals are plotted as thick grey lines."}
+```{r, fig.show='hold', fig.width=6, fig.height=5, fig.align='left', fig.cap="\\label{fig:signals_with_hiCorr_items}Signals plotted together with their most highly correlated assets. The signals are plotted as thick grey lines."}
 # Define function to plot signals with their highest loading items.
-plot_sigs_wHiLoad_items <- function(mat_X_in, mat_S, mat_L, sigNames = NULL, load_threshold = 0.55, n_display_max = 4){
+plot_sigs_wHiLoad_items <- function(mat_X_in, mat_S, mat_L, color_vec, sigNames = NULL, load_threshold = 0.55, n_display_max = 4){
 n_signals <- ncol(mat_L)
 if(is.null(sigNames)){
   fig_title_vec <- paste("Signal", 1:n_signals)
 }else{
-  fig_title_vec <- paste("Signal", 1:n_signals, ":", sigNames)
+  fig_title_vec <- paste("Signal", 1:n_signals, "-", sigNames)
 }
 # Plot signals against highest correlated variables
   date_vec <- row.names(mat_S)
@@ -1422,6 +1432,7 @@ if(is.null(sigNames)){
       loadvec_kept <- this_loadvec[ind_tracks]
     }
     mat_X_tracks <- mat_X_in[, ind_tracks]
+    color_vec_tracks <- color_vec[ind_tracks]
     #------------
     df_plot_sig <- data.frame(Date = date_vec, Value = mat_S[, i])
     df_plot_tracks <- data.frame(Date = date_vec, mat_X_tracks)
@@ -1433,10 +1444,11 @@ if(is.null(sigNames)){
       colnames(df_plot_tracks)[-1] <- "Value"
       df_plot_tracks$ts <- colnames(mat_X_in)[ind_tracks]
     }
-    #-----
+    #------------
     gg <- ggplot()
     gg <- gg + geom_line(data = df_plot_sig, aes(x = Date, y = Value, group = 1), color = "grey", lwd = 1.3)
     gg <- gg + geom_line(data = df_plot_tracks, aes(x = Date, y = Value, group = ts, color = ts))
+    gg <- gg + scale_color_manual(values = color_vec_tracks)
     gg <- gg + scale_x_discrete(breaks = xAxis_labels)
     gg <- gg + labs(title = fig_title_vec[i])
 
@@ -1473,13 +1485,14 @@ if(is.null(sigNames)){
 # 
 # mat_X_in <- mat_pctDiff_in
 # plot_sigs_wHiLoad_items(mat_X_in, mat_S, mat_L, sigNames, load_threshold = 0.55, n_display_max = 4)
-
 sigNames <- c("Pharmaceutical",
               "Financial and Physical Infrastructure (Inverse)",
               "Housing & Urban Development (Inverse)",
               "Communications")
+  
 
-plot_sigs_wHiLoad_items(mat_X_in, mat_S, mat_Lrot, sigNames, load_threshold = 0.7, n_display_max = 4)
+color_vec <- color_vec_mv_eg
+plot_sigs_wHiLoad_items(mat_X_in, mat_S, mat_Lrot, color_vec, sigNames, load_threshold = 0.7, n_display_max = 4)
   
 ```  
 
@@ -1495,12 +1508,11 @@ The cumulative variance captured by a group of $k$ signals is then
 c_k <- \frac{\sum_{i=1}^k u_i}{\sum_{i = 1}^n u_i}
 \end{equation}
 
-The individual and cumulative portions explained by each signal are plotted in Figure \ref{fig:varExplained_barchart}. Customarily, researchers like to retain signals such that at least 90% of the variance in the original data is explained. The horizontal dashed line in the plot marks this subjective threshold. The plot thus shows that the leading six signals are sufficient to meet this criterion.
+The individual and cumulative portions explained by each signal are plotted in Figure \ref{fig:varExplained_barchart}. Customarily, researchers like to retain signals such that at least 90% of the variance in the original data is explained. The horizontal dashed line in the plot marks this subjective threshold.
 
-```{r, fig.show='hold', fig.width=5, fig.height=3, fig.align='center', fig.cap="\\label{fig:varExplained_barchart}Plot of the individual and cumulative portions of variance explained by each signal."}
+```{r, fig.show='hold', fig.width=5, fig.height=2, fig.align='center', fig.cap="\\label{fig:varExplained_barchart}Plot of the individual and cumulative portions of variance explained by each signal."}
 c_vec <- eig_values / sum(eig_values)
 ck_vec <- cumsum(c_vec)
-
   df_plot <- data.frame(Signal = paste("Signal", 1:length(eig_values)), Portion_explained = c_vec, Portion_explained_cumul = ck_vec)
   colnames(df_plot)[2:3] <- c("Individually", "Cumulatively")
   gathercols <- colnames(df_plot)[2:3]
@@ -1519,6 +1531,12 @@ ck_vec <- cumsum(c_vec)
                    legend.text = element_text(size = 9))
 
   gg
+  
+  #====================================================
+n_signals <- which(ck_vec > 0.9)[1]
+#n_signals <- 3
+#====================================================
+
   
 ```
 <!-- ... perils of such rules of thumb have been documented [@...]. A more rigorous alternative has been proposed by ...[@...], building off of earlier work...theorem in random matrix theory...etc. An advantage of this method is that it tells the researcher how much of the data can be meaningfully distinguished from noise, rather than the researcher arbitrarily imposing a fidelity upon the data which it may not possess. -->
@@ -1582,7 +1600,7 @@ ck_vec <- cumsum(c_vec)
 
 <!-- ...approximating the assets covariance matrix [which leads directly to] -->
 <!-- ...signal portfolio optimization (inc. backtests?) -->
-The data correlation matrix can be approximated from the six retained signals as follows.
+The plot thus shows that the leading `r n_signals` signals are sufficient to meet this criterion. The data correlation matrix can be approximated from these retained signals as follows.
 
 \begin{equation}
 \hat{\Sigma}_{XX} = \tilde{L}\tilde{L}'
@@ -1591,15 +1609,11 @@ The data correlation matrix can be approximated from the six retained signals as
 The difference between the financial data correlation matrix and the signals derived correlation matrix is shown in Figure \ref{fig:compareCorMats}. The signals derived correlation matrix is approximate in the sense that it approximates the data correlation matrix, but it should not necessarily be considered inferior in terms of accuracy. To the extent that the original data are contaminated by noise, the signals derived correlation matrix may even be more accurate with respect to the "true process" that generates the data.
 
 ```{r, fig.show='hold', fig.width=6, fig.height=4, fig.align='center', fig.cap="\\label{fig:compareCovMats}The data covariance matrix minus the covariance matrix derived from the retained signals."}
-#====================================================
-n_signals <- which(ck_vec > 0.9)[1]
-#n_signals <- 3
-#====================================================
 mat_S <- mat_S_all[, 1:n_signals]
 mat_L <- cormat_XS[, 1:n_signals]
 eig_values_sigs <- eig_values[1:n_signals]
 
-covmat_XX <- cov(mat_pctDiff_train_mv)
+covmat_XX <- cov(mat_pctDiff_eg_train)
 covmat_XX_derived <- mat_L %*% t(mat_L)
 mat_diff_covmats <- covmat_XX - covmat_XX_derived
 
@@ -1634,35 +1648,44 @@ df_plot_conv_mod <- df_plot_conv[, c("Risk (standard deviation)", "ROI target")]
 df_plot_conv_btest <- df_plot_conv[, c("Risk backtest", "ROI backtest")]
 df_plot_conv_mod$Type <- "Optimal\nsolution"
 df_plot_conv_btest$Type <- "Backtest"
+df_plot_conv_btest$Returns <- "Linear"
 colnames(df_plot_conv_mod) <- c("Risk", "ROI", "Type")
-colnames(df_plot_conv_btest) <- c("Risk", "ROI", "Type")
-#--------------------------------------------------------
-df_plot <- rbind(df_plot_conv_mod, df_plot_conv_btest)
-gg <- ggplot(df_plot, aes(x = Risk, y = ROI, group = Type, color = Type))
-gg <- gg + geom_point()
-gg <- gg + labs(title = "Conventional budget shares")
-gg <- gg + theme(legend.position = "none",
-                 plot.title = element_text(face = "bold", size = 10))
-gg_conv_backtest <- gg + scale_color_manual(values = mv_conv_U_compare_colors)
+colnames(df_plot_conv_btest) <- c("Risk", "ROI", "Type", "Returns")
+# #--------------------------------------------------------
+# df_plot <- rbind(df_plot_conv_mod, df_plot_conv_btest)
+# gg <- ggplot(df_plot, aes(x = Risk, y = ROI, group = Type, color = Type))
+# gg <- gg + geom_point()
+# gg <- gg + labs(title = "Conventional budget shares")
+# gg <- gg + theme(legend.position = "none",
+#                  plot.title = element_text(face = "bold", size = 10))
+# gg_conv_backtest <- gg + scale_color_manual(values = mv_conv_U_compare_colors)
 # #--------------------------------------------------------
 df_plot_U_mod <- df_plot_U[, c("Risk (standard deviation)", "ROI target")]
 df_plot_U_btest <- df_plot_U[, c("Risk backtest", "ROI backtest")]
 df_plot_U_mod$Type <- "Optimal\nsolution"
 df_plot_U_btest$Type <- "Backtest"
+df_plot_U_btest$Returns <- "Sub-linear"
 colnames(df_plot_U_mod) <- c("Risk", "ROI", "Type")
-colnames(df_plot_U_btest) <- c("Risk", "ROI", "Type")
+colnames(df_plot_U_btest) <- c("Risk", "ROI", "Type", "Returns")
+#--------------------------------------------------------
+# df_plot <- rbind(df_plot_U_mod, df_plot_U_btest)
+# gg <- ggplot(df_plot, aes(x = Risk, y = ROI, group = Type, color = Type))
+# gg <- gg + geom_point()
+# gg <- gg + labs(title = "Utility budget shares")
+# gg <- gg + theme(legend.title = element_blank(),
+#                  axis.title.y = element_blank(),
+#                  plot.title = element_text(face = "bold", size = 10))
+# gg_U_backtest <- gg + scale_color_manual(values = mv_conv_U_compare_colors)
 # #--------------------------------------------------------
-df_plot <- rbind(df_plot_U_mod, df_plot_U_btest)
-gg <- ggplot(df_plot, aes(x = Risk, y = ROI, group = Type, color = Type))
+# gg_conv_backtest + gg_U_backtest + plot_layout(ncol = 2)
+#--------------------------------------------------------
+df_plot <- rbind(df_plot_conv_btest, df_plot_U_btest)
+gg <- ggplot(df_plot, aes(x = Risk, y = ROI, group = Returns, color = Returns))
 gg <- gg + geom_point()
-gg <- gg + labs(title = "Utility budget shares")
-gg <- gg + theme(legend.title = element_blank(),
-                 axis.title.y = element_blank(),
-                 plot.title = element_text(face = "bold", size = 10))
-gg_U_backtest <- gg + scale_color_manual(values = mv_conv_U_compare_colors)
-# #--------------------------------------------------------
-gg_conv_backtest + gg_U_backtest + plot_layout(ncol = 2)
-# #--------------------------------------------------------
+gg <- gg + theme(plot.title = element_text(face = "bold", size = 10))
+gg <- gg + scale_color_manual(values = mv_conv_U_compare_colors)
+gg
+
 # gg <- ggplot()
 # gg <- gg + geom_point(data = df_plot_conv, aes(x = `Risk backtest`, y = `Return on investment`))
 # gg <- gg + geom_point(data = df_plot_U, aes(x = `Risk backtest`, y = `Return backtest`), color = "blue")
@@ -1681,11 +1704,9 @@ gg_conv_backtest + gg_U_backtest + plot_layout(ncol = 2)
 That is to say, instead of optimizing over a portfolio of $n$ assets, the problem is reduced to one of optimizing over just the $k$ retained signals. Instead of using the data covariance matrix in MV Analysis, the signals covariance matrix is used, which is just the first $k$ rows and columns of the diagonal eigenvalue matrix $\tilde{U}$ (recall equation \ref{eq:covmat_SS}). The vector of expected returns to signals $\boldsymbol{\mu}_S$ can be aggregated up from the asset expected returns based on the .
 <!-- The expected return to each signal can be calculated as the sum of the expected returns to each asset weighted by their loadings onto the given signal.  -->
 
-$$
 \begin{equation}
 \tilde{\mu} = \frac{\mathbf{p}_T' \mathbf{e} - \mathbf{p}_1' \mathbf{e}}{\mathbf{p}_1' \mathbf{e}}
 \end{equation}
-$$
 
 To test this idea, the signals portfolio efficient frontier and budget shares are calculated using the financial data, and displayed in Figure \ref{fig:sigPortfolio}. The backtest on the right side of the Figure indicates that the signals portfolio frontier is far more accurate than that of the conventional approach in Figure \ref{fig:backtest}. The real ROI even exceeds the expected ROI over a substantial part of the frontier.
 
@@ -1844,23 +1865,15 @@ gg_backtest <- gg
 
 ```
 
-MV Analysis then outputs the optimal budget shares to be allocated to each signal ($\mathbf{\tilde{w}}$), rather than to each asset. The disaggregation of these signal budget shares down to allocations to each individual portfolio item ($\mathbf{w}$) follows from the definition of signals in equation \ref{eq:sigs_def}.
+MV Analysis then outputs the optimal budget shares to be allocated to each signal ($\mathbf{\tilde{w}}^*$), rather than to each asset. The disaggregation of these signal budget shares down to allocations to each individual portfolio item ($\mathbf{w}^*$) follows from the definition of signals in equation \ref{eq:sigs_def}.
 
 \begin{equation}
 \mathbf{w}^* = P\mathbf{\tilde{w}}^*
 \label{eq:w_disagg}
 \end{equation}
 
-The utility approach is then applied, whereby the $w_i^*$ are replaced with $\frac{\ln(w_i^*)}{\sum_i \ln(w_i^*)}$, enforcing positive budget shares and decreasing returns to scale. The result is plotted in Figure \ref{fig:wDisagg}.
 
-\begin{equation}
-\mathbf{w}_{p}^* = L D(\mathbf{\nu})^{-1} \mathbf{w}_{s}^* \:\:\: ;\:\: \nu = L'\mathbf{1}
-\label{eq:wsig_to_witem}
-\end{equation}
-
-
-
-```{r, fig.show='hold', fig.width=5, fig.height=5, fig.align='center', fig.cap="\\label{fig:wDisagg} The asset budget shares derived from the signals."}
+```{r, fig.show='hold', fig.width=5, fig.height=5, fig.align='center', fig.cap="\\label{fig:wDisagg}The asset budget shares derived from the signals."}
 
 # Map the signal weights back to the assets
 mat_wStar <- t(as.matrix(df_wStar[, -1]))
@@ -1878,7 +1891,7 @@ gg_budget
 
 
 # 
-covmat_XX_test <- cov(mat_pctDiff_test_mv)
+covmat_XX_test <- cov(mat_pctDiff_eg_test)
 Vtarg <- c()
 ROItarg <- c()
 Vtarg_test <- c()
@@ -1925,10 +1938,10 @@ gg_backtest
 
 # An illustrative example of AR4D risk adjusted portfolio optimization
 
-In practice, AR4D risk adjusted portfolio optimization would come after Step 3 in the resource allocation workflow, either complementing or replacing the ranking of research proposals in order of priority that is slated to occur in Step 4. By this point in the resource allocation workflow, a list of research proposals would have been drawn up, and the expected impact of each proposal assessed and quantified. A hypothetical list of such proposals is presented in Figure \ref{fig:ExpPctRet_Examp}.^[The AR4D proposals are loosely grouped into four categories to facilitate interpretation of the gaphics, but there is no strict rule followed, and clearly some overlap, in the grouping. The "Heat Tolerant Beans" proposal has been placed in the "Smallholder Staples" category, but just as well could just have gone under "Climate Smart Agriculture".]
+In practice, AR4D risk adjusted portfolio optimization would come after Step 3 in the resource allocation workflow, either complementing or replacing the ranking of research proposals in order of priority that is slated to occur in Step 4. By this point in the resource allocation workflow, a list of research proposals would have been drawn up, and the expected impact of each proposal assessed and quantified. A hypothetical list of such proposals is presented in Figure \ref{fig:ExpPctRet_Examp}.^[The AR4D proposals are loosely grouped into four categories to facilitate interpretation of the gaphics, but there is no strict rule followed, and clearly some overlap, in the grouping.]
 <!-- This quantification of net impacts is calculated over the dimensions of interest to the stakeholders. For example, if the ... then the net impact is an aggregation of the net benefits in each of these categories. -->
 
-```{r, fig.show = "hold", fig.width = 8, fig.height = 4, fig.align = "center", fig.cap = "\\label{fig:ExpPctRet_Examp}A set of hypothetical AR4D proposals and their expected returns."}
+```{r, fig.show = "hold", fig.width = 5, fig.height = 3, fig.align = "left", fig.cap = "\\label{fig:ExpPctRet_Examp}A set of hypothetical AR4D proposals and their expected returns."}
 #---------------------------------------------
 prop_CSA <- c("Heat Tolerant\nBeans", "Coffee Agroforestry", "Digital Agriculture", "Low Emission\nSilvo-Pastoril")
 econGrowth_CSA <- c(0.17, 0.28, 0.4, -0.35)
@@ -1956,7 +1969,7 @@ df_CSA <- data.frame(Proposal = prop_CSA, `Economic Growth` = econGrowth_CSA, `E
 
 df_smallHolder <- data.frame(Proposal = prop_smallHolder, `Economic Growth` = econGrowth_smallHolder, `Economic Equality` = econEquality_smallHolder, `Environmental Sustainability` = envSust_smallHolder, Group = "Smallholder\nResilience")
 
-df_highYcommod <- data.frame(Proposal = prop_highYcommod, `Economic Growth` = econGrowth_highYcommod, `Economic Equality` = econEquality_highYcommod, `Environmental Sustainability` = envSust_highYcommod, Group = "High Value\nYield Enhancement")
+df_highYcommod <- data.frame(Proposal = prop_highYcommod, `Economic Growth` = econGrowth_highYcommod, `Economic Equality` = econEquality_highYcommod, `Environmental Sustainability` = envSust_highYcommod, Group = "High Value Yield\nEnhancement")
 
 list_df <- list(df_highYcommod, df_smallHolder, df_CSA)#, df_socialCap)
 
@@ -1989,17 +2002,17 @@ plot_returns_barchart(df_pctRet, group_colors, list_graph_options, graph_on = F)
 
 The data required to calculate an AR4D proposal covariance matrix does not generally exist. However, the diagonal elements of such a matrix, i.e. the variance of each proposal, can be elicited from stakeholders by asking, for example, what they think the maximum, minimum, and most probable impact of each given proposal will be. The proposal impact variance can then be computed on the basis of a triangular distribution as
 
-$$
+
 \begin{equation}
 \sigma^2 = \frac{y_{low}^2 + y_{high}^2 + y_{likely}^2 - y_{low}y_{high} - y_{low}y_{likely}-y_{high}y_{likely}}{18}
 \end{equation}
-$$
+
 [triangular density graphic?]
 If, for whatever reason, it is not possible to estimate these variances, then they can be scaled to unity. In the hypothetical resource allocation exercise at hand, the standard deviations were elicited from stakeholders, and appear along the diagonal of the AR4D proposal covariance matrix in Figure .... No estimate is yet available for the covariances, and so these are left blank for now.
 
-```{r}
+```{r, fig.show='hold', fig.width=6, fig.height=4, fig.align='center', fig.cap="\\label{fig:covMat_ar4d}The AR4D proposal covariance matrix, with proposal risk assessments (along the diagonal) elicited from stakeholders. The off-diagonal elements, i.e. the covariances between proposals, remain unknown."}
 
-fig_title <- "AR4D Proposal Covariance Matrix, Covariances Unknown"
+fig_title <- "Covariances Unknown"
 D_sd2X <- matrix(NA, n_prop, n_prop)
 row.names(D_sd2X) <- as.character(df_pctRet$Item)
 colnames(D_sd2X) <- as.character(df_pctRet$Item)
@@ -2017,14 +2030,14 @@ In the present hypothetical example, a "signal" can be thought of as a developme
 
 In the hypothetical example presented here, the stakeholders have decided that Economic Growth, Income Equality, and Environmental Sustainability are the dimensions that best register the evolution of the proposals under consideration. This loosely corresponds to the "triple bottom line" discussed in business contexts. The next step is to invite the stakeholders to rate, from $-100$ to $100$, each research proposal in terms of its contribution towards each of these objectives. A positive rating means the proposal contributes toward the objective; a negative rating means the proposal works against the objective; and a rating of zero means that the proposal has no influence over the given objective. The hypothetical results of such an exercise are presented in Figure \ref{fig:loadsRotExamp}. These ratings are then divided by $100$, and the matrix as a whole is interpreted as an orthogonal rotation of the matrix of correlations between AR4D proposals and signals ($L_{\circlearrowleft}$).
 
-```{r, fig.show = "hold", fig.width = 8, fig.height = 5, fig.align = "center", fig.cap = "\\label{fig:loadsRotExamp}A hypothetical example of rotated signal loadings elicited from a stakeholder survey."}
+```{r, fig.show = "hold", fig.width = 6, fig.height = 3, fig.align = "center", fig.cap = "\\label{fig:loadsRotExamp}A hypothetical example of rotated signal loadings elicited from a stakeholder survey."}
 df_x <- df_Lrot
 df_x$Group <- NULL
 prop_col <- df_x$Proposal
 df_x$Proposal <- NULL
 mat_Lrot <- as.matrix(df_x)
 rownames(mat_Lrot) <- prop_col
-list_groups <- list(prop_highYcommod, prop_smallHolder, prop_CSA, prop_socialCap)
+list_groups <- list(prop_highYcommod, prop_smallHolder, prop_CSA)
 n_groups <- length(list_groups)
 bag_of_colors <- randomcoloR::distinctColorPalette(k = 5 * n_groups)
 group_colors <- sample(bag_of_colors, n_groups)
@@ -2033,9 +2046,6 @@ group_info <- list(list_groups, group_names, group_colors)
 sigNames <- c("GDP Growth", "Economic\nEquality", "Environmental\nSustainability")
 xAxis_title <- "Rotated Correlations"
 plot_corrXS_barchart(mat_Lrot, group_info, xAxis_title, sigNames)
-
-
-
 
 ```
 
@@ -2062,7 +2072,7 @@ plot_corrXS_barchart(mat_Lrot, group_info, xAxis_title, sigNames)
 
 As shown in section 3.2, the implicit covariance matrix ($\hat{\Sigma}$) can then be found by multiplying $L_{\circlearrowleft}L_{\circlearrowleft}'$. The result is presented in Figure \ref{fig:covmatProps}. This crowdsourced approximation to a data covariance matrix offers insight into the implicit covariances---i.e. tradeoffs and synergies---between AR4D proposals in the portfolio. This is remarkable in and of itself and may be useful for orienting stakeholder discussion. For risk adjusted portfolio optimization, we must turn to the signals portfolio.
 
-```{r, fig.show = "hold", fig.width = 7, fig.height = 5, fig.align = "center", fig.cap = "\\label{fig:covmatProps}AR4D proposal covariance matrix derived from the elicited loadings."}
+```{r, fig.show = "hold", fig.width = 6, fig.height = 4, fig.align = "center", fig.cap = "\\label{fig:covmatProps}AR4D proposal covariance matrix derived from the elicited loadings."}
 
 covmat_XX_derived <- mat_Lrot %*% t(mat_Lrot)
 fig_title <- "Crowdsourced AR4D Proposal Covariance Matrix"
@@ -2074,52 +2084,48 @@ plot_covmat(covmat_XX_derived, fig_title, graph_on = F)
 
 Nonetheless, as discussed in section 3.3, optimal frontier and budget shares can be obtained via another route. The signals portfolio is optimized. Individual AR4D proposal budget shares can then be disaggregated from these    To determine the optimal resource allocation, the signals portfolio is optimized.
 
-In order to optimize the signals portfolio, the signal expected returns and covariance matrix are required. Signal expected returns can be aggregated up from the expected returns to each portfolio item via equation \ref{eq:}. The signals covariance matrix is just the diagonal matrix of the `n_signals` leading eigenvalues ($U$) corresponding to the `n_signals` retained signals (recall equation \ref{eq:}). The matrix $U$ can be derived from the elicited loadings $L\{\circlearrowleft}$ and project risk $\boldsymbol{\sigma}$ as follows. First, define a new matrix $Q$.
+In order to optimize the signals portfolio, the signal expected returns and covariance matrix are required. Signal expected returns can be aggregated up from the expected returns to each portfolio item via equation \ref{eq:}. The signals covariance matrix is just the diagonal matrix of the `r n_signals` leading eigenvalues ($U$) corresponding to the `r n_signals` retained signals (recall equation \ref{eq:}). The matrix $U$ can be derived from the elicited loadings $L_{\circlearrowleft}$ and project risk $\boldsymbol{\sigma}$ as follows. First, define a new matrix $Q$.
 
-$$
 \begin{equation}
-Q = D(\mathbf{\sigma}_X) L_{\circlearrowleft}
+Q = D(\boldsymbol{\sigma}_X) L_{\circlearrowleft}
 \end{equation}
-$$
+
 By equation \ref{eq:} it follows that 
 
-$$
 \begin{equation}
 Q = P U^{1 \over 2} R
 \end{equation}
-$$
+
 and hence
 
-$$
 \begin{eqnarray}
-Q'Q &=& L_{\circlearrowleft}' D(\mathbf{\sigma}^2_X) L_{\circlearrowleft} \\
+Q'Q &=& L_{\circlearrowleft}' D(\boldsymbol{\sigma}^2_X) L_{\circlearrowleft} \\
 &=& R'U R
 \end{eqnarray}
-$$
 
 where $R$ is the orthogonal rotation matrix. It follows, then, that $U$ (and $R$) can be obtained through the eigendecomposition of $Q'Q$.
 
 Having thus deduced the signals covariance matrix $U$ and vector of expected returns $\boldsymbol{\mu}$ from the elicited information $L_{\circlearrowleft}$ and $\boldsymbol{\sigma}$, the optimal frontier and budget shares for the signals portfolio are calculated in Figure \ref{fig:mvAR4D}.
 
 ```{r, fig.show='hold', fig.width=5, fig.height=5, fig.align='center', fig.cap="\\label{fig:mvAR4D}Optimal frontier and budget shares for the AR4D signals portfolio.", echo = FALSE}
+#--------------------------------------------------------------
+# Covariance matrix
+D_sdX_inv <- diag(1 / sqrt(sd2X_vec))
+mat_Q <- D_sdX_inv %*% mat_Lrot
+eig_decomp_QQ <- eigen(t(mat_Q) %*% mat_Q)
+eig_values_QQ <- eig_decomp_QQ$values
+mat_U <- diag(eig_values_QQ)
+covmat_SS <- mat_U
 #--------------------------------------------------------
 # Get mat_P
 mat_U_sqrt_inv <- diag(1 / sqrt(eig_values_QQ))
 mat_R <- t(eig_decomp_QQ$vectors)
-mat_P <- Q %*% t(mat_R) %*% mat_U_sqrt_inv
+mat_P <- mat_Q %*% t(mat_R) %*% mat_U_sqrt_inv
 if(mean(mat_P[, 1]) < 0){mat_P <- -mat_P}
 mat_P_sigs <- mat_P[, 1:n_signals]
 #--------------------------------------------------------------
 nab_C <- rep(-1, n_signals)
 utility_interpretation <- F
-#--------------------------------------------------------------
-# Covariance matrix
-D_sdX_inv <- diag(1 / sqrt(sd2X_vec))
-Q <- D_sdX_inv %*% mat_Lrot
-eig_decomp_QQ <- eigen(t(Q) %*% Q)
-eig_values_QQ <- eig_decomp_QQ$values
-mat_U <- diag(eig_values_QQ)
-covmat_SS <- mat_U
 #--------------------------------------------------------------
 # Expected returns vector
 nab_pctRet_ar4d_sigs <- as.numeric(t(10^-2 * nab_pctRet_ar4d) %*% mat_P_sigs)
@@ -2173,13 +2179,11 @@ gg_frontier + gg_budget + plot_layout(ncol = 1)
 #--------------------------------------------------------------
 ```
 
-The budget allocation to each AR4D proposal is then disaggregated from the signal budget shares by equation \ref{eq:}. The matrix of `n_signals` leading eigenvectors $P$ of the proposal covariance matrix is required in order to perform this last step. Having deduced $R$ and $U$ above, it is possible to deduce $P$ as follows.
+The budget allocation to each AR4D proposal is then disaggregated from the signal budget shares by equation \ref{eq:}. The matrix of `r n_signals` leading eigenvectors $P$ of the proposal covariance matrix is required in order to perform this last step. Having deduced $R$ and $U$ above, it is possible to deduce $P$ as follows.
 
-$$
 \begin{eqnarray}
 Q R' U^{-{1 \over 2}} &=& PU^{1 \over 2}RR'U^{-{1 \over 2}} \\ &=& P
 \end{eqnarray}
-$$
 
 Having deduced $P$, the optimal AR4D proposal budget allocation is calculated in Figure \ref{fig:wDisagg_ar4d}.
 
@@ -2254,238 +2258,204 @@ gg_budget
 
 The dimension covariance and correlation matrices are given in Figure \ref{fig:covmatDim}.
 
-```{r, fig.show = "hold", fig.width = 6, fig.height = 4, fig.align = "center", fig.cap = "\\label{fig:covmatDim}Implicit dimensional covariance and correlation matrices."}
+<!-- #```{r, fig.show = "hold", fig.width = 6, fig.height = 4, fig.align = "center", fig.cap = "\\label{fig:covmatDim}Implicit dimensional covariance and correlation matrices."} -->
 
-covmat <- t(mat_Lrot) %*% mat_Lrot
-sd_vec <- diag(sqrt(covmat))
-cormat <- diag(1 / sd_vec) %*% covmat %*% diag(1 / sd_vec)
-rownames(cormat) <- rownames(covmat)
-colnames(cormat) <- colnames(covmat)
-
-
-n_col <- ncol(covmat)
-df_plot <- covmat %>% tbl_df()
-these_levels <- colnames(df_plot)
-df_plot$V1 <- colnames(df_plot)
-gathercols <- colnames(df_plot)[-ncol(df_plot)]
-df_plot <- df_plot %>% gather_("V2", "Value", gathercols)
-
-df_plot$V1 <- factor(df_plot$V1, levels = these_levels)
-df_plot$V2 <- factor(df_plot$V2, levels = these_levels)
-
-#midpoint <- min(covmat) + (max(covmat) - min(covmat)) / 2
-midpoint <- 0
-gg <- ggplot(df_plot, aes(V1, V2))
-gg <- gg + geom_tile(aes(fill = Value))#, width = 4, height = 4)
-gg <- gg + geom_text(aes(label = round(Value, 2)), size = 3)
-gg <- gg + theme(axis.text.x = element_text(angle = 60, hjust = 1),
-                 axis.title = element_blank(),
-                 legend.title = element_blank(),
-                 legend.position = "top",
-                 plot.title = element_text(size = 10))
-gg <- gg + labs(title = "Covariance Matrix")
-gg <- gg + scale_fill_gradient2(low = "magenta", mid = "khaki", high = "cyan", midpoint)
-gg_covmat <- gg
+<!-- covmat <- t(mat_Lrot) %*% mat_Lrot -->
+<!-- sd_vec <- diag(sqrt(covmat)) -->
+<!-- cormat <- diag(1 / sd_vec) %*% covmat %*% diag(1 / sd_vec) -->
+<!-- rownames(cormat) <- rownames(covmat) -->
+<!-- colnames(cormat) <- colnames(covmat) -->
 
 
-df_plot <- cormat %>% tbl_df()
-these_levels <- colnames(df_plot)
-df_plot$V1 <- colnames(df_plot)
-gathercols <- colnames(df_plot)[-ncol(df_plot)]
-df_plot <- df_plot %>% gather_("V2", "Value", gathercols)
-df_plot$V1 <- factor(df_plot$V1, levels = these_levels)
-df_plot$V2 <- factor(df_plot$V2, levels = these_levels)
+<!-- n_col <- ncol(covmat) -->
+<!-- df_plot <- covmat %>% tbl_df() -->
+<!-- these_levels <- colnames(df_plot) -->
+<!-- df_plot$V1 <- colnames(df_plot) -->
+<!-- gathercols <- colnames(df_plot)[-ncol(df_plot)] -->
+<!-- df_plot <- df_plot %>% gather_("V2", "Value", gathercols) -->
 
-#midpoint <- min(covmat) + (max(covmat) - min(covmat)) / 2
-midpoint <- 0
-gg <- ggplot(df_plot, aes(V1, V2))
-gg <- gg + geom_tile(aes(fill = Value))#, width = 4, height = 4)
-gg <- gg + geom_text(aes(label = round(Value, 2)), size = 3)
-gg <- gg + theme(axis.text.x = element_text(angle = 60, hjust = 1),
-                 axis.title = element_blank(),
-                 axis.text.y = element_blank(),
-                 legend.title = element_blank(),
-                 legend.position = "top",
-                 plot.title = element_text(size = 10))
-gg <- gg + labs(title = "Correlation Matrix")
-gg <- gg + scale_fill_gradient2(low = "magenta", mid = "khaki", high = "cyan", midpoint)
-gg_cormat <- gg
+<!-- df_plot$V1 <- factor(df_plot$V1, levels = these_levels) -->
+<!-- df_plot$V2 <- factor(df_plot$V2, levels = these_levels) -->
 
-
-gg_covmat | gg_cormat
-
-#kappa(covmat)
-#eigen(covmat)$values
-#eigen(covmat)$vectors
-
-# R <- eigen(covmat)$vectors
-# mat_L <- mat_Lrot %*% t(R)
-# 
-# mat_Lrot <- varimax(mat_L)[[1]]
-# mat_Lrot <- matrix(as.numeric(mat_Lrot), attributes(mat_Lrot)$dim, dimnames=attributes(mat_Lrot)$dimnames)
-# 
-# interpret_loadings(mat_Lrot, fun_env)
+<!-- #midpoint <- min(covmat) + (max(covmat) - min(covmat)) / 2 -->
+<!-- midpoint <- 0 -->
+<!-- gg <- ggplot(df_plot, aes(V1, V2)) -->
+<!-- gg <- gg + geom_tile(aes(fill = Value))#, width = 4, height = 4) -->
+<!-- gg <- gg + geom_text(aes(label = round(Value, 2)), size = 3) -->
+<!-- gg <- gg + theme(axis.text.x = element_text(angle = 60, hjust = 1), -->
+<!--                  axis.title = element_blank(), -->
+<!--                  legend.title = element_blank(), -->
+<!--                  legend.position = "top", -->
+<!--                  plot.title = element_text(size = 10)) -->
+<!-- gg <- gg + labs(title = "Covariance Matrix") -->
+<!-- gg <- gg + scale_fill_gradient2(low = "magenta", mid = "khaki", high = "cyan", midpoint) -->
+<!-- gg_covmat <- gg -->
 
 
-```
+<!-- df_plot <- cormat %>% tbl_df() -->
+<!-- these_levels <- colnames(df_plot) -->
+<!-- df_plot$V1 <- colnames(df_plot) -->
+<!-- gathercols <- colnames(df_plot)[-ncol(df_plot)] -->
+<!-- df_plot <- df_plot %>% gather_("V2", "Value", gathercols) -->
+<!-- df_plot$V1 <- factor(df_plot$V1, levels = these_levels) -->
+<!-- df_plot$V2 <- factor(df_plot$V2, levels = these_levels) -->
+
+<!-- #midpoint <- min(covmat) + (max(covmat) - min(covmat)) / 2 -->
+<!-- midpoint <- 0 -->
+<!-- gg <- ggplot(df_plot, aes(V1, V2)) -->
+<!-- gg <- gg + geom_tile(aes(fill = Value))#, width = 4, height = 4) -->
+<!-- gg <- gg + geom_text(aes(label = round(Value, 2)), size = 3) -->
+<!-- gg <- gg + theme(axis.text.x = element_text(angle = 60, hjust = 1), -->
+<!--                  axis.title = element_blank(), -->
+<!--                  axis.text.y = element_blank(), -->
+<!--                  legend.title = element_blank(), -->
+<!--                  legend.position = "top", -->
+<!--                  plot.title = element_text(size = 10)) -->
+<!-- gg <- gg + labs(title = "Correlation Matrix") -->
+<!-- gg <- gg + scale_fill_gradient2(low = "magenta", mid = "khaki", high = "cyan", midpoint) -->
+<!-- gg_cormat <- gg -->
+
+
+<!-- gg_covmat | gg_cormat -->
+
+<!-- #kappa(covmat) -->
+<!-- #eigen(covmat)$values -->
+<!-- #eigen(covmat)$vectors -->
+
+<!-- # R <- eigen(covmat)$vectors -->
+<!-- # mat_L <- mat_Lrot %*% t(R) -->
+<!-- #  -->
+<!-- # mat_Lrot <- varimax(mat_L)[[1]] -->
+<!-- # mat_Lrot <- matrix(as.numeric(mat_Lrot), attributes(mat_Lrot)$dim, dimnames=attributes(mat_Lrot)$dimnames) -->
+<!-- #  -->
+<!-- # interpret_loadings(mat_Lrot, fun_env) -->
+
+
+<!-- #``` -->
 
 When approached in this way, the portfolio optimization problem is dimensionally reduced from fourteen proposals to just three crosscutting signals. Each signal may itself be viewed as a _thematic_ AR4D portfolio, i.e. as a set of investments that is weighted towards a particular development theme (in this case, either Economic Growth, Economic Equality, or Environmental Sustainability).
 
-If the return to proposal $i$ in dimension $j$ can be expressed
-$$
-\begin{equation}
-
-\mu_{ij} = \frac{\ell_{ij}}{\sum_j \ell_{ij}} \mu_i \:\:;\:\:\:\mu_i = \sum_j \mu_{ij}
-\end{equation}
-
-$$
-Then the expected return to each signal can be calculated
-
-$$
-\begin{equation}
-
-\mu_j = \frac{1}{n} \sum_i \mu_{ij}
-
-\end{equation}
-$$
-where $n$ is the number of proposals in the portfolio.
+If the return to proposal $i$ in dimension $j$ can be expressedThen the expected return to each signal can be calculatedwhere $n$ is the number of proposals in the portfolio.
 
 
-```{r, fig.show='hold', fig.width=5, fig.height=4, fig.align='center', fig.cap="\\label{fig:AR4DFrontier}Hypothetical example of the optimal frontier and budget shares in the AR4D context.", echo = FALSE}
+<!-- #```{r, fig.show='hold', fig.width=5, fig.height=4, fig.align='center', fig.cap="\\label{fig:AR4DFrontier}Hypothetical example of the optimal frontier and budget shares in the AR4D context.", echo = FALSE} -->
 
-sum_Lrows <- as.numeric(mat_Lrot %*% as.matrix(rep(1, n_dim)))
-mat_Lrot_normdByRows <- diag(1 / sum_Lrows) %*% mat_Lrot
-#rowSums(mat_Lrot_normdByRows)
-rownames(mat_Lrot_normdByRows) <- rownames(mat_Lrot)
-mat_mu <- diag(mu_pctRet) %*% mat_Lrot_normdByRows
-#mat_mu %*% as.matrix(rep(1, n_dim)) - as.matrix(mu_pctRet)
-#mu_pctRet_dims <- colSums(mat_mu)
-mu_pctRet_dims <- colMeans(mat_mu)
-#-------------------------------------------------------------
-nab_pctRet <- mu_pctRet_dims
-nab_C <- rep(1, n_dim)
-mat_nab <- cbind(nab_pctRet, nab_C)
+<!-- # sum_Lrows <- as.numeric(mat_Lrot %*% as.matrix(rep(1, n_signals))) -->
+<!-- # mat_Lrot_normdByRows <- diag(1 / sum_Lrows) %*% mat_Lrot -->
+<!-- # #rowSums(mat_Lrot_normdByRows) -->
+<!-- # rownames(mat_Lrot_normdByRows) <- rownames(mat_Lrot) -->
+<!-- # mat_mu <- diag(mu_pctRet) %*% mat_Lrot_normdByRows -->
+<!-- # #mat_mu %*% as.matrix(rep(1, n_signals)) - as.matrix(mu_pctRet) -->
+<!-- # #mu_pctRet_dims <- colSums(mat_mu) -->
+<!-- # mu_pctRet_dims <- colMeans(mat_mu) -->
+<!-- # #------------------------------------------------------------- -->
+<!-- # nab_pctRet <- mu_pctRet_dims -->
+<!-- # nab_C <- rep(1, n_signals) -->
+<!-- # mat_nab <- cbind(nab_pctRet, nab_C) -->
+<!-- #  -->
+<!-- # n_points_on_frontier <- 50 -->
+<!-- # fun_env <- list(n_points_on_frontier, -->
+<!-- #                 utility_interpretation = T, -->
+<!-- #                 backtest_info = NULL, -->
+<!-- #                 frontier_and_budget_plot = T, -->
+<!-- #                 group_info = NULL, -->
+<!-- #                 group_colors = NULL, -->
+<!-- #                 group_small = NULL, -->
+<!-- #                 C_targ = 1, -->
+<!-- #                 fig_title = NULL) -->
+<!-- # AR4D_eg_rTarg_limits <- c(0.08, .6) -->
+<!-- # list_out <- get_optimal_frontier(covmat, mat_nab, -->
+<!-- #                                  Rtarg_limits = AR4D_eg_rTarg_limits, -->
+<!-- #                                  fun_env) -->
+<!-- #  -->
+<!-- # df_wStar <- list_out[[1]] -->
+<!-- # df_frontier <- list_out[[2]] -->
+<!-- # outlist_gg <- list_out[[4]] -->
+<!-- # gg_frontier <- outlist_gg[1] -->
+<!-- # gg_weights <- outlist_gg[2] -->
+<!-- #  -->
+<!-- # gg_frontier[[1]] + gg_weights[[1]] + plot_layout(ncol = 1) -->
 
-n_points_on_frontier <- 50
-fun_env <- list(n_points_on_frontier,
-                utility_interpretation = T,
-                backtest_info = NULL,
-                frontier_and_budget_plot = T,
-                group_info = NULL,
-                group_colors = NULL,
-                group_small = NULL,
-                C_targ = 1,
-                fig_title = NULL)
-AR4D_eg_rTarg_limits <- c(0.08, .6)
-list_out <- get_optimal_frontier(covmat, mat_nab,
-                                 Rtarg_limits = AR4D_eg_rTarg_limits,
-                                 fun_env)
+<!-- #(eigen(covmat)$vectors)^2 %*% as.matrix(mu_pctRet_dims) -->
 
-df_wStar <- list_out[[1]]
-df_frontier <- list_out[[2]]
-outlist_gg <- list_out[[4]]
-gg_frontier <- outlist_gg[1]
-gg_weights <- outlist_gg[2]
+<!-- #``` -->
 
-gg_frontier[[1]] + gg_weights[[1]] + plot_layout(ncol = 1)
 
-#(eigen(covmat)$vectors)^2 %*% as.matrix(mu_pctRet_dims)
+The resource allocation to the individual AR4D proposals within each of these dimensions is calculated as follows.,,,The optimal budget allocation to the $i^{th}$ proposal then follows as
 
-```
 
-Note how the optimal solution changes with risk tolerance. At lower risk tolerances, the optimal investment focuses on economic growth, followed by environmental sustainability and economic equality. However, as risk tolerance increases, the optimal investment dictates that investments in environmental sustainability be displaced by investments in economic growth and, to a lesser extent, economic equality.
 
-The resource allocation to the individual AR4D proposals within each of these dimensions is calculated as follows. First, consider that the budget share allocated to the $i^{th}$ proposal in the $j^{th}$ dimension, for a given risk tolerance, can be expressed
+<!-- # ```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center', fig.cap="\\label{fig:propWgts}dfgg.", echo = FALSE} -->
 
-$$
-\begin{equation}
+<!-- # fun_env <- list(n_points_on_frontier, -->
+<!-- #                 utility_interpretation = F, -->
+<!-- #                 backtest_info = NULL, -->
+<!-- #                 frontier_and_budget_plot = T, -->
+<!-- #                 group_info = NULL, -->
+<!-- #                 group_colors = NULL, -->
+<!-- #                 group_small = NULL, -->
+<!-- #                 C_targ = 1, -->
+<!-- #                 fig_title = NULL) -->
+<!-- #  -->
+<!-- # list_out <- get_optimal_frontier(covmat, mat_nab, -->
+<!-- #                                  Rtarg_limits = AR4D_eg_rTarg_limits, -->
+<!-- #                                  fun_env) -->
+<!-- #  -->
+<!-- # df_wStar <- list_out[[1]] -->
+<!-- # #rowSums(df_wStar[, -1]) -->
+<!-- #  -->
+<!-- # mat_wStar <- as.matrix(df_wStar) -->
+<!-- # #mat_Lrot_normdByCols <- mat_Lrot %*% diag(1 / colSums(mat_Lrot)) -->
+<!-- # #colSums(mat_Lrot_normdByCols) -->
+<!-- # mat_wStar_prop <- mat_Lrot %*% t(mat_wStar[, -1]) -->
+<!-- # #colSums(mat_wStar_prop) -->
+<!-- # mat_wStar_prop <- mat_wStar_prop %*% diag(1 / colSums(mat_wStar_prop)) -->
+<!-- # mat_wStar_prop <- exp(mat_wStar_prop) -->
+<!-- # mat_wStar_prop <- mat_wStar_prop %*% diag(1 / colSums(mat_wStar_prop)) -->
+<!-- # # mat_wStar_prop <- mat_wStar_prop %*% diag(1 / colSums(mat_wStar_prop)) -->
+<!-- # #colSums(mat_wStar_prop) -->
+<!-- # mat_wStar_prop <- cbind(df_wStar$`Risk (standard deviation)`, t(mat_wStar_prop)) -->
+<!-- # colnames(mat_wStar_prop) <- c(colnames(df_wStar)[1], rownames(mat_Lrot_normd)) -->
+<!-- # df_wStar_prop <- as.data.frame(mat_wStar_prop) -->
+<!-- #  -->
+<!-- # gg_wgts <- plot_budgetShares(df_wStar_prop, n_points_on_frontier, graph_on = T, group_small = NULL, group_info = group_info, group_colors = group_colors_arb, legend_position = "bottom") -->
+<!-- #  -->
+<!-- # list_df <- list(df_highYcommod, df_CSA, df_socialCap, df_smallHolder) -->
+<!-- # list_gg <- list() -->
+<!-- # last_i <- length(list_df) -->
+<!-- # axis_titles <- "off" -->
+<!-- # Xaxis_numbers_off <- T -->
+<!-- # for(i in 1:last_i){ -->
+<!-- #   df_this <- list_df[[i]] -->
+<!-- #   this_group <- unique(df_this$Group) -->
+<!-- #   ind_these <- c(1, which(colnames(df_wStar_prop) %in% df_this$Proposal)) -->
+<!-- #   df_wStar_prop_thisGroup <- df_wStar_prop[, ind_these] -->
+<!-- #   if(i == last_i){ -->
+<!-- #     axis_titles <- "x only" -->
+<!-- #     Xaxis_numbers_off <- F -->
+<!-- #     } -->
+<!-- #   gg_wgts_thisGroup <- plot_budgetShares(df_wStar_prop_thisGroup, -->
+<!-- #                                      n_points_on_frontier, graph_on = F, -->
+<!-- #                                      group_small = NULL, group_info = NULL, -->
+<!-- #                                      group_colors = NULL, -->
+<!-- #                                      legend_position = "right", -->
+<!-- #                                      fig_title = this_group, -->
+<!-- #                                      axis_titles, -->
+<!-- #                                      Xaxis_numbers_off) -->
+<!-- #   list_gg[[i]] <- gg_wgts_thisGroup -->
+<!-- # } -->
+<!-- #  -->
+<!-- # # ind_soCap <- c(1, which(colnames(df_wStar_prop) %in% df_socialCap$Proposal)) -->
+<!-- # # df_wStar_prop_soCap <- df_wStar_prop[, ind_soCap] -->
+<!-- # # gg_wgts_soCap <- plot_budgetShares(df_wStar_prop_soCap, n_points_on_frontier, graph_on = T, group_small = NULL, group_info = NULL, group_colors = NULL, legend_position = "right") -->
+<!-- #  -->
+<!-- # gg_wgts | (list_gg[[1]] / list_gg[[2]] / list_gg[[3]] / list_gg[[4]]) | plot_layout(widths = c(2, 1)) -->
 
-w_{ij} = \frac{\ell_{ij}}{\sum_i \ell_{ij}} w_j \:\:;\:\:\:w_i = \sum_j w_{ij}
-
-\end{equation}
-$$
-The optimal budget allocation to the $i^{th}$ proposal then follows as
-
-$$
-\begin{equation}
-
-w_i = \sum_j w_{ij}
-
-\end{equation}
-$$
-
-```{r, fig.show='hold', fig.width=7, fig.height=5, fig.align='center', fig.cap="\\label{fig:propWgts}dfgg.", echo = FALSE}
-
-fun_env <- list(n_points_on_frontier,
-                utility_interpretation = F,
-                backtest_info = NULL,
-                frontier_and_budget_plot = T,
-                group_info = NULL,
-                group_colors = NULL,
-                group_small = NULL,
-                C_targ = 1,
-                fig_title = NULL)
-
-list_out <- get_optimal_frontier(covmat, mat_nab,
-                                 Rtarg_limits = AR4D_eg_rTarg_limits,
-                                 fun_env)
-
-df_wStar <- list_out[[1]]
-#rowSums(df_wStar[, -1])
-
-mat_wStar <- as.matrix(df_wStar)
-#mat_Lrot_normdByCols <- mat_Lrot %*% diag(1 / colSums(mat_Lrot))
-#colSums(mat_Lrot_normdByCols)
-mat_wStar_prop <- mat_Lrot %*% t(mat_wStar[, -1])
-#colSums(mat_wStar_prop)
-mat_wStar_prop <- mat_wStar_prop %*% diag(1 / colSums(mat_wStar_prop))
-mat_wStar_prop <- exp(mat_wStar_prop)
-mat_wStar_prop <- mat_wStar_prop %*% diag(1 / colSums(mat_wStar_prop))
-# mat_wStar_prop <- mat_wStar_prop %*% diag(1 / colSums(mat_wStar_prop))
-#colSums(mat_wStar_prop)
-mat_wStar_prop <- cbind(df_wStar$`Risk (standard deviation)`, t(mat_wStar_prop))
-colnames(mat_wStar_prop) <- c(colnames(df_wStar)[1], rownames(mat_Lrot_normd))
-df_wStar_prop <- as.data.frame(mat_wStar_prop)
-
-gg_wgts <- plot_budgetShares(df_wStar_prop, n_points_on_frontier, graph_on = T, group_small = NULL, group_info = group_info, group_colors = group_colors_arb, legend_position = "bottom")
-
-list_df <- list(df_highYcommod, df_CSA, df_socialCap, df_smallHolder)
-list_gg <- list()
-last_i <- length(list_df)
-axis_titles <- "off"
-Xaxis_numbers_off <- T
-for(i in 1:last_i){
-  df_this <- list_df[[i]]
-  this_group <- unique(df_this$Group)
-  ind_these <- c(1, which(colnames(df_wStar_prop) %in% df_this$Proposal))
-  df_wStar_prop_thisGroup <- df_wStar_prop[, ind_these]
-  if(i == last_i){
-    axis_titles <- "x only"
-    Xaxis_numbers_off <- F
-    }
-  gg_wgts_thisGroup <- plot_budgetShares(df_wStar_prop_thisGroup,
-                                     n_points_on_frontier, graph_on = F,
-                                     group_small = NULL, group_info = NULL,
-                                     group_colors = NULL,
-                                     legend_position = "right",
-                                     fig_title = this_group,
-                                     axis_titles,
-                                     Xaxis_numbers_off)
-  list_gg[[i]] <- gg_wgts_thisGroup
-}
-
-# ind_soCap <- c(1, which(colnames(df_wStar_prop) %in% df_socialCap$Proposal))
-# df_wStar_prop_soCap <- df_wStar_prop[, ind_soCap]
-# gg_wgts_soCap <- plot_budgetShares(df_wStar_prop_soCap, n_points_on_frontier, graph_on = T, group_small = NULL, group_info = NULL, group_colors = NULL, legend_position = "right")
-
-gg_wgts | (list_gg[[1]] / list_gg[[2]] / list_gg[[3]] / list_gg[[4]]) | plot_layout(widths = c(2, 1))
-
-```
+<!-- ``` -->
 
 
 # Discussion
-
-Equation \ref{eq:...} effectively means that, in the absence of data, domain knowledge of the key dimensions of the problem space, and of how the various moving parts of the problem (i.e. the portfolio items) map onto these dimensions, is sufficient to estimate the data covariance matrix. The crowdsourced covariance matrix, moreover, need not be considered inferior to the data covariance matrix in terms of accuracy. In noisy contexts, it may very well be more accurate than the data covariance matrix. Regardless of accuracy, the crowdsourced covariance matrix has value in that it provides a picture...consistent with what we think we know about the system. The appropriateness of the approach is determined by the ratio $\nu$ defined in equation \ref{eq:ratio_conf}.
+Interpretation of the example. Note that proposals with low expected return do not necessarily correspond to a low budget share...vice versa...Note how the optimal solution changes with risk tolerance. At lower risk tolerances, the optimal investment focuses on economic growth, followed by environmental sustainability and economic equality. However, as risk tolerance increases, the optimal investment dictates that investments in environmental sustainability be displaced by investments in economic growth and, to a lesser extent, economic equality. / Equation \ref{eq:...} effectively means that, in the absence of data, domain knowledge of the key dimensions of the problem space, and of how the various moving parts of the problem (i.e. the portfolio items) map onto these dimensions, is sufficient to estimate the data covariance matrix. The crowdsourced covariance matrix, moreover, need not be considered inferior to the data covariance matrix in terms of accuracy. In noisy contexts, it may very well be more accurate than the data covariance matrix. Regardless of accuracy, the crowdsourced covariance matrix has value in that it provides a picture...consistent with what we think we know about the system. The appropriateness of the approach is determined by the ratio $\nu$ defined in equation \ref{eq:ratio_conf}.
 
 \begin{equation}
 \nu = \frac{\text{confidence in domain knowledge}}{\text{confidence in data}}
@@ -2596,37 +2566,36 @@ As $\nu$ is higher, the crowdsource approach is more suitable. As $\nu$ is lower
 
 
 
-## Separating signals from noise, identifying main assets contributing to market movements
+<!-- ## Separating signals from noise, identifying main assets contributing to market movements -->
 
-MV analysis is, in many ways, still a work in progress, with unresolved methodological issues severely limiting its usefulness even in its native financial context. In particular, covariance matrices estimated from price data tend to contain a lot of noise; and the optimal solutions then tend to diverge considerably from reality as a result of this [@michaud1989markowitz]. In my adaptation below, I propose a new approach to this problem by first dimensionally reducing the portfolio from several dozen assets to just a handful of "signals" constructed from the eigenvectors of the correlation matrix that can be meaningfully distinguished from noise.
+<!-- MV analysis is, in many ways, still a work in progress, with unresolved methodological issues severely limiting its usefulness even in its native financial context. In particular, covariance matrices estimated from price data tend to contain a lot of noise; and the optimal solutions then tend to diverge considerably from reality as a result of this [@michaud1989markowitz]. In my adaptation below, I propose a new approach to this problem by first dimensionally reducing the portfolio from several dozen assets to just a handful of "signals" constructed from the eigenvectors of the correlation matrix that can be meaningfully distinguished from noise. -->
 
-The meaningful eigenvectors are separated out from the noisy eigenvectors using an old, but little-utilized technique developed in the study of physical systems. Once signals have been isolated, their meaning is interpreted based on how much the different portfolio items load onto them. A varimax rotation of the loadings matrix turns out to be of great assistance in this task. The interpretation of the signals is then further confirmed and illustrated by constructing the signal time series and then plotting them against their respective highest loading price series. The highest loading price series are seen to track their respective signals closely.
-
-
+<!-- The meaningful eigenvectors are separated out from the noisy eigenvectors using an old, but little-utilized technique developed in the study of physical systems. Once signals have been isolated, their meaning is interpreted based on how much the different portfolio items load onto them. A varimax rotation of the loadings matrix turns out to be of great assistance in this task. The interpretation of the signals is then further confirmed and illustrated by constructing the signal time series and then plotting them against their respective highest loading price series. The highest loading price series are seen to track their respective signals closely. -->
 
 
 
-<!-- [Scraps: -->
-<!-- The Consultative Group on International Agricultural Research (CGIAR) is said to have a "long history of good intentions but limited success in developing appropriate approaches for priority setting" [@Birner2016]. An historic effort begun in 2011 to restructure CGIAR financing around Core Research Programs (CRPs) was ad hoc, thereby reinforcing the very institutional inertia it was designed to disrupt [@Birner2016]. ReDonor attempts to establish criteria and methods for a merit-based allocation of ever-scarcer research funds are seen as invasive characterized as "development at the expense of research" [@Birner2016] or even the "Balkanization" of research [@Petsko2011]. "One of the geniuses" of CG centers is said to be their ability to consistently attract "aid funding of long-term research" while keeping "aid professionals from setting research agendas" [@mccalla2014cgiar]. Scientists respond with ultimatums of their own, demanding a return to the days of "more stable funding" and "budget autonomy" [@leeuwis2018reforming]. -->
-<!-- “The failure of reforms is attributed to the unwillingness of donors, and the World Bank leadership of the CGIAR, to take on entrenched center interests” [@mccalla2014cgiar]. Interpretation of "price" is different from the financial context. This could reflect 1) higher kcals per unit weight, 2) higher quality kcals, 3) higher demand, or 4) some combination of all of the above. -->
-
-<!-- ] -->
-
-# Discussion and conclusion
-
-Discussion
-
--AR4D resource allocation has been called for for a long time .
--There is a cultural impasses between donors and research institutes . 
--Much of the cultural impasse is premised upon a highly qualitative resource allocation procedure that is easily influenced by stakeholder pressure. basic lack of precise impartial tools at the portfolio level. 
--It stands to reason, then, that the elaboration of such tools could go a long way towards ameliorating the toxic environment. 
--[BUT] Adaptation of MV analysis to the AR4D context requires clearing some non-trivial methodological hurdles, which have also been of concern in the financial context: addressing the negative budget allocations and noise reduction. Here I have explored the possibility of redressing these issues in a novel ways (...) .
--Here I am mainly concerned with introduction and adaptation of these methods to the AR4D context. and pointing towards their potential. In the financial example, there is enough data to conduct a backtest. The results of the backtest are encouraging, but do not necessarily prove that the methods presented here will always generate portfolio frontiers that are more accurate than the conventional frontier. More empirical tests are necessary for that.
 
 
-[end]
+<!-- <!-- [Scraps: -->
+<!-- <!-- The Consultative Group on International Agricultural Research (CGIAR) is said to have a "long history of good intentions but limited success in developing appropriate approaches for priority setting" [@Birner2016]. An historic effort begun in 2011 to restructure CGIAR financing around Core Research Programs (CRPs) was ad hoc, thereby reinforcing the very institutional inertia it was designed to disrupt [@Birner2016]. ReDonor attempts to establish criteria and methods for a merit-based allocation of ever-scarcer research funds are seen as invasive characterized as "development at the expense of research" [@Birner2016] or even the "Balkanization" of research [@Petsko2011]. "One of the geniuses" of CG centers is said to be their ability to consistently attract "aid funding of long-term research" while keeping "aid professionals from setting research agendas" [@mccalla2014cgiar]. Scientists respond with ultimatums of their own, demanding a return to the days of "more stable funding" and "budget autonomy" [@leeuwis2018reforming]. -->
+<!-- <!-- “The failure of reforms is attributed to the unwillingness of donors, and the World Bank leadership of the CGIAR, to take on entrenched center interests” [@mccalla2014cgiar]. Interpretation of "price" is different from the financial context. This could reflect 1) higher kcals per unit weight, 2) higher quality kcals, 3) higher demand, or 4) some combination of all of the above. -->
 
-MV Analysis is still a work in progress even in the financial context where it originated. In my adaptation to the AR4D context, I have attempted to redress the issue of negative budget shares by replacing the revenue and cost functions with utility functions. To redress the issue of noise-induced inaccuracy, I have attempted to purge the noise from the portfolio by dimensionally reducing the portfolio to a handful of signals constructed from those eigenvectors of the data correlation matrix that can be meaningfully distinguished from noise. To isolate these signals, I have applied a criterion developed in the study of phsyical systems, more rigorous than the usual rules of thumb. A backtest of these modifications compares favorably to conventional MV Analysis.
+
+<!-- # Discussion and conclusion -->
+
+<!-- Discussion -->
+
+<!-- -AR4D resource allocation has been called for for a long time . -->
+<!-- -There is a cultural impasses between donors and research institutes .  -->
+<!-- -Much of the cultural impasse is premised upon a highly qualitative resource allocation procedure that is easily influenced by stakeholder pressure. basic lack of precise impartial tools at the portfolio level.  -->
+<!-- -It stands to reason, then, that the elaboration of such tools could go a long way towards ameliorating the toxic environment.  -->
+<!-- -[BUT] Adaptation of MV analysis to the AR4D context requires clearing some non-trivial methodological hurdles, which have also been of concern in the financial context: addressing the negative budget allocations and noise reduction. Here I have explored the possibility of redressing these issues in a novel ways (...) . -->
+<!-- -Here I am mainly concerned with introduction and adaptation of these methods to the AR4D context. and pointing towards their potential. In the financial example, there is enough data to conduct a backtest. The results of the backtest are encouraging, but do not necessarily prove that the methods presented here will always generate portfolio frontiers that are more accurate than the conventional frontier. More empirical tests are necessary for that. -->
+
+
+<!-- [end] -->
+
+<!-- MV Analysis is still a work in progress even in the financial context where it originated. In my adaptation to the AR4D context, I have attempted to redress the issue of negative budget shares by replacing the revenue and cost functions with utility functions. To redress the issue of noise-induced inaccuracy, I have attempted to purge the noise from the portfolio by dimensionally reducing the portfolio to a handful of signals constructed from those eigenvectors of the data correlation matrix that can be meaningfully distinguished from noise. To isolate these signals, I have applied a criterion developed in the study of phsyical systems, more rigorous than the usual rules of thumb. A backtest of these modifications compares favorably to conventional MV Analysis. -->
 
 
 
