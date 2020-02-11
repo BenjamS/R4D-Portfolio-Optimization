@@ -1,0 +1,95 @@
+library(tidyverse)
+library(patchwork)
+
+df_raw <- read.csv("camerun.csv", stringsAsFactors = F)
+colnames(df_raw)
+unique(df_raw$impactparameter)
+unique(df_raw$commodity)
+#--------------------------------------------------------------------
+year_vec <- c(2020, 2050)
+u <- df_raw$scenario
+ind_CC <- grep("NoCC", u)
+df_raw_CC <- df_raw[-ind_CC, ]
+df_raw_NoCC <- df_raw[ind_CC, ]
+df_raw_NoCC$scenario <- NULL
+df_raw_NoCC$scenario <- "No CC"
+df_raw_CC <- df_raw_CC %>%
+  group_by(impactparameter, commodity, region, productiontype, year) %>%
+  summarise(Val = mean(Val)) %>% data.frame()
+df_raw_CC$scenario <- "CC"
+df <- rbind(df_raw_CC, df_raw_NoCC)
+df <- subset(df, year %in% year_vec)
+df <- df %>% spread(year, Val)
+df$`Pct. Change` <- 100 * (df$`2050` - df$`2020`) / df$`2020`
+df[, (ncol(df) - 2):ncol(df)] <- round(df[, (ncol(df) - 2):ncol(df)], 2)
+#df <- df %>% spread(productiontype, Val)
+df$impactparameter <- str_trim(gsub(".*-", "", df$impactparameter))
+df$productiontype <- gsub("air", "Irrigated", df$productiontype)
+df$productiontype <- gsub("arf", "Rainfed", df$productiontype)
+df$commodity <- str_trim(gsub(".*-", "", df$commodity))
+df$impactparameter <- gsub("PcKcal by Commodity", "Daily kcal per capita", df$impactparameter)
+colnames(df) <- str_to_title(colnames(df))
+#--------------------------------------------------------------------
+# crop_parameter_vec <- c("YldXAgg -- Yield", "AreaXAgg -- Area")
+# animal_parameter_vec <- c("AnmlNumXAgg -- Animal Numbers", "AnmlYldXAgg -- Animal Yield")
+crop_parameter_vec <- c("Yield", "Area", "Daily kcal per capita")
+animal_parameter_vec <- c("Animal Yield", "Animal Numbers", "Daily kcal per capita")
+# Cotton, irrigated rice, maize, cassava, livestock
+crop_commodity_vec <- c("Cotton", "Rice", "Maize", "Cassava")
+LS_commodity_vec <- c("AMT", "AOT")
+#--------------------------------------------------------------------
+df_crops <- subset(df, Impactparameter %in% crop_parameter_vec)
+df_crops <- df_crops[-grep("All|AMT|AOT", df_crops$Commodity), ]
+df_crops <- subset(df_crops, Commodity %in% crop_commodity_vec)
+df_crops$Region <- NULL
+df_cotton <- subset(df_crops, Commodity == "Cotton" & Productiontype %in% c("Irrigated", "-"))
+df_cotton$Commodity <- "Cotton\n(Irrigated)"
+df_rice <- subset(df_crops, Commodity == "Rice" & Productiontype %in% c("Irrigated", "-"))
+df_rice$Commodity <- "Rice\n(Irrigated)"
+df_maize <- subset(df_crops, Commodity == "Maize" & Productiontype %in% c("Rainfed", "-"))
+df_maize$Commodity <- "Maize\n(Rainfed)"
+df_cassava <- subset(df_crops, Commodity == "Cassava" & Productiontype %in% c("Rainfed", "-"))
+df_cassava$Commodity <- "Cassava\n(Rainfed)"
+list_df_crops <- list(df_cotton, df_rice, df_maize, df_cassava)
+df_crops <- do.call(rbind, list_df_crops)
+#crop_names_vec <- c("Cotton (Irrigated)", "Rice (Irrigated)", "Maize (Rainfed)", "Cassava (Rainfed)")
+#--------------------------------------------------------------------
+df_all_LS <- subset(df, Impactparameter %in% animal_parameter_vec)
+df_all_LS <- df_all_LS[grep("AMT|AOT", df_all_LS$Commodity), ]
+df_all_LS <- subset(df_all_LS, Commodity %in% LS_commodity_vec)
+df_all_LS$Region <- NULL
+df_all_LS$Productiontype <- NULL
+df_all_LS$Commodity <- gsub("AMT", "Meat", df_all_LS$Commodity)
+df_all_LS$Commodity <- gsub("AOT", "Other\n(Dairy, etc.)", df_all_LS$Commodity)
+#--------------------------------------------------------------------
+# Graphs
+#--------------------------------------------------------------------
+n <- 5
+distinct_colors <- randomcoloR::distinctColorPalette(k = n)
+bar_colors <- distinct_colors[sample(1:n, 2)]
+#--------------------------------------------------------------------
+for(i in 1:length(crop_parameter_vec)){
+  this_crop_impact_param <- crop_parameter_vec[i]
+  df_plot <- subset(df_crops, Impactparameter == this_crop_impact_param)
+  gg <- ggplot(df_plot, aes(x = Commodity, y = `Pct. Change`, fill = Scenario))
+  gg <- gg + geom_bar(stat = "identity", color = "black", position = position_dodge())
+  gg <- gg + theme(legend.position = "none")
+  gg <- gg + labs(title = this_crop_impact_param, y = "Pct. Change (2020 - 2050)")
+  gg <- gg + scale_fill_manual(values = bar_colors)
+  gg_crop <- gg
+  
+  this_ls_impact_param <- animal_parameter_vec[i]
+  df_plot <- subset(df_all_LS, Impactparameter == this_ls_impact_param)
+  gg <- ggplot(df_plot, aes(x = Commodity, y = `Pct. Change`, fill = Scenario))
+  gg <- gg + geom_bar(stat = "identity", color = "black", position = position_dodge())
+  gg <- gg + theme(axis.title.y = element_blank())
+  if(this_crop_impact_param != this_ls_impact_param){
+    gg <- gg + labs(title = this_ls_impact_param)
+  }
+  gg <- gg + scale_fill_manual(values = bar_colors)
+  gg_ls <- gg
+  
+  gg <- gg_crop + gg_ls + plot_layout(ncol = 2, widths = c(2, 1))
+    
+  ggsave(paste0("Cameroon CC ", this_crop_impact_param, ".png"), plot = gg)
+}
