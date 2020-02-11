@@ -1112,6 +1112,7 @@ Of course, the investor or donor is constrained by a real monetary budget, and s
 
 <!-- >"in the absence of the unusual, the _percentage increase in_ utility resulting from _a one percent_ increase in wealth will be inversely proportionate to the _utility_ of goods previously possessed." -->
 
+
 \pagebreak
 
 ```{r, fig.show='hold', fig.width=5, fig.height=5, fig.align='center', fig.cap="\\label{fig:mvUtility}Optimal frontier and budget shares when the law of diminishing marginal returns to investment is applied.", echo = FALSE}
@@ -1637,6 +1638,50 @@ plot_covmat(mat_diff_covmats, fig_title = NULL, graph_on = F)
 <!-- MV Analysis is still a work in progress [@Michaud...?]. One of the main issues limiting its usefulness in everyday applications is its sensitivity to noisy data, which often results in efficient frontiers that overstate returns and understate risk (as seen in the backtest in Figure \ref{fig:...}).-->
 
 ## The signals portfolio
+
+```{r}
+
+
+rootfn <- function(wStar_in, nab_decRet, Rtarg, Ctarg, eig_values){
+targ_vec <- c(-log(Rtarg), Ctarg)
+mat_U_inv <- diag(1 / eig_values)
+nab_C <- wStar_in^2
+mat_nab <- cbind(nab_decRet, nab_C)
+M <- t(mat_nab) %*% mat_U_inv %*% mat_nab
+M_inv <- solve(M)
+lambdas <- 2 * M_inv %*% targ_vec
+# l_R <- lambdas[1]
+# l_C <- lambdas[2]
+# a <- sqrt((27 * l_C * eig_values_sigs^2 - l_R^3 * nab_decRet^3) / l_C) + 3^(3 / 2) * eig_values_sigs
+# wStar_out <- (l_C^(-1 / 3) * a^(1 / 3) + l_C^(-2 / 3) * l_R * nab_decRet * a^(-1 / 3)) / sqrt(3)
+wStar_out_inv <- 1 / 2 * mat_U_inv %*% mat_nab %*% lambdas
+wStar_out <- 1 / wStar_out_inv
+slack_wStar <- wStar_in - wStar_out
+#print(sum(wStar_out))
+return(slack_wStar)
+}
+
+
+Rtarg <- 0.2
+Ctarg <- 1
+n_signals <- length(eig_values)
+nab_decRet <- runif(n_signals) * 10^-1
+eig_values <- eig_values_sigs
+wStar_in <- runif(length(eig_values))
+wStar_in <- wStar_in / sum(wStar_in)
+nleqslv_out <- nleqslv::nleqslv(wStar_in, rootfn, jac = NULL, nab_decRet, Rtarg, Ctarg, eig_values)
+nleqslv_out$fvec
+wStar_out <- nleqslv_out$x
+wStar_out
+sum(wStar_out)
+rootfn(wStar_out, nab_decRet, Rtarg, Ctarg, eig_values)
+
+
+
+```
+
+
+
 
 Inaccuracy in the efficient frontier due to noisy covariance matrices severely limits the usefulness of MV Analysis in everyday practice [@Michaud...]. A backtest of the efficient frontiers from the example pursued in this paper reaffirms this (Figure \ref{fig:backtest}). It stands to reason that replacement of the data covariance matrix with a signals derived covariance matrix could improve the accuracy of the efficient frontier. But the signals derived covariance matrix contains eigenvalues equal to zero, and is thus is not invertible; and hence cannot be used in MV Analysis. Nonetheless, there is an alternative route to the same goal of reducing noise in MV Analysis: the portfolio of assets can be replaced with a portfolio of signals.
 
