@@ -1001,8 +1001,8 @@ nab_C <- rep(1, n_items)
 utility_interpretation <- F
 #--------------------------------------------------------------
 # Covariance matrix
-covmat_train <- covmat_decDiff_train
-covmat_test <- covmat_decDiff_test
+covmat_train <- covmat_decDiff_train #diag(eigen(covmat_decDiff_train)$values)
+covmat_test <- covmat_decDiff_test #diag(eigen(covmat_decDiff_test)$values)
 #--------------------------------------------------------------
 # Expected returns vector
 nab_decRet_train <- nab_decRet_eg_train
@@ -1682,78 +1682,107 @@ ind_rearrange <- c(2, 1, 3:n_signals)
 #=============================================================================
 wFun <- function(l_R, l_C, eig_values_sigs, nab_decRet){
   u <- eig_values_sigs
-  term <- sqrt((27 * l_C * u^2 + l_R^3 * nab_decRet^3) / l_C) - 3^(3 / 2) * u
+  term <- sqrt((27 * l_C * u^2 + l_R^3 * nab_decRet^3) / l_C) + 3^(3 / 2) * u
 wStar_out <- 1 / sqrt(3) * (l_C^(-1 / 3) * term^(1 / 3) - l_C^(-2 / 3) * l_R * nab_decRet * term^(-1 / 3))
 return(wStar_out)
 }
 #=============================================================================
-rootfn_dimRet1 <- function(lambdas_in, nab_decRet, covmat_inv, targ_vec){
-l_R <- lambdas_in[1]
-l_C <- lambdas_in[2]
-
 eig_values_sigs <- 1 / diag(covmat_inv)
-wStar_out <- -wFun(l_R, l_C, eig_values_sigs, nab_decRet)
-targ_vec[2] <- sum(wStar_out)
-nab_C <- wStar_out^2
+for(i in 1:10){
+  l_R <- i * 10^-2
+  for(j in 1:10){
+    l_C <- j * 10^-2
+    wStar_out <- wFun(l_R, l_C, eig_values_sigs, nab_decRet)
+    C <- sum(wStar_out)
+    #wStar_out <- wFun(l_R * C, l_C * C^3, eig_values_sigs, nab_decRet)
+    #sum(wStar_out)
+  wStar <- wStar_out / C
+  #  wStar <- wStar_out
+  lambdas <- c(l_R * C, l_C * C^3)
+  print(lambdas)
+nab_C <- wStar^2
 mat_nab <- cbind(nab_decRet, nab_C)
 M <- t(mat_nab) %*% covmat_inv %*% mat_nab
-M_inv <- solve(M)
+M_inv <- round(solve(M), 8)
+#targ_vec_derived <- 1 / 2 * M %*% diag(1 / c(C^3, C)) %*% lambdas
+targ_vec_derived <- 1 / 2 * M %*% lambdas
+# print(lambdas - 2 * M_inv %*% targ_vec_derived)
+# print(targ_vec_derived)
+# targ_vec_derived <- targ_vec_derived * c(C, 1 / C)
+print(exp(-targ_vec_derived[1]))
+# print(targ_vec_derived)
+# print(exp(-(targ_vec_derived[1] / C)))
+  }
+}
+
+
+
+rootfn_dimRet1 <- function(lambdas_in, nab_decRet, covmat_inv, Rtarg){
+  targ_vec <- c(-log(Rtarg), 1)
+  l_R <- lambdas_in[1]
+l_C <- lambdas_in[2]
+eig_values_sigs <- 1 / diag(covmat_inv)
+wStar_out <- wFun(l_R, l_C, eig_values_sigs, nab_decRet)
+C <- sum(wStar_out)
+l_R_1 <- l_R * C
+l_C_1 <- l_C * C^3
+wStar_out <- wFun(l_R_1, l_C_1, eig_values_sigs, nab_decRet)
+#print(sum(wStar_out))
+wStar <- wStar_out
+nab_C <- wStar^2
+mat_nab <- cbind(nab_decRet, nab_C)
+M <- t(mat_nab) %*% covmat_inv %*% mat_nab
+M_inv <- round(solve(M), 8)
 lambdas_out <- 2 * M_inv %*% targ_vec
-slack_lambdas <- lambdas_in - lambdas_out
-#print(slack_lambdas)
+#lambdas_out <- lambdas_out / c(C, C^3)
+lambdas_1 <- c(l_R_1, l_C_1)
+slack_lambdas <- lambdas_1 - lambdas_out
+print(slack_lambdas)
 print(lambdas_out)
 return(slack_lambdas)
 }
 #=========================================================================
-optimize_portfolio_dimRet1 <- function(nab_decRet, covmat, Rtarg, Ctarg, backtest_info = NULL){
-  covmat_inv <- solve(covmat)
-targ_vec <- c(-log(Rtarg), Ctarg)
-l_R <- runif(1) * 10^-4
-l_C <- runif(1) * 10^-9
+optimize_portfolio_dimRet1 <- function(nab_decRet, covmat, Rtarg, backtest_info = NULL){
+#Rtarg <- 0.03
+    covmat_inv <- solve(covmat)
+l_R <- runif(1) * 10^-1#0.01839954
+l_C <- runif(1) * 10^-3 #0.4601927
 lambdas_in <- c(l_R, l_C)
-nleqslv_out <- nleqslv::nleqslv(lambdas_in, rootfn_dimRet1, jac = NULL, nab_decRet, covmat_inv, targ_vec, control = list(maxit = 1000, ftol = 10^-6))
+nleqslv_out <- nleqslv::nleqslv(lambdas_in, rootfn_dimRet1, jac = NULL, nab_decRet, covmat_inv, Rtarg, control = list(maxit = 2500, ftol = 10^-8, btol = 10^-3, xtol = 10^-9))
 lambdas_out <- nleqslv_out$x
+print(nleqslv_out$message)
 print(nleqslv_out$fvec)
-# l_R <- runif(1) * 10^-2
-# l_C <- runif(1) * 10^-2
+
+
 l_R <- lambdas_out[1]
 l_C <- lambdas_out[2]
-wStar <- -wFun(l_R, l_C, eig_values_sigs, nab_decRet)
-sum(wStar)
+eig_values_sigs <- diag(1 / covmat_inv)
+wStar_out <- wFun(l_R, l_C, eig_values_sigs, nab_decRet)
+C <- sum(wStar_out)
+wStar <- wStar_out / C
 nab_C <- wStar^2
 mat_nab <- cbind(nab_decRet, nab_C)
 M <- t(mat_nab) %*% covmat_inv %*% mat_nab
-lambdas <- c(l_R, l_C)
-targ_vec <- 1 / 2 * M %*% lambdas
-targ_vec
-targ_vec_normd <- targ_vec / targ_vec[2]
-targ_vec_normd
-1 / 2 * M %*% lambdas * 1 / targ_vec[2]
-exp(-targ_vec_normd[1])
+M_inv <- round(solve(M), 7)
+targ_vec <- c(-C * log(Rtarg), 1)
+lambdas_out - 2 * diag(c(C^3, C)) %*% M_inv %*% targ_vec
+targ_vec_derived <- 1 / 2 * M %*% diag(1 / c(C^3, C)) %*% lambdas_out
+targ_vec_derived
+-C * log(Rtarg)
+ROI <- exp(-targ_vec_derived[1] / C)
+ROI
+lambdas
 #--------------------------------------------------------------------
-wStar <- wStar_out
 wStar_inv <- 1 / wStar
 Rtarg <- exp(-t(nab_decRet) %*% wStar_inv)
 Vtarg <- t(wStar_inv) %*% covmat %*% wStar_inv
 sd_targ <- sqrt(Vtarg)
 #--------------------------------------------------------------------
-# Get lambdas
-targ_vec <- c(-log(Rtarg), Ctarg)
-nab_C <- wStar_out^2
-mat_nab <- cbind(nab_decRet, nab_C)
-M <- t(mat_nab) %*% covmat_inv %*% mat_nab
-M_inv <- solve(M)
-lambdas <- 2 * M_inv %*% targ_vec
-l_R <- lambdas[1]
-l_C <- lambdas[2]
-print(lambdas)
-print(wStar)
-#--------------------------------------------------------------------
 if(!is.null(backtest_info)){
   nab_decRet_test <- backtest_info[["nab_decRet_test"]]
   covmat_test <- backtest_info[["covmat_test"]]
   Rtest <- exp(-(t(nab_decRet_test) %*% wStar_inv))
-  Vtest <- t(wStar_inv) %*% covmat_train %*% wStar_inv
+  Vtest <- t(wStar_inv) %*% covmat_test %*% wStar_inv
   sd_test <- sqrt(Vtest)
 }else{
   Rtest <- NA
@@ -1765,15 +1794,15 @@ if(!is.null(backtest_info)){
   list_out <- list(wStar, frontier_vec)
 }
 #=========================================================================
-get_optimal_frontier_dimRet1 <- function(nab_decRet, covmat, Rtarg_limits, n_points_on_frontier, Ctarg, backtest_info = NULL){
+get_optimal_frontier_dimRet1 <- function(nab_decRet, covmat, Rtarg_limits, n_points_on_frontier, backtest_info = NULL){
   Rtarg_vec <- seq(Rtarg_limits[1], Rtarg_limits[2], length.out = n_points_on_frontier)
   list_wStar <- list()
   list_frontier <- list()
   for(i in 1:n_points_on_frontier){
     Rtarg <- Rtarg_vec[i]
-    list_out <- optimize_portfolio_dimRet1(nab_decRet, covmat, Rtarg, Ctarg, backtest_info)
+    list_out <- optimize_portfolio_dimRet1(nab_decRet, covmat, Rtarg, backtest_info)
     
-       list_wStar[[i]] <- list_out[[1]]
+    list_wStar[[i]] <- list_out[[1]]
     list_frontier[[i]] <- list_out[[2]]
     print(i)
   }
