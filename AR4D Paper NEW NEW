@@ -1688,18 +1688,22 @@ return(wStar_out)
 }
 #=============================================================================
 eig_values_sigs <- 1 / diag(covmat_inv)
-for(i in 1:10){
-  l_R <- i * 10^-2
-  for(j in 1:10){
-    l_C <- j * 10^-2
+n <- 20
+lR_vec <- seq(0.001, 1, length.out = n)
+lC_vec <- lR_vec
+mat_plot <- matrix(NA, n, n)
+for(i in 1:n){
+  l_R <- lR_vec[i]
+  for(j in 1:n){
+    l_C <- lC_vec[j]
     wStar_out <- wFun(l_R, l_C, eig_values_sigs, nab_decRet)
     C <- sum(wStar_out)
-    #wStar_out <- wFun(l_R * C, l_C * C^3, eig_values_sigs, nab_decRet)
+    l_R <- l_R * C
+    l_C <- l_C * C^3
+      lambdas <- c(l_R, l_C)
+    wStar_out <- wFun(l_R, l_C, eig_values_sigs, nab_decRet)
     #sum(wStar_out)
-  wStar <- wStar_out / C
-  #  wStar <- wStar_out
-  lambdas <- c(l_R * C, l_C * C^3)
-  print(lambdas)
+  wStar <- wStar_out
 nab_C <- wStar^2
 mat_nab <- cbind(nab_decRet, nab_C)
 M <- t(mat_nab) %*% covmat_inv %*% mat_nab
@@ -1712,8 +1716,53 @@ targ_vec_derived <- 1 / 2 * M %*% lambdas
 print(exp(-targ_vec_derived[1]))
 # print(targ_vec_derived)
 # print(exp(-(targ_vec_derived[1] / C)))
+mat_plot[i, j] <- exp(-targ_vec_derived[1])
   }
 }
+df_plot <- as.data.frame(mat_plot)
+colnames(df_plot) <- as.character(round(lC_vec, 4))
+  these_levels <- colnames(df_plot)
+gathercols <- colnames(df_plot)
+df_plot$l_R <- as.character(round(lR_vec, 4))
+  df_plot <- df_plot %>% gather_("l_C", "Value", gathercols)
+    df_plot$l_C <- factor(df_plot$l_C, levels = these_levels)
+  df_plot$l_R <- factor(df_plot$l_R, levels = these_levels)
+    midpoint <- 0
+  gg <- ggplot(df_plot, aes(l_C, l_R))
+  gg <- gg + geom_tile(aes(fill = Value))#, width = 4, height = 4)
+  gg <- gg + geom_text(aes(label = round(Value, 3)), size = 3)
+  gg <- gg + theme_bw()
+  gg <- gg + theme(axis.text.x = element_text(angle = 60, hjust = 1),
+                 axis.title = element_blank(),
+                 legend.title = element_blank(),
+                 plot.title = element_text(face = "bold", size = 9))
+  gg <- gg + scale_fill_gradient2(low = "khaki", mid = "cyan", high = "magenta", midpoint, na.value = "white")
+gg
+
+gg <- ggplot(df_plot, aes())
+  df_plot <- covmat %>% tbl_df()
+  these_levels <- colnames(df_plot)
+  df_plot$ItemX <- colnames(df_plot)
+  gathercols <- colnames(df_plot)[-ncol(df_plot)]
+  df_plot <- df_plot %>% gather_("ItemY", "Value", gathercols)
+  df_plot$ItemX <- factor(df_plot$ItemX, levels = these_levels)
+  df_plot$ItemY <- factor(df_plot$ItemY, levels = these_levels)
+
+  #midpoint <- min(covmat) + (max(covmat) - min(covmat)) / 2
+  midpoint <- 0
+  gg <- ggplot(df_plot, aes((ItemX), (ItemY)))
+  gg <- gg + geom_tile(aes(fill = Value))#, width = 4, height = 4)
+  gg <- gg + geom_text(aes(label = round(Value, 2)), size = 3)
+  if(!is.null(fig_title)){
+    gg <- gg + labs(title = fig_title)
+  }
+  gg <- gg + theme_bw()
+  gg <- gg + theme(axis.text.x = element_text(angle = 60, hjust = 1),
+                 axis.title = element_blank(),
+                 legend.title = element_blank(),
+                 plot.title = element_text(face = "bold", size = 9))
+  gg <- gg + scale_fill_gradient2(low = "khaki", mid = "cyan", high = "magenta", midpoint, na.value = "white")
+
 
 
 
@@ -1759,19 +1808,21 @@ l_C <- lambdas_out[2]
 eig_values_sigs <- diag(1 / covmat_inv)
 wStar_out <- wFun(l_R, l_C, eig_values_sigs, nab_decRet)
 C <- sum(wStar_out)
-wStar <- wStar_out / C
+l_R <- l_R * C
+l_C <- l_C * C^3
+lambdas <- c(l_R, l_C)
+wStar_out <- wFun(l_R, l_C, eig_values_sigs, nab_decRet)
+C <- sum(wStar_out)
+wStar <- wStar_out
 nab_C <- wStar^2
 mat_nab <- cbind(nab_decRet, nab_C)
 M <- t(mat_nab) %*% covmat_inv %*% mat_nab
 M_inv <- round(solve(M), 7)
 targ_vec <- c(-C * log(Rtarg), 1)
-lambdas_out - 2 * diag(c(C^3, C)) %*% M_inv %*% targ_vec
-targ_vec_derived <- 1 / 2 * M %*% diag(1 / c(C^3, C)) %*% lambdas_out
-targ_vec_derived
--C * log(Rtarg)
-ROI <- exp(-targ_vec_derived[1] / C)
-ROI
-lambdas
+lambdas - 2 * M_inv %*% targ_vec
+#lambdas_out - 2 * diag(c(C^3, C)) %*% M_inv %*% targ_vec
+targ_vec_derived <- 1 / 2 * M %*% diag(1 / c(C^3, C)) %*% lambdas
+Rtarg - exp(-targ_vec_derived[1])
 #--------------------------------------------------------------------
 wStar_inv <- 1 / wStar
 Rtarg <- exp(-t(nab_decRet) %*% wStar_inv)
