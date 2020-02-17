@@ -1694,7 +1694,7 @@ wFun <- function(l_R, q, eig_values_sigs, nab_decRet){
   u <- eig_values_sigs
   term0 <- 27 * u^2 + l_R^3 * nab_decRet^3 / q
   term <- sqrt(term0) + sqrt(27) * u
-  print(term0)
+  #print(term0)
 wStar_out <- 1 / sqrt(3) * (q^(-1 / 3) * term^(1 / 3) - q^(-2 / 3) * term^(-1 / 3) * l_R * nab_decRet)
 return(wStar_out)
 }
@@ -1787,64 +1787,76 @@ gg <- ggplot(df_plot, aes())
 
 
 
-
+#=========================================================================
 rootfn_dimRet1 <- function(lambdas_in, nab_decRet, covmat_inv, Rtarg){
-  targ_vec <- c(-log(Rtarg), 1)
   l_R <- lambdas_in[1]
-l_C <- lambdas_in[2]
+  l_C <- lambdas_in[2]
 eig_values_sigs <- 1 / diag(covmat_inv)
 wStar_out <- wFun(l_R, l_C, eig_values_sigs, nab_decRet)
 C <- sum(wStar_out)
-l_R_1 <- l_R * C
-l_C_1 <- l_C * C^3
-wStar_out <- wFun(l_R_1, l_C_1, eig_values_sigs, nab_decRet)
-#print(sum(wStar_out))
+#-----
+targ_vec <- c(-log(Rtarg), C)
 wStar <- wStar_out
+#print(wStar)
 nab_C <- wStar^2
 mat_nab <- cbind(nab_decRet, nab_C)
 M <- t(mat_nab) %*% covmat_inv %*% mat_nab
 M_inv <- round(solve(M), 8)
 lambdas_out <- 2 * M_inv %*% targ_vec
-#lambdas_out <- lambdas_out / c(C, C^3)
-lambdas_1 <- c(l_R_1, l_C_1)
-slack_lambdas <- lambdas_1 - lambdas_out
-print(slack_lambdas)
-print(lambdas_out)
+#-----
+# targ_vec <- c(-log(Rtarg), 1)
+# wStar <- wStar_out / C
+# print(wStar)
+# nab_C <- wStar^2
+# mat_nab <- cbind(nab_decRet, nab_C)
+# M <- t(mat_nab) %*% covmat_inv %*% mat_nab
+# M_inv <- round(solve(M), 8)
+# lambdas_out <- 2 / C * diag(c(1, C^-2)) %*% M_inv %*% targ_vec
+#-----
+slack_lambdas <- lambdas_in - lambdas_out
+# print(slack_lambdas)
+# print(lambdas_out)
 return(slack_lambdas)
 }
 #=========================================================================
 optimize_portfolio_dimRet1 <- function(nab_decRet, covmat, Rtarg, backtest_info = NULL){
-#Rtarg <- 0.03
-    covmat_inv <- solve(covmat)
-l_R <- runif(1) * 10^-1#0.01839954
-l_C <- runif(1) * 10^-3 #0.4601927
+#Rtarg <- .4
+covmat_inv <- solve(covmat)
+l_R <- runif(1) #* 10^-9
+l_C <- runif(1) #* 10^-14
 lambdas_in <- c(l_R, l_C)
 nleqslv_out <- nleqslv::nleqslv(lambdas_in, rootfn_dimRet1, jac = NULL, nab_decRet, covmat_inv, Rtarg, control = list(maxit = 2500, ftol = 10^-8, btol = 10^-3, xtol = 10^-9))
+
 lambdas_out <- nleqslv_out$x
 print(nleqslv_out$message)
 print(nleqslv_out$fvec)
 
-
 l_R <- lambdas_out[1]
 l_C <- lambdas_out[2]
+
 eig_values_sigs <- diag(1 / covmat_inv)
 wStar_out <- wFun(l_R, l_C, eig_values_sigs, nab_decRet)
 C <- sum(wStar_out)
-l_R <- l_R * C
-l_C <- l_C * C^3
-lambdas <- c(l_R, l_C)
-wStar_out <- wFun(l_R, l_C, eig_values_sigs, nab_decRet)
-C <- sum(wStar_out)
+sum(wFun(l_R * C, l_C * C^3, eig_values_sigs, nab_decRet))
+#----
+targ_vec <- c(-log(Rtarg), C)
 wStar <- wStar_out
+#print(wStar)
 nab_C <- wStar^2
 mat_nab <- cbind(nab_decRet, nab_C)
 M <- t(mat_nab) %*% covmat_inv %*% mat_nab
-M_inv <- round(solve(M), 7)
-targ_vec <- c(-C * log(Rtarg), 1)
-lambdas - 2 * M_inv %*% targ_vec
-#lambdas_out - 2 * diag(c(C^3, C)) %*% M_inv %*% targ_vec
-targ_vec_derived <- 1 / 2 * M %*% diag(1 / c(C^3, C)) %*% lambdas
-Rtarg - exp(-targ_vec_derived[1])
+M_inv <- round(solve(M), 8)
+lambdas_out - 2 * M_inv %*% targ_vec
+#----
+# targ_vec <- c(-log(Rtarg), 1)
+# wStar <- wStar_out / C
+# #print(wStar)
+# nab_C <- wStar^2
+# mat_nab <- cbind(nab_decRet, nab_C)
+# M <- t(mat_nab) %*% covmat_inv %*% mat_nab
+# M_inv <- round(solve(M), 8)
+# lambdas_out - 2 / C * diag(c(1, C^-2)) %*% M_inv %*% targ_vec
+#----
 #--------------------------------------------------------------------
 wStar_inv <- 1 / wStar
 Rtarg <- exp(-t(nab_decRet) %*% wStar_inv)
@@ -1867,6 +1879,7 @@ if(!is.null(backtest_info)){
   list_out <- list(wStar, frontier_vec)
 }
 #=========================================================================
+  #Rtarg_limits <- c(0.01, 0.7)
 get_optimal_frontier_dimRet1 <- function(nab_decRet, covmat, Rtarg_limits, n_points_on_frontier, backtest_info = NULL){
   Rtarg_vec <- seq(Rtarg_limits[1], Rtarg_limits[2], length.out = n_points_on_frontier)
   list_wStar <- list()
