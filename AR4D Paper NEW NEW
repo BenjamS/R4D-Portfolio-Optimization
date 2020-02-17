@@ -1659,7 +1659,7 @@ mat_R_test <- matrix(as.numeric(mat_R_test),
                           attributes(mat_R_test)$dim,
                           dimnames = attributes(mat_R_test)$dimnames)
 
-xAxis_title <- "Varimax Rotated Correlation"
+xAxis_title <- "Varimax Rotated Correlation (test data)"
 plot_corrXS_barchart(mat_Lrot_test[, 1:4], group_info = NULL, xAxis_title, sigNames = NULL)
 
 ```
@@ -1680,35 +1680,57 @@ ind_rearrange <- c(2, 1, 3:n_signals)
 # round(M - P_new %*% U %*% t(P_new), 4)
 #=============================================================================
 #=============================================================================
-wFun <- function(l_R, l_C, eig_values_sigs, nab_decRet){
+# wFun <- function(l_R, q, eig_values_sigs, nab_decRet){
+#   u <- eig_values_sigs
+#   term0 <- q * (27 * q * u^2 + l_R^3 * nab_decRet^3)
+#   term <- 18 * u * sqrt(term0) + 2 * 3^(7 / 2) * q * u^2 + sqrt(3) * l_R^3 * nab_decRet^3
+#   print(term0)
+# wStar_inv <- 1 / (6 * u) * (3^(-1 / 6) * term^(1 / 3) + 3^(-1 / 6) * l_R * nab_decRet + 3^(1 / 6) * l_R^2 * nab_decRet^2 * term^(-1 / 3))
+# wStar_out <- 1 / wStar_inv
+# return(wStar_out)
+# }
+
+wFun <- function(l_R, q, eig_values_sigs, nab_decRet){
   u <- eig_values_sigs
-  term <- sqrt((27 * l_C * u^2 + l_R^3 * nab_decRet^3) / l_C) + 3^(3 / 2) * u
-wStar_out <- 1 / sqrt(3) * (l_C^(-1 / 3) * term^(1 / 3) - l_C^(-2 / 3) * l_R * nab_decRet * term^(-1 / 3))
+  term0 <- 27 * u^2 + l_R^3 * nab_decRet^3 / q
+  term <- sqrt(term0) + sqrt(27) * u
+  print(term0)
+wStar_out <- 1 / sqrt(3) * (q^(-1 / 3) * term^(1 / 3) - q^(-2 / 3) * term^(-1 / 3) * l_R * nab_decRet)
 return(wStar_out)
 }
 #=============================================================================
+covmat_inv <- solve(10^3 * covmat)
+nab_decRet <- nab_decRet_sigs_train
 eig_values_sigs <- 1 / diag(covmat_inv)
 n <- 20
-lR_vec <- seq(0.001, 1, length.out = n)
-lC_vec <- lR_vec
+lR_vec <- seq(-0.5, -0.01, length.out = n)
+lC_vec <- seq(0.01, 0.5, length.out = n)
 mat_plot <- matrix(NA, n, n)
 for(i in 1:n){
-  l_R <- lR_vec[i]
+  l_R <- ls_vec[i]
   for(j in 1:n){
     l_C <- lC_vec[j]
-    wStar_out <- wFun(l_R, l_C, eig_values_sigs, nab_decRet)
+    Ctarg <- 1
+    l_R <- -0.2
+    l_C <- 0.02
+    q <- l_C - l_R / Ctarg
+    wStar_out <- wFun(l_R, q, eig_values_sigs, nab_decRet)
     C <- sum(wStar_out)
     l_R <- l_R * C
-    l_C <- l_C * C^3
-      lambdas <- c(l_R, l_C)
-    wStar_out <- wFun(l_R, l_C, eig_values_sigs, nab_decRet)
+    Ctarg <- C
+        q <- C^3 * q#(l_C - l_R / Ctarg)
+    wStar_out <- wFun(l_R, q, eig_values_sigs, nab_decRet_in)
     #sum(wStar_out)
   wStar <- wStar_out
 nab_C <- wStar^2
 mat_nab <- cbind(nab_decRet, nab_C)
+
+-Rtarg * diag(nab_decRet) %*% wStar + gamma * wStar^3 - 2 * l_s * eig_values_sigs
+
 M <- t(mat_nab) %*% covmat_inv %*% mat_nab
 M_inv <- round(solve(M), 8)
 #targ_vec_derived <- 1 / 2 * M %*% diag(1 / c(C^3, C)) %*% lambdas
+lambdas <- c(Rtarg / l_s, gamma / l_s)
 targ_vec_derived <- 1 / 2 * M %*% lambdas
 # print(lambdas - 2 * M_inv %*% targ_vec_derived)
 # print(targ_vec_derived)
@@ -2299,7 +2321,7 @@ econGrowth_smallHolder <- c(0.67, -0.31, 0.15, 0.4)
 econEquality_smallHolder <- c(0.6, 0.75, 0.83, 0.81)
 envSust_smallHolder <- c(0.32, 0.4, -0.52, 0.1)
 #---------------------------------------------
-prop_highYcommod <- c("Super Maize", "Mega Rice", "Hyper Cow")#, "Uber Palm")
+prop_highYcommod <- c("Mega Maize", "Hyper Rice", "Ultra Cow")#, "Uber Palm")
 econGrowth_highYcommod <- c(0.82, 0.86, 0.76)#, 0.88)
 econEquality_highYcommod <- c(-0.34, -0.42, -0.63)#, -0.58)
 envSust_highYcommod <- c(-0.6, -0.52, -0.67)#, -0.83)
@@ -2379,9 +2401,9 @@ df_x$Proposal <- NULL
 mat_Lrot <- as.matrix(df_x)
 rownames(mat_Lrot) <- prop_col
 list_groups <- list(prop_highYcommod, prop_smallHolder, prop_CSA)
-n_groups <- length(list_groups)
-bag_of_colors <- randomcoloR::distinctColorPalette(k = 5 * n_groups)
-group_colors <- sample(bag_of_colors, n_groups)
+# n_groups <- length(list_groups)
+# bag_of_colors <- randomcoloR::distinctColorPalette(k = 5 * n_groups)
+# group_colors <- sample(bag_of_colors, n_groups)
 group_info <- list(list_groups, group_names, group_colors)
 
 sigNames <- c("GDP Growth", "Economic\nEquality", "Environmental\nSustainability")
