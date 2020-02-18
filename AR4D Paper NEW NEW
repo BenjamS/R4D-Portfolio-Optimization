@@ -1804,14 +1804,17 @@ M <- t(mat_nab) %*% covmat_inv %*% mat_nab
 M_inv <- round(solve(M), 8)
 lambdas_out <- 2 * M_inv %*% targ_vec
 #-----
-# targ_vec <- c(-log(Rtarg), 1)
-# wStar <- wStar_out / C
-# print(wStar)
-# nab_C <- wStar^2
-# mat_nab <- cbind(nab_decRet, nab_C)
-# M <- t(mat_nab) %*% covmat_inv %*% mat_nab
-# M_inv <- round(solve(M), 8)
-# lambdas_out <- 2 / C * diag(c(1, C^-2)) %*% M_inv %*% targ_vec
+# targ_vec_1 <- c(-log(Rtarg), 1)
+# wStar_1 <- wStar_out / C
+# #print(wStar)
+# nab_C_1 <- wStar_1^2
+# mat_nab <- cbind(nab_decRet, nab_C_1)
+# M_1 <- t(mat_nab) %*% covmat_inv %*% mat_nab
+# # #M / (diag(c(1, C^2)) %*% M_1 %*% diag(c(1, C^2)))
+# # #M_inv / solve(diag(c(1, C^2)) %*% M_1 %*% diag(c(1, C^2)))
+# M1_inv <- round(solve(M_1), 8)
+# # #M_inv / (diag(c(1, C^-2)) %*% M1_inv %*% diag(c(1, C^-2)))
+#lambdas_out <- diag(c(C, C^3)) %*% lambdas_out
 #-----
 slack_lambdas <- lambdas_in - lambdas_out
 # print(slack_lambdas)
@@ -1820,12 +1823,24 @@ return(slack_lambdas)
 }
 #=========================================================================
 optimize_portfolio_dimRet1 <- function(nab_decRet, covmat, Rtarg, backtest_info = NULL){
-#Rtarg <- .4
+#Rtarg <- .1
 covmat_inv <- solve(covmat)
 l_R <- runif(1) #* 10^-9
 l_C <- runif(1) #* 10^-14
 lambdas_in <- c(l_R, l_C)
-nleqslv_out <- nleqslv::nleqslv(lambdas_in, rootfn_dimRet1, jac = NULL, nab_decRet, covmat_inv, Rtarg, control = list(maxit = 2500, ftol = 10^-8, btol = 10^-3, xtol = 10^-9))
+cond <- 0
+n_tries <- 0
+while(cond == 0){
+  nleqslv_out <- nleqslv::nleqslv(lambdas_in, rootfn_dimRet1, jac = NULL, nab_decRet, covmat_inv, Rtarg, control = list(maxit = 2500, ftol = 10^-8, btol = 10^-4, xtol = 10^-8))
+  if(mean(abs(nleqslv_out$fvec)) < 1 | n_tries < 10){
+    if(nleqslv_out$message == "Function criterion near zero" |
+   mean(abs(nleqslv_out$fvec)) < 10^-7 |
+   n_tries > 5){
+  cond <- 1
+}
+  }
+  n_tries <- n_tries + 1
+}
 
 lambdas_out <- nleqslv_out$x
 print(nleqslv_out$message)
@@ -1837,6 +1852,7 @@ l_C <- lambdas_out[2]
 eig_values_sigs <- diag(1 / covmat_inv)
 wStar_out <- wFun(l_R, l_C, eig_values_sigs, nab_decRet)
 C <- sum(wStar_out)
+C
 sum(wFun(l_R * C, l_C * C^3, eig_values_sigs, nab_decRet))
 #----
 # check
@@ -1849,28 +1865,30 @@ M <- t(mat_nab) %*% covmat_inv %*% mat_nab
 M_inv <- round(solve(M), 8)
 lambdas_out - 2 * M_inv %*% targ_vec
 #----
-# targ_vec <- c(-log(Rtarg), 1)
-# wStar <- wStar_out / C
-# #print(wStar)
-# nab_C <- wStar^2
-# mat_nab <- cbind(nab_decRet, nab_C)
-# M <- t(mat_nab) %*% covmat_inv %*% mat_nab
-# M_inv <- round(solve(M), 8)
-# lambdas_out - 2 / C * diag(c(1, C^-2)) %*% M_inv %*% targ_vec
+wStar_1 <- wStar_out / C
+#print(wStar)
+nab_C_1 <- wStar_1^2
+mat_nab <- cbind(nab_decRet, nab_C_1)
+M_1 <- t(mat_nab) %*% covmat_inv %*% mat_nab
+M / (diag(c(1, C^2)) %*% M_1 %*% diag(c(1, C^2)))
+M_inv / solve(diag(c(1, C^2)) %*% M_1 %*% diag(c(1, C^2)))
+M1_inv <- round(solve(M_1), 8)
+M_inv / (diag(c(1, C^-2)) %*% M1_inv %*% diag(c(1, C^-2)))
+lambdas_out - 2 * diag(c(1, C^-2)) %*% M1_inv %*% diag(c(1, C^-2)) %*% targ_vec
 #----
-l_R <- C * l_R
-l_C <- C^3 * l_C
-lambdas_out <- c(l_R, l_C)
-wStar <- wFun(l_R, l_C, eig_values_sigs, nab_decRet)
-sum(wStar)
-targ_vec <- c(-log(Rtarg), 1)
-nab_C <- wStar^2
-mat_nab <- cbind(nab_decRet, nab_C)
-M <- t(mat_nab) %*% covmat_inv %*% mat_nab
-M_inv <- round(solve(M), 8)
-lambdas_out - 2 * M_inv %*% targ_vec
+targ_vec_1 <- c(-C * log(Rtarg), 1)
+lambdas_out - 2 * diag(c(C^-1, C^-3)) %*% M1_inv %*% targ_vec_1
+lambdas_out_1 <- diag(c(C, C^3)) %*% lambdas_out
+lambdas_out_1 - 2 * M1_inv %*% targ_vec_1
+sum(wFun(lambdas_out_1[1], lambdas_out_1[2], eig_values_sigs, nab_decRet))
+l_R_1 <- lambdas_out_1[1]
+l_C_1 <- lambdas_out_1[2]
 #--------------------------------------------------------------------
-wStar_inv <- 1 / wStar
+wStar_inv <- 1 / wStar_1
+Rtarg_1 <- exp(-t(nab_decRet) %*% wStar_inv) # = Rtarg^C
+Vtarg_1 <- t(wStar_inv) %*% covmat %*% wStar_inv
+sd_targ_1 <- sqrt(Vtarg_1)
+wStar_inv <- 1 / wStar_out
 Rtarg <- exp(-t(nab_decRet) %*% wStar_inv)
 Vtarg <- t(wStar_inv) %*% covmat %*% wStar_inv
 sd_targ <- sqrt(Vtarg)
@@ -1887,8 +1905,9 @@ if(!is.null(backtest_info)){
   sd_test <- NA
 }
 #--------------------------------------------------------------------
-  frontier_vec <- c(Rtarg, sd_targ, l_R, l_C, Rtest, sd_test)
+  frontier_vec <- c(Rtarg, sd_targ, l_R_1, l_C_1, Rtest, sd_test)
   list_out <- list(wStar, frontier_vec)
+  return(list_out)
 }
 #=========================================================================
   #Rtarg_limits <- c(0.01, 0.7)
@@ -1953,7 +1972,7 @@ nab_decRet_test <- nab_decRet_sigs_test
 backtest_info <- list()
 backtest_info[["nab_decRet_test"]] <- nab_decRet_test
 backtest_info[["covmat_test"]] <- covmat_test
-Rtarg_limits <- c(0.15, 0.5)
+Rtarg_limits <- c(0.01, 0.15)
 #-------------------------------------------------------------------------
 list_out <- get_optimal_frontier_dimRet1(nab_decRet, covmat, Rtarg_limits, n_points_on_frontier, backtest_info)
 df_wStar <- list_out[[1]]
@@ -1969,6 +1988,7 @@ color_vec_mv_eg <- sample(bag_of_colors, n_items)
 gg_budget <- plot_budgetShares(df_wStar, color_vec = color_vec_mv_eg, graph_on = F, list_graph_options = NULL)
 #--------------------------------------------------------------
 gg_frontier + gg_budget + plot_layout(ncol = 1)
+#--------------------------------------------------------------
 
 
 
@@ -1977,56 +1997,56 @@ gg_frontier + gg_budget + plot_layout(ncol = 1)
 #=========================================================================
 #=========================================================================
 # conventional:
-nab_C <- rep(1, n_signals)
-Ctarg <- 1
-covmat_train <- mat_U
-covmat_test <- mat_U_test
-#--------------------------------------------------------------
-mat_nab <- cbind(nab_decRet_sigs_train, nab_C)
-n_points_on_frontier <- 50
-R_range <- 0.25
-backtest_info <- list()
-backtest_info[["nab_decRet_test"]] <- nab_decRet_sigs_test
-backtest_info[["covmat_test"]] <- covmat_test
-#--------------------------------------------------------------
-fun_env_getOptFront <- list()
-fun_env_getOptFront[["n_points_on_frontier"]] <- n_points_on_frontier
-fun_env_getOptFront[["R_range"]] <- R_range
-fun_env_getOptFront[["backtest_info"]] <- backtest_info
-fun_env_getOptFront[["C_targ"]] <- C_targ
-fun_env_getOptFront[["dimRet"]] <- F
-#--------------------------------------------------------------
-list_out <- get_optimal_frontier(covmat_train, mat_nab,
-                                 fun_env = fun_env_getOptFront)
-df_wStar <- list_out[[1]]
-df_frontier <- list_out[[2]]
-#--------------------------------------------------------------
-gg_frontier <- plot_frontier(df_frontier, ROI_basis = F, list_graph_options = NULL, graph_on = F)
-#--------------------------------------------------------------
-# df_wStar_agg <- df_wStar %>% gather_("Item", "Budget Share", colnames(df_wStar)[-1])
-# df_wStar_agg <- merge(df_wStar_agg, df_match_group, by = "Item")
-# df_wStar_agg <- df_wStar_agg %>% group_by(`Risk (standard deviation)`, Group) %>% summarise(`Budget Share` = sum(`Budget Share`)) %>% spread(Group, `Budget Share`)
-#gg_budget <- plot_budgetShares(df_wStar_agg, group_small = NULL, color_vec = group_colors, graph_on = F, list_graph_options = NULL)
-n_items <- ncol(df_wStar) - 1
-bag_of_colors <- randomcoloR::distinctColorPalette(k = 5 * n_items)
-color_vec_mv_eg <- sample(bag_of_colors, n_items)
-gg_budget <- plot_budgetShares(df_wStar, color_vec = color_vec_mv_eg, graph_on = F, list_graph_options = NULL)
-#--------------------------------------------------------------
-gg_frontier + gg_budget + plot_layout(ncol = 1)
-#https://gotellilab.github.io/GotelliLabMeetingHacks/NickGotelli/ggplotPatchwork.html
-#--------------------------------------------------------------
-df_plot <- df_frontier
-df_plot_mod <- df_plot[, c("Risk (standard deviation)", "ROI target")]
-df_plot_btest <- df_plot[, c("Risk backtest", "ROI backtest")]
-df_plot_mod$Type <- "Optimal\nsolution"
-df_plot_btest$Type <- "Backtest"
-colnames(df_plot_mod) <- c("Risk", "ROI", "Type")
-colnames(df_plot_btest) <- c("Risk", "ROI", "Type")
-df_plot <- rbind(df_plot_mod, df_plot_btest)
-
-gg <- ggplot(df_plot, aes(x = Risk, y = ROI, group = Type, color = Type))
-gg <- gg + geom_point()
-gg
+# nab_C <- rep(1, n_signals)
+# Ctarg <- 1
+# covmat_train <- mat_U
+# covmat_test <- mat_U_test
+# #--------------------------------------------------------------
+# mat_nab <- cbind(nab_decRet_sigs_train, nab_C)
+# n_points_on_frontier <- 50
+# R_range <- 0.25
+# backtest_info <- list()
+# backtest_info[["nab_decRet_test"]] <- nab_decRet_sigs_test
+# backtest_info[["covmat_test"]] <- covmat_test
+# #--------------------------------------------------------------
+# fun_env_getOptFront <- list()
+# fun_env_getOptFront[["n_points_on_frontier"]] <- n_points_on_frontier
+# fun_env_getOptFront[["R_range"]] <- R_range
+# fun_env_getOptFront[["backtest_info"]] <- backtest_info
+# fun_env_getOptFront[["C_targ"]] <- C_targ
+# fun_env_getOptFront[["dimRet"]] <- F
+# #--------------------------------------------------------------
+# list_out <- get_optimal_frontier(covmat_train, mat_nab,
+#                                  fun_env = fun_env_getOptFront)
+# df_wStar <- list_out[[1]]
+# df_frontier <- list_out[[2]]
+# #--------------------------------------------------------------
+# gg_frontier <- plot_frontier(df_frontier, ROI_basis = F, list_graph_options = NULL, graph_on = F)
+# #--------------------------------------------------------------
+# # df_wStar_agg <- df_wStar %>% gather_("Item", "Budget Share", colnames(df_wStar)[-1])
+# # df_wStar_agg <- merge(df_wStar_agg, df_match_group, by = "Item")
+# # df_wStar_agg <- df_wStar_agg %>% group_by(`Risk (standard deviation)`, Group) %>% summarise(`Budget Share` = sum(`Budget Share`)) %>% spread(Group, `Budget Share`)
+# #gg_budget <- plot_budgetShares(df_wStar_agg, group_small = NULL, color_vec = group_colors, graph_on = F, list_graph_options = NULL)
+# n_items <- ncol(df_wStar) - 1
+# bag_of_colors <- randomcoloR::distinctColorPalette(k = 5 * n_items)
+# color_vec_mv_eg <- sample(bag_of_colors, n_items)
+# gg_budget <- plot_budgetShares(df_wStar, color_vec = color_vec_mv_eg, graph_on = F, list_graph_options = NULL)
+# #--------------------------------------------------------------
+# gg_frontier + gg_budget + plot_layout(ncol = 1)
+# #https://gotellilab.github.io/GotelliLabMeetingHacks/NickGotelli/ggplotPatchwork.html
+# #--------------------------------------------------------------
+# df_plot <- df_frontier
+# df_plot_mod <- df_plot[, c("Risk (standard deviation)", "ROI target")]
+# df_plot_btest <- df_plot[, c("Risk backtest", "ROI backtest")]
+# df_plot_mod$Type <- "Optimal\nsolution"
+# df_plot_btest$Type <- "Backtest"
+# colnames(df_plot_mod) <- c("Risk", "ROI", "Type")
+# colnames(df_plot_btest) <- c("Risk", "ROI", "Type")
+# df_plot <- rbind(df_plot_mod, df_plot_btest)
+# 
+# gg <- ggplot(df_plot, aes(x = Risk, y = ROI, group = Type, color = Type))
+# gg <- gg + geom_point()
+# gg
 
 ```
 
