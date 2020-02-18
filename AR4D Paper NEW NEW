@@ -1699,91 +1699,91 @@ wStar_out <- 1 / sqrt(3) * (q^(-1 / 3) * term^(1 / 3) - q^(-2 / 3) * term^(-1 / 
 return(wStar_out)
 }
 #=============================================================================
-covmat_inv <- solve(10^3 * covmat)
-nab_decRet <- nab_decRet_sigs_train
-eig_values_sigs <- 1 / diag(covmat_inv)
-n <- 20
-lR_vec <- seq(-0.5, -0.01, length.out = n)
-lC_vec <- seq(0.01, 0.5, length.out = n)
-mat_plot <- matrix(NA, n, n)
-for(i in 1:n){
-  l_R <- ls_vec[i]
-  for(j in 1:n){
-    l_C <- lC_vec[j]
-    Ctarg <- 1
-    l_R <- -0.2
-    l_C <- 0.02
-    q <- l_C - l_R / Ctarg
-    wStar_out <- wFun(l_R, q, eig_values_sigs, nab_decRet)
-    C <- sum(wStar_out)
-    l_R <- l_R * C
-    Ctarg <- C
-        q <- C^3 * q#(l_C - l_R / Ctarg)
-    wStar_out <- wFun(l_R, q, eig_values_sigs, nab_decRet_in)
-    #sum(wStar_out)
-  wStar <- wStar_out
-nab_C <- wStar^2
-mat_nab <- cbind(nab_decRet, nab_C)
-
--Rtarg * diag(nab_decRet) %*% wStar + gamma * wStar^3 - 2 * l_s * eig_values_sigs
-
-M <- t(mat_nab) %*% covmat_inv %*% mat_nab
-M_inv <- round(solve(M), 8)
-#targ_vec_derived <- 1 / 2 * M %*% diag(1 / c(C^3, C)) %*% lambdas
-lambdas <- c(Rtarg / l_s, gamma / l_s)
-targ_vec_derived <- 1 / 2 * M %*% lambdas
-# print(lambdas - 2 * M_inv %*% targ_vec_derived)
-# print(targ_vec_derived)
-# targ_vec_derived <- targ_vec_derived * c(C, 1 / C)
-print(exp(-targ_vec_derived[1]))
-# print(targ_vec_derived)
-# print(exp(-(targ_vec_derived[1] / C)))
-mat_plot[i, j] <- exp(-targ_vec_derived[1])
-  }
-}
-df_plot <- as.data.frame(mat_plot)
-colnames(df_plot) <- as.character(round(lC_vec, 4))
-  these_levels <- colnames(df_plot)
-gathercols <- colnames(df_plot)
-df_plot$l_R <- as.character(round(lR_vec, 4))
-  df_plot <- df_plot %>% gather_("l_C", "Value", gathercols)
-    df_plot$l_C <- factor(df_plot$l_C, levels = these_levels)
-  df_plot$l_R <- factor(df_plot$l_R, levels = these_levels)
-    midpoint <- 0
-  gg <- ggplot(df_plot, aes(l_C, l_R))
-  gg <- gg + geom_tile(aes(fill = Value))#, width = 4, height = 4)
-  gg <- gg + geom_text(aes(label = round(Value, 3)), size = 3)
-  gg <- gg + theme_bw()
-  gg <- gg + theme(axis.text.x = element_text(angle = 60, hjust = 1),
-                 axis.title = element_blank(),
-                 legend.title = element_blank(),
-                 plot.title = element_text(face = "bold", size = 9))
-  gg <- gg + scale_fill_gradient2(low = "khaki", mid = "cyan", high = "magenta", midpoint, na.value = "white")
-gg
-
-gg <- ggplot(df_plot, aes())
-  df_plot <- covmat %>% tbl_df()
-  these_levels <- colnames(df_plot)
-  df_plot$ItemX <- colnames(df_plot)
-  gathercols <- colnames(df_plot)[-ncol(df_plot)]
-  df_plot <- df_plot %>% gather_("ItemY", "Value", gathercols)
-  df_plot$ItemX <- factor(df_plot$ItemX, levels = these_levels)
-  df_plot$ItemY <- factor(df_plot$ItemY, levels = these_levels)
-
-  #midpoint <- min(covmat) + (max(covmat) - min(covmat)) / 2
-  midpoint <- 0
-  gg <- ggplot(df_plot, aes((ItemX), (ItemY)))
-  gg <- gg + geom_tile(aes(fill = Value))#, width = 4, height = 4)
-  gg <- gg + geom_text(aes(label = round(Value, 2)), size = 3)
-  if(!is.null(fig_title)){
-    gg <- gg + labs(title = fig_title)
-  }
-  gg <- gg + theme_bw()
-  gg <- gg + theme(axis.text.x = element_text(angle = 60, hjust = 1),
-                 axis.title = element_blank(),
-                 legend.title = element_blank(),
-                 plot.title = element_text(face = "bold", size = 9))
-  gg <- gg + scale_fill_gradient2(low = "khaki", mid = "cyan", high = "magenta", midpoint, na.value = "white")
+# covmat_inv <- solve(10^3 * covmat)
+# nab_decRet <- nab_decRet_sigs_train
+# eig_values_sigs <- 1 / diag(covmat_inv)
+# n <- 20
+# lR_vec <- seq(-0.5, -0.01, length.out = n)
+# lC_vec <- seq(0.01, 0.5, length.out = n)
+# mat_plot <- matrix(NA, n, n)
+# for(i in 1:n){
+#   l_R <- ls_vec[i]
+#   for(j in 1:n){
+#     l_C <- lC_vec[j]
+#     Ctarg <- 1
+#     l_R <- -0.2
+#     l_C <- 0.02
+#     q <- l_C - l_R / Ctarg
+#     wStar_out <- wFun(l_R, q, eig_values_sigs, nab_decRet)
+#     C <- sum(wStar_out)
+#     l_R <- l_R * C
+#     Ctarg <- C
+#         q <- C^3 * q#(l_C - l_R / Ctarg)
+#     wStar_out <- wFun(l_R, q, eig_values_sigs, nab_decRet_in)
+#     #sum(wStar_out)
+#   wStar <- wStar_out
+# nab_C <- wStar^2
+# mat_nab <- cbind(nab_decRet, nab_C)
+# 
+# -Rtarg * diag(nab_decRet) %*% wStar + gamma * wStar^3 - 2 * l_s * eig_values_sigs
+# 
+# M <- t(mat_nab) %*% covmat_inv %*% mat_nab
+# M_inv <- round(solve(M), 8)
+# #targ_vec_derived <- 1 / 2 * M %*% diag(1 / c(C^3, C)) %*% lambdas
+# lambdas <- c(Rtarg / l_s, gamma / l_s)
+# targ_vec_derived <- 1 / 2 * M %*% lambdas
+# # print(lambdas - 2 * M_inv %*% targ_vec_derived)
+# # print(targ_vec_derived)
+# # targ_vec_derived <- targ_vec_derived * c(C, 1 / C)
+# print(exp(-targ_vec_derived[1]))
+# # print(targ_vec_derived)
+# # print(exp(-(targ_vec_derived[1] / C)))
+# mat_plot[i, j] <- exp(-targ_vec_derived[1])
+#   }
+# }
+# df_plot <- as.data.frame(mat_plot)
+# colnames(df_plot) <- as.character(round(lC_vec, 4))
+#   these_levels <- colnames(df_plot)
+# gathercols <- colnames(df_plot)
+# df_plot$l_R <- as.character(round(lR_vec, 4))
+#   df_plot <- df_plot %>% gather_("l_C", "Value", gathercols)
+#     df_plot$l_C <- factor(df_plot$l_C, levels = these_levels)
+#   df_plot$l_R <- factor(df_plot$l_R, levels = these_levels)
+#     midpoint <- 0
+#   gg <- ggplot(df_plot, aes(l_C, l_R))
+#   gg <- gg + geom_tile(aes(fill = Value))#, width = 4, height = 4)
+#   gg <- gg + geom_text(aes(label = round(Value, 3)), size = 3)
+#   gg <- gg + theme_bw()
+#   gg <- gg + theme(axis.text.x = element_text(angle = 60, hjust = 1),
+#                  axis.title = element_blank(),
+#                  legend.title = element_blank(),
+#                  plot.title = element_text(face = "bold", size = 9))
+#   gg <- gg + scale_fill_gradient2(low = "khaki", mid = "cyan", high = "magenta", midpoint, na.value = "white")
+# gg
+# 
+# gg <- ggplot(df_plot, aes())
+#   df_plot <- covmat %>% tbl_df()
+#   these_levels <- colnames(df_plot)
+#   df_plot$ItemX <- colnames(df_plot)
+#   gathercols <- colnames(df_plot)[-ncol(df_plot)]
+#   df_plot <- df_plot %>% gather_("ItemY", "Value", gathercols)
+#   df_plot$ItemX <- factor(df_plot$ItemX, levels = these_levels)
+#   df_plot$ItemY <- factor(df_plot$ItemY, levels = these_levels)
+# 
+#   #midpoint <- min(covmat) + (max(covmat) - min(covmat)) / 2
+#   midpoint <- 0
+#   gg <- ggplot(df_plot, aes((ItemX), (ItemY)))
+#   gg <- gg + geom_tile(aes(fill = Value))#, width = 4, height = 4)
+#   gg <- gg + geom_text(aes(label = round(Value, 2)), size = 3)
+#   if(!is.null(fig_title)){
+#     gg <- gg + labs(title = fig_title)
+#   }
+#   gg <- gg + theme_bw()
+#   gg <- gg + theme(axis.text.x = element_text(angle = 60, hjust = 1),
+#                  axis.title = element_blank(),
+#                  legend.title = element_blank(),
+#                  plot.title = element_text(face = "bold", size = 9))
+#   gg <- gg + scale_fill_gradient2(low = "khaki", mid = "cyan", high = "magenta", midpoint, na.value = "white")
 
 
 
@@ -1839,6 +1839,7 @@ wStar_out <- wFun(l_R, l_C, eig_values_sigs, nab_decRet)
 C <- sum(wStar_out)
 sum(wFun(l_R * C, l_C * C^3, eig_values_sigs, nab_decRet))
 #----
+# check
 targ_vec <- c(-log(Rtarg), C)
 wStar <- wStar_out
 #print(wStar)
@@ -1857,6 +1858,17 @@ lambdas_out - 2 * M_inv %*% targ_vec
 # M_inv <- round(solve(M), 8)
 # lambdas_out - 2 / C * diag(c(1, C^-2)) %*% M_inv %*% targ_vec
 #----
+l_R <- C * l_R
+l_C <- C^3 * l_C
+lambdas_out <- c(l_R, l_C)
+wStar <- wFun(l_R, l_C, eig_values_sigs, nab_decRet)
+sum(wStar)
+targ_vec <- c(-log(Rtarg), 1)
+nab_C <- wStar^2
+mat_nab <- cbind(nab_decRet, nab_C)
+M <- t(mat_nab) %*% covmat_inv %*% mat_nab
+M_inv <- round(solve(M), 8)
+lambdas_out - 2 * M_inv %*% targ_vec
 #--------------------------------------------------------------------
 wStar_inv <- 1 / wStar
 Rtarg <- exp(-t(nab_decRet) %*% wStar_inv)
@@ -1943,7 +1955,7 @@ backtest_info[["nab_decRet_test"]] <- nab_decRet_test
 backtest_info[["covmat_test"]] <- covmat_test
 Rtarg_limits <- c(0.15, 0.5)
 #-------------------------------------------------------------------------
-list_out <- get_optimal_frontier_dimRet1(nab_decRet, covmat, Rtarg_limits, n_points_on_frontier, Ctarg, backtest_info)
+list_out <- get_optimal_frontier_dimRet1(nab_decRet, covmat, Rtarg_limits, n_points_on_frontier, backtest_info)
 df_wStar <- list_out[[1]]
 df_frontier <- list_out[[2]]
 gg_frontier <- plot_frontier(df_frontier, ROI_basis = F, list_graph_options = NULL, graph_on = F)
@@ -1951,6 +1963,12 @@ gg_frontier <- plot_frontier(df_frontier, ROI_basis = F, list_graph_options = NU
 
 
 
+n_items <- ncol(df_wStar) - 1
+bag_of_colors <- randomcoloR::distinctColorPalette(k = 5 * n_items)
+color_vec_mv_eg <- sample(bag_of_colors, n_items)
+gg_budget <- plot_budgetShares(df_wStar, color_vec = color_vec_mv_eg, graph_on = F, list_graph_options = NULL)
+#--------------------------------------------------------------
+gg_frontier + gg_budget + plot_layout(ncol = 1)
 
 
 
