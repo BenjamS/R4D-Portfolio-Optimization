@@ -1690,12 +1690,20 @@ ind_rearrange <- c(2, 1, 3:n_signals)
 # return(wStar_out)
 # }
 
-wFun <- function(l_R, q, eig_values_sigs, nab_decRet){
+wFun <- function(l_R, l_C, eig_values_sigs, nab_decRet){
   u <- eig_values_sigs
-  term0 <- 27 * u^2 + l_R^3 * nab_decRet^3 / q
+  if(l_C > 0){
+      lR3_lobound <- max(-27 * u^2 * l_C / nab_decRet^3)
+  lR_lobound <- sign(lR3_lobound) * abs(lR3_lobound)^(1 / 3)
+  if(l_R < lR_lobound){
+    l_R <- lR_lobound
+  }
+
+  }
+  term0 <- round(27 * u^2 + l_R^3 * nab_decRet^3 / l_C, 15)
   term <- sqrt(term0) + sqrt(27) * u
   #print(term0)
-wStar_out <- 1 / sqrt(3) * (q^(-1 / 3) * term^(1 / 3) - q^(-2 / 3) * term^(-1 / 3) * l_R * nab_decRet)
+wStar_out <- 1 / sqrt(3) * (l_C^(-1 / 3) * term^(1 / 3) - l_C^(-2 / 3) * term^(-1 / 3) * l_R * nab_decRet)
 return(wStar_out)
 }
 #=============================================================================
@@ -1788,9 +1796,10 @@ return(wStar_out)
 
 
 #=========================================================================
-rootfn_dimRet1 <- function(lambdas_in, nab_decRet, covmat_inv, Rtarg){
+rootfn_dimRet1 <- function(l_R, l_C, nab_decRet, covmat_inv, Rtarg){
   l_R <- lambdas_in[1]
   l_C <- lambdas_in[2]
+  print(lambdas_in)
 eig_values_sigs <- 1 / diag(covmat_inv)
 wStar_out <- wFun(l_R, l_C, eig_values_sigs, nab_decRet)
 C <- sum(wStar_out)
@@ -1805,8 +1814,12 @@ C <- sum(wStar_out)
 # lambdas_out <- 2 * M_inv %*% targ_vec
 #-----
 targ_vec_1 <- c(-log(Rtarg), 1)
-wStar_1 <- wStar_out / C
-#print(wStar)
+print(wStar_out)
+if(C > 1){
+  wStar_1 <- wStar_out / C
+}else{
+    wStar_1 <- wStar_out
+  }
 nab_C_1 <- wStar_1^2
 mat_nab <- cbind(nab_decRet, nab_C_1)
 M_1 <- t(mat_nab) %*% covmat_inv %*% mat_nab
@@ -1818,21 +1831,29 @@ lambdas_out <- 2 * M1_inv %*% targ_vec_1
 #-----
 slack_lambdas <- lambdas_in - lambdas_out
 # print(slack_lambdas)
-# print(lambdas_out)
+#print(lambdas_out)
 return(slack_lambdas)
 }
 #=========================================================================
 optimize_portfolio_dimRet1 <- function(nab_decRet, covmat, Rtarg, backtest_info = NULL){
-#Rtarg <- 0.02 #.0292
+#Rtarg <- 0.029 #.0292
 covmat_inv <- solve(covmat)
-l_R <-  runif(1) * 10^-3 #-0.01465934
-l_C <-  runif(1) * 10^-2 #0.09718086
-lambdas_in <- c(l_R, l_C)
 cond <- 0
 n_tries <- 0
 while(cond == 0){
-  nleqslv_out <- nleqslv::nleqslv(lambdas_in, rootfn_dimRet1, jac = NULL, nab_decRet, covmat_inv, Rtarg, control = list(maxit = 2500, ftol = 10^-10, btol = 10^-4, xtol = 10^-10))
-  if(mean(abs(nleqslv_out$fvec)) < 1 | n_tries < 10){
+#  l_R <-  runif(1) * 10^-3 #-0.01465934
+l_C <-  runif(1) * 10^-2 #0.09718086
+eig_values_sigs <- 1 / diag(covmat_inv)
+u <- eig_values_sigs
+  lR3_lobound <- -27 * u^2 * l_C / nab_decRet^3
+  lR_lobound <- max(sign(lR3_lobound) * abs(lR3_lobound)^(1 / 3))
+l_R <- runif(1) * lR_lobound
+lambdas_in <- c(l_R, l_C)
+
+try_it <- try(nleqslv::nleqslv(lambdas_in, rootfn_dimRet1, jac = NULL, nab_decRet, covmat_inv, Rtarg, control = list(maxit = 2500, ftol = 10^-9, btol = 10^-4, xtol = 10^-10)))
+  if(inherits(try_it, "try-error")){next()}
+  nleqslv_out <- try_it
+  if((mean(abs(nleqslv_out$fvec)) < 1) | (n_tries < 10)){
     if(nleqslv_out$message == "Function criterion near zero" |
    mean(abs(nleqslv_out$fvec)) < 10^-7 |
    n_tries > 5){
@@ -1876,7 +1897,7 @@ M1_inv <- round(solve(M_1), 8)
 M_inv / (diag(c(1, C^-2)) %*% M1_inv %*% diag(c(1, C^-2)))
 lambdas_out - 2 * diag(c(1, C^-2)) %*% M1_inv %*% diag(c(1, C^-2)) %*% targ_vec
 #===============
-print(exp(-(M_1[1, 2]) / M_1[2, 2]))
+#print(exp(-(M[1, 2]) / M[2, 2]))
 #===============
 #----
 targ_vec_1 <- c(-C * log(Rtarg), 1)
@@ -1975,14 +1996,14 @@ nab_decRet_test <- nab_decRet_sigs_test
 backtest_info <- list()
 backtest_info[["nab_decRet_test"]] <- nab_decRet_test
 backtest_info[["covmat_test"]] <- covmat_test
-Rtarg_limits <- c(0.018, 0.029)
+Rtarg_limits <- c(0.0225, 0.035)
 #-------------------------------------------------------------------------
 list_out <- get_optimal_frontier_dimRet1(nab_decRet, covmat, Rtarg_limits, n_points_on_frontier, backtest_info)
 df_wStar <- list_out[[1]]
 df_frontier <- list_out[[2]]
 
 #df_frontier <- subset(df_frontier, `Risk shadow price` < 0)
-gg <- plot_frontier(df_frontier, ROI_basis = T, list_graph_options = NULL, graph_on = F)
+gg <- plot_frontier(df_frontier, ROI_basis = F, list_graph_options = NULL, graph_on = F)
 gg_frontier <- gg
 
 
