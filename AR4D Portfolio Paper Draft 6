@@ -8,7 +8,7 @@ address:
   - code: CIAT
     address: Alliance Bioversity-CIAT, Km 17 Recta Cali-Palmira, Valle del Cauca, Colombia
 abstract: |
- Conventional agricultural research for development (AR4D) priority setting exercises have long been implemented to build insight and consensus around the strengths and weaknesses of individual agricultural research proposals in a given portfolio, but stop short of providing tools that can translate collective insights into optimal resource allocation shares. They also generally exclude from the allocation decision any rigorous accounting of the risk involved in each proposal, or of tradeoffs and synergies between proposals. These methodological lacunae have exposed resource allocation processes to ad hoc, politically driven decisionmaking, thereby contributing to growing toxicity in donor-researcher relations. Here I explore the possibility of removing the methodological basis for this discord by introducing a new resource allocation method, adapted from financial contexts, that allocates precise, optimal budget shares to each proposal based on its expected impact, risk, and synergies/tradeoffs with the other proposals in the portfolio.
+ Conventional agricultural research for development (AR4D) priority setting exercises have long been implemented to build insight and consensus around the strengths and weaknesses of individual agricultural research proposals in a given portfolio, but stop short of providing tools that can translate collective insights into optimal resource allocation shares. They also generally exclude from the allocation decision any rigorous accounting of the risk involved in each proposal, or of tradeoffs and synergies between proposals. These methodological lacunae have repeatedly exposed resource allocation processes to ad hoc, politically driven decisionmaking, thereby contributing to growing toxicity in donor-researcher relations. Here I explore the possibility of removing the methodological basis for this discord by introducing a rigorous allocation method, adapted from financial contexts, that allocates precise, optimal budget shares to each proposal based on its expected impact, risk, and synergies/tradeoffs with the other proposals in the portfolio.
 keywords: Risk-adjusted portfolio optmization, Mean-Variance Analysis, AR4D, ex-ante impact assessment, foresight
 journal: Alliance Bioversity-CIAT Working Paper
 bibliography: AR4D Portfolio Optimization.bib
@@ -54,7 +54,7 @@ Mills identified this lacuna at a time when AR4D centers were just beginning to 
 ```{r, fig.show = 'hold', out.width="15cm", fig.align='left'}
 knitr::include_graphics("Mills_missing_step5.png")
 ```
-In hindsight, Mills' concern was well founded. Budgetary pressure on AR4D centers to "prove their relevance" [@Braunschweig2000], "show value for money" [@yet2016bayesian], and otherwise demonstrate "more efficient spending of resources" [@petsakos2018comparing] has only increased since the 1990s. Between Step 4 and the final allocation of funds, stakeholder politics, institutional inertia, ad hoc procedures and criteria, and other subjective forces have repeatedly undercut any careful, objective rigor occurring in Steps 1-4 [@Birner2016; @mccalla2014cgiar]. This  inconsistency, opacity, and subjectivity in resource allocation decisions, has, in turn, aggravated scientists' already longstanding distrust of budget allocation mechanisms. Relations between donors and the research programs they fund have, as a result, reached an historic level of toxicity [@Birner2016; @leeuwis2018reforming; @mccalla2014cgiar].
+In hindsight, Mills' concern was well founded. Budgetary pressure on AR4D centers to "prove their relevance" [@Braunschweig2000], "show value for money" [@yet2016bayesian], and otherwise demonstrate "more efficient spending of resources" [@petsakos2018comparing] has only increased since the 1990s. Between Step 4 and the final allocation of funds, stakeholder politics, institutional inertia, ad hoc procedures and criteria, and other subjective forces have repeatedly undercut any careful, objective rigor occurring in Steps 1-4 [@Birner2016; @mccalla2014cgiar]. This inconsistency, opacity, and subjectivity in resource allocation decisions has, in turn, aggravated scientists' already longstanding distrust of budget allocation mechanisms. Relations between donors and the research programs they fund have, as a result, reached an historic level of toxicity [@Birner2016; @leeuwis2018reforming; @mccalla2014cgiar].
 
 A rigorous tool _at the portfolio level_, along the lines suggested by Mills over twenty years ago, could go a long ways in guaranteeing the consistency, transparency, and objectivity that is, in large part, responsible for this toxicity. [has been lacking from the resource allocation process.] It would also be nice if such a method took explicit account of the risk associated with each research alternative, and were quick and inexpensive to implement relative to consensus building mechanisms such as the Analytical Hierarchy Process [@Braunschweig2000]. In this paper, I explore the possibility of building such a tool based on risk-adjusted portfolio optimization techniques developed in the financial context.
 
@@ -76,7 +76,7 @@ gg
 
 ```
 
-Of course, the AR4D context differs from the financial context in many important respects. In particular: 1) Investments in AR4D projects do not scale linearly as they do in the stock market, but rather exhibit diminishing marginal returns. 2) Budget shares must be positive (there is no AR4D analogue to short-selling). And 3) the data required to calculate a portfolio covariance matrix do not exist in the AR4D context.
+Of course, the AR4D context differs from the financial context in many important respects. In particular: 1) the data required to calculate a portfolio covariance matrix do not exist in the AR4D context. 2) Investments in AR4D projects do not scale linearly as they do in the stock market, but rather exhibit diminishing marginal returns. And 3) Budget shares must be positive (there is no AR4D analogue to short-selling).
 
 <!-- _Scalability:_ In the financial context, returns scale linearly with investment. That is to say, the return on an investment of $\$200$ is twice as much as the return on an investment of $\$100$. Investments in the AR4D context, on the other hand, are subject to the law of diminishing marginal returns. Donors cannot double their impact merely by doubling their investments. Such returns are said to scale sub-linearly with investment. -->
 <!-- [linear vs. subliear graphic?] -->
@@ -85,7 +85,7 @@ Of course, the AR4D context differs from the financial context in many important
 
 <!-- _Lack of a covariance matrix:_ MV Analysis requires information regarding the tradeoffs and synergies between portfolio items. Another word for these tradeoffs and synergies is covariance. A positive covariance may be considered a synergy, while a negative covariance is a tradeoff. In the financial context, covariances can be calculated from data. In the AR4D context, no such data exists. -->
 
-However, there is a very important sense in which MV analysis _does_ reflect the kind of thinking that goes (or used to go) into AR4D bugdet allocation decisions. Emeritus scientists at the International Center for Tropical Agriculture, for example, recall that in the early years of the institution---around the time that Merton was writing his seminal paper---it was common practice to informally plot research proposals in a risk reward space such as that in Figure \ref{fig:basic_illust}, and to thereby guide resource allocation decisions [@JCock_perscomm; @lynam2017forever]. In this paper, I am primarily concerned with the possibility of resuscitating this practice, and of moving it onto a rigorous methodological footing. To achieve this, below I propose an adaptation of MV analysis to the AR4D context, redressing each of the three methodological challenges enumerated in the previous paragraph. To properly understand these challenges, it is first necessary to engage in a brief introduction to MV analysis in its native financial context.
+However, there is a very important sense in which MV analysis _does_ reflect the kind of thinking that goes (or used to go) into AR4D bugdet allocation decisions. Emeritus scientists at the International Center for Tropical Agriculture, for example, recall that in the early years of the institution---around the time that Merton was writing his seminal paper---it was common practice to informally plot research proposals in a risk reward space such as that in Figure \ref{fig:basic_illust}, and to thereby guide resource allocation decisions [@JCock_perscomm; @lynam2017forever]. In this paper, I am primarily concerned with the possibility of resuscitating this practice, and of moving it onto a rigorous methodological footing. To achieve this, I propose an adaptation of MV analysis to the AR4D context, redressing each of the three methodological challenges enumerated in the previous paragraph. Before tackling these challenges, it is first necessary to walk through a brief introduction to MV analysis in its native financial context.
 
 
 <!-- After a brief introduction to MV Analysis in the following section, I redress each of these issues. In Section 3, I redress both the scalability and negative budget share issues by replacing the linear returns function used in MV Analysis with a logarithmic form derived from the law of diminishing marginal returns. In Section 4, I draw on principal components analysis to show how a lack of data can be compensated by domain knowledge in order to "reverse engineer" a covariance matrix. The deduced matrix is useful for orienting stakeholder discussions, but cannot be used in portfolio optimization. To find the optimal risk adjusted resource allocation, I introduce the "signals portfolio", a dimensionally reduced portfolio of principal components. The optimal resource allocation to individual portfolio items can be disaggregated from the optimal signals portfolio based on each item's correlation with each given signal. Finally I walk through a an illustrative example of what this AR4D-adapted version of MV Analysis might look like in practice. -->
@@ -94,13 +94,13 @@ However, there is a very important sense in which MV analysis _does_ reflect the
 
 # Brief introduction to risk adjusted portfolio optimization
 
-In the financial context, where MV analysis originally developed, the risk-adjusted optimization problem for a portfolio of $n$ risky assets is formulated as follows. 
+In financial contexts, the goal of MV Analysis is to find the optimal investment across a portfolio of risky assets such that risk is minimized for a given budget constraint and portfolio return target. More formally, this can be expressed
 
 \begin{equation}
 \max_{\mathbf{w}}\:R - C \:\:\:\:s.t. \:\:\: C=\bar{C} \:, \:\:\: \sigma^2 = \bar{\sigma}^2
 \end{equation}
 
-where $\mathbf{w}$ is the vector of budget shares, $R$ is the expected portfolio return, defined $R = \mathbf{w} \cdot \boldsymbol{\mu}$, where $\boldsymbol{\mu}$ is the vector of expected returns of each asset; $C$ is the cost, defined $C = \mathbf{w} \cdot \mathbf{1}$, constrained to sum to the budget $\bar{C}$; and $\sigma^2$ is the portfolio variance (a measure of the portfolio risk), defined $\sigma^2 = \mathbf{w} \cdot \Sigma \cdot \mathbf{w}$, where $\Sigma$ is the asset covariance matrix; and $\sigma^2$ is constrained to equal a tolerance $\bar{\sigma}^2$ set by the investor.^[In the financial context, the problem is usually formulated as a risk minimization problem subject to a budget constraint and return target. Both approaches yield the same outputs. In the financial context, the problem includes the option to invest in one risk free asset. There is no risk free investment in the AR4D context, so the set up here focuses on optimization of the risky portfolio only.]
+where $\mathbf{w}$ is the vector of budget shares to be invested in each asset, $R$ is the expected portfolio return, defined $R = \mathbf{w} \cdot \boldsymbol{\mu}$, where $\boldsymbol{\mu}$ is the vector of expected returns of each asset; $C$ is the cost, defined $C = \mathbf{w} \cdot \mathbf{1}$, constrained to sum to the budget $\bar{C}$; and $\sigma^2$ is the portfolio variance (a measure of the portfolio risk), defined $\sigma^2 = \mathbf{w} \cdot \Sigma \cdot \mathbf{w}$, where $\Sigma$ is the asset covariance matrix; and $\sigma^2$ is constrained to equal a tolerance $\bar{\sigma}^2$ set by the investor.^[In the financial context, the problem is usually formulated as a risk minimization problem subject to a budget constraint and return target. Both approaches yield the same outputs. In the financial context, the problem includes the option to invest in one risk free asset. There is no risk free investment in the AR4D context, so the set up here focuses on optimization of the risky portfolio only.]
 
 The Lagrangian is then
 
@@ -712,28 +712,33 @@ test_stop_date <- row.names(mat_pctDiff_eg_test)[nrow(mat_pctDiff_eg_test)]
 #----------------------------------------------------------
 
 ```
-
-
 An example application of MV Analysis is presented below using daily financial data for `r ncol(mat_pctDiff_eg_train)` securities over the period `r train_start_date` to `r train_stop_date`, downloaded from yahoo finance using the R tidyquant package. These securities were chosen so as to be broadly representative of the U.S. economy. Details can be found in the appendix.
 
-Period returns for each asset in the dataset are presented in the bottom of Figure \ref{fig:hReturns}. The period return of a given portfolio asset $\bar{r}$ with given price time series $\mathbf{p}$ is calculated as 
-
-$$
-\bar{r} = \frac{p_T - p_1}{p_1}
-$$
-where $T$ denotes the length of the time series. Daily returns are calculated
-$$
-r_{t} = \frac{p_t - p_{t-1}}{p_{t-1}}
-$$
-for any given day $t$ in the series. As a practical matter, note that the period returns can also be calculated from the daily returns as follows.
-
-$$
-\bar{r} = \prod_{t = 2}^T (1 + r_{t}) - 1
-$$
 <!-- They are mostly exchange traded funds tracking broad categories of stocks, bonds, markets, and commodities, plus major currency pairs traded on the foreign exchange market. -->
 
 <!-- [Table here detailing the ETF names, what they track, and my category name] -->
 
+The expected returns $\boldsymbol{\mu}$ are calculated from the data as
+
+$$
+\mu_i = \frac{p_{iT} - p_{i1}}{p_{i1}}
+$$
+where $\mathbf{p}_i$ is the $i^{th}$ asset's price time series, and $T$ is the length of the time series. These period returns are presented in the bottom panel of Figure \ref{fig:hReturns}.
+
+The covariance matrix $\Sigma$ is calculated from the data as
+
+$$
+\Sigma=\frac{1}{1 - n} X'X \:\:; \:\:\:\:\:\:X_{it} = r_{it}-\bar{r} \:, \:\:\:\:\: \bar{r} = \frac{1}{T}\sum_{t=1}^Tr_{it}
+$$
+where $n$ is the number of assets, and $r_{it}$ is the $i^{th}$ asset's daily return, calculated
+$$
+r_{it} = \frac{p_{it} - p_{it-1}}{p_{it-1}}
+$$
+for any given day $t$ in the series. As a practical matter, note that the period returns can also be calculated from the daily returns as follows.
+$$
+\mu_i = \prod_{t = 2}^T (1 + r_{it}) - 1
+$$
+Application of MV Analysis to this data yields the optimal frontier and budget shares displayed in Figure \ref{fig:mvConv}.
 
 ```{r, fig.show = 'hold', fig.cap="\\label{fig:hReturns}Historical (top) daily returns and (bottom) period return, financial data.", fig.width=6, fig.height=6, fig.align='left', echo=FALSE}
 # Plot historical returns for period and items defined above
@@ -757,16 +762,8 @@ gg_barchart + gg_covmat + plot_layout(ncol = 1, heights = c(1, 2))
 
 \pagebreak
 
-As explained above, MV Analysis requires the expected returns of each portfolio item, and their corresponding covariance matrix, in order to calculate the efficient frontier and budget weights. The expected returns are just the period returns. The covariance matrix $\Sigma$ is calculated from the centered daily returns as follows.
 
-$$
-\Sigma=\frac{1}{1 - n} X'X \:\:; \:\:\:X_{it} = r_{it}-\frac{1}{T}\sum_{t=1}^Tr_{it}
-$$
-where the $i$ subscript indexes the portfolio item.
-
-The optimal frontier and budget shares based on this data are given in Figure \ref{fig:mvConv}.
-
-```{r, fig.show = "hold", fig.width = 5, fig.height=5, fig.align='left', fig.cap="\\label{fig:mvConv}Optimal frontier and budget shares, financial data.", echo = FALSE}
+```{r, fig.show = "hold", fig.width = 5, fig.height=5, fig.align='left', fig.cap="\\label{fig:mvConv}Optimal portfolio returns frontier and budget shares, financial data.", echo = FALSE}
 #=======================================================================
 # Define portfolio optimization function
 optimize_portfolio <- function(M_inv, covmat_inv, covmat, mat_nab, targ_vec,
@@ -899,7 +896,7 @@ if(is.null(color_vec)){
   
 }
 #=========================================================
-plot_frontier <- function(df_frontier, ROI_basis = F, list_graph_options = NULL, graph_on = T){
+plot_frontier <- function(df_frontier, ROI_basis = T, list_graph_options = NULL, graph_on = T){
   if(!is.null(list_graph_options)){
     fig_title <- list_graph_options[["fig_title"]]
   }else{
@@ -917,7 +914,7 @@ plot_frontier <- function(df_frontier, ROI_basis = F, list_graph_options = NULL,
   if(ROI_basis){
     gg <- ggplot(df_plot, aes(x = `Risk (standard deviation)`, y = `ROI target`))
   }else{
-    gg <- ggplot(df_plot, aes(x = `Risk (standard deviation)`, y = `ROI target`))
+    gg <- ggplot(df_plot, aes(x = `Risk (standard deviation)`, y = `Return target`))
   }
   if(!is.null(fig_title)){
     gg <- gg + labs(title = fig_title)
@@ -1015,7 +1012,7 @@ nab_decRet_test <- nab_decRet_eg_test
 #--------------------------------------------------------------
 mat_nab <- cbind(nab_decRet_train, nab_C)
 n_points_on_frontier <- 50
-R_range <- 0.25
+R_range <- 0.05
 backtest_info <- list()
 backtest_info[["nab_decRet_test"]] <- nab_decRet_test
 backtest_info[["covmat_test"]] <- covmat_test
@@ -1047,30 +1044,51 @@ gg_budget <- plot_budgetShares(df_wStar, color_vec = color_vec_mv_eg, graph_on =
 gg_frontier + gg_budget + plot_layout(ncol = 1)
 #https://gotellilab.github.io/GotelliLabMeetingHacks/NickGotelli/ggplotPatchwork.html
 #--------------------------------------------------------------
+
+```
+Note how the budget allocation changes with risk tolerance, and that some budget shares are negative. Negative budget shares mean that the investor should invest in the inverse of the corresponding asset. In the financial context, this is possible through short selling. Even so, many financial managers find negative shares to be something of a nuissance, since they imply borrowing, and thus effectively defeat the purpose of including a budget constraint in the first place ^[see Boyle]. Negative shares also present a somewhat misleading picture of portfolio returns. The high returns along the frontier in Figure \ref{fig:mvConv} are a result not so much of shrewd budget allocation as they are of leveraging. When expressed as a return _on investment_ (ROI), the outlook is more sobering (Figure \ref{fig:mvROI_levg_btest}, left panel).
+
+```{r, fig.show = "hold", fig.width = 6, fig.height=3, fig.align='left', fig.cap="\\label{fig:mvROI_levg_btest}\\textit{(Left)} Optimal portfolio return on investment (ROI) frontier and leveraging; \\textit{(Right)} Backtest.", echo = FALSE}
+df_frontier$Leveraging <- df_frontier$`Tot. investment` - 1
+
 df_frontier_conv <- df_frontier
 df_wStar_conv <- df_wStar
 
-
-df_plot <- df_frontier
-df_plot_mod <- df_plot[, c("Risk (standard deviation)", "ROI target")]
-df_plot_btest <- df_plot[, c("Risk backtest", "ROI backtest")]
-df_plot_mod$Type <- "Optimal\nsolution"
-df_plot_btest$Type <- "Backtest"
-colnames(df_plot_mod) <- c("Risk", "ROI", "Type")
-colnames(df_plot_btest) <- c("Risk", "ROI", "Type")
-df_plot <- rbind(df_plot_mod, df_plot_btest)
-
-gg <- ggplot(df_plot, aes(x = Risk, y = ROI, group = Type, color = Type))
+df_plot <- df_frontier_conv
+gg <- ggplot(df_plot, aes(x = `Risk (standard deviation)`, y = `ROI target`))
 gg <- gg + geom_point()
-gg
+gg <- gg + theme(axis.title.x = element_blank(),
+                 axis.text.x = element_blank())
+gg_roi <- gg
 
+gg <- ggplot(df_plot, aes(x = `Risk (standard deviation)`, y = Leveraging))
+gg <- gg + geom_area(fill = "coral", alpha = 0.5)
+gg_levg <- gg
+
+gg_roiLevg <- gg_roi + gg_levg + plot_layout(ncol = 1, heights = c(2 / 3, 1 / 3))
+
+gg <- ggplot(df_plot, aes(x = `Risk backtest`, y = `ROI backtest`))
+gg <- gg + geom_point()
+gg_backtest <- gg
+
+gg_roiLevg | gg_backtest
 
 ```
+
+Finally, note that the real ROI to the optimized portfolios over the investment period turn out to be much lower than that indicated by the efficient frontier (Figure \ref{fig:mvROI_levg_btest}, right panel). This is a common problem encountered in MV Analysis. Optimal solutions are highly sensitive to noise in the covariance matrix, often resulting in efficient frontiers that overstate returns [@Michaud...].
+
+For these reasons, MV Analysis is still somewhat of a work in progress, even in its native financial context. Any adaptation of MV Analysis to the AR4D context must, then, effectively redress these issues.
 
 
 # Adapting MV analysis to the AR4D context
 
+
+
+...It turns out that these two adjustments then force budget shares to be positive.
+
 ## "Reverse engineering" the covariance matrix
+
+...Phillips corp. Merton. Here I take an alternate route
 
 In principal components analysis, a dataset $X$ containing $t$ observations of $n$ variables is distilled into a dataset $S$ of just $k<n$ variables that capture the main tendencies and structure in the data.^[The data is always centered. If the variables in $X$ follow diverse scalings and/or units of measurement (i.e. if apples are being compared to oranges), then $X$ should also be scaled to unit variance. In this exposition, the variables are all of the same type, and so $X$ is centered but not scaled. See [@AbdiPCA] for an introduction to principal components analysis.] The distilled matrix $S$ is defined
 
@@ -1100,7 +1118,7 @@ From the definition (\ref{eq:sigs_def}), it follows that the signals are uncorre
 
 The columns of the distilled matrix $S$ are referred to as the principal components (PC), or the PC scores, or the factor scores. When dealing with noisy time series, as in this paper, they might just as well be reffered to as the "signals", in the sense that they are signals extracted from noise.
 
-The meaning of the signals can be interpreted based on how correlated they are with the variables in the original dataset. These correlations ($K_{XS}$) are found by first finding their corresponding covariances ($\Sigma_{XS}$).
+The dataset is thus effectively reduced in complexity from $n$ to $k$ dimensions. There then remains the question of what essential process these dimensions or signals describe. This can be interpreted based on how correlated they are with the variables in the original dataset. These correlations ($K_{XS}$) are found by first finding their corresponding covariances ($\Sigma_{XS}$).
 
 \begin{eqnarray}
 \Sigma_{XS} &=& \frac{1}{n-1}X'S \\
@@ -1724,8 +1742,6 @@ hence confirming that weights are always positive.
 
 <!-- ``` -->
 
-
-<!-- MV Analysis is still a work in progress [@Michaud...?]. One of the main issues limiting its usefulness in everyday applications is its sensitivity to noisy data, which often results in efficient frontiers that overstate returns and understate risk (as seen in the backtest in Figure \ref{fig:...}).-->
 
 ## The signals portfolio
 
@@ -2561,7 +2577,34 @@ The resource allocation to the individual AR4D proposals within each of these di
 <!-- ``` -->
 
 
-# Discussion
+# Discussion/Conclusion
+
+The CGIAR is said to "have a long history of good intentions but limited success in developing appropriate approaches for priority setting" (Birner &amp; Byerlee, 2016). Methodological limitations leave plenty of room for politics etc. to shape the decision... An historic effort begun in 2011 to restructure CGIAR financing around a "portfolio" model proved emblematic of this "limited success", when the results of an extensive priority setting exercise were rejected out of hand in favor of an ad hoc budget allocation. The end result thereby reinforced the very institutional inertia that the effort had intended to disrupt (Birner &amp; Byerlee, 2016). The aim of the present paper is to reduce the methodological basis for such failures as much as possible.   The methodological limitations of conventional priority setting are more to blame than any set of persons... Mill's missing fifth step...this is an issue faced across many fields [@physics, @medicine]
+
+
+"The failure of reforms is attributed to the unwillingness of donors, and the World Bank leadership of the CGIAR, to take on entrenched center interests” (McCalla, 2014).
+
+
+"One of the geniuses" of such institutes is said to be their ability to consistently attract "aid funding of long-term research" while keeping "aid professionals from setting research agendas and hiring scientists" (McCalla, 2014). Donor attempts to establish criteria and methods for a merit-based allocation of ever-scarcer research funds are characterized as
+“development at the expense of research” (Birner &amp; Byerlee, 2016) or even the “Balkanization” of research (Petsko, 2011) .
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 Interpretation of the example. Note that proposals with low expected return do not necessarily correspond to a low budget share...vice versa...Note how the optimal solution changes with risk tolerance. At lower risk tolerances, the optimal investment focuses on economic growth, followed by environmental sustainability and economic equality. However, as risk tolerance increases, the optimal investment dictates that investments in environmental sustainability be displaced by investments in economic growth and, to a lesser extent, economic equality. / Equation \ref{eq:...} effectively means that, in the absence of data, domain knowledge of the key dimensions of the problem space, and of how the various moving parts of the problem (i.e. the portfolio items) map onto these dimensions, is sufficient to estimate the data covariance matrix. The crowdsourced covariance matrix, moreover, need not be considered inferior to the data covariance matrix in terms of accuracy. In noisy contexts, it may very well be more accurate than the data covariance matrix. Regardless of accuracy, the crowdsourced covariance matrix has value in that it provides a picture...consistent with what we think we know about the system. The appropriateness of the approach is determined by the ratio $\nu$ defined in equation \ref{eq:ratio_conf}.
 
 \begin{equation}
