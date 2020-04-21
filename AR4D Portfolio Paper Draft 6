@@ -1090,7 +1090,7 @@ Below, I make adjustments to the MV Analysis method introduced above in order to
 
 It turns out that these two adjustments then force budget shares to be positive.
 
-## "Reverse engineering" the covariance matrix
+## "Reverse engineering" the covariance matrix from domain knowledge
 
 
 Jump diffusion process...Phillips corp. Merton. Here I take the alternate route of deducing the 
@@ -1111,11 +1111,11 @@ S = X \tilde{P}
 where $\tilde{P}$ is a matrix containing the $k$ leading eigenvectors of the full set of eigenvectors $P$, which is taken from the eigendecomposition of the data covariance matrix $\Sigma_{XX}$ (equation \ref{eq:eigDecomp}).
 
 \begin{equation}
-\Sigma_{XX} = PUP'
+\Sigma_{XX} = P\Gamma P'
 \label{eq:eigDecomp}
 \end{equation}
 
-where $U$ is the diagonal matrix of eigenvalues of $\Sigma_{XX}$. 
+where $\Gamma$ is the diagonal matrix of eigenvalues of $\Sigma_{XX}$. 
 
 From the definition (\ref{eq:sigs_def}), it follows that the signals are uncorrelated with each other, and that their variance is given by the eigenvalues of the data covariance matrix.
 
@@ -1123,7 +1123,7 @@ From the definition (\ref{eq:sigs_def}), it follows that the signals are uncorre
 \Sigma_{SS} &=& \frac{1}{n-1}S'S \\
 &=& \frac{1}{n-1} \tilde{P}'X'X\tilde{P} \\
 &=& \tilde{P}'\Sigma_{XX}\tilde{P} \\
-&=& \tilde{P}'PUP'\tilde{P}=\tilde{U}
+&=& \tilde{P}'P \Gamma P'\tilde{P}=\tilde{\Gamma}
 \label{eq:covmat_SS}
 \end{eqnarray}
 
@@ -1134,29 +1134,29 @@ The dataset is thus effectively reduced in complexity from $n$ to $k$ dimensions
 \begin{eqnarray}
 \Sigma_{XS} &=& \frac{1}{n-1}X'S \\
 &=& \frac{1}{n-1}X'XP \\
-&=& KP = PUP'P \\
-&=& PU
+&=& KP = P \Gamma P'P \\
+&=& P \Gamma
 \end{eqnarray}
 
 The correlation matrix $K_{XS}$ then follows as
 
 \begin{eqnarray}
 K_{XS} &=& D(\boldsymbol{\sigma}_X)^{-1} \Sigma_{XS} D(\boldsymbol{\sigma}_S)^{-1} \\
-&=&D(\boldsymbol{\sigma}_X)^{-1} PU D(\boldsymbol{\sigma}_S)^{-1}
+&=&D(\boldsymbol{\sigma}_X)^{-1} P \Gamma D(\boldsymbol{\sigma}_S)^{-1}
 \end{eqnarray}
 
 But the standard deviations of the signals are just the square roots of the eigenvalues (recall equation \ref{eq:covmat_SS}), so this reduces to
 
 \begin{eqnarray}
-K_{XS} &=& D(\boldsymbol{\sigma}_X)^{-1}\Sigma_{XS} U^{-{1 \over 2}} \\
-&=& D(\boldsymbol{\sigma}_X)^{-1}PU U^{-{1 \over 2}} \\
-&=& D(\boldsymbol{\sigma}_X)^{-1}PU^{1 \over 2}
+K_{XS} &=& D(\boldsymbol{\sigma}_X)^{-1}\Sigma_{XS} \Gamma ^{-{1 \over 2}} \\
+&=& D(\boldsymbol{\sigma}_X)^{-1}P \Gamma \Gamma^{-{1 \over 2}} \\
+&=& D(\boldsymbol{\sigma}_X)^{-1}P \Gamma ^{1 \over 2}
 \end{eqnarray}
 
 Note that if $X$ were scaled to unit variance, then this would reduce further to
 
 \begin{equation}
-K_{XS} = PU^{1 \over 2}
+K_{XS} = P \Gamma^{1 \over 2}
 \end{equation}
 
 The correlations matrix $K_{XS}$ is sometimes referred to as the "loadings" matrix, in the sense that it indicates how much each variable in $X$ loads onto a given signal (or, vice versa, how much each signal loads onto a given variable).^[Although many prefer to call $P$ the loadings.] In keeping with this convention, and in order to reduce notational clutter, $K_{XS}$ is henceforth relabeled $L$.
@@ -1318,7 +1318,7 @@ L_{\circlearrowleft} = LB
 \label{eq:Lrot}
 \end{equation}
 
-where $B$ is the orthogonal rotation matrix, such that $B'B = I$.
+where $B$ is the orthogonal rotation matrix, such that $B'B = I$ and $BB' = I$.
 <!-- Note that a rotation of $L$ implies a rotation of the signals, since -->
 
 <!-- \begin{equation} -->
@@ -1487,9 +1487,18 @@ n_signals <- which(ck_vec > 0.9)[1]
 The plot thus shows that the leading `r n_signals` signals are sufficient to meet this criterion. Note that the data correlation matrix can then be approximated from the retained signals, as their outer product.
 
 \begin{equation}
-\hat{\Sigma}_{XX} = \tilde{L}\tilde{L}'
+\hat{\Sigma}_{XX} = \tilde{L}_{\circlearrowleft}\tilde{L}_{\circlearrowleft}'
 \label{eq:covmat_from_Lrot}
 \end{equation}
+
+This is true for any orthogonal rotation $B$, since
+
+\begin{equation}
+\tilde{L}_{\circlearrowleft}\tilde{L}_{\circlearrowleft}' = (X \tilde{P}B)(X \tilde{P} B)' \\
+&=& (X\tilde{P})BB'(X\tilde{P})'
+\end{equation}
+
+But $BB' = I$ by orthogonality, thereby dropping out of the equation.
 
 The difference between the financial data correlation matrix and the signals derived correlation matrix is shown in Figure \ref{fig:compareCorMats}. The signals derived correlation matrix is approximate in the sense that it approximates the data correlation matrix, but it should not necessarily be considered inferior in terms of accuracy. To the extent that the original data are contaminated by noise, the signals derived correlation matrix may even be more accurate with respect to the "true process" that generates the data.
 
@@ -1515,12 +1524,11 @@ plot_covmat(mat_diff_covmats, fig_title = NULL, graph_on = F)
 # mat_diff_cormats <- cormat_XX - covmat_XX_derived
 # plot_covmat(mat_diff_cormats, fig_title = NULL, graph_on = F)
 
-
-
 ```
-Now, consider that, in the absence of data, the retained signals could be identified based on expert knowledge. That is, the number and nature of key signals to which the portfolio asset prices gravitate---as they are seen to do in Figure \ref{fig:signals_with_hiCorr_items}---could be deduced through consultation with, say, market experts. The same domain knowledge could then be tapped to determine each portfolio asset's correlation with each of these key signals. The end result of this consultation would be a crowdsourced, orthogonally rotated loadings matrix. The assets covariance matrix could then be calculated from this information via equation \ref{eq:covmat_from_Lrot}.
 
-In this sense, a covariance matrix can be reverse engineered from domain knowledge when there is no data. The crowdsourced covariance matrix may differ from the data covariance matrix; but it need not be considered inferior to the data covariance matrix in terms of accuracy. In noisy contexts, crowdsourced covariance matrices may prove more accurate than their data based counterparts. As a rule of thumb, the appropriateness of the crowdsourcing approach to covariance matrix estimation may be assessed by considering the conceptual ratio $\nu$ defined in equation \ref{eq:ratio_conf}. 
+Now, consider that, in the absence of data, the retained signals could be identified based on expert knowledge. That is, the key signals in \ref{fig:signals_with_hiCorr_items} could be deduced through consultation with, say, market experts. The same domain knowledge could then be tapped to determine each portfolio asset's correlation with each of these key signals. The end result of this consultation would be a crowdsourced, orthogonally rotated loadings matrix. The assets covariance matrix could then be calculated from this information via equation \ref{eq:covmat_from_Lrot}.
+
+In this sense, a covariance matrix can be reverse engineered from domain knowledge when there is no data. The crowdsourced covariance matrix may differ from the data covariance matrix; but it need not be considered inferior to the data covariance matrix in terms of accuracy. In noisy contexts, crowdsourced covariance matrices may prove more accurate than their data based counterparts. As a rule of thumb, the appropriateness of the crowdsourcing approach to covariance matrix estimation may be assessed by meditating upon the conceptual ratio $\nu$ defined in equation \ref{eq:ratio_conf}. 
 <!-- Regardless of accuracy, the crowdsourced covariance matrix has value in that it provides a picture...consistent with what we think we know about the system.-->
 
 \begin{equation}
@@ -1534,16 +1542,49 @@ As $\nu$ is higher, the crowdsource approach to covariance matrix estimation is 
 
 ## The crowdsourced signals portfolio
 
-In the AR4D context, $\nu$ has a high value.
+The deduced data covariance matrix may be useful in orienting stakeholder discussions, but it cannot be used for optimization since, by definition, it contains eigenvalues that are equal to zero.^[In the previous section we saw that optimization requires that the covariance matrix be invertible. A matrix with eigenvalues equal to zero is not invertible.]
 
-The deduced data covariance matrix may be useful in orienting stakeholder discussions, but it cannot be used for optimization since, by definition, it contains eigenvalues that are equal to zero.^[Optimization requires that the covariance matrix be invertible. A matrix with eigenvalues equal to zero is not invertible.]
-
-For the purposes of optimization, we must use the signals covariance matrix, given by the inner product of the rotated loadings.
+However, we can optimize over a portfolio of signals, and then map the optimal signal budget shares back to individual asset shares based on their correlation with the signals. To do this, we need the signals covariance matrix $\Sigma_{SS}$. Recall from equation $\ref{eq:covmat_SS}$ that the signals covariance matrix is a diagonal matrix containing the leading eigenvalues of $\Sigma_{XX}$. Note that $\Sigma{SS}$ can also be defined in terms of the loadings matrix $L$ as follows.
 
 \begin{equation}
-\hat{\Sigma}_{SS} = \tilde{L}'\tilde{L}
-\label{eq:covmat_from_Lrot}
+\Sigma{SS} = L'L
+&=& (X \tilde{P})' X \tilde{P} \\
+&=& \tilde{P}' X'X \tilde{P} \\
+&=& \tilde{P}' \Sigma_{XX} \tilde{P} \\
+&=& \tilde{P}' P \Gamma P' \tilde{P} \\
+&=& \tilde{\Gamma} \\
+\label{eq:covmat_SS_from_L}
 \end{equation}
+
+When loadings are ellicited from domain knowledge, as opposed to calculated from data, they will generally not be orthogonal, and so must be interpreted as rotated loadings ($L_{\circlearrowleft}$). Applying steps \ref{eq:covmat_SS_from_L} then results in a rotated signals covariance matrix.
+
+\begin{eqnarray}
+\Sigma_{SS \circlearrowleft} = \tilde{L}_{\circlearrowleft}'\tilde{L}_{\circlearrowleft} \\
+&=& (X \tilde{P} B)' X \tilde{P} B \\
+&=& B' \tilde{P}' X'X \tilde{P} B \\
+&=& B' \tilde{P}' \Sigma_{XX} \tilde{P} B \\
+&=& B' \tilde{P}' P \Gamma P' \tilde{P} B \\
+&=& B' \tilde{\Gamma} B \\
+\end{eqnarray}
+
+However, note here that $B'$ is equal to the eigenvectors of $\Sigma_{SS \circlearrowleft}$. This means that, given crowdsourced, rotated loadings $L_{\circlearrowleft}$, the signals covariance matrix can be isolated from the implicit rotation $B$ by taking the eigendecomposition of $L_{\circlearrowleft}'L_{\circlearrowleft}$. The eigenvalues of this decomposition are $\Gamma$, which is equal to the unrotated signals covariance matrix.
+
+## All data as rotated signals? Always discard eigenvectors?
+
+This implies something interesting. (By the line of reasoning above) Any dataset may itself be considered a set of orthogonally rotated signals constructed from some higher dimensional dataset. Eigenvectors are always, in some sense, extraneously applied as an aid in interpretation, and hence not inherent to the construction of the signals.... eigenvectors are always, in some sense, suprfluous to their construction, whereas the eigenvalues remain the same throughout successive dimensional reductions. 
+
+
+
+Since the rotation $B$ is not inherent to the construction of the signals, but rather applied extraneously as an aid in their interpretation, it stands to reason that they should be discarded insofar as we are interested in acquiring a "pure" expression of the the signals covariance matrix for purposes of optimization. This leaves us with a diagonal signals covariance matrix.
+
+\begin{equation}
+\Sigma_{SS} = \tilde{\Gamma}
+\end{equation}
+
+
+
+
+In the AR4D context, $\nu$ has a high value.
 
 Now, when deducing the covariance matrix based on domain knowledge, the rotation represents a perspective.  In the identification of signals it was shown how the loadings can be rotated to aid in interpretation.  Covariance matrices are only defined up to orthogonal rotation. 
 
