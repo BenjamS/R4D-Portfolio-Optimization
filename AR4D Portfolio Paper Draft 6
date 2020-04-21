@@ -1075,20 +1075,31 @@ gg_roiLevg | gg_backtest
 
 ```
 
-Finally, note that the real ROI to the optimized portfolios over the investment period turn out to be much lower than that indicated by the efficient frontier (Figure \ref{fig:mvROI_levg_btest}, right panel). This is a common problem encountered in MV Analysis. Optimal solutions are highly sensitive to noise in the covariance matrix, often resulting in efficient frontiers that overstate returns [@Michaud...].
+Finally, note that the real ROI to the optimized portfolios over the investment period turn out to be much lower than that indicated by the efficient frontier (Figure \ref{fig:mvROI_levg_btest}, right panel). This is a common problem encountered in MV Analysis. Optimal solutions are highly sensitive to noise in the covariance matrix, often resulting in efficient frontiers that overstate returns and/or understate risk [@Michaud...].
 
-For these reasons, MV Analysis is still somewhat of a work in progress, even in its native financial context. Any adaptation of MV Analysis to the AR4D context must, then, effectively redress these issues.
-
+For these reasons, MV Analysis is still a work in progress, even in its native financial context. The task of adaptation thus requires a degree of innovation in redressing longstanding issues.
 
 # Adapting MV analysis to the AR4D context
 
+From the exposition above, it is readily evident that a number of adjustments must be made to the method introduced above for it to be applicable in the AR4D context. To begin with, AR4D proposals do not generate data analogous to price time series found in the financial context. It is thus not possible to calculate an AR4D proposal variance-covariance matrix in a straightforward manner. Secondly, adjustments must be made to the portfolio return function $R$ in order to reflect the diminishing returns to investment in AR4D proposals. And, thirdly, budget shares must be positive in the AR4D context. (Finally, it would also be nice if the resulting solutions more closely resembled the real returns...)
+
+I begin with the covariance matrix....drawing on PCA...dimensionally reduced matrix, map back to the portfolio items. Then...the diminishing returns to investment form derived from a... The issue of weights then falls into place without any further adjustments. A backtest suggests that the solutions are more accurate than in the plain vanilla case.
 
 
-...It turns out that these two adjustments then force budget shares to be positive.
+Below, I make adjustments to the MV Analysis method introduced above in order to adapt it to the AR4D context. As mentioned in the introduction, these adjustments redress the lack of a covariance matrix, the diminishing returns to investments, and the positive budget shares found in the AR4D context. I begin with the issue of the covariance matrix.
+
+It turns out that these two adjustments then force budget shares to be positive.
 
 ## "Reverse engineering" the covariance matrix
 
-...Phillips corp. Merton. Here I take an alternate route
+
+Jump diffusion process...Phillips corp. Merton. Here I take the alternate route of deducing the 
+
+<!-- Pennings, E., & Lint, O. (1997). The option value of advanced R & D. European Journal of Operational Research, 103(1), 83–94. http://doi.org/10.1016/S0377-2217(96)00283-4
+
+Merton, R. C. (1976). Option pricing when underlying stock returns are discontinuous. Journal of Financial Economics, 3(1), 125–144.
+-->
+
 
 In principal components analysis, a dataset $X$ containing $t$ observations of $n$ variables is distilled into a dataset $S$ of just $k<n$ variables that capture the main tendencies and structure in the data.^[The data is always centered. If the variables in $X$ follow diverse scalings and/or units of measurement (i.e. if apples are being compared to oranges), then $X$ should also be scaled to unit variance. In this exposition, the variables are all of the same type, and so $X$ is centered but not scaled. See [@AbdiPCA] for an introduction to principal components analysis.] The distilled matrix $S$ is defined
 
@@ -1304,6 +1315,7 @@ Clearly, Signal 4 represents movements in communications. Signal 3 is concerned 
 
 \begin{equation}
 L_{\circlearrowleft} = LB
+\label{eq:Lrot}
 \end{equation}
 
 where $B$ is the orthogonal rotation matrix, such that $B'B = I$.
@@ -1471,71 +1483,12 @@ n_signals <- which(ck_vec > 0.9)[1]
 
   
 ```
-<!-- ... perils of such rules of thumb have been documented [@...]. A more rigorous alternative has been proposed by ...[@...], building off of earlier work...theorem in random matrix theory...etc. An advantage of this method is that it tells the researcher how much of the data can be meaningfully distinguished from noise, rather than the researcher arbitrarily imposing a fidelity upon the data which it may not possess. -->
 
-<!-- The perils of using these arbitrary cutoff rules has been well documented [@russell2002search]. Here I follow Laloux, Cizeau, Bouchaud, and Potters [-@laloux1999noise] who apply a more rigorous technique developed by physicists in the 1960s [@dehesa1983mathematical; @mehta2004random]. The technique is based on a key theorem of Random Matrix Theory that says that the distribution of the eigenvalues of any random correlation matrix is a function of the dimensions of the underlying matrix. Physicists have used this theorem to identify the important components ("collective modes") in complexly interacting systems by comparing the eigenvalue density plot of their data correlation matrix against that of a random matrix. The eigenvalues of the data correlation matrix that extend beyond the random matrix eigenvalue density can be identified as corresponding to components of the system that can be meaningfully distinguished from noise. -->
-
-
-<!-- \begin{equation} -->
-<!-- \sigma = 1 - {u_{max} \over n} -->
-<!-- \end{equation} -->
-
-<!-- \begin{equation} -->
-<!-- \hat{u}_{max} = \sigma (1 + {n \over \tau} + 2 \sqrt{n \over \tau}) -->
-<!-- \label{eq:eigvalMax_randMat} -->
-<!-- \end{equation} -->
-
-<!-- # ```{r} -->
-<!--   n_items <- ncol(mat_pctDiff_in) -->
-<!--   Q <- n_obs / n_items -->
-
-<!--       eigvalDens_fn <- function(sigma2_rand, Q){ -->
-<!--       eigvalRand_max <- sigma2_rand * (1 + 1 / Q + 2 / sqrt(Q)) -->
-<!--   eigvalRand_min <- sigma2_rand * (1 + 1 / Q - 2 / sqrt(Q)) -->
-<!--     eig_values <- seq(eigvalRand_min, eigvalRand_max, length.out = 50) -->
-<!--   eigvalDensity_rand <- Q / (2 * pi * sigma2_rand) * sqrt((eigvalRand_max - eig_values) * (eig_values - eigvalRand_min)) / eig_values -->
-<!-- return(data.frame(x = eig_values, y = eigvalDensity_rand)) -->
-<!--   } -->
-
-
-<!--   #list_dens <- density(eig_values) -->
-<!--   #sigma2_rand <- 1 - sum(eig_values[1]) / n_items -->
-<!--   sigma2_rand <- 0.4 -->
-<!--   df_eigvalDens <- eigvalDens_fn(sigma2_rand, Q) -->
-<!--   eigvalRand_max <- max(df_eigvalDens$x) -->
-<!-- which(eig_values > eigvalRand_max) -->
-
-<!--   #df_plot <- data.frame(x = list_dens$x, y = list_dens$y) -->
-<!--   df_plot <- data.frame(x = eig_values) -->
-<!--   gg <- ggplot() -->
-<!--   #gg <- gg + geom_histogram(data = df_plot, aes(x)) -->
-<!--   gg <- gg + geom_histogram(data = df_plot, aes(x = x, y = ..count../sum(..count..))) -->
-<!--   gg <- gg + geom_line(data = df_eigvalDens, aes(x, y), color = "blue") -->
-<!-- gg -->
-
-<!-- x <- df_eigvalDens$x -->
-<!-- y <- df_eigvalDens$y -->
-<!-- pracma::trapz(x, y) -->
-
-<!-- sum(diff(x)*rollmean(y,2)) -->
-
-
-
-<!--   s_sq <- 1 - eigval_max / n_items -->
-<!--   #s_sq <- 1 -->
-<!--   ind_keep <- which(eig_values > eigvalRand_max) -->
-<!--   eig_values[ind_keep] -->
-  
-<!-- #``` -->
-
-<!-- Evaluating this formula at the parameters $u_{max}$, $n$, and $\tau$ from the financial data gives $\hat{u}_{max}=$ `eigvalRand_max`. Only the 3 leading eigenvalues of $K_{XX}$ are greater than this value, suggesting that only the first 3 signals should be retained. The remainder of signals, by implication, are not meaningfully distinguishable from noise. ...suggests that 75% of the variance can be meaningfully distinguished from noise. -->
-
-<!-- ...approximating the assets covariance matrix [which leads directly to] -->
-<!-- ...signal portfolio optimization (inc. backtests?) -->
-The plot thus shows that the leading `r n_signals` signals are sufficient to meet this criterion. The data correlation matrix can be approximated from these retained signals as follows.
+The plot thus shows that the leading `r n_signals` signals are sufficient to meet this criterion. Note that the data correlation matrix can then be approximated from the retained signals, as their outer product.
 
 \begin{equation}
 \hat{\Sigma}_{XX} = \tilde{L}\tilde{L}'
+\label{eq:covmat_from_Lrot}
 \end{equation}
 
 The difference between the financial data correlation matrix and the signals derived correlation matrix is shown in Figure \ref{fig:compareCorMats}. The signals derived correlation matrix is approximate in the sense that it approximates the data correlation matrix, but it should not necessarily be considered inferior in terms of accuracy. To the extent that the original data are contaminated by noise, the signals derived correlation matrix may even be more accurate with respect to the "true process" that generates the data.
@@ -1565,26 +1518,64 @@ plot_covmat(mat_diff_covmats, fig_title = NULL, graph_on = F)
 
 
 ```
+Now, consider that, in the absence of data, the retained signals could be identified based on expert knowledge. That is, the number and nature of key signals to which the portfolio asset prices gravitate---as they are seen to do in Figure \ref{fig:signals_with_hiCorr_items}---could be deduced through consultation with, say, market experts. The same domain knowledge could then be tapped to determine each portfolio asset's correlation with each of these key signals. The end result of this consultation would be a crowdsourced, orthogonally rotated loadings matrix. The assets covariance matrix could then be calculated from this information via equation \ref{eq:covmat_from_Lrot}.
 
+In this sense, a covariance matrix can be reverse engineered from domain knowledge when there is no data. The crowdsourced covariance matrix may differ from the data covariance matrix; but it need not be considered inferior to the data covariance matrix in terms of accuracy. In noisy contexts, crowdsourced covariance matrices may prove more accurate than their data based counterparts. As a rule of thumb, the appropriateness of the crowdsourcing approach to covariance matrix estimation may be assessed by considering the conceptual ratio $\nu$ defined in equation \ref{eq:ratio_conf}. 
+<!-- Regardless of accuracy, the crowdsourced covariance matrix has value in that it provides a picture...consistent with what we think we know about the system.-->
+
+\begin{equation}
+\nu = \frac{\text{confidence in domain knowledge}}{\text{confidence in data}}
+\label{eq:ratio_conf}
+\end{equation}
+
+As $\nu$ is higher, the crowdsource approach to covariance matrix estimation is more suitable. As $\nu$ is lower, it becomes more appropriate to estimate the covariance matrix on the basis of data. For values of $\nu$ close to 1, one might consider a mixture of the two approaches.
+
+[Maybe in intro to this section: below show how, in the absence of data, domain knowledge of the key dimensions of the problem space, and of how the various moving parts of the problem (i.e. the portfolio items) map onto these dimensions, is sufficient to estimate the data covariance matrix.]
+
+## The crowdsourced signals portfolio
+
+In the AR4D context, $\nu$ has a high value.
+
+The deduced data covariance matrix may be useful in orienting stakeholder discussions, but it cannot be used for optimization since, by definition, it contains eigenvalues that are equal to zero.^[Optimization requires that the covariance matrix be invertible. A matrix with eigenvalues equal to zero is not invertible.]
+
+For the purposes of optimization, we must use the signals covariance matrix, given by the inner product of the rotated loadings.
+
+\begin{equation}
+\hat{\Sigma}_{SS} = \tilde{L}'\tilde{L}
+\label{eq:covmat_from_Lrot}
+\end{equation}
+
+Now, when deducing the covariance matrix based on domain knowledge, the rotation represents a perspective.  In the identification of signals it was shown how the loadings can be rotated to aid in interpretation.  Covariance matrices are only defined up to orthogonal rotation. 
+
+The signals covariance matrix is just the diagonal matrix of the `r n_signals` leading eigenvalues ($U$) corresponding to the `r n_signals` retained signals (recall equation \ref{eq:}). The matrix $U$ can be derived from the elicited loadings $L_{\circlearrowleft}$ and project risk $\boldsymbol{\sigma}$ as follows. First, define a new matrix $Q$.
+
+\begin{equation}
+Q = D(\boldsymbol{\sigma}_X) L_{\circlearrowleft}
+\end{equation}
+
+By equation \ref{eq:} it follows that 
+
+\begin{equation}
+Q = P U^{1 \over 2} R
+\end{equation}
+
+and hence
+
+\begin{eqnarray}
+Q'Q &=& L_{\circlearrowleft}' D(\boldsymbol{\sigma}^2_X) L_{\circlearrowleft} \\
+&=& R'U R
+\end{eqnarray}
+
+where $R$ is the orthogonal rotation matrix. It follows, then, that $U$ (and $R$) can be obtained through the eigendecomposition of $Q'Q$.
 
 ## Diminishing returns
 
-As explained in the introduction, in financial contexts investments scale linearly. A doubling of the investment doubles expected return. In the AR4D context, on the other hand, returns to investment are marginally diminishing. In other words, the additional return resulting from any small increase in investment in a given portfolio item will be inversely proportionate to the quantity already invested in that portfolio item. This statement can be formalized as follows.
-
+In financial contexts, investments scale linearly. A doubling of the investment doubles expected return. In the AR4D context, on the other hand, returns to investment are marginally diminishing. In other words, the additional return resulting from any small increase in investment in a given portfolio item will be inversely proportionate to the quantity already invested in that portfolio item. This statement can be formalized as follows.
 
 \begin{equation}
 \frac{\partial \ln(R)}{\partial \ln(w_i)} \sim \frac{d \ln (w_i)}{dw_i}
 \label{eq:dimRetDefine}
 \end{equation}
-
-
-<!-- Note that multiplying through by $R / w_i$ gives an interesting alternative expression, -->
-
-<!-- \begin{equation} -->
-<!-- \frac{\partial \ln R}{\partial \ln w_i} \sim \frac{d \ln R}{dR} -->
-<!-- \end{equation} -->
-
-<!-- The _percentage increase in_ return resulting from _a one percent_ increase in investment in the $i^{th}$ portfolio item will be inversely proportionate to the _return_ already achieved. -->
 
 Equation \ref{eq:dimRetDefine} can be used to arrive at an expression for $R$ as follows:
 
@@ -1714,36 +1705,9 @@ Only cases where $\lambda_R > 0, \: \lambda_C > 0$ are relevant, further restric
 
 hence confirming that weights are always positive.
 
+...
 
-<!-- [in practice, real portfolio returns are often far lower, and far riskier, than the optimal frontier would suggest. This is evident in the portfolio backtests in Figure \ref{fig:...}.   This is especially true when the covariance or correlation matrix used in the analysis is ill conditioned.  frontiers often diverge from reality.   the frontier is only as accurate as the data it is based on. The backtests are shown in Figure \ref{fig:mvBacktest} ... Also to be expected that the conventional frontier backtest is higher than the utility frontier backtest simply because negative weights require that the total investment is greater than that of the portfolio with only positive weights. If we look not just at the return, but at the return on investment, then the utility weights approach performs better than the conventional approach. Keep in mind this is just one scenario. you'd have to look at many before concluding definitively one way or the other.] -->
-
-
-<!-- # ```{r, fig.show='hold', fig.width=4, fig.height=2, fig.align='center', fig.cap="\\label{fig:mv_roiCompare}Comparison of the conventional and utility efficient frontiers on an ROI basis.", echo = FALSE} -->
-
-<!-- mv_conv_U_compare_colors <- c("black", "blue") -->
-<!-- df_plot_conv <- df_frontier_conv -->
-<!-- df_plot_conv$Tot_investment <- rowSums(abs(df_wStar_conv[, -1])) -->
-<!-- df_plot_conv$`ROI target` <- df_plot_conv$`Return target` / df_plot_conv$Tot_investment -->
-<!-- df_plot_conv$`Budget shares` <- "Conventional\n(can be negative)" -->
-<!-- df_plot_U <- df_frontier_U -->
-<!-- df_plot_U$Tot_investment <- rowSums(abs(df_wStar_U[, -1])) -->
-<!-- df_plot_U$`ROI target` <- df_plot_U$`Return target` / df_plot_U$Tot_investment -->
-<!-- df_plot_U$`Budget shares` <- "Utility\n(positive only)" -->
-<!-- df_plot <- rbind(df_plot_conv, df_plot_U) -->
-<!-- gg <- ggplot(df_plot, aes(x = `Risk (standard deviation)`, y = `ROI target`, group = `Budget shares`, color = `Budget shares`)) -->
-<!-- gg <- gg + geom_point() -->
-<!-- gg <- gg + scale_color_manual(values = mv_conv_U_compare_colors) -->
-<!-- gg -->
-<!-- #-------------------------------------------------------- -->
-<!-- # Prepare for the backtest plots farther ahead -->
-<!-- df_plot_conv$`ROI backtest` <- df_plot_conv$`Return backtest` / df_plot_conv$Tot_investment -->
-<!-- df_plot_U$`ROI backtest` <- df_plot_U$`Return backtest` / df_plot_U$Tot_investment -->
-<!-- #======================================================================= -->
-
-<!-- ``` -->
-
-
-## The signals portfolio
+For curiosity's sake, how does this apply to the fin data...
 
 ```{r, fig.show='hold', fig.width=6, fig.height=3, fig.align='left', fig.cap="\\label{fig:corrXS_barchart_rot}Varimax rotated correlation of portfolio items with leading signals, backtest data.", echo=F}
 mat_X_in_test <- mat_decDiff_eg_test
@@ -2173,7 +2137,7 @@ Usually, signals are deduced from data, or from the data covariance matrix. If n
 
 In the present hypothetical example, a "signal" can be thought of as a development process that the stakeholders have at the forefront of their minds. Signals can also be thought of as the key dimensions that best describe the evolution of the proposed AR4D activities and outcomes, within a particular problem space that is of interest to the stakeholders. These key dimensions can be elicited by asking stakeholders questions such as "What are our key AR4D objectives? And what are the key metrics by which to measure progress towards those objectives?" In the AR4D context, there is often pre-existing consensus on such questions, which can be found laid out in strategy documents. The Sustainable Development Goals may be considered a set of dimensions defining a very broad problem space. The key dimensions of a particular AR4D portfolio space could be selected as a subset of these. The number of portfolio dimensions must be less than the number of portfolio items.
 
-In the hypothetical example presented here, the stakeholders have decided that Economic Growth, Income Equality, and Environmental Sustainability are the dimensions that best register the evolution of the proposals under consideration. This loosely corresponds to the "triple bottom line" discussed in business contexts. The next step is to invite the stakeholders to rate, from $-100$ to $100$, each research proposal in terms of its contribution towards each of these objectives. A positive rating means the proposal contributes toward the objective; a negative rating means the proposal works against the objective; and a rating of zero means that the proposal has no influence over the given objective. The hypothetical results of such an exercise are presented in Figure \ref{fig:loadsRotExamp}. These ratings are then divided by $100$, and the matrix as a whole is interpreted as an orthogonal rotation of the matrix of correlations between AR4D proposals and signals ($L_{\circlearrowleft}$).
+In the hypothetical example presented here, the stakeholders have decided that Economic Growth, Income Equality, Environmental Sustainability, and Nutritional Security are the dimensions that best register the evolution of the proposals under consideration. The next step is to invite the stakeholders to rate, from $-100$ to $100$, each research proposal in terms of its contribution towards each of these objectives. A positive rating means the proposal contributes toward the objective; a negative rating means the proposal works against the objective; and a rating of zero means that the proposal has no influence over the given objective. The hypothetical results of such an exercise are presented in Figure \ref{fig:loadsRotExamp}. These ratings are then divided by $100$, and the matrix as a whole is interpreted as an orthogonal rotation of the matrix of correlations between AR4D proposals and signals ($L_{\circlearrowleft}$).
 
 ```{r, fig.show = "hold", fig.width = 6, fig.height = 3, fig.align = "center", fig.cap = "\\label{fig:loadsRotExamp}A hypothetical example of rotated signal loadings elicited from a stakeholder survey."}
 df_x <- df_Lrot
@@ -2229,27 +2193,10 @@ plot_covmat(covmat_XX_derived, fig_title, graph_on = F)
 
 Nonetheless, as discussed in section 3.3, optimal frontier and budget shares can be obtained via another route. The signals portfolio is optimized. Individual AR4D proposal budget shares can then be disaggregated from these    To determine the optimal resource allocation, the signals portfolio is optimized.
 
-In order to optimize the signals portfolio, the signal expected returns and covariance matrix are required. Signal expected returns can be aggregated up from the expected returns to each portfolio item via equation \ref{eq:}. The signals covariance matrix is just the diagonal matrix of the `r n_signals` leading eigenvalues ($U$) corresponding to the `r n_signals` retained signals (recall equation \ref{eq:}). The matrix $U$ can be derived from the elicited loadings $L_{\circlearrowleft}$ and project risk $\boldsymbol{\sigma}$ as follows. First, define a new matrix $Q$.
+In order to optimize the signals portfolio, the signal expected returns and covariance matrix are required.
 
-\begin{equation}
-Q = D(\boldsymbol{\sigma}_X) L_{\circlearrowleft}
-\end{equation}
-
-By equation \ref{eq:} it follows that 
-
-\begin{equation}
-Q = P U^{1 \over 2} R
-\end{equation}
-
-and hence
-
-\begin{eqnarray}
-Q'Q &=& L_{\circlearrowleft}' D(\boldsymbol{\sigma}^2_X) L_{\circlearrowleft} \\
-&=& R'U R
-\end{eqnarray}
-
-where $R$ is the orthogonal rotation matrix. It follows, then, that $U$ (and $R$) can be obtained through the eigendecomposition of $Q'Q$.
-
+<!-- Signal expected returns can be aggregated up from the expected returns to each portfolio item via equation \ref{eq:}. -->
+...
 Having thus deduced the signals covariance matrix $U$ and vector of expected returns $\boldsymbol{\mu}$ from the elicited information $L_{\circlearrowleft}$ and $\boldsymbol{\sigma}$, the optimal frontier and budget shares for the signals portfolio are calculated in Figure \ref{fig:mvAR4D}.
 
 ```{r, fig.show='hold', fig.width=5, fig.height=5, fig.align='center', fig.cap="\\label{fig:mvAR4D}Optimal frontier and budget shares for the AR4D signals portfolio.", echo = FALSE}
@@ -2326,6 +2273,11 @@ gg_budget
 ```
 
 
+Interpretation of the example. Note that proposals with low expected return do not necessarily correspond to a low budget share...vice versa...Note how the optimal solution changes with risk tolerance. At lower risk tolerances, the optimal investment focuses on economic growth, followed by environmental sustainability and economic equality. However, as risk tolerance increases, the optimal investment dictates that investments in environmental sustainability be displaced by investments in economic growth and, to a lesser extent, economic equality.
+
+-elicitation can be accomplished in a variety of ways (eg.: online surveys, in-person events, consultation of strategy documents, some combination thereof, etc.).
+
+* May not be exactly "accurate", but generates an optimal solution that is consistent with what we think we know about the domain. Moreover, it should kept in mind that data are not infallible sources of information. Data of the sort considered here, in particular, are inherently noisy. Under such circumstances, arguably, it may be preferible to build up the covariance matrix from crowdsourced domain knowledge, in the manner shown above, rather than calculate it from data.
 
 
 
@@ -2579,14 +2531,11 @@ The resource allocation to the individual AR4D proposals within each of these di
 
 # Discussion/Conclusion
 
-The CGIAR is said to "have a long history of good intentions but limited success in developing appropriate approaches for priority setting" (Birner &amp; Byerlee, 2016). Methodological limitations leave plenty of room for politics etc. to shape the decision... An historic effort begun in 2011 to restructure CGIAR financing around a "portfolio" model proved emblematic of this "limited success", when the results of an extensive priority setting exercise were rejected out of hand in favor of an ad hoc budget allocation. The end result thereby reinforced the very institutional inertia that the effort had intended to disrupt (Birner &amp; Byerlee, 2016). The aim of the present paper is to reduce the methodological basis for such failures as much as possible.   The methodological limitations of conventional priority setting are more to blame than any set of persons... Mill's missing fifth step...this is an issue faced across many fields [@physics, @medicine]
-
-
-"The failure of reforms is attributed to the unwillingness of donors, and the World Bank leadership of the CGIAR, to take on entrenched center interests” (McCalla, 2014).
-
-
+The CGIAR is said to "have a long history of good intentions but limited success in developing appropriate approaches for priority setting" [@Birner2016]. It may be that the problem is cultural. Methodological limitations leave plenty of room for politics etc. to shape the decision... An historic effort begun in 2011 to restructure CGIAR financing around a "portfolio" model proved emblematic of this "limited success", when the results of an extensive priority setting exercise were rejected out of hand in favor of an ad hoc budget allocation. The end result thereby reinforced the very institutional inertia that the effort had intended to disrupt (Birner &amp; Byerlee, 2016). The aim of the present paper is to reduce the methodological basis for such failures as much as possible.   The methodological limitations of conventional priority setting are more to blame than any set of persons... Mill's missing fifth step... My aim is to improve methodological rigor and objectivity ...such that research conglomerates genuinely seeking to optimize resource allocation will have the tools required to achieve this. this is an issue faced across many fields [@physics, @medicine]
+"long history of good intentions but limited success in developing appropriate approaches for priority setting". An historic effort begun in 2011 to restructure CGIAR financing around Core Research Programs (CRPs) was ad hoc, thereby reinforcing the very institutional inertia it was designed to disrupt [@Birner2016]. ReDonor attempts to establish criteria and methods for a merit-based allocation of ever-scarcer research funds are seen as invasive characterized as "development at the expense of research" [@Birner2016] or even the "Balkanization" of research [@Petsko2011]. "One of the geniuses" of CG centers is said to be their ability to consistently attract "aid funding of long-term research" while keeping "aid professionals from setting research agendas" [@mccalla2014cgiar]. Scientists respond with ultimatums of their own, demanding a return to the days of "more stable funding" and "budget autonomy" [@leeuwis2018reforming].
 "One of the geniuses" of such institutes is said to be their ability to consistently attract "aid funding of long-term research" while keeping "aid professionals from setting research agendas and hiring scientists" (McCalla, 2014). Donor attempts to establish criteria and methods for a merit-based allocation of ever-scarcer research funds are characterized as
 “development at the expense of research” (Birner &amp; Byerlee, 2016) or even the “Balkanization” of research (Petsko, 2011) .
+* The backtest in ... suggests that the eigenvalue approach has the additional benefit of generating more accurate solutions (? not really since Rbar can be arbitrarily changed)
 
 
 
@@ -2601,30 +2550,6 @@ The CGIAR is said to "have a long history of good intentions but limited success
 
 
 
-
-
-
-
-Interpretation of the example. Note that proposals with low expected return do not necessarily correspond to a low budget share...vice versa...Note how the optimal solution changes with risk tolerance. At lower risk tolerances, the optimal investment focuses on economic growth, followed by environmental sustainability and economic equality. However, as risk tolerance increases, the optimal investment dictates that investments in environmental sustainability be displaced by investments in economic growth and, to a lesser extent, economic equality. / Equation \ref{eq:...} effectively means that, in the absence of data, domain knowledge of the key dimensions of the problem space, and of how the various moving parts of the problem (i.e. the portfolio items) map onto these dimensions, is sufficient to estimate the data covariance matrix. The crowdsourced covariance matrix, moreover, need not be considered inferior to the data covariance matrix in terms of accuracy. In noisy contexts, it may very well be more accurate than the data covariance matrix. Regardless of accuracy, the crowdsourced covariance matrix has value in that it provides a picture...consistent with what we think we know about the system. The appropriateness of the approach is determined by the ratio $\nu$ defined in equation \ref{eq:ratio_conf}.
-
-\begin{equation}
-\nu = \frac{\text{confidence in domain knowledge}}{\text{confidence in data}}
-\label{eq:ratio_conf}
-\end{equation}
-
-As $\nu$ is higher, the crowdsource approach is more suitable. As $\nu$ is lower, it becomes more appropriate to estimate the covariance matrix on the basis of data. For values of $\nu$ close to 1, one might consider estimation from both directions.
-
--elicitation can be accomplished in a variety of ways (eg.: online surveys, in-person events, consultation of strategy documents, some combination thereof, etc.).
--dimensional reduction
--
-
-* Benefit of reverse engineering: the empirical covariance matrix has a lot of noise in it, and very ill-conditioned for large datasets. Backtest. In the example in Figure ..., the frontier looks good, offering portfolio returns of 20% or more for relatively small risk. However, a backtest of the optimal weights (right side of Figure \ref{fig:mvConv}) indicates that the real return on investment in these optimal portfolios would have been much less, and the risk much higher, than the efficient fontier suggests. [ The dataset is large enough to allow for backtesting of the optimal portfolio. The portfolio is optimized using the first two thirds of the data (the "train" data), and then backtested against the remaining third. ]  [Note also that the frontier here looks much less appealing than the unmodified frontier above. However, a backtest (right side of Figure \ref{fig:mvUtility}) suggests that it is more accurate than the unmodified approach.]
-
-* May not be exactly "accurate", but generates an optimal solution that is consistent with what we think we know about the domain. Moreover, it should kept in mind that data are not infallible sources of information. Data of the sort considered here, in particular, are inherently noisy. Under such circumstances, arguably, it may be preferible to build up the covariance matrix from crowdsourced domain knowledge, in the manner shown above, rather than calculate it from data.
-
-* Can get into interpretation of $\Lambda$ eigenvalues deduced from $L_{\circlearrowleft}$
-
-* Dimensionally reduced from potentially several dozen to just a handful of signals.
 
 
 
@@ -2725,10 +2650,6 @@ As $\nu$ is higher, the crowdsource approach is more suitable. As $\nu$ is lower
 
 
 
-
-<!-- <!-- [Scraps: -->
-<!-- <!-- The Consultative Group on International Agricultural Research (CGIAR) is said to have a "long history of good intentions but limited success in developing appropriate approaches for priority setting" [@Birner2016]. An historic effort begun in 2011 to restructure CGIAR financing around Core Research Programs (CRPs) was ad hoc, thereby reinforcing the very institutional inertia it was designed to disrupt [@Birner2016]. ReDonor attempts to establish criteria and methods for a merit-based allocation of ever-scarcer research funds are seen as invasive characterized as "development at the expense of research" [@Birner2016] or even the "Balkanization" of research [@Petsko2011]. "One of the geniuses" of CG centers is said to be their ability to consistently attract "aid funding of long-term research" while keeping "aid professionals from setting research agendas" [@mccalla2014cgiar]. Scientists respond with ultimatums of their own, demanding a return to the days of "more stable funding" and "budget autonomy" [@leeuwis2018reforming]. -->
-<!-- <!-- “The failure of reforms is attributed to the unwillingness of donors, and the World Bank leadership of the CGIAR, to take on entrenched center interests” [@mccalla2014cgiar]. Interpretation of "price" is different from the financial context. This could reflect 1) higher kcals per unit weight, 2) higher quality kcals, 3) higher demand, or 4) some combination of all of the above. -->
 
 
 <!-- # Discussion and conclusion -->
