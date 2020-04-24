@@ -829,8 +829,8 @@ plot_budgetShares <- function(df_wStar, group_small = NULL, color_vec = NULL, gr
   #------------------------------------
   if(!is.null(group_small)){
     mat_plot <- as.matrix(df_plot[, -1])
-    mg_vec <- apply(mat_plot, 2, mean)
-    ind_group_small <- which(mg_vec < 10^-2)
+    mu_vec <- apply(mat_plot, 2, mean)
+    ind_group_small <- which(mu_vec < 10^-2)
     other_col <- rowSums(mat_plot[, ind_group_small])
     
     mat_plot <- mat_plot[, -ind_group_small]
@@ -1685,18 +1685,18 @@ By Descartes' rule of signs, each budget share $w_i$ is guaranteed to have one p
 
 WxMaxima returns the following solution for equation \ref{eq:rootfn}.
 
-\begin{equation}
-w^*_i = 1 \over \sqrt{3} (\lambda_C^{-(1 \over 3)} a^{1 \over 3} - \lambda_C^{-(2 \over 3)} \lambda_R \mu_i a^{-(1 \over 3)})
+\begin{eqnarray}
+w^*_i &=& {1 \over \sqrt{3}} (\lambda_C^{-(1 \over 3)} a^{1 \over 3} - \lambda_C^{-(2 \over 3)} \lambda_R \mu_i a^{-(1 \over 3)}) \\
+a_i &=& \sqrt{27 \gamma_i^2 + \frac{\lambda_R^3 \mu_i^3}{\lambda_C}} + \sqrt{27}\gamma_i
 \label{eq:w_sol}
-\end{equation}
+\end{eqnarray}
 
 where
 
 \begin{equation}
-a_i = \sqrt{27 \gamma_i^2 + \frac{\lambda_R^3 \mu_i^3}{\lambda_C}} + \sqrt{27}\gamma_i
 \end{equation}
 
-The domain of the budget shares $w^*_i$ is difficult to gauge from this rather ugly expression. However, it can coerced into a more instructive and compact form as follows. First, define $b_i = \frac{\lambda_C}{\lambda_R \mu_i}$ and $\gamma_i = \frac{\gamma_i}{\lambda_R \mu_i}$, so that the term $a_i$ can be expressed
+The lower bound of the budget shares $w^*_i$ is guaranteed to be greater than 0 by Descartes' rule of signs, but what about its upper bound? This is difficult to gauge from the rather ugly expression in equation \ref{eq:w_sol}. However, it can coerced into a more instructive and compact form as follows. First, define $b_i = \frac{\lambda_C}{\lambda_R \mu_i}$ and $\gamma_i = \frac{\gamma_i}{\lambda_R \mu_i}$, so that the term $a_i$ can be expressed
 
 \begin{equation}
 a_i = \sqrt{27 \gamma_i^2 - 1\over b_i} + \sqrt{27} \gamma_i
@@ -1728,10 +1728,11 @@ Substituting this into equation \ref{eq:w_sol} then reduces the budget share equ
 w^*_i = \frac{1}{b_i \sqrt{3}} \left(e^{j \theta_i \over 3} + e^{-j \theta_i \over 3} \right)
 \end{equation}
 
-which further reduces to
+which can also be expressed
 
 \begin{equation}
-w^*_i = 2 \over \sqrt{3} \sqrt{\frac{\lambda_R \mu_i}{\lambda_C}} \cos{\theta_i \over 3} \:\:; \:\:\:\: \theta_i = \acos{3 \sqrt{3} \sqrt{\frac{\lambda_C \gamma_i^3}{\lambda_R^3 \mu_i^3}}}
+w^*_i = {2 \over \sqrt{3}} \sqrt{\frac{\lambda_R \mu_i}{\lambda_C}} \cos{\theta_i \over 3} \:\:; \:\:\:\: \theta_i = \acos{3 \sqrt{3} \sqrt{\frac{\lambda_C \gamma_i^3}{\lambda_R^3 \mu_i^3}}}
+\label{eq:wStar_eq}
 \end{equation}
 
 Since the domain of $\cos{t}$ is $-1 < \cos{t} < 1$ for any angle $t \in (0,\pi)$, this implies
@@ -1746,8 +1747,75 @@ However, the term \sqrt{\frac{\lambda_R \mu_i}{\lambda_C}} is clearly always gre
 0 < w^*_i < \frac{2}{\sqrt{3}} \sqrt{\frac{\lambda_R \mu_i}{\lambda_C}}
 \end{equation}
 
+The shadow prices $\lambda_R$ and $\lambda_C$ can be found for given budget $C^*$ and return target $R^*$ by setting up a Merton matrix equation along the lines of conventional MV Analysis. However, in the modified approach here, the Merton matrix will have non-constant entries (because the shadow prices appear inside the $w^*_i$ function), and so the system of two equations would have to be solved implicitly. A more straightforward route is to solve the system
 
-[apply to the fin data...(?)]
+\begin{eqnarray}
+C^* &=& \mathbf{1}'\mathbf{w}^* \\
+&=& {2 \over \sqrt{3}} \sqrt{\frac{\lambda_R}{\lambda_C}} \boldsymbol{\mu}^{-{1 \over 2}}' \cos{\frac{1}{3}\boldsymbol{\theta}}
+\end{eqnarray}
+
+\begin{eqnarray}
+\ln (R^* / \bar{R}) &=& \boldsymbol{\mu}'\mathbf{w}^{*-1} \\
+&=& {\sqrt{3} \over 2} \sqrt{\frac{\lambda_C}{\lambda_R}} \boldsymbol{\mu}^{1 \over 2}' \cos^{-1}(\frac{1}{3}\boldsymbol{\theta})
+\end{eqnarray}
+
+Alternatively, one of these equations could be replaced by the optimized risk equation.
+
+\begin{eqnarray}
+\sigma^{*2} &=& \boldsymbol{\gamma}'\mathbf{w}^{*-2} \\
+&=& {3 \over 4} \frac{\lambda_C}{\lambda_R} \boldsymbol{\gamma}'D(\boldsymbol{\mu})^{1 \over 2}' \cos^{-2}(\frac{1}{3}\boldsymbol{\theta})
+\end{eqnarray}
+
+As a practical matter, it is helpful to combine two of these equations so as to eliminate the common term ${\sqrt{3} \over 2} \sqrt{\frac{\lambda_C}{\lambda_R}}$, and then to solve for the ratio $k =\frac{\lambda_C}{\lambda_R^3}$. Combining the optimized return and cost functions, for example, gives
+
+\begin{equation}
+\ln(R / \bar{R}) = -C\frac{\rho(\mathbf{1}, 1; k, \boldsymbol{\mu}, \boldsymbol{\gamma})}{\rho(\boldsymbol{\mu}, -1; k, \boldsymbol{\mu}, \boldsymbol{\gamma})}
+\label{eq:k_rootfn}
+\end{equation}
+
+where the notation $\rho(\mathbf{x}, n; k, \boldsymbol{\mu}, \boldsymbol{\gamma})$ has been introduced to stand in for
+
+\begin{equation}
+\rho(\mathbf{x}, n; k, \boldsymbol{\mu}, \boldsymbol{\gamma}) = \mathbf{x}'D(\boldsymbol{\mu})^{-{n \over 2}} \cos^n \left(\frac{1}{3}\boldsymbol{\theta}\right)
+\end{equation}
+
+Equation \ref{eq:k_rootfn} can then be solved for $\frac{\lambda_C}{\lambda_R^3}$, given budget $C^*$ and return target $R^*$.
+
+This is computationally expedient, since the domain of $\frac{\lambda_C}{\lambda_R^3}$ is implied by equation \ref{eq:wStar_eq}, and can thus be fed to the rootfinding algorithm to reduce the search space.
+
+\begin{equation}
+0 < k <  {1 \over 27} \frac{\mu_i^3}{\gamma_i^2} \:\:\:;\:\: \forall i
+\end{equation}
+
+Once $k$ has been solved for, it can be substituted into $R^*$ or $C^*$ to solve for $\frac{\lambda_R}{\lambda_C}$, whence $\lambda_R$ and $\lambda_C$ can then be extracted individually.
+
+The range of $R^*$ can determined by evaluating it at the bounds of $k$.
+
+<!-- As a practical matter, note that the three preceding equations follow the general form -->
+
+<!-- \begin{eqnarray} -->
+<!-- f(\mathbf{x}, n; \lambda_R, \lambda_C, \boldsymbol{\mu}, \boldsymbol{\gamma}) &:=& \mathbf{x}'\mathbf{w}(\lambda_R, \lambda_C; \boldsymbol{\mu}, \boldsymbol{\gamma})^{*n} \\ -->
+<!-- &=& \left(2 \over \sqrt{3} \sqrt{\frac{\lambda_R}{\lambda_C}} \right)^n \rho(\mathbf{x}, n, \lambda_R, \lambda_C, \boldsymbol{\mu}, \boldsymbol{\gamma}) \:\:\:;\:\: \rho(\mathbf{x}, n, \lambda_R, \lambda_C, \boldsymbol{\mu}, \boldsymbol{\gamma}) = \mathbf{x}'D(\boldsymbol{\mu})^{-{n \over 2}} \cos^n \left(\frac{1}{3}\boldsymbol{\theta}\right) -->
+<!-- \label{eq:f_def} -->
+<!-- \end{eqnarray} -->
+
+<!-- That is to say, -->
+
+<!-- \begin{eqnarray} -->
+<!-- C^* &=& f(\mathbf{1}, 1; \lambda_R, \lambda_C, \boldsymbol{\mu}, \boldsymbol{\gamma}) \\ -->
+<!-- \ln(R^* / \bar{R}) &=& f(-\boldsymbol{\mu}, -1; \lambda_R, \lambda_C, \boldsymbol{\mu}, \boldsymbol{\gamma}) \\ -->
+<!-- \sigma^{*2} &=& f(\boldsymbol{\gamma}, -2; \lambda_R, \lambda_C, \boldsymbol{\mu}, \boldsymbol{\gamma}) -->
+<!-- \end{eqnarray} -->
+
+<!-- Note, moreover, that equation \ref{eq:f_def} can be rearranged -->
+
+<!-- \begin{equation} -->
+<!-- (\frac{f(\mathbf{x}, n; lambda_R, lambda_C, \boldsymbol{\mu}, \boldsymbol{\gamma})}{\rho(\mathbf{x}, n; \lambda_R, \lambda_C, \boldsymbol{\mu}, \boldsymbol{\gamma})})^{\frac{1}{n}} = 2 \over \sqrt{3} \sqrt{\frac{\lambda_R}{\lambda_C}} -->
+<!-- \end{equation} -->
+
+<!-- so that, for example, -->
+
+<!-- [apply to the fin data...(?)] -->
 
 Mapping the signal budget shares back to individual portfolio asset shares...
 
@@ -1791,9 +1859,9 @@ ind_rearrange <- c(2, 1, 3:n_signals)
 #   lRtarg <- log(Rtarg)
 #   #k <- get_k_forlRtarg(lRtarg, Ctarg, nab_decRet, eigvals)
 #   wStar <- optimal_portfolio_wgts_dimRet(k_in, nab_decRet, eigvals, Ctarg)
-#   mg_vec <- nab_decRet
+#   mu_vec <- nab_decRet
 #   g_vec <- eigvals
-#   mat_nab <- cbind(mg_vec, wStar^2)
+#   mat_nab <- cbind(mu_vec, wStar^2)
 #   M <- t(mat_nab) %*% diag(1 / g_vec) %*% mat_nab
 #   M_inv <- solve(M)
 #   targ_vec <- c(-lRtarg, Ctarg)
@@ -1812,9 +1880,9 @@ ind_rearrange <- c(2, 1, 3:n_signals)
 # out_nleqslv$fvec
 # out_nleqslv$message
 
-# rho_fun <- function(k, g_vec, mg_vec, x_vec, n){
-#   a_vec <- sqrt(27 * g_vec^2 + k * mg_vec^3) + sqrt(27) * g_vec
-#   beta_vec <- a_vec^(1 / 3) - sign(k) * abs(k)^(1 / 3) * mg_vec * a_vec^(-1 / 3)
+# rho_fun <- function(k, g_vec, mu_vec, x_vec, n){
+#   a_vec <- sqrt(27 * g_vec^2 + k * mu_vec^3) + sqrt(27) * g_vec
+#   beta_vec <- a_vec^(1 / 3) - sign(k) * abs(k)^(1 / 3) * mu_vec * a_vec^(-1 / 3)
 #   rho <- as.numeric(t(x_vec) %*% beta_vec^n)
 #   return(list(rho, beta_vec))
 # }
@@ -1828,16 +1896,16 @@ ind_rearrange <- c(2, 1, 3:n_signals)
 
 optimize_portfolio_dimRet <- function(k, nab_decRet, eigvals, Ctarg){
   g_vec <- as.numeric(eigvals)
-  mg_vec <- as.numeric(nab_decRet)
-  term <- -k * g_vec^2 / mg_vec^3
+  mu_vec <- as.numeric(nab_decRet)
+  term <- k * g_vec^2 / mu_vec^3
   
   theta_vec <- acos(3 * sqrt(3) * sqrt(term))
-  rho_vec <- 2 / sqrt(3) * (diag(sqrt(mg_vec)) %*% as.matrix(cos(theta_vec / 3)))
+  rho_vec <- 2 / sqrt(3) * (diag(sqrt(mu_vec)) %*% as.matrix(cos(theta_vec / 3)))
   #---
-  # a_vec <- sqrt((-k) * mg_vec^3) * (sqrt(27 * g_vec^2 / ((-k) * mg_vec^3) - 1) + sqrt(27 * g_vec^2 / ((-k) * mg_vec^3)))
+  # a_vec <- sqrt((-k) * mu_vec^3) * (sqrt(27 * g_vec^2 / ((-k) * mu_vec^3) - 1) + sqrt(27 * g_vec^2 / ((-k) * mu_vec^3)))
   # k_to1o3 <- sign(k) * abs(k)^(1 / 3)
-  # a_vec <- sqrt(27 * g_vec^2 + k * mg_vec^3) + sqrt(27) * g_vec
-  # rho_vec <- 1 / sqrt(3) * (a_vec^(1 / 3) - k_to1o3 * mg_vec * a_vec^(-1 / 3))
+  # a_vec <- sqrt(27 * g_vec^2 + k * mu_vec^3) + sqrt(27) * g_vec
+  # rho_vec <- 1 / sqrt(3) * (a_vec^(1 / 3) - k_to1o3 * mu_vec * a_vec^(-1 / 3))
 #---
   ones_vec <- rep(1, length(g_vec))
   rho_C <- as.numeric(t(ones_vec) %*% rho_vec)
@@ -1846,12 +1914,12 @@ optimize_portfolio_dimRet <- function(k, nab_decRet, eigvals, Ctarg){
   # wStar <- l_C^(-1 / 3) * rho_vec
   r_lRlC <- (Ctarg / rho_C)^2
   wStar <- sqrt(r_lRlC) * rho_vec
-  R <- exp(-mg_vec %*% wStar^-1)
+  R <- exp(-mu_vec %*% wStar^-1)
   s <- sqrt(g_vec %*% wStar^-2)
-  l_R <- -1 / sqrt(-k * r_lRlC)
-  l_C <- -l_R / r_lRlC
+  l_R <- 1 / sqrt(-k * r_lRlC)
+  l_C <- l_R / r_lRlC
   #--
-  Rreal <- mg_vec %*% wStar
+  Rreal <- mu_vec %*% wStar
   sreal <- sqrt(g_vec %*% wStar^2)
   #--
   frontier_vec <- c(R, s, Rreal, sreal, l_R, l_C)
@@ -1861,10 +1929,9 @@ optimize_portfolio_dimRet <- function(k, nab_decRet, eigvals, Ctarg){
 
 
 #=========================================================================
-
 get_optimal_frontier_dimRet <- function(nab_decRet, eigvals, n_points_on_frontier, backtest_info = NULL){
-k_lo <- max(-nab_decRet^3 / (27 * eigvals^2))
-k_up <- k_lo * 10^-1
+k_up <- min(nab_decRet^3 / (27 * eigvals^2))
+k_lo <- k_up * 10^-3
 k_vec <- seq(k_lo, k_up, length.out = n_points_on_frontier)
 list_frontier <- list()
 list_wStar <- list()
@@ -1907,10 +1974,6 @@ colnames(df_frontier) <- c("Obj fn target",
   outlist <- list(df_frontier, df_wStar)
   
 }
-
-
-
-
 #=========================================================================
 #=========================================================================
 #=========================================================================
@@ -1958,7 +2021,7 @@ df_frontier <- outlist[[1]]
 df_wStar <- outlist[[2]]
 #df_frontier <- round(df_frontier, 4)
 
-gg <- plot_frontier(df_frontier, ROI_basis = F, list_graph_options = NULL, graph_on = F)
+gg <- plot_frontier(df_frontier, ROI_basis = T, list_graph_options = NULL, graph_on = F)
 gg_frontier <- gg
 #--------------------------------------------------------------
 n_items <- ncol(df_wStar) - 1
@@ -2140,7 +2203,7 @@ fig_title <- "Covariances Unknown"
 D_sd2X <- matrix(NA, n_prop, n_prop)
 row.names(D_sd2X) <- as.character(df_pctRet$Item)
 colnames(D_sd2X) <- as.character(df_pctRet$Item)
-sd2X_vec <- 1 * runif(n_prop)
+sd2X_vec <- 2 * runif(n_prop)
 diag(D_sd2X) <- sd2X_vec
 covmat_XX <- D_sd2X
 plot_covmat(covmat_XX, fig_title, graph_on = F)
@@ -2234,7 +2297,7 @@ mat_P_sigs <- mat_P[, 1:n_signals]
 #--------------------------------------------------------------
 # Expected returns vector
 #nab_pctRet_ar4d_sigs <- as.numeric(t(10^-2 * nab_pctRet_ar4d) %*% mat_P_sigs)
-nab_pctRet_ar4d_sigs <- as.numeric(t(10^-2 * nab_pctRet_ar4d) %*% mat_Lrot)
+nab_pctRet_ar4d_sigs <- as.numeric(t(nab_pctRet_ar4d) %*% mat_Lrot)
 names(nab_pctRet_ar4d_sigs) <- sigNames
 #--------------------------------------------------------------
 mat_nab <- cbind(nab_pctRet_ar4d_sigs, nab_C)
@@ -2253,7 +2316,7 @@ outlist <- get_optimal_frontier_dimRet(nab_decRet, eigvals, n_points_on_frontier
 df_frontier <- outlist[[1]]
 df_wStar <- outlist[[2]]
 #--------------------------------------------------------------
-gg <- plot_frontier(df_frontier, ROI_basis = F, list_graph_options = NULL, graph_on = F)
+gg <- plot_frontier(df_frontier, ROI_basis = T, list_graph_options = NULL, graph_on = F)
 gg_frontier <- gg
 n_items <- ncol(df_wStar) - 1
 bag_of_colors <- randomcoloR::distinctColorPalette(k = 5 * n_items)
