@@ -155,7 +155,7 @@ Note, in passing, that dotting this through by $\nabla \psi$ gives another instr
 This says that the risk shadow price is inversely proportional to the ratio of the squared Mahalanobis distance ($d_m^2$) of the portfolio net reward gradient to the net reward. In this setting, the Mahalanobis distance reflects how improbable a given portfolio is. Note, then, that portfolio improbability goes to zero (and hence probability is greater) as $\nabla \psi = \mathbf{0}$, which occurs only when every component in the vector of asset returns ($\boldsymbol{\mu}$) equals the budget shadow price ($\gamma$). Moreover, note that this can be combined with the previous expression for $\lambda_{\sigma}$ to obtain
 
 \begin{equation}
-{1 \over d_m}  &=& {\bar{\sigma} \over \psi}
+{1 \over d_m} = {\bar{\sigma} \over \psi}
 \end{equation}
 
 which says that the probability of the optimal portfolio equals its risk to reward ratio.
@@ -1170,7 +1170,7 @@ The correlations between the financial assets from the example above and their f
 # Define function to calculate variable-signal correlations, financial data
 get_S_and_corrXS <- function(mat_X_in){
   # mat_P = eigenvectors of the data correlation matrix
-  # mat_U = corresponding eigenvalues
+  # mat_G = corresponding eigenvalues
   mat_X_centered <- scale(mat_X_in, scale = F)
   # out_svd <- svd(mat_X_centered)
   # sing_values <- out_svd$d
@@ -1181,22 +1181,22 @@ get_S_and_corrXS <- function(mat_X_in){
 mat_P <- eigen(cov(mat_X_in))$vectors
 if(mean(mat_P[, 1]) < 0){mat_P <- -mat_P}
 eig_values <- eigen(cov(mat_X_in))$values
-mat_U <- diag(eig_values)
+mat_G <- diag(eig_values)
   
 #mat_P_sigs <- mat_P[, 1:n_signals]
 # eig_values[1:n_signals] / eigen(cov(mat_X_centered))$values[1:n_signals] #check
 # mat_P / eigen(cov(mat_X_in))$vectors #check
 
-#mat_U <- diag(eig_values)
+#mat_G <- diag(eig_values)
 
-#mat_U_sigs <- matU[, 1:n_signals]
+#mat_G_sigs <- matU[, 1:n_signals]
 #---------------------------------------------
 sd_X <- apply(mat_X_in, 2, sd)
 D_sdX_inv <- diag(1 / sd_X)
-cormat_XS <- D_sdX_inv %*% mat_P %*% sqrt(mat_U)
+cormat_XS <- D_sdX_inv %*% mat_P %*% sqrt(mat_G)
 row.names(cormat_XS) <- colnames(mat_X_in)
 mat_L <- cormat_XS
-#mat_L <- diag(1 / apply(mat_X_in, 2, sd)) %*% mat_P %*% sqrt(mat_U)
+#mat_L <- diag(1 / apply(mat_X_in, 2, sd)) %*% mat_P %*% sqrt(mat_G)
   #---------------------------------------------------------
   # Set sign of eigenvectors such that signals best conform to their most highly correlated items
 # First have to get average of highest correlated items for each signal
@@ -1229,7 +1229,7 @@ for(i in 1:n_items){
         mat_P[, i] <- -mat_P[, i]
       }
     }
-cormat_XS <- D_sdX_inv %*% mat_P %*% sqrt(mat_U)
+cormat_XS <- D_sdX_inv %*% mat_P %*% sqrt(mat_G)
 row.names(cormat_XS) <- colnames(mat_X_in)
 mat_L <- cormat_XS
 mat_S_all <- mat_X_centered %*% mat_P
@@ -1252,7 +1252,7 @@ plot_corrXS_barchart <- function(mat_L, group_info = NULL, xAxis_title = NULL, s
     if(is.null(sigNames)){
   signal_id <- paste("Signal", 1:n_signals)
 }else{
-  signal_id <- paste("Signal", 1:n_signals, "-", sigNames)
+  signal_id <- paste("Signal", 1:n_signals, "\n", sigNames)
 }
   colnames(df_plot)[2:(n_signals + 1)] <- signal_id
   #-------------------------------------------------------
@@ -1344,7 +1344,7 @@ plot_corrXS_barchart(mat_Lrot, group_info = NULL, xAxis_title, sigNames = NULL)
 
 ```
 
-```{r, fig.show='hold', fig.width=6, fig.height=5, fig.align='left', fig.cap="\\label{fig:signals_with_hiCorr_items}Signals plotted together with their most highly correlated assets. The signals are plotted as thick grey lines."}
+```{r, fig.show='hold', fig.width=6, fig.height=5, fig.align='left', fig.cap="\\label{fig:signals_with_hiCorr_items}Signals (thick grey lines) plotted together with their most highly correlated assets."}
 # Define function to plot signals with their highest loading items.
 plot_sigs_wHiLoad_items <- function(mat_X_in, mat_S, mat_L, color_vec, sigNames = NULL, load_threshold = 0.55, n_display_max = 4){
 n_signals <- ncol(mat_L)
@@ -1439,7 +1439,7 @@ plot_sigs_wHiLoad_items(mat_X_in, mat_S, mat_Lrot, color_vec, sigNames, load_thr
   
 ```  
 
-A calculation of the varimax loadings over the test data, presented in Figure Figure \ref{fig:corrXS_barchart_rot_test}, suggests that signal composition remains fairly stable from one period to the next, although signal order may change. In this case, the Financial and Physical Infrastructure Signal has traded places with the Pharmaceutical Signal. The order of a signal reflects its predominance in shaping the overall variance in the dataset.
+A calculation of varimax loadings over data from the subsequent period (`r test_start_date` to `r test_stop_date`), presented in Figure \ref{fig:corrXS_barchart_rot_test}, suggests that signal composition remains fairly stable from one period to the next, although signal order may change. In this case, the Financial and Physical Infrastructure Signal has traded places with the Pharmaceutical Signal. The order of a signal reflects its predominance in shaping the overall variance in the dataset.
 
 ```{r, fig.show='hold', fig.width=6, fig.height=3, fig.align='left', fig.cap="\\label{fig:corrXS_barchart_rot_test}Varimax rotated correlation of portfolio items with leading signals, backtest financial data.", echo=F}
 mat_X_in_test <- mat_pctDiff_eg_test
@@ -1509,16 +1509,16 @@ n_signals <- which(ck_vec > 0.9)[1]
   
 ```
 
-The plot thus shows that the leading `r n_signals` signals are sufficient to meet this criterion. Note that the data correlation matrix can then be approximated from the retained signals, as their outer product.
+The plot shows that the leading `r n_signals` signals are sufficient to meet this criterion. Note that the data correlation matrix can then be approximated from the retained signals, as their outer product.
 
-\begin{equation}
+\begin{eqnarray}
 L_{\circlearrowleft}L_{\circlearrowleft}' &=& LB (LB)' = LBB'L' = LL' \\
-&=& (D(\sigma_X)^-1 \tilde{P} \tilde{\Gamma}^{-{1 \over 2}}) (D(\sigma_X)^-1 \tilde{P} \tilde{\Gamma}^{-{1 \over 2}})' \\
-&=& (D(\sigma_X)^-1 \tilde{P} \tilde{\Gamma}^{-{1 \over 2}}) \tilde{\Gamma}^{-{1 \over 2}} \tilde{P}' D(\sigma_X)^-1 \\
-&=& D(\sigma_X)^-1 \tilde{\Sigma}_{XX} D(\sigma_X)^-1 \\
+&=& (D(\sigma_X)^{-1} \tilde{P} \tilde{\Gamma}^{-{1 \over 2}}) (D(\sigma_X)^-1 \tilde{P} \tilde{\Gamma}^{-{1 \over 2}})' \\
+&=& (D(\sigma_X)^{-1} \tilde{P} \tilde{\Gamma}^{-{1 \over 2}}) \tilde{\Gamma}^{-{1 \over 2}} \tilde{P}' D(\sigma_X)^{-1} \\
+&=& D(\sigma_X)^{-1} \tilde{\Sigma}_{XX} D(\sigma_X)^{-1} \\
 &=& \hat{K}_{XX}
 \label{eq:cormat_from_Lrot}
-\end{equation}
+\end{eqnarray}
 
 Note this is true for any orthogonal rotation $B$.
 
@@ -1537,7 +1537,7 @@ plot_covmat(mat_diff_cormats, fig_title = NULL, graph_on = F)
 
 ```
 
-Now, consider that, in the absence of data, the retained signals could be identified based on expert knowledge. That is, the key signals in Figure \ref{fig:signals_with_hiCorr_items} could be deduced through consultation with, say, market experts. The same domain knowledge could then be tapped to estimate each portfolio asset's correlation with each of these key signals. The end result of this consultation would be a crowdsourced, orthogonally rotated loadings matrix. The asset price data correlation matrix could then be approximated from this information via equation \ref{eq:cormat_from_Lrot}. If we are also given an estimate of the risk (standard deviation $\boldsymbol{\sigma}_X$) of each portfolio asset, it is then straightforward to arrive at an approximate covariance matrix.
+Now, consider that, in the absence of data, the retained signals could be identified based on expert knowledge. That is, the key signals to which all movement in the dataset gravitate, such as those displayed in Figure \ref{fig:signals_with_hiCorr_items}, could be deduced through consultation with, say, market experts. The same domain knowledge could then be tapped to estimate each portfolio asset's correlation with each of these key signals. The end result of this consultation would be a crowdsourced, orthogonally rotated loadings matrix. The asset price data correlation matrix could then be approximated from this information via equation \ref{eq:cormat_from_Lrot}. If we are also given an estimate of the risk of each portfolio asset (i.e., a vector of asset standard deviations $\boldsymbol{\sigma}_X$), it is then straightforward to arrive at an approximate covariance matrix.
 
 \begin{equation}
 \tilde{\Sigma}_{XX} = D(\boldsymbol{\sigma}_X) \tilde{K}_{XX} D(\boldsymbol{\sigma}_X)
@@ -1560,13 +1560,11 @@ Now, consider that, in the absence of data, the retained signals could be identi
 
 <!-- #``` -->
 
-In this sense, a covariance matrix can be reverse engineered from domain knowledge when there is no data. The crowdsourced covariance matrix may differ somewhat from the data covariance matrix; but it need not be considered inferior to the data covariance matrix in terms of accuracy. In noisy contexts, crowdsourced covariance matrices may very well prove to be more accurate than their data based counterparts. As a rule of thumb, the appropriateness of the crowdsourcing approach to covariance matrix estimation may be assessed by meditating upon the conceptual ratio $\nu$ in equation \ref{eq:ratio_conf}. 
+In this sense, a covariance matrix can be reverse engineered from domain knowledge when there is no data. Again, the crowdsourced covariance matrix may differ somewhat from the data covariance matrix; but it need not be considered inferior to the data covariance matrix in terms of accuracy. In noisy contexts, crowdsourced covariance matrices may very well prove to be more accurate than their data based counterparts. As a rule of thumb, the appropriateness of the crowdsourcing approach to covariance matrix estimation may be assessed by meditating upon the conceptual ratio $\nu$. 
 <!-- Regardless of accuracy, the crowdsourced covariance matrix has value in that it provides a picture...consistent with what we think we know about the system.-->
-
-\begin{equation}
+$$
 \nu = \frac{\text{confidence in domain knowledge}}{\text{confidence in data}}
-\label{eq:ratio_conf}
-\end{equation}
+$$
 
 As $\nu$ is higher, the crowdsource approach to covariance matrix estimation is more suitable. As $\nu$ is lower, it becomes more appropriate to estimate the covariance matrix on the basis of data. For values of $\nu$ close to 1, one might consider a mixture of the two approaches.
 
@@ -1574,15 +1572,15 @@ As $\nu$ is higher, the crowdsource approach to covariance matrix estimation is 
 
 ## The crowdsourced signals portfolio
 
-The deduced data covariance matrix may be useful in orienting stakeholder discussions, but it cannot be used for optimization since, by definition, it contains eigenvalues that are equal to zero.^[In the previous section we saw that optimization requires that the covariance matrix be invertible. A matrix with eigenvalues equal to zero is not invertible.]
+The deduced data covariance matrix may be useful in orienting stakeholder discussions, but it cannot be used for optimization since, by definition, it contains eigenvalues that are equal to zero.^[In the introduction to MV Analysis above, it is evident that optimization requires that the covariance matrix be invertible. A matrix with eigenvalues equal to zero is not invertible.]
 
-However, we can optimize over a portfolio of signals, and then map the optimal signal budget shares back to individual asset shares based on their correlation with the signals. To do this, we need the signals covariance matrix $\Sigma_{SS}$. Recall from equation $\ref{eq:covmat_SS}$ that the signals covariance matrix is a diagonal matrix containing the retained leading eigenvalues of $\Sigma_{XX}$. $\Sigma{SS}$ can thus be derived from a loadings matrix and asset risk estimates $\boldsymbol{\sigma}_X$ as follows.
+However, we can optimize over a portfolio of signals, and then map the optimal signal budget shares back to individual asset shares based on their correlation with the signals. To do this, we need the signals covariance matrix $\Sigma_{SS}$. Recall from equation $\ref{eq:covmat_SS}$ that the signals covariance matrix is a diagonal matrix containing the retained leading eigenvalues of $\Sigma_{XX}$. $\Sigma_{SS}$ can thus be derived from a loadings matrix and asset risk estimates $\boldsymbol{\sigma}_X$ as follows.
 
 \begin{eqnarray}
 Q := D(\boldsymbol{\sigma}_X)L \\
-Q'Q &=& (\tilde{P} \tilde{Gamma}^{1 \over 2})' \tilde{P} \tilde{Gamma}^{1 \over 2} \\ 
-&=& \tilde{Gamma}^{1 \over 2} \tilde{P}' \tilde{P} \tilde{Gamma}^{1 \over 2} \\
-&=& \tilde{\Gamma} = \Sigma{SS}\\
+Q'Q &=& (\tilde{P} \tilde{\Gamma}^{1 \over 2})' \tilde{P} \tilde{\Gamma}^{1 \over 2} \\ 
+&=& \tilde{\Gamma}^{1 \over 2} \tilde{P}' \tilde{P} \tilde{\Gamma}^{1 \over 2} \\
+&=& \tilde{\Gamma} = \Sigma_{SS}
 \label{eq:covmat_SS_from_L}
 \end{eqnarray}
 
@@ -1590,12 +1588,12 @@ When loadings are ellicited from domain knowledge, as opposed to calculated from
 
 \begin{eqnarray}
 Q_{\circlearrowleft} := D(\boldsymbol{\sigma}_X)L_{\circlearrowleft}\\
-Q_{\circlearrowleft}'Q_{\circlearrowleft} &=& (\tilde{P} \tilde{Gamma}^{1 \over 2} B)' \tilde{P} \tilde{Gamma}^{1 \over 2} B \\
-&=& B' \tilde{Gamma}^{1 \over 2} \tilde{P}' \tilde{P} \tilde{Gamma}^{1 \over 2} B \\
-&=& B' \tilde{\Gamma} B \\
+Q_{\circlearrowleft}'Q_{\circlearrowleft} &=& (\tilde{P} \tilde{\Gamma}^{1 \over 2} B)' \tilde{P} \tilde{\Gamma}^{1 \over 2} B \\
+&=& B' \tilde{\Gamma}^{1 \over 2} \tilde{P}' \tilde{P} \tilde{\Gamma}^{1 \over 2} B \\
+&=& B' \tilde{\Gamma} B
 \end{eqnarray}
 
-However, note here that the eigenvectors of $Q_{\circlearrowleft}'Q_{\circlearrowleft}$ are equal to $B'$, and its eigenvalues are just $\tilde{\Gamma}$. Therefore, given crowdsourced, rotated loadings $L_{\circlearrowleft}$ and asset risk estimates $\boldsymbol{\sigma_X}$, the signals covariance matrix $\Gamma$ can be isolated from the implicit rotation $B$ by taking the eigendecomposition of the inner product of the crowdsourced information $Q_{\circlearrowleft}'Q_{\circlearrowleft}$.
+However, note here that the eigenvectors of $Q_{\circlearrowleft}'Q_{\circlearrowleft}$ are equal to $B'$, and its eigenvalues are just $\tilde{\Gamma}$. Therefore, given crowdsourced rotated loadings $L_{\circlearrowleft}$ and asset risk estimates $\boldsymbol{\sigma_X}$, the signals covariance matrix $\Gamma$ can be isolated from the implicit rotation $B$ by taking the eigendecomposition of the inner product of the crowdsourced information $Q_{\circlearrowleft}'Q_{\circlearrowleft}$.
 
 Note, in passing, that the original data set $X$ may itself be considered a set of orthogonally rotated signals constructed from some higher dimensional dataset. This unobserved, higher dimensional dataset could likewise be considered a set of orthogonally rotated signals constructed from some still larget dataset, and so on, ad infinitum. Note that the eigenvalues of the system described by these nested datasets remain invariant under each successive step of dimensional reduction, while the eigenvectors change. In this sense, the eigenvalues of the original---or any---data covariance matrix are the "true" covariance matrix, while the eigenvectors may be considered an extraneous rotation of the true covariance matrix, not intrinsic to the construction of the signals, but rather applied extraneously, as an aid in their interpretation, or as a matter of contextualizing the abstract signals with respect to a particular set of concrete circumstances. 
 
@@ -1610,51 +1608,45 @@ In financial contexts, investments scale linearly. A doubling of the investment 
 
 Equation \ref{eq:dimRetDefine} can be used to arrive at an expression for $R$ as follows:
 
-$$
 \begin{eqnarray}
 \ln R &=& \int \nabla_{\ln \mathbf{w}} \ln R \cdot d\mathbf{w} \\
 &=& \int \nabla_{\mathbf{w}} \ln\mathbf{w} \cdot d\ln\mathbf{w} \\
 &=& \int \mathbf{w}^{-2} \cdot d\mathbf{w} \\
 &=& \boldsymbol{\alpha} \cdot \mathbf{w}^{-1} + k \\
 \end{eqnarray}
-$$
+
 Substituting $\bar{R}=\exp(k)$, this can be rewritten
 
-$$
 \begin{equation}
 R(\mathbf{w}; \boldsymbol{\alpha}, \bar{R}) = \bar{R}\exp(\boldsymbol{\alpha} \cdot \mathbf{w}^{-1})
 \end{equation}
-$$
+
 where the proportionality constants $\boldsymbol{\alpha}$ are determined by context. In the present setting, the constants $\boldsymbol{\alpha}$ correspond to the vector $\boldsymbol{\mu}$. The constant of integration, $\bar{R}$, represents the ceiling on $R$, i.e.,
 
-$$
 \begin{equation}
 \bar{R} = \lim_{\mathbf{w} \rightarrow \infty} R
 \end{equation}
-$$
 
 This results in
 
-$$
 \begin{equation}
 R(\mathbf{w}; \boldsymbol{\mu}, \bar{R}) = \bar{R}\exp(\boldsymbol{\mu} \cdot \mathbf{w}^{-1})
 \end{equation}
-$$
 
 ## Ensuring positive budget shares
 
-In the sections above, I have shown how MV Analysis can be adapted to the AR4D context by 1) replacing the data-based asset covariance matrix with a signals covariance matrix constructed from domain knowledge, and 2) replacing the linear returns function with a diminishing marginal returns function. It still remains to show how MV Analysis can be accommodated so as to guarantee positive budget shares, which are also required in the AR4D context. Fortunately, it turns out that positive budget shares follow automatically from adjustments 1 and 2.
+In the sections above, I have shown how MV Analysis can be adapted to the AR4D context by 1) replacing the data-based asset covariance matrix with a signals covariance matrix constructed from domain knowledge, and 2) replacing the linear returns function with a diminishing marginal returns function. It still remains to show how MV Analysis can be adapted so as to guarantee positive budget shares, which are also required in the AR4D context. Fortunately, it turns out that positive budget shares follow automatically from adjustments 1 and 2.
 
 When introducing the signals portfolio and diminishing returns function, optimization is facillitated by taking the log of the portfolio return, resulting in the following portfolio variance function
 
 \begin{equation}
-\sigma^2 = Var(\ln R) = \mathbf{w}^{-1}' \Sigma_{SS} \mathbf{w}^{-1}
+\sigma^2 = Var(\ln R) = \mathbf{w}^{-1} {'} \Sigma_{SS} \mathbf{w}^{-1}
 \end{equation}
 
 which, recalling equation \ref{eq:covmat_SS}, reduces to
 
 \begin{eqnarray}
-\sigma^2 &=& Var(\ln R) = \mathbf{w}^{-1}' \Gamma \mathbf{w}^{-1} \\
+\sigma^2 &=& Var(\ln R) = \mathbf{w}^{-1} {'} \Gamma \mathbf{w}^{-1} \\
 &=& \boldsymbol{\gamma}'\mathbf{w}^{-2}
 \end{eqnarray}
 
@@ -1674,10 +1666,10 @@ with first order conditions
 \nabla_{\mathbf{w}} \mathcal{L} = -2 D(\boldsymbol{\gamma}) \mathbf{w}^{-3} - \lambda_R D(\boldsymbol{\mu}) \mathbf{w}^{-2} + \lambda_C \mathbf{1} = \mathbf{0}
 \end{equation}
 
-This can be rearranged into the following cubic equation.
+which can be rearranged into the following cubic equation.
 
 \begin{equation}
--2 D(\boldsymbol{\gamma}) + \lambda_R D(\boldsymbol{\mu}) \mathbf{w} + \lambda_C \mathbf{w}^{3} = \mathbf{0}
+-2 \boldsymbol{\gamma} - \lambda_R D(\boldsymbol{\mu}) \mathbf{w} + \lambda_C \mathbf{w}^3 = \mathbf{0}
 \label{eq:rootfn}
 \end{equation}
 
@@ -1685,85 +1677,84 @@ By Descartes' rule of signs, each budget share $w_i$ is guaranteed to have one p
 
 WxMaxima returns the following solution for equation \ref{eq:rootfn}.
 
-\begin{eqnarray}
-w^*_i &=& {1 \over \sqrt{3}} (\lambda_C^{-(1 \over 3)} a^{1 \over 3} - \lambda_C^{-(2 \over 3)} \lambda_R \mu_i a^{-(1 \over 3)}) \\
-a_i &=& \sqrt{27 \gamma_i^2 + \frac{\lambda_R^3 \mu_i^3}{\lambda_C}} + \sqrt{27}\gamma_i
-\label{eq:w_sol}
-\end{eqnarray}
+\begin{equation}
+{w^*}_i = {1 \over \sqrt{3}} (\lambda_C^{-{1 \over 3}} a_i^{1 \over 3} + \lambda_C^{-{2 \over 3}} \lambda_R \mu_i a_i^{-{1 \over 3}})
+\label{eq:w_sol1}
+\end{equation}
 
 where
 
 \begin{equation}
+a_i = \sqrt{27 \gamma_i^2 - \frac{\lambda_R^3}{\lambda_C} \mu_i^3} + \sqrt{27}\gamma_i
+\label{eq:w_sol2}
 \end{equation}
 
-The lower bound of the budget shares $w^*_i$ is guaranteed to be greater than 0 by Descartes' rule of signs, but what about its upper bound? This is difficult to gauge from the rather ugly expression in equation \ref{eq:w_sol}. However, it can coerced into a more instructive and compact form as follows. First, define $b_i = \frac{\lambda_C}{\lambda_R \mu_i}$ and $\gamma_i = \frac{\gamma_i}{\lambda_R \mu_i}$, so that the term $a_i$ can be expressed
+The lower bound of the budget shares $w^*_i$ is guaranteed to be greater than 0 by Descartes' rule of signs, but what about its upper bound? This is difficult to gauge from the rather ugly expression in equations \ref{eq:w_sol1} and \ref{eq:w_sol2}. However, $w^*_i$ can be coerced into a more instructive and compact form.
+
+First, note that the term $a_i$ can be factored as follows.
 
 \begin{equation}
-a_i = \sqrt{27 \gamma_i^2 - 1\over b_i} + \sqrt{27} \gamma_i
-\end{equation}
-
-The term $a_i$ can then be factored as follows.
-
-\begin{equation}
-a_i = \sqrt{1 \over b_i} \left( j \sqrt{1 - 27 \gamma_i^2 b_i} + \sqrt{27 b_i} \gamma_i \right)
+a_i = \sqrt{\frac{\lambda_R^3}{\lambda_C} \mu_i^3} \left( j \sqrt{1 - 27 \gamma_i^2 \frac{\lambda_C}{\lambda_R^3 \mu_i^3}} + \sqrt{27 \frac{\lambda_C \gamma_i^2}{\lambda_R^3 \mu_i^3}} \right)
 \end{equation}
 
 where $j$ is the imaginary number $j = \sqrt{-1}$.
 
-Now, note that this expression describes a triangle and can thus be rewritten in terms of sine and cosine.
+Now, note that the expression inside the parenthesis describes the sides of a triangle and can thus be rewritten in terms of sine and cosine.
 
 \begin{equation}
-a_i = \sqrt{1 \over b_i} \left( j \sin{\theta_i} + \cos{\theta_i} \right) \:\:; \:\:\:\: \theta_i = \acos{\sqrt{27 b_i} \gamma_i}
+a_i = \sqrt{\frac{\lambda_R^3 \mu_i^3}{\lambda_C}} \left( j \sin{\theta_i} + \cos{\theta_i} \right) \:\:; \:\:\:\: \theta_i = \arccos \left(\sqrt{27 \frac{\lambda_C \gamma_i^2}{\lambda_R^3 \mu_i^3}} \gamma_i \right)
 \end{equation}
 
 By Euler's formula, moreover,
 
 \begin{equation}
-a_i = \sqrt{1 \over b_i} e^{j \theta_i}
+a_i = \sqrt{\frac{\lambda_R^3 \mu_i^3}{\lambda_C}} e^{j \theta_i}
 \end{equation}
 
-Substituting this into equation \ref{eq:w_sol} then reduces the budget share equation to
+Substituting this into equation \ref{eq:w_sol1} then reduces the budget share equation to
 
 \begin{equation}
-w^*_i = \frac{1}{b_i \sqrt{3}} \left(e^{j \theta_i \over 3} + e^{-j \theta_i \over 3} \right)
+{w^*}_i = {1 \over \sqrt{3}} \sqrt{\frac{\lambda_R}{\lambda_C} \mu_i} \left(e^{j \theta_i / 3} + e^{-j \theta_i / 3} \right)
 \end{equation}
 
 which can also be expressed
 
 \begin{equation}
-w^*_i = {2 \over \sqrt{3}} \sqrt{\frac{\lambda_R \mu_i}{\lambda_C}} \cos{\theta_i \over 3} \:\:; \:\:\:\: \theta_i = \acos{3 \sqrt{3} \sqrt{\frac{\lambda_C \gamma_i^3}{\lambda_R^3 \mu_i^3}}}
+{w^*}_i = {2 \over \sqrt{3}} \sqrt{\frac{\lambda_R \mu_i}{\lambda_C}} \cos \left( \theta_i \over 3 \right) \:\:; \:\:\:\: \theta_i = \arccos \left(3 \sqrt{3} \sqrt{\frac{\lambda_C \gamma_i^2}{\lambda_R^3 \mu_i^3}} \right)
 \label{eq:wStar_eq}
 \end{equation}
 
-Since the domain of $\cos{t}$ is $-1 < \cos{t} < 1$ for any angle $t \in (0,\pi)$, this implies
+Since the domain of $\cos(t)$ is $-1 < \cos(t) < 1$ for any angle $t \in (0,\pi)$, this implies
 
 \begin{equation}
--\frac{2}{\sqrt{3}} \sqrt{\frac{\lambda_R \mu_i}{\lambda_C}} < w^*_i < \frac{2}{\sqrt{3}} \sqrt{\frac{\lambda_R \mu_i}{\lambda_C}}
+-\frac{2}{\sqrt{3}} \sqrt{\frac{\lambda_R \mu_i}{\lambda_C}} < {w^*}_i < \frac{2}{\sqrt{3}} \sqrt{\frac{\lambda_R \mu_i}{\lambda_C}}
 \end{equation}
 
-However, the term \sqrt{\frac{\lambda_R \mu_i}{\lambda_C}} is clearly always greater than zero. Hence, the domain of $w^*_i$ reduces to
+However, the term $\sqrt{\frac{\lambda_R \mu_i}{\lambda_C}}$ is clearly always greater than zero. Hence, the domain of ${w^*}_i$ reduces to
 
 \begin{equation}
-0 < w^*_i < \frac{2}{\sqrt{3}} \sqrt{\frac{\lambda_R \mu_i}{\lambda_C}}
+0 < {w^*}_i < \frac{2}{\sqrt{3}} \sqrt{\frac{\lambda_R}{\lambda_C} \mu_i}
 \end{equation}
 
-The shadow prices $\lambda_R$ and $\lambda_C$ can be found for given budget $C^*$ and return target $R^*$ by setting up a Merton matrix equation along the lines of conventional MV Analysis. However, in the modified approach here, the Merton matrix will have non-constant entries (because the shadow prices appear inside the $w^*_i$ function), and so the system of two equations would have to be solved implicitly. A more straightforward route is to solve the system
+## Solving for the shadow prices in AR4D MV Analysis 
+
+The shadow prices $\lambda_R$ and $\lambda_C$ can be found for given budget $C^*$ and return target $R^*$ by setting up a Merton matrix equation along the lines of conventional MV Analysis. However, in the modified approach here, the Merton matrix will have non-constant entries (because the shadow prices appear inside the ${w^*}_i$ function), and so the system of two equations would have to be solved implicitly. A more straightforward route is to solve the system
 
 \begin{eqnarray}
-C^* &=& \mathbf{1}'\mathbf{w}^* \\
-&=& {2 \over \sqrt{3}} \sqrt{\frac{\lambda_R}{\lambda_C}} \boldsymbol{\mu}^{-{1 \over 2}}' \cos{\frac{1}{3}\boldsymbol{\theta}}
+C^* &=& \mathbf{1}{'}\mathbf{w}^* \\
+&=& {2 \over \sqrt{3}} \sqrt{\frac{\lambda_R}{\lambda_C}} \boldsymbol{\mu}^{-{1 \over 2}} {'} \cos \left( \frac{1}{3}\boldsymbol{\theta} \right)
 \end{eqnarray}
 
 \begin{eqnarray}
-\ln (R^* / \bar{R}) &=& \boldsymbol{\mu}'\mathbf{w}^{*-1} \\
-&=& {\sqrt{3} \over 2} \sqrt{\frac{\lambda_C}{\lambda_R}} \boldsymbol{\mu}^{1 \over 2}' \cos^{-1}(\frac{1}{3}\boldsymbol{\theta})
+\ln (R^* / \bar{R}) &=& \boldsymbol{\mu}{'}\mathbf{w}^{*-1} \\
+&=& {\sqrt{3} \over 2} \sqrt{\frac{\lambda_C}{\lambda_R}} \boldsymbol{\mu}^{1 \over 2}{'} \cos^{-1} \left(\frac{1}{3}\boldsymbol{\theta} \right)
 \end{eqnarray}
 
 Alternatively, one of these equations could be replaced by the optimized risk equation.
 
 \begin{eqnarray}
-\sigma^{*2} &=& \boldsymbol{\gamma}'\mathbf{w}^{*-2} \\
-&=& {3 \over 4} \frac{\lambda_C}{\lambda_R} \boldsymbol{\gamma}'D(\boldsymbol{\mu})^{1 \over 2}' \cos^{-2}(\frac{1}{3}\boldsymbol{\theta})
+\sigma^{*2} &=& \boldsymbol{\gamma}{'}\mathbf{w}^{*-2} \\
+&=& {3 \over 4} \frac{\lambda_C}{\lambda_R} \boldsymbol{\gamma}{'}D(\boldsymbol{\mu})^{1 \over 2}{'} \cos^{-2} \left(\frac{1}{3}\boldsymbol{\theta} \right)
 \end{eqnarray}
 
 As a practical matter, it is helpful to combine two of these equations so as to eliminate the common term ${\sqrt{3} \over 2} \sqrt{\frac{\lambda_C}{\lambda_R}}$, and then to solve for the ratio $k =\frac{\lambda_C}{\lambda_R^3}$. Combining the optimized return and cost functions, for example, gives
@@ -1822,14 +1813,14 @@ Mapping the signal budget shares back to individual portfolio asset shares...
 mapping signal shares back to individual portfolio item shares
 ...must preserve the ordering of the signals, and reflect each item's contribution to each signal, and meet the following conditions:
 
-wStar > 0
-C = sum(wStar) = sum(wStar_sigs)
-Rreal = nab_decRet_sigs %*% wStar_sigs = nab_decRet %*% wStar
+<!-- wStar > 0 -->
+<!-- C = sum(wStar) = sum(wStar_sigs) -->
+<!-- Rreal = nab_decRet_sigs %*% wStar_sigs = nab_decRet %*% wStar -->
 
 One candidate is readily found by recalling the definition of signals (eq ....) and extrapolating
 
-wStar = Psquig %*% wStar_sigs
-[Actually: wStar = Psquig %*% diag(betas) %*% wStar_sigs]
+<!-- wStar = Psquig %*% wStar_sigs -->
+<!-- [Actually: wStar = Psquig %*% diag(betas) %*% wStar_sigs] -->
 
 This has the benefit that, by definition, condition 3 is fulfilled.
 
@@ -1992,14 +1983,14 @@ nab_decRet_sigs_test <- (apply(mat_Sx_test, 2, function(x) prod(1 + x)) - 1)
 nab_pctRet_sigs_train <- 100 * nab_decRet_sigs_train[ind_rearrange]
 nab_pctRet_sigs_test <- 100 * nab_decRet_sigs_test[ind_rearrange]
 #----
-mat_U <- diag(eig_values_sigs)
-mat_U_test <- diag(eig_values_sigs_test[ind_rearrange])
+mat_G <- diag(eig_values_sigs)
+mat_G_test <- diag(eig_values_sigs_test[ind_rearrange])
 #=========================================================================
 # dimRet:
 Ctarg <- 1
-covmat <- mat_U
+covmat <- mat_G
 eigvals <- diag(covmat)
-covmat_test <- mat_U_test
+covmat_test <- mat_G_test
 nab_decRet <- nab_pctRet_sigs_train
 nab_decRet_test <- nab_pctRet_sigs_test
 # covmat <- diag(eig_values)
@@ -2263,7 +2254,7 @@ As shown in section 3.2, the implicit covariance matrix ($\hat{\Sigma}$) can the
 
 cormat_XX_derived <- mat_Lrot %*% t(mat_Lrot)
 covmat_XX_derived <- D_sdX %*% cormat_XX_derived %*% D_sdX
-colnames(covmat_XX_derived) <- colnames(cormat_XX)
+colnames(covmat_XX_derived) <- colnames(cormat_XX_derived)
 fig_title <- "Crowdsourced AR4D Proposal Covariance Matrix"
 plot_covmat(covmat_XX_derived, fig_title, graph_on = F)
 
@@ -2285,13 +2276,13 @@ mat_Q <- D_sdX %*% mat_Lrot
 eig_decomp_QQ <- eigen(t(mat_Q) %*% mat_Q)
 eig_values_QQ <- eig_decomp_QQ$values
 #eig_values_QQ <- 10^-6 * eig_values_QQ
-mat_U <- diag(eig_values_QQ)
-covmat_SS <- mat_U
+mat_G <- diag(eig_values_QQ)
+covmat_SS <- mat_G
 #--------------------------------------------------------
 # Get mat_P
-mat_U_sqrt_inv <- diag(1 / sqrt(eig_values_QQ))
-mat_R <- t(eig_decomp_QQ$vectors) # * 10^3
-mat_P <- mat_Q %*% t(mat_R) %*% mat_U_sqrt_inv
+mat_G_sqrt_inv <- diag(1 / sqrt(eig_values_QQ))
+mat_B <- t(eig_decomp_QQ$vectors) # Orthogonal Rotation Matrix
+mat_P <- mat_Q %*% t(mat_B) %*% mat_G_sqrt_inv
 if(mean(mat_P[, 1]) < 0){mat_P <- -mat_P}
 mat_P_sigs <- mat_P[, 1:n_signals]
 #--------------------------------------------------------------
@@ -2302,12 +2293,12 @@ names(nab_pctRet_ar4d_sigs) <- sigNames
 #--------------------------------------------------------------
 mat_nab <- cbind(nab_pctRet_ar4d_sigs, nab_C)
 n_points_on_frontier <- 20
-Rtarg_limits <- c(0.11, 0.19)
+#Rtarg_limits <- c(0.11, 0.19)
 backtest_info <- NULL
 #--------------------------------------------------------------
 covmat <- covmat_SS
 eigvals <- diag(covmat_SS)
-#covmat_test <- mat_U_test
+#covmat_test <- mat_G_test
 nab_decRet <- nab_pctRet_ar4d_sigs
 #nab_decRet_test <- nab_decRet_sigs_test
 backtest_info <- NULL
@@ -2329,7 +2320,7 @@ gg_frontier + gg_budget + plot_layout(ncol = 1)
 The budget allocation to each AR4D proposal is then disaggregated from the signal budget shares by equation \ref{eq:}. The matrix of `r n_signals` leading eigenvectors $P$ of the proposal covariance matrix is required in order to perform this last step. Having deduced $R$ and $U$ above, it is possible to deduce $P$ as follows.
 
 \begin{eqnarray}
-Q R' U^{-{1 \over 2}} &=& PU^{1 \over 2}RR'U^{-{1 \over 2}} \\ &=& P
+Q B' \Gamma^{-{1 \over 2}} &=& P\Gamma^{1 \over 2}BB'\Gamma^{-{1 \over 2}} \\ &=& P
 \end{eqnarray}
 
 Having deduced $P$, the optimal AR4D proposal budget allocation is calculated in Figure \ref{fig:wDisagg_ar4d}.
