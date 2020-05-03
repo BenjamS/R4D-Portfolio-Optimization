@@ -58,34 +58,32 @@ In hindsight, Mills' concern was well founded. Budgetary pressure on AR4D center
 
 A rigorous tool _at the portfolio level_, along the lines suggested by Mills over twenty years ago, could go a long ways in guaranteeing the consistency, transparency, and objectivity that is, in large part, responsible for this toxicity. [has been lacking from the resource allocation process.] It would also be nice if such a method took explicit account of the risk associated with each research alternative, and were quick and inexpensive to implement relative to consensus building mechanisms such as the Analytical Hierarchy Process [@Braunschweig2000]. In this paper, I explore the possibility of building such a tool based on risk-adjusted portfolio optimization techniques developed in the financial context.
 
-## AR4D mean-variance analysis
+## AR4D risk-adjusted portfolio optimization
 
-In particular, I explore the possibility of adapting Mean-Variance (MV) Analysis, first conceptualized by Markowitz [@markowitz1952portfolio] and later formalized and refined by Merton [@merton1972analytic], to the AR4D context. In stock market investment contexts, MV Analysis is used to optimize the investor's return on investment in a portfolio of $n$ risky assets, given the investor's level of risk tolerance. On input, MV Analysis takes the expected returns and risk of each asset in the portfolio, and outputs the precise resource allocation that must be invested in each of the portfolio assets in order to achieve the risk adjusted maximum return. The optimal solution changes with the investor's risk tolerance. The locus of all solutions across all levels of risk tolerance is called the "efficient frontier". In the conventional approach, the math works out such that this frontier takes the shape of a parabola (Figure \ref{fig:basic_illust}). Parabolae give two solutions for each x-axis input. The investor is of course interested only in the greater of these, given by the upper branch of the parabola. The lower branch is therefore omitted.
+In particular, I explore the possibility of adapting financial risk adjusted portfolio optimization, first conceptualized by Markowitz [@markowitz1952portfolio] and later formalized and refined by Merton [@merton1972analytic], to the AR4D context.^[In the financial literature, risk adjusted portfolio optimization is usually referred to as "mean-variance analysis".] In financial contexts, risk adjusted portfolio optimization determines the optimal investment in each portfolio item such that overall risk is minimized for a given return target (or, conversely, such that return is maximized for a given risk tolerance). A budget constraint is also included. An example is given in Figure \ref{fig:...} for a portfolio of 11 securities.^[The securities chosen for this example are exchange traded funds broadly representative of the U.S. economy.] In the top panel, the "efficient frontier" indicates the maximum expected return possible for each level of investor risk tolerance indicated along the x-axis. The budget allocation required to achieve the maximum return at each risk tolerance is indicated in the bottom panel.
 
-```{r, fig.show = 'hold', fig.width=4, fig.height=3, fig.align='center', fig.cap="\\label{fig:basic_illust}The efficient frontier. Each point on the frontier indicates the highest expected return that can be obtained for a given risk tolerance.", echo=FALSE}
-y <- seq(0, 1, length.out = 50)
-a <- 1 / 2
-b <- 1 / 3
-x <- a^2 * (y^2 / b^2 + 1)
-gg <- ggplot(data.frame(x, y), aes(x = x, y = y))
-gg <- gg + geom_point()
-gg <- gg + labs(x = "Portfolio Risk (standard deviation)", y = "Portfolio expected return")
-gg <- gg + theme(axis.text = element_blank(),
-                 axis.ticks = element_blank())
-gg
+<!-- # ```{r, fig.show = 'hold', fig.width=4, fig.height=3, fig.align='center', fig.cap="\\label{fig:basic_illust}The efficient frontier. Each point on the frontier indicates the highest expected return that can be obtained for a given risk tolerance.", echo=FALSE} -->
+<!-- y <- seq(0, 1, length.out = 50) -->
+<!-- a <- 1 / 2 -->
+<!-- b <- 1 / 3 -->
+<!-- x <- a^2 * (y^2 / b^2 + 1) -->
+<!-- gg <- ggplot(data.frame(x, y), aes(x = x, y = y)) -->
+<!-- gg <- gg + geom_point() -->
+<!-- gg <- gg + labs(x = "Portfolio Risk (standard deviation)", y = "Portfolio expected return") -->
+<!-- gg <- gg + theme(axis.text = element_blank(), -->
+<!--                  axis.ticks = element_blank()) -->
+<!-- gg -->
 
-```
+<!-- ``` -->
+There is a very important sense in which this reflects the kind of thinking that goes (or used to go) into AR4D bugdet allocation decisions. Emeritus scientists at the International Center for Tropical Agriculture, for example, recall that in the early years of the institution---around the time that Merton was writing his seminal paper---it was common practice to informally plot research proposals in a risk reward space such as that in the top panel of Figure \ref{fig:...}, and to thereby guide resource allocation decisions [@JCock_perscomm; @lynam2017forever].
 
-Of course, the AR4D context differs from the financial context in many important respects. In particular: 1) the data required to calculate a portfolio covariance matrix do not exist in the AR4D context. 2) Investments in AR4D projects do not scale linearly as they do in the stock market, but rather exhibit diminishing marginal returns. And 3) Budget shares must be positive (there is no AR4D analogue to short-selling).
+However, the AR4D context also differs from the financial context in many important respects. Most obviously, note that some budget shares in the bottom panel of Figure \ref{fig:...} are negative. In the financial context, negative shares mean that the investor should invest in the inverse of the security, which is possible through short selling.^[Even so, many financial managers find negative shares to be something of a nuissance, since they imply borrowing, and thus effectively defeat the purpose of including a budget constraint. See, for example, Boyle [-@boyle2014positive] and references for a discussion. Negative shares also present a somewhat misleading picture of portfolio returns. The high returns along the frontier in Figure \ref{fig:...} are a result not so much of shrewd budget allocation as they are of leveraging.] In the AR4D context, of course, there is no analogue to short selling. Budget allocations across a portfolio of AR4D proposals must always be positive. Secondly, in the financial context, expected return is a linear function of investment. That is, a doubling of investment results in a doubling of gains (or losses, as the case may be). In the AR4D context, on the other hand, returns to invesment in AR4D proposals tend to be marginally diminishing. The AR4D portfolio return function must be adjusted to capture this reality.
 
-<!-- _Scalability:_ In the financial context, returns scale linearly with investment. That is to say, the return on an investment of $\$200$ is twice as much as the return on an investment of $\$100$. Investments in the AR4D context, on the other hand, are subject to the law of diminishing marginal returns. Donors cannot double their impact merely by doubling their investments. Such returns are said to scale sub-linearly with investment. -->
-<!-- [linear vs. subliear graphic?] -->
+Finally, estimation of portfolio risk requires assessment not only of the risk of each portfolio item, but also of the synergies and tradeoffs between portfolio items. Risk adjusted portfolio optimization works by balancing these synergies and tradeoffs so as to maximize return for a given risk tolerance and budget. In statistical parlance, synergies and tradeoffs are called positive and negative covariances, respectively. In the financial context, security risk (variance) and covariances can be calculated directly from abundantly available price data. There is no analogous straightforward means by which to calculate variances and covariances in the AR4D context. AR4D proposals are typically evaluated on the basis of one-off ex-ante impact assessment exercises; and thus do not generate anything along the lines of price data by which their variances and covariances could be calculated. Proposal risk could conceivably be ellicited in an informal manner from stakeholder input and/or "expert opinion"; but the ellicitation of proposal covariances would effectively raise by a power of two the time, effort, subjective bias, and tediousness of such a process, severely undermining the credibility of the resulting estimate.
 
-<!-- _Negative budget shares:_ To each point along the efficient frontier in Figure \ref{fig:basic_illust} corresponds an optimal budget allocation. MV Analysis allows that individual budget shares in this allocation can be, and frequently are, negative. A negative sign on a budget share indicates that the investor should invest in the inverse of the corresponding portfolio item. In the financial context, this is possible through short selling, or through investment in financial products that track the inverse of the given asset price.^[However, even in the financial context, negative weights are viewed by many as a methodological nuissance. See, for example, Boyle [-@boyle2014positive]. One of the main nuissances is that a portfolio with both negative and positive weights implies that the investor must borrow beyond their budget.] In the AR4D context, there is no analogue to either one of these conventions. -->
+Below I address each of these three challenges standing in the way of adapting financial risk-adjusted portfolio optimization to the AR4D context.
 
-<!-- _Lack of a covariance matrix:_ MV Analysis requires information regarding the tradeoffs and synergies between portfolio items. Another word for these tradeoffs and synergies is covariance. A positive covariance may be considered a synergy, while a negative covariance is a tradeoff. In the financial context, covariances can be calculated from data. In the AR4D context, no such data exists. -->
-
-However, there is a very important sense in which MV analysis _does_ reflect the kind of thinking that goes (or used to go) into AR4D bugdet allocation decisions. Emeritus scientists at the International Center for Tropical Agriculture, for example, recall that in the early years of the institution---around the time that Merton was writing his seminal paper---it was common practice to informally plot research proposals in a risk reward space such as that in Figure \ref{fig:basic_illust}, and to thereby guide resource allocation decisions [@JCock_perscomm; @lynam2017forever]. In this paper, I am primarily concerned with the possibility of resuscitating this practice, and of moving it onto a rigorous methodological footing. To achieve this, I propose an adaptation of MV analysis to the AR4D context, redressing each of the three methodological challenges enumerated in the previous paragraph. Before tackling these challenges, it is first necessary to walk through a brief introduction to MV analysis in its native financial context.
+...resuscitating this practice, and of moving it onto a rigorous methodological footing. To achieve this, I propose an adaptation of MV analysis to the AR4D context, redressing each of the three methodological challenges enumerated in the previous paragraph. Before tackling these challenges, it is first necessary to walk through a brief introduction to MV analysis in its native financial context.
 
 
 <!-- After a brief introduction to MV Analysis in the following section, I redress each of these issues. In Section 3, I redress both the scalability and negative budget share issues by replacing the linear returns function used in MV Analysis with a logarithmic form derived from the law of diminishing marginal returns. In Section 4, I draw on principal components analysis to show how a lack of data can be compensated by domain knowledge in order to "reverse engineer" a covariance matrix. The deduced matrix is useful for orienting stakeholder discussions, but cannot be used in portfolio optimization. To find the optimal risk adjusted resource allocation, I introduce the "signals portfolio", a dimensionally reduced portfolio of principal components. The optimal resource allocation to individual portfolio items can be disaggregated from the optimal signals portfolio based on each item's correlation with each given signal. Finally I walk through a an illustrative example of what this AR4D-adapted version of MV Analysis might look like in practice. -->
@@ -848,7 +846,7 @@ plot_budgetShares <- function(df_wStar, group_small = NULL, color_vec = NULL, gr
   }
   #------------------------------------
   df_plot$portfolio_id <- 1:nrow(df_wStar)
-  df_match_V <- df_plot[, c("portfolio_id", "Risk (standard deviation)")]
+  df_match_V <- df_plot[, c("portfolio_id", "Risk (CV)")]
   df_plot <- df_plot %>% gather_("Item", "Budget shares", gathercols)
   df_plot <- df_plot %>% group_by(Item) %>% 
     mutate(mu = median(`Budget shares`)) %>% 
@@ -867,7 +865,7 @@ if(is.null(color_vec)){
 }
     #------------------------------------
 #  df_plot$`Risk (standard deviation)` <- as.factor(df_plot$`Risk (standard deviation)`)
-  gg <- ggplot(df_plot, aes(x = `Risk (standard deviation)`, y = `Budget shares`, fill = Item))
+  gg <- ggplot(df_plot, aes(x = `Risk (CV)`, y = `Budget shares`, fill = Item))
   #legend_position <- "right"
   gg <- gg + geom_area(position = "stack")
  # gg <- gg + geom_bar(stat = "identity")
@@ -919,9 +917,9 @@ plot_frontier <- function(df_frontier, ROI_basis = T, list_graph_options = NULL,
   #   gg <- ggplot(df_plot, aes(x = `Risk (standard deviation)`, y = `Return target`))
   # }
   if(ROI_basis){
-    gg <- ggplot(df_plot, aes(x = `Risk (standard deviation)`, y = `ROI target`))
+    gg <- ggplot(df_plot, aes(x = `Risk (CV)`, y = `ROI target`))
   }else{
-    gg <- ggplot(df_plot, aes(x = `Risk (standard deviation)`, y = `Return target`))
+    gg <- ggplot(df_plot, aes(x = `Risk (CV)`, y = `Return target`))
   }
   if(!is.null(fig_title)){
     gg <- gg + labs(title = fig_title)
@@ -1900,126 +1898,57 @@ ind_rearrange <- c(2, 1, 3:n_signals)
 # round(M - P %*% U %*% t(P), 4)
 # round(M - P_new %*% U %*% t(P_new), 4)
 #=============================================================================
-
-# rootfn_lambdas <- function(lambdas_in, Rtarg, Ctarg, nab_decRet, eigvals){
-#   l_R_in <- lambdas_in[1]
-#   l_C_in <- lambdas_in[2]
-#   k_in <- -l_C_in / l_R_in
-#   lRtarg <- log(Rtarg)
-#   #k <- get_k_forlRtarg(lRtarg, Ctarg, nab_decRet, eigvals)
-#   wStar <- optimal_portfolio_wgts_dimRet(k_in, nab_decRet, eigvals, Ctarg)
-#   mu_vec <- nab_decRet
-#   g_vec <- eigvals
-#   mat_nab <- cbind(mu_vec, wStar^2)
-#   M <- t(mat_nab) %*% diag(1 / g_vec) %*% mat_nab
-#   M_inv <- solve(M)
-#   targ_vec <- c(-lRtarg, Ctarg)
-#   lambdas_out <- 2 * (M_inv %*% targ_vec)
-# lambdas_slack <- lambdas_in - lambdas_out
-# return(lambdas_slack)
-#   
-# }
-# 
-# Rtarg <- 0.0357
-# l_R_in <- -runif(1) * 1000
-# l_C_in <- runif(1)
-# lambdas_in <- c(l_R_in, l_C_in)
-# out_nleqslv <- nleqslv::nleqslv(lambdas_in, rootfn_lambdas, jac = NULL, Rtarg, Ctarg, nab_decRet, eigvals)
-# out_nleqslv$x
-# out_nleqslv$fvec
-# out_nleqslv$message
-
-# rho_fun <- function(k, g_vec, mu_vec, x_vec, n){
-#   a_vec <- sqrt(27 * g_vec^2 + k * mu_vec^3) + sqrt(27) * g_vec
-#   beta_vec <- a_vec^(1 / 3) - sign(k) * abs(k)^(1 / 3) * mu_vec * a_vec^(-1 / 3)
-#   rho <- as.numeric(t(x_vec) %*% beta_vec^n)
-#   return(list(rho, beta_vec))
-# }
-
-# k_lo <- 27 * min(-eigvals^2 / nab_decRet^3)
-# k_lo <- 27 * max(-eigvals^2 / nab_decRet^3)
-#k_lo <- min(-nab_decRet^3 / (27 * eigvals^2))
-
-# k_lo <- max(-nab_decRet^3 / (27 * eigvals^2))
-# k_up <- -0.001
-
-optimize_portfolio_dimRet <- function(k, nab_decRet, eigvals, Ctarg){
+optimize_portfolio_dimRet <- function(om, nab_decRet, eigvals, Ctarg){
   g_vec <- as.numeric(eigvals)
   mu_vec <- as.numeric(nab_decRet)
-  term <- k * g_vec^2 / mu_vec^3
+  term <- om * sqrt(g_vec^2 / mu_vec^3)  # k = a^2 * l_C
   
-  theta_vec <- acos(3 * sqrt(3) * sqrt(term))
+  theta_vec <- acos(3 * sqrt(3) / 2 * term)
   rho_vec <- 2 / sqrt(3) * (diag(sqrt(mu_vec)) %*% as.matrix(cos(theta_vec / 3)))
-  #---
-  # a_vec <- sqrt((-k) * mu_vec^3) * (sqrt(27 * g_vec^2 / ((-k) * mu_vec^3) - 1) + sqrt(27 * g_vec^2 / ((-k) * mu_vec^3)))
-  # k_to1o3 <- sign(k) * abs(k)^(1 / 3)
-  # a_vec <- sqrt(27 * g_vec^2 + k * mu_vec^3) + sqrt(27) * g_vec
-  # rho_vec <- 1 / sqrt(3) * (a_vec^(1 / 3) - k_to1o3 * mu_vec * a_vec^(-1 / 3))
 #---
   ones_vec <- rep(1, length(g_vec))
   rho_C <- as.numeric(t(ones_vec) %*% rho_vec)
-  # l_C <- (rho_C / Ctarg)^3
-  # l_R <- k_to1o3 * l_C^(1 / 3)
-  # wStar <- l_C^(-1 / 3) * rho_vec
-  r_lRlC <- (Ctarg / rho_C)^2
-  wStar <- sqrt(r_lRlC) * rho_vec
-  R <- exp(-mu_vec %*% wStar^-1)
-  s <- sqrt(g_vec %*% wStar^-2)
-  l_R <- 1 / sqrt(-k * r_lRlC)
-  l_C <- l_R / r_lRlC
+  muR_over_lC <- (rho_C / Ctarg)^2
+  wStar <- 1 / sqrt(muR_over_lC) * rho_vec
+  m_R <- -mu_vec %*% wStar^-1
+  s2_R <- g_vec %*% wStar^-2
+  mu_R <- exp(m_R + s2_R / 2)
+  l_C <- mu_R / muR_over_lC
+  beta <- om * sqrt(mu_R^3 / l_C)
+  CV_R <- sqrt(exp(s2_R) - 1)
+  l_CV <- (beta + mu_R) / (CV_R + 1 / CV_R)
   #--
-  Rreal <- mu_vec %*% wStar
-  sreal <- sqrt(g_vec %*% wStar^2)
-  #--
-  frontier_vec <- c(R, s, Rreal, sreal, l_R, l_C)
+  frontier_vec <- c(mu_R, CV_R, l_CV, l_C, beta)
   outlist <- list(frontier_vec, wStar)
   return(outlist)
 }
 
 
 #=========================================================================
-get_optimal_frontier_dimRet <- function(nab_decRet, eigvals, n_points_on_frontier, backtest_info = NULL){
-k_up <- min(nab_decRet^3 / (27 * eigvals^2))
-k_lo <- k_up * 10^-3
-k_vec <- seq(k_lo, k_up, length.out = n_points_on_frontier)
+get_optimal_frontier_dimRet <- function(mu_vec, g_vec, Ctarg, n_points_on_frontier, backtest_info = NULL){
+om_up <- min(2 / (3 * sqrt(3)) * sqrt(mu_vec^3) / g_vec)
+om_lo <- -om_up
+om_vec <- seq(om_lo, om_up, length.out = n_points_on_frontier)
 list_frontier <- list()
 list_wStar <- list()
 for(i in 1:n_points_on_frontier){
-  k <- k_vec[i]
-  outlist <- optimize_portfolio_dimRet(k, nab_decRet, eigvals, Ctarg)
+  om <- om_vec[i]
+  outlist <- optimize_portfolio_dimRet(om, mu_vec, g_vec, Ctarg)
   frontier_vec <- outlist[[1]]
   wStar <- outlist[[2]]
-  
-  if(!is.null(backtest_info)){
-    nab_decRet_test <- backtest_info[["nab_decRet_test"]]
-    covmat_test <- backtest_info[["covmat_test"]]
-    Rtest <- exp(-nab_decRet_test %*% wStar^-1)
-    stest <- sqrt(t(wStar^-1) %*% covmat_test %*% wStar^-1)
-    Rreal_test <- nab_decRet_test %*% wStar
-    sreal_test <- t(wStar) %*% covmat_test %*% wStar
-    frontier_vec <- c(frontier_vec, Rtest, stest, Rreal_test, sreal_test)
-  }else{
-    frontier_vec <- c(frontier_vec, rep(NA, 4))
-  }
-  
   list_frontier[[i]] <- frontier_vec
   list_wStar[[i]] <- wStar
 }
 
 df_frontier <- as.data.frame(do.call(rbind, list_frontier))
-colnames(df_frontier) <- c("Obj fn target",
-                           "Obj fn risk",
-                           "ROI target",
-                            "Risk (standard deviation)",
-                             "ROI shadow price",
-                             "Budget shadow price",
-                           "Obj fn backtest",
-                           "Obj fn risk backtest",
-                             "ROI backtest",
-                             "Risk backtest")
-  df_wStar <- data.frame(df_frontier$`Risk (standard deviation)`, t(do.call(cbind, list_wStar)))
-  varNames_ordered <- names(nab_decRet)
-  colnames(df_wStar) <- c("Risk (standard deviation)", varNames_ordered)
+colnames(df_frontier) <- c("ROI target",
+                           "Risk (CV)",
+                           "l_CV",
+                           "l_C",
+                           "beta")
+  df_wStar <- data.frame(df_frontier$`Risk (CV)`, t(do.call(cbind, list_wStar)))
+  varNames_ordered <- names(mu_vec)
+  colnames(df_wStar) <- c("Risk (CV)", varNames_ordered)
   outlist <- list(df_frontier, df_wStar)
   
 }
@@ -2045,7 +1974,7 @@ mat_G <- diag(eig_values_sigs)
 mat_G_test <- diag(eig_values_sigs_test[ind_rearrange])
 #=========================================================================
 # dimRet:
-Ctarg <- 1
+Ctarg <- 100
 covmat <- mat_G
 eigvals <- diag(covmat)
 covmat_test <- mat_G_test
@@ -2056,19 +1985,22 @@ nab_decRet_test <- nab_pctRet_sigs_test
 # nab_decRet <- nab_decRet_eg_train
 # nab_decRet_test <- nab_decRet_eg_test
 #---------------------------------------
-backtest_info <- list()
-backtest_info[["nab_decRet_test"]] <- nab_decRet_test
-backtest_info[["covmat_test"]] <- covmat_test
+# backtest_info <- list()
+# backtest_info[["nab_decRet_test"]] <- nab_decRet_test
+# backtest_info[["covmat_test"]] <- covmat_test
 backtest_info <- NULL
 #-------------------------------------------------------------------------
 # eigvals <- eigen(covmat_decDiff_train)$values
 # nab_decRet <- nab_decRet_eg_train
 # backtest_info[["nab_decRet_test"]] <- nab_decRet_eg_test
 # backtest_info[["covmat_test"]] <- covmat_decDiff_test
-outlist <- get_optimal_frontier_dimRet(nab_decRet, eigvals, n_points_on_frontier, backtest_info)
+mu_vec <- nab_decRet
+g_vec <- eigvals
+outlist <- get_optimal_frontier_dimRet(mu_vec, g_vec, Ctarg, n_points_on_frontier, backtest_info)
 df_frontier <- outlist[[1]]
 df_wStar <- outlist[[2]]
 #df_frontier <- round(df_frontier, 4)
+plot(df_frontier$`Risk (CV)`, df_frontier$`ROI target`)
 
 gg <- plot_frontier(df_frontier, ROI_basis = T, list_graph_options = NULL, graph_on = F)
 gg_frontier <- gg
@@ -2164,7 +2096,7 @@ A hypothetical list of AR4D proposals is presented in Figure \ref{fig:ExpPctRet_
 
 ```{r, fig.show = "hold", fig.width = 5, fig.height = 4, fig.align = "left", fig.cap = "\\label{fig:ExpPctRet_Examp}Hypothetical AR4D proposal estimated risks and returns."}
 #---------------------------------------------
-prop_CSA <- c("Heat Tolerant\nBeans", "Coffee Agroforestry", "Digital Agriculture", "Low Emission\nSilvo-Pastoril")
+prop_CSA <- c("Heat Tolerant\nBeans", "Coffee Agroforestry", "Digital Agriculture", "Low Emission\nSilvopastoral")
 econGrowth_CSA <- c(0.17, 0.28, 0.4, -0.35)
 econEquality_CSA <- c(0.85, 0.32, 0.81, 0.27)
 envSust_CSA <- c(0.65, 0.42, 0.5, 0.8)
@@ -2303,8 +2235,8 @@ if(mean(mat_P[, 1]) < 0){mat_P <- -mat_P}
 mat_P_sigs <- mat_P[, 1:n_signals]
 #--------------------------------------------------------------
 # Expected returns vector
-#nab_pctRet_ar4d_sigs <- as.numeric(t(10^-2 * nab_pctRet_ar4d) %*% mat_P_sigs)
-nab_pctRet_ar4d_sigs <- as.numeric(t(nab_pctRet_ar4d) %*% mat_Lrot)
+nab_pctRet_ar4d_sigs <- 10^-2 * as.numeric(t(10^-2 * nab_pctRet_ar4d) %*% mat_P_sigs)
+#nab_pctRet_ar4d_sigs <- as.numeric(t(nab_pctRet_ar4d) %*% mat_Lrot)
 names(nab_pctRet_ar4d_sigs) <- sigNames
 #--------------------------------------------------------------
 mat_nab <- cbind(nab_pctRet_ar4d_sigs, nab_C)
@@ -2315,13 +2247,15 @@ backtest_info <- NULL
 covmat <- covmat_SS
 eigvals <- diag(covmat_SS)
 #covmat_test <- mat_G_test
-nab_decRet <- nab_pctRet_ar4d_sigs
+mu_vec <- nab_pctRet_ar4d_sigs
+g_vec <- eigvals
 #nab_decRet_test <- nab_decRet_sigs_test
 backtest_info <- NULL
 #--------------------------------------------------------------
-outlist <- get_optimal_frontier_dimRet(nab_decRet, eigvals, n_points_on_frontier, backtest_info)
+outlist <- get_optimal_frontier_dimRet(mu_vec, g_vec, Ctarg, n_points_on_frontier, backtest_info)
 df_frontier <- outlist[[1]]
 df_wStar <- outlist[[2]]
+#plot(df_frontier$`Risk (CV)`, df_frontier$`ROI target`)
 #--------------------------------------------------------------
 gg <- plot_frontier(df_frontier, ROI_basis = T, list_graph_options = NULL, graph_on = F)
 gg_frontier <- gg
@@ -2344,8 +2278,8 @@ mat_wStar_assets_inv <- mat_P_sigs %*% mat_wStar^-1
 mat_wStar_assets <- mat_wStar_assets_inv^-1
 mat_wStar_assets <- apply(mat_wStar_assets, 2, function(x) x - 4 * min(x))
 mat_wStar_assets <- apply(mat_wStar_assets, 2, function(x) x / sum(x))
-df_wStar_assets <- data.frame(df_wStar$`Risk (standard deviation)`, t(mat_wStar_assets))
-colnames(df_wStar_assets) <- c("Risk (standard deviation)", row.names(mat_Lrot))
+df_wStar_assets <- data.frame(df_wStar$`Risk (CV)`, t(mat_wStar_assets))
+colnames(df_wStar_assets) <- c("Risk (CV)", row.names(mat_Lrot))
 gg_budget <- plot_budgetShares(df_wStar_assets, graph_on = F, list_graph_options = NULL)
 gg_budget
 
