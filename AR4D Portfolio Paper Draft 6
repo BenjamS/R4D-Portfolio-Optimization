@@ -60,153 +60,6 @@ A rigorous tool _at the portfolio level_, along the lines suggested by Mills ove
 
 ## AR4D risk-adjusted portfolio optimization
 
-In particular, I explore the possibility of adapting financial risk adjusted portfolio optimization, first conceptualized by Markowitz [@markowitz1952portfolio] and later formalized and refined by Merton [@merton1972analytic], to the AR4D context.^[In the financial literature, risk adjusted portfolio optimization is usually referred to as "mean-variance analysis".] In financial contexts, risk adjusted portfolio optimization determines the optimal investment in each portfolio item such that overall risk is minimized for a given return target (or, conversely, such that return is maximized for a given risk tolerance). A budget constraint is also included. An example is given in Figure \ref{fig:...} for a portfolio of 11 securities.^[The securities chosen for this example are exchange traded funds broadly representative of the U.S. economy.] In the top panel, the "efficient frontier" indicates the maximum expected return possible for each level of investor risk tolerance indicated along the x-axis. The budget allocation required to achieve the maximum return at each risk tolerance is indicated in the bottom panel.
-
-<!-- # ```{r, fig.show = 'hold', fig.width=4, fig.height=3, fig.align='center', fig.cap="\\label{fig:basic_illust}The efficient frontier. Each point on the frontier indicates the highest expected return that can be obtained for a given risk tolerance.", echo=FALSE} -->
-<!-- y <- seq(0, 1, length.out = 50) -->
-<!-- a <- 1 / 2 -->
-<!-- b <- 1 / 3 -->
-<!-- x <- a^2 * (y^2 / b^2 + 1) -->
-<!-- gg <- ggplot(data.frame(x, y), aes(x = x, y = y)) -->
-<!-- gg <- gg + geom_point() -->
-<!-- gg <- gg + labs(x = "Portfolio Risk (standard deviation)", y = "Portfolio expected return") -->
-<!-- gg <- gg + theme(axis.text = element_blank(), -->
-<!--                  axis.ticks = element_blank()) -->
-<!-- gg -->
-
-<!-- ``` -->
-There is a very important sense in which this reflects the kind of thinking that goes (or used to go) into AR4D bugdet allocation decisions. Emeritus scientists at the International Center for Tropical Agriculture, for example, recall that in the early years of the institution---around the time that Merton was writing his seminal paper---it was common practice to informally plot research proposals in a risk reward space such as that in the top panel of Figure \ref{fig:...}, and to thereby guide resource allocation decisions [@JCock_perscomm; @lynam2017forever].
-
-However, the AR4D context also differs from the financial context in many important respects. Most obviously, note that some budget shares in the bottom panel of Figure \ref{fig:...} are negative. In the financial context, negative shares mean that the investor should invest in the inverse of the security, which is possible through short selling.^[Even so, many financial managers find negative shares to be something of a nuissance, since they imply borrowing, and thus effectively defeat the purpose of including a budget constraint. See, for example, Boyle [-@boyle2014positive] and references for a discussion. Negative shares also present a somewhat misleading picture of portfolio returns. The high returns along the frontier in Figure \ref{fig:...} are a result not so much of shrewd budget allocation as they are of leveraging.] In the AR4D context, of course, there is no analogue to short selling. Budget allocations across a portfolio of AR4D proposals must always be positive. Secondly, in the financial context, expected return is a linear function of investment. That is, a doubling of investment results in a doubling of gains (or losses, as the case may be). In the AR4D context, on the other hand, returns to invesment in AR4D proposals tend to be marginally diminishing. The AR4D portfolio return function must be adjusted to capture this reality.
-
-Finally, estimation of portfolio risk requires assessment not only of the risk of each portfolio item, but also of the synergies and tradeoffs between portfolio items. Risk adjusted portfolio optimization works by balancing these synergies and tradeoffs so as to maximize return for a given risk tolerance and budget. In statistical parlance, synergies and tradeoffs are called positive and negative covariances, respectively. In the financial context, security risk (variance) and covariances can be calculated directly from abundantly available price data. There is no analogous straightforward means by which to calculate variances and covariances in the AR4D context. AR4D proposals are typically evaluated on the basis of one-off ex-ante impact assessment exercises; and thus do not generate anything along the lines of price data by which their variances and covariances could be calculated. Proposal risk could conceivably be ellicited in an informal manner from stakeholder input and/or "expert opinion"; but the ellicitation of proposal covariances would effectively raise by a power of two the time, effort, subjective bias, and tediousness of such a process, severely undermining the credibility of the resulting estimate.
-
-Below I address each of these three challenges standing in the way of adapting financial risk-adjusted portfolio optimization to the AR4D context.
-
-...resuscitating this practice, and of moving it onto a rigorous methodological footing. To achieve this, I propose an adaptation of MV analysis to the AR4D context, redressing each of the three methodological challenges enumerated in the previous paragraph. Before tackling these challenges, it is first necessary to walk through a brief introduction to MV analysis in its native financial context.
-
-
-<!-- After a brief introduction to MV Analysis in the following section, I redress each of these issues. In Section 3, I redress both the scalability and negative budget share issues by replacing the linear returns function used in MV Analysis with a logarithmic form derived from the law of diminishing marginal returns. In Section 4, I draw on principal components analysis to show how a lack of data can be compensated by domain knowledge in order to "reverse engineer" a covariance matrix. The deduced matrix is useful for orienting stakeholder discussions, but cannot be used in portfolio optimization. To find the optimal risk adjusted resource allocation, I introduce the "signals portfolio", a dimensionally reduced portfolio of principal components. The optimal resource allocation to individual portfolio items can be disaggregated from the optimal signals portfolio based on each item's correlation with each given signal. Finally I walk through a an illustrative example of what this AR4D-adapted version of MV Analysis might look like in practice. -->
-<!-- [These asjustments may be of interest to the financial context... The introduction of diminishing marginal returns, which forces positive budget weights, compares favorably to the unmodified approach on an ROI basis...and in a backtest.] -->
-<!-- Alston and Norton acknowledged in 1995 that the treatment of risk in impact assessment models was "rudimentary and in need of further refinement" [-@Alston1995]. This remains true today. -->
-
-# Brief introduction to risk adjusted portfolio optimization
-
-In financial contexts, the goal of MV Analysis is to find the optimal investment across a portfolio of risky assets such that risk is minimized for a given budget constraint and portfolio return target. More formally, this can be expressed
-
-\begin{equation}
-\max_{\mathbf{w}}\:R - C \:\:\:\:s.t. \:\:\: C=\bar{C} \:, \:\:\: \sigma^2 = \bar{\sigma}^2
-\end{equation}
-
-where $\mathbf{w}$ is the vector of budget shares to be invested in each asset, $R$ is the expected portfolio return, defined $R = \mathbf{w} \cdot \boldsymbol{\mu}$, where $\boldsymbol{\mu}$ is the vector of expected returns of each asset; $C$ is the cost, defined $C = \mathbf{w} \cdot \mathbf{1}$, constrained to sum to the budget $\bar{C}$; and $\sigma^2$ is the portfolio variance (a measure of the portfolio risk), defined $\sigma^2 = \mathbf{w} \cdot \Sigma \cdot \mathbf{w}$, where $\Sigma$ is the asset covariance matrix; and $\sigma^2$ is constrained to equal a tolerance $\bar{\sigma}^2$ set by the investor.^[In the financial context, the problem includes the option to invest in one risk free asset. There is no risk free investment in the AR4D context, so the set up here focuses on optimization of the risky portfolio only.]
-
-The Lagrangian is then
-
-\begin{equation}
-\mathcal{L} = R - C + \lambda_C(C - \bar{C}) + \lambda_{\sigma}(\sigma^2 - \bar{\sigma}^2)
-\end{equation}
-
-Since this is formulated as a minimization problem, the Lagrangian is essentially a cost function. The terms $\sigma^2$ and $C$ add to the cost, and hence carry positive signs, while the $R$ term offsets the cost, and thus carries a negative sign.
-
-The first order conditions are
-
-\begin{equation}
-\nabla \mathcal{L} = \boldsymbol{\mu} - \gamma \mathbf{1} + 2 \lambda_{\sigma} \Sigma \cdot \mathbf{w} = \mathbf{0} \:\:;\:\:\: \gamma = 1-\lambda_C
-\end{equation}
-
-and second order conditions
-
-\begin{equation}
-\mathbf{w} \cdot \nabla^2 \mathcal{L} \cdot \mathbf{w} = 2 \lambda_{\sigma} \sigma^2 < 0
-\end{equation}
-
-where $\nabla^2 \mathcal{L}$ is the Hessian matrix of $\mathcal{L}$. Since $\Sigma$ is symmetric and variances are, by definition, positive, then $\Sigma$ is positive semi-definite. Hence, a maximum is guaranteed so long as $\lambda_{\sigma}$ is negative.
-
-Dotting the first order conditions through by $\mathbf{w}$ gives the equation for the efficient frontier.
-
-\begin{equation}
-R^* = \lambda_C \bar{C} + 2 \lambda_{\sigma} \bar{\sigma}^2
-\label{eq:rStar}
-\end{equation}
-
-where the asterisk on $R$ indicates that this is the maximum portfolio return given budget constraint $\bar{C}$ and risk tolerance $\bar{\sigma}^2$.
-
-Note, in passing, that equation \ref{eq:rStar} implies that the risk shadow price is proportional to the expected reward to risk ratio.
-
-\begin{equation}
-\lambda_{\sigma} = \frac{\psi}{2\bar{\sigma}^2} \: ; \:\:\: \psi = R^* - \gamma \bar{C}
-\end{equation}
-
-where $\psi = R^* - \gamma \bar{C}$ is the expected reward, i.e., the expected net revenue, adjusted by the budget shadow price $\gamma$.
-
-Now, dotting the first order conditions through by $\Sigma^{-1}$ and rearranging gives an equation for the optimal budget shares.
-
-\begin{equation}
-\mathbf{w}^* = -\frac{1}{2 \lambda_{\sigma}} \Sigma^{-1} \cdot \nabla \psi \: ; \:\:\: \nabla \psi = \boldsymbol{\mu} - \gamma \mathbf{1}
-\label{eq:budgetShares}
-\end{equation}
-
-Note, in passing, that dotting this through by $\nabla \psi$ gives another instructive equation for $\lambda_{\sigma}$.
-
-\begin{equation}
-\lambda_{\sigma} = \frac{d_m^2}{2 \psi} \: ; \:\:\:\:d_m^2 = \nabla \psi \cdot \Sigma^{-1} \cdot \nabla \psi
-\end{equation}
-
-This says that the risk shadow price is inversely proportional to the ratio of the squared Mahalanobis distance ($d_m^2$) of the portfolio net reward gradient to the net reward. In this setting, the Mahalanobis distance reflects how improbable a given portfolio is. Note, then, that portfolio improbability goes to zero (and hence probability is greater) as $\nabla \psi = \mathbf{0}$, which occurs only when every component in the vector of asset returns ($\boldsymbol{\mu}$) equals the budget shadow price ($\gamma$). Moreover, note that this can be combined with the previous expression for $\lambda_{\sigma}$ to obtain
-
-\begin{equation}
-{1 \over d_m} = {\bar{\sigma} \over \psi}
-\end{equation}
-
-which says that the probability of the optimal portfolio equals its risk to reward ratio.
-
-Returning to the task at hand, evaluation of the optimal budget shares or the frontier in equations \ref{eq:rStar} and \ref{eq:budgetShares}, requires first solving for the cost and risk shadow prices $\gamma$ and $\lambda_{\sigma}$.
-
-To do this, first note that the budget shares equation can be rewritten as follows:
-
-\begin{equation}
-\mathbf{w}^* = -\frac{1}{2 \lambda_{\sigma}} \Sigma^{-1} \cdot [\boldsymbol{\mu}, -\mathbf{1}] \left[\begin{matrix} 1 \\ \gamma \end{matrix} \right]
-\end{equation}
-
-Now, dotting through by $[\boldsymbol{\mu}, -\mathbf{1}]$ gives
-
-\begin{equation}
-\left[\begin{matrix}
-R \\
--\bar{C} \\
-\end{matrix} \right]  = -\frac{1}{2 \lambda_{\sigma}} M\left[\begin{matrix}
-1 \\
-\gamma
-\end{matrix} \right]
-\end{equation}
-
-where $M$ has been introduced to stand for the matrix
-
-\begin{equation}
-M = [\boldsymbol{\mu}, \: -\mathbf{1}]' \cdot \Sigma^{-1} \cdot [\boldsymbol{\mu}, \: -\mathbf{1}]
-\end{equation}
-
-Let $M$ be called the "Merton matrix", after the author in whose footsteps I am now following [@merton1972analytic]. Pre-multiplying both sides of the previous equation by the inverse Merton matrix and rearranging gives the following expression: 
-
-\begin{equation}
--2 M^{-1}\left[\begin{matrix}
-R \\
--\bar{C} \\
-\end{matrix} \right]  = \left[\begin{matrix}
-1/\lambda_V \\
-\gamma / \lambda_{\sigma} \\
-\end{matrix} \right]
-\end{equation}
-
-For any given return target $R$ and budget $\bar{C}$, then, the cost and risk shadow prices are given by this equation. With values for $\gamma$ and $\lambda_{\sigma}$ in hand, the budget shares and risk associated with the chosen return target can be evaluated.
-
-The portfolio with the minimum possible risk can be found by differentiating the frontier (\ref{eq:rStar}) with respect to expected return and then setting $\frac{\partial \sigma}{\partial R}=0$. This gives the expected return for the portfolio with minimum possible risk. This corresponds to the portfolio at the vertex of the frontier parabola.
-
-\begin{equation}
-R\Bigr|_{\sigma = \sigma_{min}} = {m_{12} \over m_{22}}C
-\end{equation}
-
-
 ```{r, fig.width=14, fig.height=14, fig.align='center', echo = FALSE, include = FALSE}
 #options(warn = -1); options(scipen = 999)
 spy_sector_symbs <- c("XLF", "XLC", "XLY", "XLP", "XLV", "XLK", "RWR",
@@ -460,7 +313,6 @@ if(check_on_data){
 }
 
 ```
-
 
 ```{r, fig.show = 'hold', fig.cap="\\label{fig:hReturns}Historical (top) daily returns and (bottom) period return, financial data.", fig.width=6, fig.height=6, fig.align='left', echo=FALSE}
 #=======================================================================
@@ -717,58 +569,23 @@ test_stop_date <- row.names(mat_pctDiff_eg_test)[nrow(mat_pctDiff_eg_test)]
 #----------------------------------------------------------
 
 ```
-An example application of MV Analysis is presented below using daily financial data for `r ncol(mat_pctDiff_eg_train)` securities over the period `r train_start_date` to `r train_stop_date`, downloaded from yahoo finance using the R tidyquant package. These securities were chosen so as to be broadly representative of the U.S. economy. Details can be found in the appendix.
+In particular, I explore the possibility of adapting financial risk adjusted portfolio optimization, first conceptualized by Markowitz [@markowitz1952portfolio] and later formalized and refined by Merton [@merton1972analytic], to the AR4D context.^[In the financial literature, risk adjusted portfolio optimization is usually referred to as "mean-variance analysis".] In financial contexts, risk adjusted portfolio optimization determines the optimal investment in each portfolio item such that overall risk is minimized for a given return target (or, conversely, such that return is maximized for a given risk tolerance). A budget constraint is also included. An example is given in Figure \ref{fig:...} for a portfolio of `r ncol(mat_pctDiff_eg_train)` securities over the period `r train_start_date` to `r train_stop_date`.^[Downloaded from yahoo finance using the R tidyquant package. The securities chosen for this example are exchange traded funds broadly representative of the U.S. economy.] In the top panel, the "efficient frontier" indicates the maximum expected return possible for each level of investor risk tolerance indicated along the x-axis. The budget allocation required to achieve the maximum return at each risk tolerance is indicated in the bottom panel.
+<!-- # ```{r, fig.show = 'hold', fig.width=4, fig.height=3, fig.align='center', fig.cap="\\label{fig:basic_illust}The efficient frontier. Each point on the frontier indicates the highest expected return that can be obtained for a given risk tolerance.", echo=FALSE} -->
+<!-- y <- seq(0, 1, length.out = 50) -->
+<!-- a <- 1 / 2 -->
+<!-- b <- 1 / 3 -->
+<!-- x <- a^2 * (y^2 / b^2 + 1) -->
+<!-- gg <- ggplot(data.frame(x, y), aes(x = x, y = y)) -->
+<!-- gg <- gg + geom_point() -->
+<!-- gg <- gg + labs(x = "Portfolio Risk (standard deviation)", y = "Portfolio expected return") -->
+<!-- gg <- gg + theme(axis.text = element_blank(), -->
+<!--                  axis.ticks = element_blank()) -->
+<!-- gg -->
 
-<!-- They are mostly exchange traded funds tracking broad categories of stocks, bonds, markets, and commodities, plus major currency pairs traded on the foreign exchange market. -->
-
-<!-- [Table here detailing the ETF names, what they track, and my category name] -->
-
-The expected returns $\boldsymbol{\mu}$ are calculated from the data as
-
-$$
-\mu_i = \frac{p_{iT} - p_{i1}}{p_{i1}}
-$$
-where $\mathbf{p}_i$ is the $i^{th}$ asset's price time series, and $T$ is the length of the time series. These period returns are presented in the bottom panel of Figure \ref{fig:hReturns}.
-
-The covariance matrix $\Sigma$ is calculated from the data as
-
-$$
-\Sigma=\frac{1}{1 - n} X'X \:\:; \:\:\:\:\:\:X_{it} = r_{it}-\bar{r} \:, \:\:\:\:\: \bar{r} = \frac{1}{T}\sum_{t=1}^Tr_{it}
-$$
-where $n$ is the number of assets, and $r_{it}$ is the $i^{th}$ asset's daily return, calculated
-$$
-r_{it} = \frac{p_{it} - p_{it-1}}{p_{it-1}}
-$$
-for any given day $t$ in the series. As a practical matter, note that the period returns can also be calculated from the daily returns as follows.
-$$
-\mu_i = \prod_{t = 2}^T (1 + r_{it}) - 1
-$$
-Application of MV Analysis to this data yields the optimal frontier and budget shares displayed in Figure \ref{fig:mvConv}.
-
-```{r, fig.show = 'hold', fig.cap="\\label{fig:hReturns}Historical (top) daily returns and (bottom) period return, financial data.", fig.width=6, fig.height=6, fig.align='left', echo=FALSE}
-# Plot historical returns for period and items defined above
-fig_title <- "Period Returns (%)"
-list_graph_options <- list()
-list_graph_options[["fig_title"]] <- fig_title
-list_graph_options[["legend_position"]] <- "none"
-list_graph_options[["ylab"]] <- NULL
-df_pctRet <- data.frame(Value = nab_pctRet_eg_train, Item = names(nab_pctRet_eg_train), Group = demonstration_group)
-gg_barchart <- plot_returns_barchart(df_pctRet, group_colors, list_graph_options, graph_on = F)
-#----------------------------------------------------------
-# Covariance matrix plot
-gg_covmat <- plot_covmat(covmat_pctDiff_train, graph_on = F)
-#----------------------------------------------------------
-#gg_boxplot + gg_barchart + plot_layout(ncol = 1, heights = c(2, 1))
-gg_barchart + gg_covmat + plot_layout(ncol = 1, heights = c(1, 2))
-#----------------------------------------------------------
+<!-- ``` -->
 
 
-```
-
-\pagebreak
-
-
-```{r, fig.show = "hold", fig.width = 5, fig.height=5, fig.align='left', fig.cap="\\label{fig:mvConv}Optimal portfolio returns frontier and budget shares, financial data.", echo = FALSE}
+```{r, fig.show = "hold", fig.width = 5, fig.height=5, fig.align='left', fig.cap="\\label{fig:mvConv}\textit{(Top)} Frontier of optimal portfolio returns and \textit{(bottom)} their corresponding budget shares, financial data.", echo = FALSE}
 #=======================================================================
 # Define portfolio optimization function
 optimize_portfolio <- function(M_inv, covmat_inv, covmat, mat_nab, targ_vec,
@@ -846,7 +663,7 @@ plot_budgetShares <- function(df_wStar, group_small = NULL, color_vec = NULL, gr
   }
   #------------------------------------
   df_plot$portfolio_id <- 1:nrow(df_wStar)
-  df_match_V <- df_plot[, c("portfolio_id", "Risk (CV)")]
+  df_match_V <- df_plot[, c(grep("portfolio_id", colnames(df_plot)), grep("Risk", colnames(df_plot)))]
   df_plot <- df_plot %>% gather_("Item", "Budget shares", gathercols)
   df_plot <- df_plot %>% group_by(Item) %>% 
     mutate(mu = median(`Budget shares`)) %>% 
@@ -865,7 +682,10 @@ if(is.null(color_vec)){
 }
     #------------------------------------
 #  df_plot$`Risk (standard deviation)` <- as.factor(df_plot$`Risk (standard deviation)`)
-  gg <- ggplot(df_plot, aes(x = `Risk (CV)`, y = `Budget shares`, fill = Item))
+  y_var <- paste0("`", colnames(df_plot)[grep("Budget shares", colnames(df_plot))], "`")
+  x_var <- paste0("`", colnames(df_plot)[grep("Risk", colnames(df_plot))], "`")
+
+  gg <- ggplot(df_plot, aes_string(x_var, y_var, fill = "`Item`"))
   #legend_position <- "right"
   gg <- gg + geom_area(position = "stack")
  # gg <- gg + geom_bar(stat = "identity")
@@ -909,18 +729,14 @@ plot_frontier <- function(df_frontier, ROI_basis = T, list_graph_options = NULL,
   }
   
     df_plot <- df_frontier
-  # if(ncol(df_plot) == 3){
-  #   gathercols <- colnames(df_plot)[2:3]
-  #   df_plot <- df_plot %>% gather_("Type", "Value", gathercols)
-  #   gg <- ggplot(df_plot, aes(x = `Risk (standard deviation)`, y = Value, group = Type, color = Type))
+  # if(ROI_basis){
+  #   gg <- ggplot(df_plot, aes(x = `Risk (CV)`, y = `ROI target`))
   # }else{
-  #   gg <- ggplot(df_plot, aes(x = `Risk (standard deviation)`, y = `Return target`))
+  #   gg <- ggplot(df_plot, aes(x = `Risk (CV)`, y = `Return target`))
   # }
-  if(ROI_basis){
-    gg <- ggplot(df_plot, aes(x = `Risk (CV)`, y = `ROI target`))
-  }else{
-    gg <- ggplot(df_plot, aes(x = `Risk (CV)`, y = `Return target`))
-  }
+  y_var <- paste0("`", colnames(df_plot)[1], "`")
+  x_var <- paste0("`", colnames(df_plot)[2], "`")
+  gg <- ggplot(df_plot, aes_string(x_var, y_var))
   if(!is.null(fig_title)){
     gg <- gg + labs(title = fig_title)
     gg <- gg + theme(plot.title = element_text(face = "bold", size = 10))
@@ -1051,52 +867,69 @@ gg_frontier + gg_budget + plot_layout(ncol = 1)
 #--------------------------------------------------------------
 
 ```
-Note how the budget allocation changes with risk tolerance, and that some budget shares are negative. Negative budget shares mean that the investor should invest in the inverse of the corresponding asset. In the financial context, this is possible through short selling. Even so, many financial managers find negative shares to be something of a nuissance, since they imply borrowing, and thus effectively defeat the purpose of including a budget constraint in the first place ^[see Boyle]. Negative shares also present a somewhat misleading picture of portfolio returns. The high returns along the frontier in Figure \ref{fig:mvConv} are a result not so much of shrewd budget allocation as they are of leveraging. When expressed as a return _on investment_ (ROI), the outlook is more sobering (Figure \ref{fig:mvROI_levg_btest}, left panel).
+There is a very important sense in which this reflects the kind of thinking that used to go into AR4D bugdet allocation decisions. Emeritus scientists at the International Center for Tropical Agriculture, for example, recall that in the early years of the institution---around the time that Merton was writing his seminal paper---it was common practice to informally plot research proposals in a risk reward space such as that in the top panel of Figure \ref{fig:...}, and to thereby guide resource allocation decisions [@JCock_perscomm; @lynam2017forever]. The remainder of this paper is essentially an attempt to resuscitate and formalize this practice.
 
-```{r, fig.show = "hold", fig.width = 6, fig.height=3, fig.align='left', fig.cap="\\label{fig:mvROI_levg_btest}\\textit{(Left)} Optimal portfolio return on investment (ROI) frontier and leveraging; \\textit{(Right)} Backtest.", echo = FALSE}
-df_frontier$Leveraging <- df_frontier$`Tot. investment` - 1
+However, the AR4D context also differs from the financial context in many important respects. Most obviously, note that some budget shares in the bottom panel of Figure \ref{fig:...} are negative. In the financial context, negative shares mean that the investor should invest in the inverse of the security, which is possible through short selling.^[Even so, many financial managers find negative shares to be something of a nuissance, since they imply borrowing, and thus effectively defeat the purpose of including a budget constraint in the optimization problem. See Boyle [-@boyle2014positive] and references for a discussion. Negative shares also present a somewhat misleading picture of portfolio returns. The high returns along the frontier in Figure \ref{fig:...} are a result not so much of shrewd budget allocation as they are of leveraging.] In the AR4D context, of course, there is no analogue to short selling. Budget allocations across a portfolio of AR4D proposals must always be positive. Secondly, in the financial context, expected return is a linear function of investment. That is, a doubling of investment results in a doubling of gains (or losses, as the case may be). In the AR4D context, on the other hand, returns to invesment tend to be marginally diminishing.
 
-df_frontier_conv <- df_frontier
-df_wStar_conv <- df_wStar
+Finally, estimation of portfolio risk requires assessment not only of the risk of each portfolio item, but also of the synergies and tradeoffs between portfolio items. Risk adjusted portfolio optimization works by balancing these synergies and tradeoffs so as to maximize return for a given risk tolerance and budget. In statistical parlance, synergies and tradeoffs are called positive and negative covariances, respectively. In the financial context, security risk (variance) and covariances can be calculated directly from abundantly available price data. However, there is no analogous straightforward means by which to calculate variances and covariances in the AR4D context. AR4D proposals are evaluated by non-market means---typically on the basis of one-off ex-ante impact assessment exercises---and thus do not generate anything along the lines of price data by which their variances and covariances could be calculated. Proposal risk could conceivably be ellicited in an informal manner from stakeholder input and/or "expert opinion"; but the ellicitation of proposal covariances would effectively raise to a power of two the time, effort, subjective bias, and tediousness of such a process.
 
-df_plot <- df_frontier_conv
-gg <- ggplot(df_plot, aes(x = `Risk (standard deviation)`, y = `ROI target`))
-gg <- gg + geom_point()
-gg <- gg + theme(axis.title.x = element_blank(),
-                 axis.text.x = element_blank())
-gg_roi <- gg
+Below I address each of these challenges. First, I derive a portfolio return function that reflects the reality of marginally diminishing returns to investment in AR4D proposals. Then, drawing on principal components analysis (PCA), I show how, in the absence of data, a dimensionally reduced covariance matrix can be constructed from domain knowledge ellicited from stakeholders. Finally, I show how budget shares follow automatically from these two adjustments. I then walk through a hypothetical example of what AR4D risk-adjusted optimization might look like in practice.
+<!-- After a brief introduction to MV Analysis in the following section, I redress each of these issues. In Section 3, I redress both the scalability and negative budget share issues by replacing the linear returns function used in MV Analysis with a logarithmic form derived from the law of diminishing marginal returns. In Section 4, I draw on principal components analysis to show how a lack of data can be compensated by domain knowledge in order to "reverse engineer" a covariance matrix. The deduced matrix is useful for orienting stakeholder discussions, but cannot be used in portfolio optimization. To find the optimal risk adjusted resource allocation, I introduce the "signals portfolio", a dimensionally reduced portfolio of principal components. The optimal resource allocation to individual portfolio items can be disaggregated from the optimal signals portfolio based on each item's correlation with each given signal. Finally I walk through a an illustrative example of what this AR4D-adapted version of MV Analysis might look like in practice. -->
+<!-- [These asjustments may be of interest to the financial context... The introduction of diminishing marginal returns, which forces positive budget weights, compares favorably to the unmodified approach on an ROI basis...and in a backtest.] -->
+<!-- Alston and Norton acknowledged in 1995 that the treatment of risk in impact assessment models was "rudimentary and in need of further refinement" [-@Alston1995]. This remains true today. -->
 
-gg <- ggplot(df_plot, aes(x = `Risk (standard deviation)`, y = Leveraging))
-gg <- gg + geom_area(fill = "coral", alpha = 0.5)
-gg_levg <- gg
+## Accommodating diminishing returns
 
-gg_roiLevg <- gg_roi + gg_levg + plot_layout(ncol = 1, heights = c(2 / 3, 1 / 3))
+In the AR4D context, returns to investment are marginally diminishing. In other words, the additional return resulting from any small increase in investment in a given portfolio item will be inversely proportionate to the sum already invested in that portfolio item. This statement can be formalized as follows.
 
-gg <- ggplot(df_plot, aes(x = `Risk backtest`, y = `ROI backtest`))
-gg <- gg + geom_point()
-gg_backtest <- gg
+\begin{equation}
+\frac{\partial \ln(R)}{\partial \ln(w_i)} \sim \frac{d \ln (w_i)}{dw_i}
+\label{eq:dimRetDefine}
+\end{equation}
 
-gg_roiLevg | gg_backtest
+Equation \ref{eq:dimRetDefine} can be used to arrive at an expression for $R$ as follows:
+
+\begin{eqnarray}
+\ln R &=& \int \nabla_{\ln \mathbf{w}} \ln R \cdot d\mathbf{w} \\
+&=& \int \nabla_{\mathbf{w}} \ln\mathbf{w} \cdot d\ln\mathbf{w} \\
+&=& \int \mathbf{w}^{-2} \cdot d\mathbf{w} \\
+&=& \boldsymbol{\alpha} \cdot \mathbf{w}^{-1} + k \\
+\end{eqnarray}
+
+Substituting $\bar{R}=\exp(k)$, this can be rewritten
+
+\begin{equation}
+R(\mathbf{w}; \boldsymbol{\alpha}, \bar{R}) = \bar{R}\exp(\boldsymbol{\alpha} \cdot \mathbf{w}^{-1})
+\end{equation}
+
+where the proportionality constants $\boldsymbol{\alpha}$ are determined by context. In the present setting, the constants $\boldsymbol{\alpha}$ correspond to the vector $\boldsymbol{\mu}$. The constant of integration, $\bar{R}$, represents the ceiling on $R$, i.e.,
+
+\begin{equation}
+\bar{R} = \lim_{\mathbf{w} \rightarrow \infty} R
+\end{equation}
+
+This results in
+
+\begin{equation}
+R(\mathbf{w}; \boldsymbol{\mu}, \bar{R}) = \bar{R}\exp(\boldsymbol{\mu} \cdot \mathbf{w}^{-1})
+\label{eq:dimRetfn}
+\end{equation}
+
+The graph of this function in Figure \ref{fig:dimRet_f_basic_illust} agrees with intuition and experience, exhibiting increasing returns up to a point of constant returns, and then decreasing returns. The function approaches the asymtpote given by $\bar{R}$.
+
+```{r, fig.show = 'hold', fig.width=4, fig.height=3, fig.align='center', fig.cap="\\label{fig:dimRet_f_basic_illust}The returns function derived from the law of diminishing returns. In this illustration, one budget share is allowed to vary while the rest are held contstant.", echo=FALSE}
+
+w <- seq(0, 4, length.out = 35)
+Return <- exp(-1 / w)
+gg <- ggplot(data.frame(w, Return), aes(w, Return))
+gg <- gg + geom_line(size = 1.5)
+gg <- gg + theme(axis.text = element_blank(),
+                 axis.ticks = element_blank())
+gg
 
 ```
 
-Finally, note that the real ROI to the optimized portfolios over the investment period turn out to be much lower than that indicated by the efficient frontier (Figure \ref{fig:mvROI_levg_btest}, right panel). This is a common problem encountered in MV Analysis. Optimal solutions are highly sensitive to noise in the covariance matrix, often resulting in efficient frontiers that overstate returns and/or understate risk [@michaud1989markowitz].
-
-For these reasons, MV Analysis is still a work in progress, even in its native financial context. The task of adaptation thus requires a degree of innovation in redressing longstanding issues.
-
-# Adapting MV analysis to the AR4D context
-
-From the exposition above, it is readily evident that a number of adjustments must be made to the method introduced above for it to be applicable in the AR4D context. To begin with, AR4D proposals do not generate data analogous to price time series found in the financial context. It is thus not possible to calculate an AR4D proposal variance-covariance matrix in a straightforward manner. Secondly, adjustments must be made to the portfolio return function $R$ in order to reflect the diminishing returns to investment in AR4D proposals. And, thirdly, budget shares must be positive in the AR4D context. (Finally, it would also be nice if the resulting solutions more closely resembled the real returns...)
-
-I begin with the covariance matrix....drawing on PCA...dimensionally reduced matrix, map back to the portfolio items. Then...the diminishing returns to investment form derived from a... The issue of weights then falls into place without any further adjustments. A backtest suggests that the solutions are more accurate than in the plain vanilla case.
-
-
-Below, I make adjustments to the MV Analysis method introduced above in order to adapt it to the AR4D context. As mentioned in the introduction, these adjustments redress the lack of a covariance matrix, the diminishing returns to investments, and the positive budget shares found in the AR4D context. I begin with the issue of the covariance matrix.
-
-It turns out that these two adjustments then force budget shares to be positive.
-
-## "Reverse engineering" the covariance matrix from domain knowledge
-
+## Crowdsourcing the "signals" covariance matrix
 
 Jump diffusion process...Phillips corp. Merton. Here I take the alternate route of deducing the 
 
@@ -1166,7 +999,7 @@ K_{XS} = P \Gamma^{1 \over 2}
 
 The correlations matrix $K_{XS}$ is sometimes referred to as the "loadings" matrix, in the sense that it indicates how much each variable in $X$ loads onto a given signal (or, vice versa, how much each signal loads onto a given variable).^[Although many prefer to call $P$ the loadings.] In keeping with this convention, and in order to reduce notational clutter, $K_{XS}$ is henceforth relabeled $L$.
 
-The correlations between the financial assets from the example above and their four leading signals are presented in Figure \ref{fig:corrXS_barchart}. Concrete meaning can be attributed to each of these otherwise abstract signals by examining how correlated they are with the portfolio items.
+The correlations between the financial assets in the example from Figure \ref{fig:mvConv} above and their four leading signals are presented in Figure \ref{fig:corrXS_barchart}. Concrete meaning can be attributed to each of these otherwise abstract signals by examining how correlated they are with the portfolio items.
 
 
 ```{r, fig.show='hold', fig.width=6, fig.height=3, fig.align='right', fig.cap="\\label{fig:corrXS_barchart}Correlation of portfolio items with leading signals."}
@@ -1444,7 +1277,7 @@ plot_sigs_wHiLoad_items(mat_X_in, mat_S, mat_Lrot, color_vec, sigNames, load_thr
   
 ```  
 
-A calculation of varimax loadings over data from the subsequent period (`r test_start_date` to `r test_stop_date`), presented in Figure \ref{fig:corrXS_barchart_rot_test}, suggests that signal composition remains fairly stable from one period to the next, although signal order may change. In this case, the Financial and Physical Infrastructure Signal has traded places with the Pharmaceutical Signal. The order of a signal reflects its predominance in shaping the overall variance in the dataset.
+A calculation of varimax loadings over data from the subsequent period (`r test_start_date` to `r test_stop_date`), presented in Figure \ref{fig:corrXS_barchart_rot_test}, suggests that signal composition remains fairly stable from one period to the next, although signal order may change. In this case, the Financial and Physical Infrastructure Signal has changed places with the Pharmaceutical Signal. The order of a signal reflects its predominance in shaping the overall variance in the dataset.
 
 ```{r, fig.show='hold', fig.width=6, fig.height=3, fig.align='left', fig.cap="\\label{fig:corrXS_barchart_rot_test}Varimax rotated correlation of portfolio items with leading signals, backtest financial data.", echo=F}
 mat_X_in_test <- mat_pctDiff_eg_test
@@ -1506,15 +1339,20 @@ ck_vec <- cumsum(c_vec)
 
   gg
   
-  #====================================================
-n_signals <- which(ck_vec > 0.9)[1]
-#n_signals <- 3
 #====================================================
-
+n_signals <- which(ck_vec > 0.9)[1]
+mat_S <- mat_S_all[, 1:n_signals]
+mat_L <- cormat_XS[, 1:n_signals]
+eig_values_sigs <- eig_values[1:n_signals]
+#====================================================
   
 ```
 
-The plot shows that the leading `r n_signals` signals are sufficient to meet this criterion. Note that the data correlation matrix can then be approximated from the retained signals, as their outer product.
+The plot shows that the leading `r n_signals` signals are sufficient to meet this criterion.
+
+## Aside: "reverse engineering" the data covariance matrix from signals
+
+Note, in passing, that the data correlation matrix can be approximated from these `r n_signals` retained signals, as their outer product.
 
 \begin{eqnarray}
 L_{\circlearrowleft}L_{\circlearrowleft}' &=& LB (LB)' = LBB'L' = LL' \\
@@ -1525,15 +1363,15 @@ L_{\circlearrowleft}L_{\circlearrowleft}' &=& LB (LB)' = LBB'L' = LL' \\
 \label{eq:cormat_from_Lrot}
 \end{eqnarray}
 
-Note this is true for any orthogonal rotation $B$.
+If we are also given an estimate of the risk of each portfolio asset (i.e., a vector of asset standard deviations $\boldsymbol{\sigma}_X$), it is then straightforward to arrive at an approximate covariance matrix.
 
-The difference between the financial data correlation matrix and the signals derived correlation matrix is shown in Figure \ref{fig:compareCorMats}. Note that the difference is remarkably small for most entries. The signals derived correlation matrix is approximate in the sense that it approximates the data correlation matrix, but it should not necessarily be considered inferior in terms of accuracy. To the extent that the original data are contaminated by noise, the signals derived correlation matrix may even be more accurate with respect to the "true process" that generates the data.
+\begin{equation}
+\tilde{\Sigma}_{XX} = D(\boldsymbol{\sigma}_X) \tilde{K}_{XX} D(\boldsymbol{\sigma}_X)
+\end{equation}
+
+The difference between the financial data correlation matrix and the signals derived correlation matrix is shown in Figure \ref{fig:compareCorMats}. Note that the difference is remarkably small for most entries. The signals derived correlation matrix is approximate in the sense that it approximates the data correlation matrix; but it should not necessarily be considered inferior in terms of accuracy. To the extent that the original data are contaminated by noise, the signals derived correlation matrix may prove more accurate with respect to the "true process" that generates the data.
 
 ```{r, fig.show='hold', fig.width=6, fig.height=4, fig.align='center', fig.cap="\\label{fig:compareCorMats}The data correlation matrix minus the correlation matrix derived from the retained signals."}
-mat_S <- mat_S_all[, 1:n_signals]
-mat_L <- cormat_XS[, 1:n_signals]
-eig_values_sigs <- eig_values[1:n_signals]
-
 cormat_XX <- cor(mat_pctDiff_eg_train)
 cormat_XX_derived <- mat_L %*% t(mat_L)
 mat_diff_cormats <- cormat_XX - cormat_XX_derived
@@ -1541,57 +1379,14 @@ mat_diff_cormats <- cormat_XX - cormat_XX_derived
 plot_covmat(mat_diff_cormats, fig_title = NULL, graph_on = F)
 
 ```
+The deduced data covariance matrix may be useful in orienting stakeholder discussions, but it cannot be used for optimization purposes since, by definition, it contains eigenvalues that are equal to zero.^[Optimization requires an invertible covariance matrix.]
 
-Now, consider that, in the absence of data, the retained signals could be identified based on expert knowledge. That is, the key signals to which all movement in the dataset gravitate, such as those displayed in Figure \ref{fig:signals_with_hiCorr_items}, could be deduced through consultation with, say, market experts. The same domain knowledge could then be tapped to estimate each portfolio asset's correlation with each of these key signals. The end result of this consultation would be a crowdsourced, orthogonally rotated loadings matrix. The asset price data correlation matrix could then be approximated from this information via equation \ref{eq:cormat_from_Lrot}. If we are also given an estimate of the risk of each portfolio asset (i.e., a vector of asset standard deviations $\boldsymbol{\sigma}_X$), it is then straightforward to arrive at an approximate covariance matrix.
+## Crowdsourcing the signal covariance matrix and returns in the absence of data
 
-\begin{equation}
-\tilde{\Sigma}_{XX} = D(\boldsymbol{\sigma}_X) \tilde{K}_{XX} D(\boldsymbol{\sigma}_X)
-\end{equation}
+Equations ... imply that, for the purposes of covariance matrix estimation, domain knowledge of the key dimensions of the problem space, and of how the various moving parts of the problem (i.e. the portfolio items) map onto these dimensions, is a sufficient (and, in noisy contexts, possibly superior) substitute for data. That is...In the absence of data $X$ by which to calculate signal returns (equation \ref{eq:sigs_def}) and hence covariances (equation \ref{eq:covmat_SS}), the steps followed above to arrive at the orthogonally rotated loadings matrix could be set in reverse so as to begin with the loadings matrix and arrive at a signals covariance matrix. The loadings matrix could be ellicited from a group of market experts by asking 1) what are the cross cutting signals that describe 90% of (or simply "best describe") the overall market movement? And 2) how correlated is each portfolio item with each of these signals? The result of this consultation would essentially be a crowdsourced loadings matrix ($L$). However, loadings matrices are orthogonal. When loadings are ellicited from domain knowledge, as opposed to calculated from data, they will generally not be orthogonal, and so must be interpreted as rotated loadings ($L_{\circlearrowleft}$).
 
+Now, assuming the rotation is orthogonal, and given an asset risk estimate vector $\boldsymbol{\sigma}_X$---also ellicited from domain knowledge---the signals covariance matrix $\tilde{\Gamma}$ can be deduced from the eigendecomposition of the inner product of the crowdsourced information as follows.
 
-<!-- #```{r} -->
-
-<!-- sd_vec <- apply(mat_pctDiff_eg_train, 2, sd) -->
-<!-- sd_vec_noisy <- runif(length(sd_vec)) -->
-<!-- #t(mat_L) %*% diag(sd_vec) -->
-<!-- eig_out <- eigen(t(mat_L) %*% diag(sd_vec_noisy^2) %*% mat_L) -->
-<!-- eig_out$values -->
-<!-- eigen(cov(mat_S))$values -->
-<!-- eig_values_sigs -->
-
-<!-- eig_out$values / eigen(cov(mat_S))$values -->
-
-<!-- sd_vec / sd_vec_noisy -->
-
-<!-- #``` -->
-
-In this sense, a covariance matrix can be reverse engineered from domain knowledge when there is no data. Again, the crowdsourced covariance matrix may differ somewhat from the data covariance matrix; but it need not be considered inferior to the data covariance matrix in terms of accuracy. In noisy contexts, crowdsourced covariance matrices may very well prove to be more accurate than their data based counterparts. As a rule of thumb, the appropriateness of the crowdsourcing approach to covariance matrix estimation may be assessed by meditating upon the conceptual ratio $\nu$. 
-<!-- Regardless of accuracy, the crowdsourced covariance matrix has value in that it provides a picture...consistent with what we think we know about the system.-->
-$$
-\nu = \frac{\text{confidence in domain knowledge}}{\text{confidence in data}}
-$$
-
-As $\nu$ is higher, the crowdsource approach to covariance matrix estimation is more suitable. As $\nu$ is lower, it becomes more appropriate to estimate the covariance matrix on the basis of data. For values of $\nu$ close to 1, one might consider a mixture of the two approaches.
-
-[Maybe in intro to this section: below show how, in the absence of data, domain knowledge of the key dimensions of the problem space, and of how the various moving parts of the problem (i.e. the portfolio items) map onto these dimensions, is sufficient to estimate the data covariance matrix.]
-
-## The crowdsourced signals portfolio
-
-The deduced data covariance matrix may be useful in orienting stakeholder discussions, but it cannot be used for optimization since, by definition, it contains eigenvalues that are equal to zero.^[In the introduction to MV Analysis above, it is evident that optimization requires that the covariance matrix be invertible. A matrix with eigenvalues equal to zero is not invertible.]
-
-However, we can optimize over a portfolio of signals, and then map the optimal signal budget shares back to individual asset shares based on their correlation with the signals. To do this, we need the signal returns and signals covariance matrix $\Sigma_{SS}$. Both of these can be deduced from the risk assessment $\boldsymbol{\sigma}_X$, the asset expected returns $\boldsymbol{\hat{\mu}}$ and the crowdsourced loadings $L_{\circlearrowleft}$.
-
-Recall from equation $\ref{eq:covmat_SS}$ that the signals covariance matrix is a diagonal matrix containing the retained leading eigenvalues of $\Sigma_{XX}$. $\Sigma_{SS}$ can thus be derived from the rotated loadings matrix and asset risk estimates $\boldsymbol{\sigma}_X$ as follows.
-
-<!-- \begin{eqnarray} -->
-<!-- Q := D(\boldsymbol{\sigma}_X)L \\ -->
-<!-- Q'Q &=& (\tilde{P} \tilde{\Gamma}^{1 \over 2})' \tilde{P} \tilde{\Gamma}^{1 \over 2} \\  -->
-<!-- &=& \tilde{\Gamma}^{1 \over 2} \tilde{P}' \tilde{P} \tilde{\Gamma}^{1 \over 2} \\ -->
-<!-- &=& \tilde{\Gamma} = \Sigma_{SS} -->
-<!-- \label{eq:covmat_SS_from_L} -->
-<!-- \end{eqnarray} -->
-
-<!-- When loadings are ellicited from domain knowledge, as opposed to calculated from data, they will generally not be orthogonal, and so must be interpreted as rotated loadings ($L_{\circlearrowleft}$). In this case, the orthogonal rotation matrix is introduced. -->
 \begin{eqnarray}
 Q_{\circlearrowleft} := D(\boldsymbol{\sigma}_X)L_{\circlearrowleft}\\
 Q_{\circlearrowleft}'Q_{\circlearrowleft} &=& (\tilde{P} \tilde{\Gamma}^{1 \over 2} B)' \tilde{P} \tilde{\Gamma}^{1 \over 2} B \\
@@ -1599,58 +1394,66 @@ Q_{\circlearrowleft}'Q_{\circlearrowleft} &=& (\tilde{P} \tilde{\Gamma}^{1 \over
 &=& B' \tilde{\Gamma} B
 \end{eqnarray}
 
-Note here that the eigenvectors of $Q_{\circlearrowleft}'Q_{\circlearrowleft}$ are equal to the orthogonal rotation $B'$, and its eigenvalues are just $\tilde{\Gamma}$. Therefore, given crowdsourced rotated loadings $L_{\circlearrowleft}$ and asset risk estimates $\boldsymbol{\sigma_X}$, the signals covariance matrix $\Gamma$ can be isolated from the implicit rotation $B$ by taking the eigendecomposition of the inner product of the crowdsourced information $Q_{\circlearrowleft}'Q_{\circlearrowleft}$.
-
-With $\Gamma$ and $B$ in hand, it is then also possible to derive $\tilde{P}$ as follows.
+Note the implicit orthogonal rotation $B$ is also recovered through this eigendecomposition (as the transpose of the eigenvectors of $Q_{\circlearrowleft}'Q_{\circlearrowleft}$). With $\Gamma$ and $B$ in hand, moreover, it is then also possible to derive the implicit leading eigenvectors of the unobserved data covariance matrix ($\tilde{P}$).
 
 \begin{equation}
 \tilde{P} = Q_{\circlearrowleft}B'\Gamma^{-1 / 2}
 \end{equation}
 
-If we define expected returns as being equal to the previous period's return, then signal expected returns $\boldsymbol{\mu}$ can be deduced from the asset expected returns $\boldsymbol{\hat{\mu}}$ using $\tilde{P}$ by setting the time step $t = T$ in equation \ref{eq:sigs_def}.
+With $\tilde{P}$ in hand, and given crowdsourced asset returns, it is then possible to deduce signal returns via equation \ref{eq:sigs_def}.
+
+
+
+Given just the crowdsourced, rotated loadings, and the (also crowdsourced) risk and return associated with each portfolio item, then, it is possible to deduce all of the information required to conduct risk adjusted portfolio optimization over a portfolio of signals. 
+
+ As a rule of thumb, the appropriateness of the crowdsourcing approach to covariance matrix estimation may be assessed by meditating upon the conceptual ratio $\nu$. 
+$$
+\nu = \frac{\text{confidence in domain knowledge}}{\text{confidence in data}}
+$$
+
+As $\nu$ is higher, the crowdsource approach to covariance matrix estimation is more suitable. As $\nu$ is lower, it becomes more appropriate to estimate the covariance matrix on the basis of data. For values of $\nu$ close to 1, one might consider a mixture of the two approaches. Regardless of accuracy, the crowdsourced covariance matrix has value in that it provides a picture...consistent with what we think we know about the system.
+
+For purposes of optimization, in the 
+we can optimize over a portfolio of signals, and then map the optimal signal budget shares back to individual asset shares based on their correlation with the signals. To do this, we need the signal returns and signals covariance matrix $\Sigma_{SS}$. Both of these can be deduced from the risk assessment $\boldsymbol{\sigma}_X$, the asset expected returns $\boldsymbol{\hat{\mu}}$ and the crowdsourced loadings $L_{\circlearrowleft}$.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Note that the 
 
 \begin{equation}
 \boldsymbol{\mu} = \tilde{P} \boldsymbol{\hat{\mu}}
 \label{eq:sigMu_from_Xmu}
 \end{equation}
+
+
+
+
+
+
+
+
+
+
 <!-- Note, in passing, that the original data set $X$ may itself be considered a set of orthogonally rotated signals constructed from some higher dimensional dataset. This unobserved, higher dimensional dataset could likewise be considered a set of orthogonally rotated signals constructed from some still larget dataset, and so on, ad infinitum. Note that the eigenvalues of the system described by these nested datasets remain invariant under each successive step of dimensional reduction, while the eigenvectors change. In this sense, the eigenvalues of the original---or any---data covariance matrix are the "true" covariance matrix, while the eigenvectors may be considered an extraneous rotation of the true covariance matrix, not intrinsic to the construction of the signals, but rather applied extraneously, as an aid in their interpretation, or as a matter of contextualizing the abstract signals with respect to a particular set of concrete circumstances.  -->
 
-## Accommodating diminishing returns
 
-In financial contexts, investments scale linearly. A doubling of the investment doubles expected return. In the AR4D context, on the other hand, returns to investment are marginally diminishing. In other words, the additional return resulting from any small increase in investment in a given portfolio item will be inversely proportionate to the sum already invested in that portfolio item. This statement can be formalized as follows.
-
-\begin{equation}
-\frac{\partial \ln(R)}{\partial \ln(w_i)} \sim \frac{d \ln (w_i)}{dw_i}
-\label{eq:dimRetDefine}
-\end{equation}
-
-Equation \ref{eq:dimRetDefine} can be used to arrive at an expression for $R$ as follows:
-
-\begin{eqnarray}
-\ln R &=& \int \nabla_{\ln \mathbf{w}} \ln R \cdot d\mathbf{w} \\
-&=& \int \nabla_{\mathbf{w}} \ln\mathbf{w} \cdot d\ln\mathbf{w} \\
-&=& \int \mathbf{w}^{-2} \cdot d\mathbf{w} \\
-&=& \boldsymbol{\alpha} \cdot \mathbf{w}^{-1} + k \\
-\end{eqnarray}
-
-Substituting $\bar{R}=\exp(k)$, this can be rewritten
-
-\begin{equation}
-R(\mathbf{w}; \boldsymbol{\alpha}, \bar{R}) = \bar{R}\exp(\boldsymbol{\alpha} \cdot \mathbf{w}^{-1})
-\end{equation}
-
-where the proportionality constants $\boldsymbol{\alpha}$ are determined by context. In the present setting, the constants $\boldsymbol{\alpha}$ correspond to the vector $\boldsymbol{\mu}$. The constant of integration, $\bar{R}$, represents the ceiling on $R$, i.e.,
-
-\begin{equation}
-\bar{R} = \lim_{\mathbf{w} \rightarrow \infty} R
-\end{equation}
-
-This results in
-
-\begin{equation}
-R(\mathbf{w}; \boldsymbol{\mu}, \bar{R}) = \bar{R}\exp(\boldsymbol{\mu} \cdot \mathbf{w}^{-1})
-\label{eq:dimRetfn}
-\end{equation}
 
 ## Ensuring positive budget shares
 
@@ -2029,8 +1832,8 @@ mat_wStar_assets <- (mat_P_sigs %*% mat_wStar^-1)^-1
 mat_wStar_assets <- apply(mat_wStar_assets, 2, function(x) x - min(x) * 1.1)
 mat_wStar_assets <- apply(mat_wStar_assets, 2, function(x) x / sum(x))
 
-df_wStar_assets <- data.frame(df_wStar$`Risk (standard deviation)`, t(mat_wStar_assets))
-colnames(df_wStar_assets) <- c("Risk (standard deviation)", row.names(mat_Lrot))
+df_wStar_assets <- data.frame(df_wStar$`Risk (CV)`, t(mat_wStar_assets))
+colnames(df_wStar_assets) <- c("Risk (CV)", row.names(mat_Lrot))
 gg_budget <- plot_budgetShares(df_wStar_assets, color_vec = color_vec, graph_on = F, list_graph_options = NULL)
 gg_budget
 # #==========================================================
@@ -2052,8 +1855,8 @@ gg_budget
 #   Vtarg_test[i] <- t(wStar) %*% covmat_XX_test %*% wStar
 #   ROItarg_test[i] <- wStar %*% nab_decRet_eg_test
 # }
-# #
-# 
+# # #
+# # 
 #    df_frontier <- data.frame(sqrt(Vtarg), ROItarg, sqrt(Vtarg_test), ROItarg_test)
 #    colnames(df_frontier) <- c("Risk (standard deviation)", "ROI target", "Risk backtest", "ROI backtest")
 #   #plot_frontier(df_frontier, ROI_basis = T, graph_on = F)
@@ -2235,7 +2038,7 @@ if(mean(mat_P[, 1]) < 0){mat_P <- -mat_P}
 mat_P_sigs <- mat_P[, 1:n_signals]
 #--------------------------------------------------------------
 # Expected returns vector
-nab_pctRet_ar4d_sigs <- 10^-2 * as.numeric(t(10^-2 * nab_pctRet_ar4d) %*% mat_P_sigs)
+nab_pctRet_ar4d_sigs <- 10^2 * as.numeric(t(10^-2 * nab_pctRet_ar4d) %*% mat_P_sigs)
 #nab_pctRet_ar4d_sigs <- as.numeric(t(nab_pctRet_ar4d) %*% mat_Lrot)
 names(nab_pctRet_ar4d_sigs) <- sigNames
 #--------------------------------------------------------------
@@ -2285,7 +2088,7 @@ gg_budget
 
 ```
 
-Interpretation of the shadow prices...willingness to pay (lC = willingness to leverage, lR = willingness to expand work, impact pathways).
+Interpretation of the shadow prices...willingness to pay (lC = willingness to leverage (expand scope?), lCV = apetite for risk, impact pathways).
 
 Interpretation of the example. Note that proposals with low expected return do not necessarily correspond to a low budget share...vice versa...Note how the optimal solution changes with risk tolerance. At lower risk tolerances, the optimal investment focuses on economic growth, followed by environmental sustainability and economic equality. However, as risk tolerance increases, the optimal investment dictates that investments in environmental sustainability be displaced by investments in economic growth and, to a lesser extent, economic equality.
 
@@ -2307,6 +2110,29 @@ Interpretation of the example. Note that proposals with low expected return do n
 <!-- ## Separating signals from noise, identifying main assets contributing to market movements -->
 
 <!-- MV analysis is, in many ways, still a work in progress, with unresolved methodological issues severely limiting its usefulness even in its native financial context. In particular, covariance matrices estimated from price data tend to contain a lot of noise; and the optimal solutions then tend to diverge considerably from reality as a result of this [@michaud1989markowitz]. In my adaptation below, I propose a new approach to this problem by first dimensionally reducing the portfolio from several dozen assets to just a handful of "signals" constructed from the eigenvectors of the correlation matrix that can be meaningfully distinguished from noise. -->
+
+
+\pagebreak
+
+```{r, fig.show = 'hold', fig.cap="\\label{fig:hReturns}Historical (top) daily returns and (bottom) period return, financial data.", fig.width=6, fig.height=6, fig.align='left', echo=FALSE}
+# Plot historical returns for period and items defined above
+fig_title <- "Period Returns (%)"
+list_graph_options <- list()
+list_graph_options[["fig_title"]] <- fig_title
+list_graph_options[["legend_position"]] <- "none"
+list_graph_options[["ylab"]] <- NULL
+df_pctRet <- data.frame(Value = nab_pctRet_eg_train, Item = names(nab_pctRet_eg_train), Group = demonstration_group)
+gg_barchart <- plot_returns_barchart(df_pctRet, group_colors, list_graph_options, graph_on = F)
+#----------------------------------------------------------
+# Covariance matrix plot
+gg_covmat <- plot_covmat(covmat_pctDiff_train, graph_on = F)
+#----------------------------------------------------------
+#gg_boxplot + gg_barchart + plot_layout(ncol = 1, heights = c(2, 1))
+gg_barchart + gg_covmat + plot_layout(ncol = 1, heights = c(1, 2))
+#----------------------------------------------------------
+
+```
+
 
 
 
