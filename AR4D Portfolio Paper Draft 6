@@ -569,7 +569,7 @@ test_stop_date <- row.names(mat_pctDiff_eg_test)[nrow(mat_pctDiff_eg_test)]
 #----------------------------------------------------------
 
 ```
-In particular, I explore the possibility of adapting financial risk adjusted portfolio optimization, first conceptualized by Markowitz [@markowitz1952portfolio] and later formalized and refined by Merton [@merton1972analytic], to the AR4D context.^[In the financial literature, risk adjusted portfolio optimization is usually referred to as "mean-variance analysis".] In financial contexts, risk adjusted portfolio optimization determines the optimal investment in each portfolio item such that overall risk is minimized for a given return target (or, conversely, such that return is maximized for a given risk tolerance). A budget constraint is also included. An example is given in Figure \ref{fig:...} for a portfolio of `r ncol(mat_pctDiff_eg_train)` securities over the period `r train_start_date` to `r train_stop_date`.^[Downloaded from yahoo finance using the R tidyquant package. The securities chosen for this example are exchange traded funds broadly representative of the U.S. economy.] In the top panel, the "efficient frontier" indicates the maximum expected return possible for each level of investor risk tolerance indicated along the x-axis. The budget allocation required to achieve the maximum return at each risk tolerance is indicated in the bottom panel.
+In particular, I explore the possibility of adapting financial risk adjusted portfolio optimization, first conceptualized by Markowitz [@markowitz1952portfolio] and later formalized and refined by Merton [@merton1972analytic], to the AR4D context.^[In the financial literature, risk adjusted portfolio optimization is usually referred to as "mean-variance analysis".] In financial contexts, risk adjusted portfolio optimization determines the optimal investment in each portfolio item such that overall risk is minimized for a given return target (or, conversely, such that return is maximized for a given risk tolerance). A budget constraint is also included. An example is given in Figure \ref{fig:...} for a portfolio of `r ncol(mat_pctDiff_eg_train)` securities over the period `r train_start_date` to `r train_stop_date`.^[Downloaded from yahoo finance using the R tidyquant package. The securities chosen for this example are exchange traded funds broadly representative of the U.S. economy.] In the top panel, the optimal risk-reward frontier indicates the maximum expected return possible for each level of investor risk tolerance indicated along the x-axis. The budget allocation required to achieve the maximum return at each risk tolerance is indicated in the bottom panel.
 <!-- # ```{r, fig.show = 'hold', fig.width=4, fig.height=3, fig.align='center', fig.cap="\\label{fig:basic_illust}The efficient frontier. Each point on the frontier indicates the highest expected return that can be obtained for a given risk tolerance.", echo=FALSE} -->
 <!-- y <- seq(0, 1, length.out = 50) -->
 <!-- a <- 1 / 2 -->
@@ -878,7 +878,7 @@ Below I address each of these challenges. First, I derive a portfolio return fun
 <!-- [These asjustments may be of interest to the financial context... The introduction of diminishing marginal returns, which forces positive budget weights, compares favorably to the unmodified approach on an ROI basis...and in a backtest.] -->
 <!-- Alston and Norton acknowledged in 1995 that the treatment of risk in impact assessment models was "rudimentary and in need of further refinement" [-@Alston1995]. This remains true today. -->
 
-## Accommodating diminishing returns
+# Accommodating diminishing returns
 
 In the AR4D context, returns to investment are marginally diminishing. In other words, the additional return resulting from any small increase in investment in a given portfolio item will be inversely proportionate to the sum already invested in that portfolio item. This statement can be formalized as follows.
 
@@ -902,26 +902,26 @@ Substituting $\bar{R}=\exp(k)$, this can be rewritten
 R(\mathbf{w}; \boldsymbol{\alpha}, \bar{R}) = \bar{R}\exp(\boldsymbol{\alpha} \cdot \mathbf{w}^{-1})
 \end{equation}
 
-where the proportionality constants $\boldsymbol{\alpha}$ are determined by context. In the present setting, the constants $\boldsymbol{\alpha}$ correspond to the vector $\boldsymbol{\mu}$. The constant of integration, $\bar{R}$, represents the ceiling on $R$, i.e.,
+where the proportionality constants $\boldsymbol{\alpha}$ are determined by context. In the present setting, it makes sense to set $\boldsymbol{\alpha}$ equal to the expected return on investment in the corresponding portfolio items. The constant of integration, $\bar{R}$, represents the ceiling on $R$, i.e.,
 
 \begin{equation}
 \bar{R} = \lim_{\mathbf{w} \rightarrow \infty} R
 \end{equation}
 
-This results in
+and can be set to 1 by convention. This results in
 
 \begin{equation}
 R(\mathbf{w}; \boldsymbol{\mu}, \bar{R}) = \bar{R}\exp(\boldsymbol{\mu} \cdot \mathbf{w}^{-1})
 \label{eq:dimRetfn}
 \end{equation}
 
-The graph of this function in Figure \ref{fig:dimRet_f_basic_illust} agrees with intuition and experience, exhibiting increasing returns up to a point of constant returns, and then decreasing returns. The function approaches the asymtpote given by $\bar{R}$.
+The graph of this function in Figure \ref{fig:dimRet_f_basic_illust} agrees with intuition and experience, exhibiting increasing returns up to a point of constant returns, and then decreasing returns. The function approaches, but never reaches, the upper bound given by $\bar{R}$.
 
 ```{r, fig.show = 'hold', fig.width=4, fig.height=3, fig.align='center', fig.cap="\\label{fig:dimRet_f_basic_illust}The returns function derived from the law of diminishing returns. In this illustration, one budget share is allowed to vary while the rest are held contstant.", echo=FALSE}
 
-w <- seq(0, 4, length.out = 35)
-Return <- exp(-1 / w)
-gg <- ggplot(data.frame(w, Return), aes(w, Return))
+Investment <- seq(0, 4, length.out = 35)
+Return <- exp(-1 / Investment)
+gg <- ggplot(data.frame(Investment, Return), aes(Investment, Return))
 gg <- gg + geom_line(size = 1.5)
 gg <- gg + theme(axis.text = element_blank(),
                  axis.ticks = element_blank())
@@ -929,7 +929,7 @@ gg
 
 ```
 
-## Crowdsourcing the "signals" covariance matrix
+# Crowdsourcing portfolio risk from domain knowledge in the absence of data
 
 Jump diffusion process...Phillips corp. Merton. Here I take the alternate route of deducing the 
 
@@ -938,6 +938,7 @@ Jump diffusion process...Phillips corp. Merton. Here I take the alternate route 
 Merton, R. C. (1976). Option pricing when underlying stock returns are discontinuous. Journal of Financial Economics, 3(1), 125–144.
 -->
 
+## Signals from noise: dimensional reduction of the portfolio
 
 In principal components analysis, a dataset $X$ containing $t$ observations of $n$ variables is distilled into a dataset $S$ of just $m<n$ variables that capture the main tendencies and structure in the data.^[The data is always centered. If the variables in $X$ follow diverse scalings and/or units of measurement (i.e. if apples are being compared to oranges), then $X$ should also be scaled to unit variance. In this exposition, the variables are all of the same type, and so $X$ is centered but not scaled. See [@AbdiPCA] for an introduction to principal components analysis.] The distilled matrix $S$ is defined
 
@@ -1350,9 +1351,41 @@ eig_values_sigs <- eig_values[1:n_signals]
 
 The plot shows that the leading `r n_signals` signals are sufficient to meet this criterion.
 
-## Aside: "reverse engineering" the data covariance matrix from signals
+## "Reverse engineering" signal covariance and returns in the absence of data
 
-Note, in passing, that the data correlation matrix can be approximated from these `r n_signals` retained signals, as their outer product.
+Equations \ref{eq:covmat_SS} to \ref{eq:Lrot} imply that it is possible to work backwards from the rotated loadings $L_{circle}$ and asset risk $\boldsymbol{\sigma}_X$, to arrive at the signals covariance matrix $\Gamma$. To see this, define $Q_{\circlearrowleft} = D(\boldsymbol{\sigma}_X)L_{\circlearrowleft}$, and note that
+
+\begin{eqnarray}
+Q_{\circlearrowleft}'Q_{\circlearrowleft} &=& (\tilde{P} \tilde{\Gamma}^{1 \over 2} B)' \tilde{P} \tilde{\Gamma}^{1 \over 2} B \\
+&=& B' \tilde{\Gamma}^{1 \over 2} \tilde{P}' \tilde{P} \tilde{\Gamma}^{1 \over 2} B \\
+&=& B' \tilde{\Gamma} B
+\end{eqnarray}
+
+Hence, $\Gamma$ is obtained as the eigenvalues of $Q_{\circlearrowleft}'Q_{\circlearrowleft}$. The implicit orthogonal rotation $B$ is also recovered as the transpose of the corresponding eigenvectors.
+
+With $\Gamma$ and $B$ in hand, moreover, it is then possible to derive the implicit leading eigenvectors of the unobserved data covariance matrix ($\tilde{P}$).
+
+\begin{equation}
+\tilde{P} = Q_{\circlearrowleft}B'\Gamma^{-1 / 2}
+\end{equation}
+
+by which, given crowdsourced asset returns, it is possible to deduce signal returns via equation \ref{eq:sigs_def}.
+
+If we are without the data $X$, then, but somehow given the signal loadings, risk estimates, and return estimates of each portfolio item, it is possible to deduce the signal covariance matrix and returns.
+
+Asset risk and return can be ellicited from domain knowledge experts. The loadings matrix could also be ellicited by asking experts 1) to name and rank in order of importance the cross cutting tendencies (i.e. signals) that describe 90% of (or simply "best describe") the general evolution of the portfolio items; and 2) indicate how correlated each portfolio item is with each of these tendencies. The result of this consultation would essentially be a crowdsourced loadings matrix ($L$). However, loadings matrices are orthogonal. When loadings are ellicited from domain knowledge, as opposed to calculated from data, they will generally not be orthogonal, and so must be interpreted as orthogonally rotated loadings ($L_{\circlearrowleft}$).
+
+Risk, return, and loadings deduced in this way will likely differ from their data based counterparts. However, this does not necessarily mean that they are inferior in terms of accuracy. In noisy contexts, it is conceivable that such crowdsourced estimates may prove more accurate than data based calculations. As a rule of thumb, the appropriateness of the crowdsourcing approach may be assessed by meditating upon the conceptual ratio $\nu$.
+
+$$
+\nu = \frac{\text{confidence in domain knowledge}}{\text{confidence in data}}
+$$
+
+As $\nu$ is higher, the crowdsource approach to covariance matrix estimation is more suitable. As $\nu$ is lower, it becomes more appropriate to estimate the covariance matrix on the basis of data. For values of $\nu$ close to 1, one might consider a mixture of the two approaches. Regardless of accuracy, the crowdsourced covariance matrix has value in that it provides a picture...consistent with what we think we know about the system.
+
+## Aside: approximating the data covariance matrix from signals
+
+Note, in passing, that the data correlation matrix can also be approximated from the `r n_signals` retained signals, as their outer product.
 
 \begin{eqnarray}
 L_{\circlearrowleft}L_{\circlearrowleft}' &=& LB (LB)' = LBB'L' = LL' \\
@@ -1380,60 +1413,12 @@ plot_covmat(mat_diff_cormats, fig_title = NULL, graph_on = F)
 
 ```
 The deduced data covariance matrix may be useful in orienting stakeholder discussions, but it cannot be used for optimization purposes since, by definition, it contains eigenvalues that are equal to zero.^[Optimization requires an invertible covariance matrix.]
+<!-- Note, in passing, that the original data set $X$ may itself be considered a set of orthogonally rotated signals constructed from some higher dimensional dataset. This unobserved, higher dimensional dataset could likewise be considered a set of orthogonally rotated signals constructed from some still larget dataset, and so on, ad infinitum. Note that the eigenvalues of the system described by these nested datasets remain invariant under each successive step of dimensional reduction, while the eigenvectors change. In this sense, the eigenvalues of the original---or any---data covariance matrix are the "true" covariance matrix, while the eigenvectors may be considered an extraneous rotation of the true covariance matrix, not intrinsic to the construction of the signals, but rather applied extraneously, as an aid in their interpretation, or as a matter of contextualizing the abstract signals with respect to a particular set of concrete circumstances.  -->
 
-## Crowdsourcing the signal covariance matrix and returns in the absence of data
-
-Equations ... imply that, for the purposes of covariance matrix estimation, domain knowledge of the key dimensions of the problem space, and of how the various moving parts of the problem (i.e. the portfolio items) map onto these dimensions, is a sufficient (and, in noisy contexts, possibly superior) substitute for data. That is...In the absence of data $X$ by which to calculate signal returns (equation \ref{eq:sigs_def}) and hence covariances (equation \ref{eq:covmat_SS}), the steps followed above to arrive at the orthogonally rotated loadings matrix could be set in reverse so as to begin with the loadings matrix and arrive at a signals covariance matrix. The loadings matrix could be ellicited from a group of market experts by asking 1) what are the cross cutting signals that describe 90% of (or simply "best describe") the overall market movement? And 2) how correlated is each portfolio item with each of these signals? The result of this consultation would essentially be a crowdsourced loadings matrix ($L$). However, loadings matrices are orthogonal. When loadings are ellicited from domain knowledge, as opposed to calculated from data, they will generally not be orthogonal, and so must be interpreted as rotated loadings ($L_{\circlearrowleft}$).
-
-Now, assuming the rotation is orthogonal, and given an asset risk estimate vector $\boldsymbol{\sigma}_X$---also ellicited from domain knowledge---the signals covariance matrix $\tilde{\Gamma}$ can be deduced from the eigendecomposition of the inner product of the crowdsourced information as follows.
-
-\begin{eqnarray}
-Q_{\circlearrowleft} := D(\boldsymbol{\sigma}_X)L_{\circlearrowleft}\\
-Q_{\circlearrowleft}'Q_{\circlearrowleft} &=& (\tilde{P} \tilde{\Gamma}^{1 \over 2} B)' \tilde{P} \tilde{\Gamma}^{1 \over 2} B \\
-&=& B' \tilde{\Gamma}^{1 \over 2} \tilde{P}' \tilde{P} \tilde{\Gamma}^{1 \over 2} B \\
-&=& B' \tilde{\Gamma} B
-\end{eqnarray}
-
-Note the implicit orthogonal rotation $B$ is also recovered through this eigendecomposition (as the transpose of the eigenvectors of $Q_{\circlearrowleft}'Q_{\circlearrowleft}$). With $\Gamma$ and $B$ in hand, moreover, it is then also possible to derive the implicit leading eigenvectors of the unobserved data covariance matrix ($\tilde{P}$).
-
-\begin{equation}
-\tilde{P} = Q_{\circlearrowleft}B'\Gamma^{-1 / 2}
-\end{equation}
-
-With $\tilde{P}$ in hand, and given crowdsourced asset returns, it is then possible to deduce signal returns via equation \ref{eq:sigs_def}.
-
-
-
-Given just the crowdsourced, rotated loadings, and the (also crowdsourced) risk and return associated with each portfolio item, then, it is possible to deduce all of the information required to conduct risk adjusted portfolio optimization over a portfolio of signals. 
-
- As a rule of thumb, the appropriateness of the crowdsourcing approach to covariance matrix estimation may be assessed by meditating upon the conceptual ratio $\nu$. 
-$$
-\nu = \frac{\text{confidence in domain knowledge}}{\text{confidence in data}}
-$$
-
-As $\nu$ is higher, the crowdsource approach to covariance matrix estimation is more suitable. As $\nu$ is lower, it becomes more appropriate to estimate the covariance matrix on the basis of data. For values of $\nu$ close to 1, one might consider a mixture of the two approaches. Regardless of accuracy, the crowdsourced covariance matrix has value in that it provides a picture...consistent with what we think we know about the system.
+# Positive budget shares follow automatically from the problem formulation
 
 For purposes of optimization, in the 
 we can optimize over a portfolio of signals, and then map the optimal signal budget shares back to individual asset shares based on their correlation with the signals. To do this, we need the signal returns and signals covariance matrix $\Sigma_{SS}$. Both of these can be deduced from the risk assessment $\boldsymbol{\sigma}_X$, the asset expected returns $\boldsymbol{\hat{\mu}}$ and the crowdsourced loadings $L_{\circlearrowleft}$.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 Note that the 
 
@@ -1442,195 +1427,141 @@ Note that the
 \label{eq:sigMu_from_Xmu}
 \end{equation}
 
+this is signals portfolio, then map back to portfolio items...
 
+## Problem formulation
 
-
-
-
-
-
-
-
-<!-- Note, in passing, that the original data set $X$ may itself be considered a set of orthogonally rotated signals constructed from some higher dimensional dataset. This unobserved, higher dimensional dataset could likewise be considered a set of orthogonally rotated signals constructed from some still larget dataset, and so on, ad infinitum. Note that the eigenvalues of the system described by these nested datasets remain invariant under each successive step of dimensional reduction, while the eigenvectors change. In this sense, the eigenvalues of the original---or any---data covariance matrix are the "true" covariance matrix, while the eigenvectors may be considered an extraneous rotation of the true covariance matrix, not intrinsic to the construction of the signals, but rather applied extraneously, as an aid in their interpretation, or as a matter of contextualizing the abstract signals with respect to a particular set of concrete circumstances.  -->
-
-
-
-## Ensuring positive budget shares
-
-The signals portfolio risk-adjusted optimization problem is facilitated by taking the log of the portfolio diminishing returns function defined in \ref{eq:dimRetfn}, such that the portfolio variance function becomes
+The risk adjusted portfolio optimization problem may now be formulated as folows
+...want to maximize expected return given a certain risk tolerance and budget constraint.
 
 \begin{equation}
-\sigma^2 = Var(\ln R) = \mathbf{w}^{-1} {'} \Sigma_{SS} \mathbf{w}^{-1}
+\max{E[R]}_{\mathbf{w}} \:\:\:\: s.t. \:\: \kappa^2 = \hat{\kappa}^2 \:\: C = \hat{C}
+\end{equation}
+
+where $\kappa$ is the portfolio risk to reward ratio $\sigma_p / \mu_p$.^[Also known as the coefficient of variation. One could replace this with risk $\sigma_p$ in the formulation, but use of $\kappa$ makes for more straightforward first order conditions below.]
+
+Assuming lognormal returns, $E[R]$ and $\kappa^2$ have the form
+
+\begin{eqnarray}
+E[R] = e^{m_R + s_R^2 / 2}
+\kappa^2 = e^{s_R^2 / 2} - 1
+\end{eqnarray}
+
+where
+
+\begin{equation}
+m_R = E[\ln R] = -\boldsymbol{\mu} {'} \mathbf{w}^{-1}
+\end{equation}
+
+\begin{equation}
+s_R^2 = Var(\ln R) = \mathbf{w}^{-1} {'} \Sigma_{SS} \mathbf{w}^{-1}
 \end{equation}
 
 which, recalling equation \ref{eq:covmat_SS}, reduces to
 
 \begin{eqnarray}
-\sigma^2 &=& Var(\ln R) = \mathbf{w}^{-1} {'} \Gamma \mathbf{w}^{-1} \\
+s^2 &=& Var(\ln R) = \mathbf{w}^{-1} {'} \Gamma \mathbf{w}^{-1} \\
 &=& \boldsymbol{\gamma}'\mathbf{w}^{-2}
 \end{eqnarray}
 
-The problem formulation and Lagrangian then become
+The Lagraingian is then
 
 \begin{equation}
-\min{\sigma^2}_{\mathbf{w}} \:\:\:\: s.t. \:\: \ln R = \ln \hat{R} \:\: C = \hat{C}
+\mathcal{L} = E[R] - \lambda_{\kappa}(\kappa^2 - \bar{\kappa}^2) - \lambda_C(C - \bar{C})
 \end{equation}
 
+## Optimal resource allocation and shadow prices
+
+with first order conditions
+
+\begin{eqnarray}
+\nabla_{\mathbf{w}} \mathcal{L} &=& E[R] (D(\boldsymbol{\mu}) \mathbf{w}^{-2} - D(\boldsymbol{\gamma}) \mathbf{w}^{-3}) + \lambda_{\kappa}(\kappa + 1 / \kappa) D(\boldsymbol{\gamma}) \mathbf{w}^{-3} + \lambda_C \mathbf{1} = \mathbf{0} \\
+&=& E[R] D(\boldsymbol{\mu}) \mathbf{w}^{-2} + \beta D(\gamma) \mathbf{w}^{-3} - \lambda_C \mathbf{1}
+\end{eqnarray}
+
+where the shorthand $\beta$ has been introduced to stand in for
+
 \begin{equation}
-\mathcal{L} = \boldsymbol{\gamma}'\mathbf{w}^{-2} - \lambda_R (\ln \hat{R} - \mu {'} \mathbf{w}^{-1} - \ln \hat{R}) + \lambda_C (\mathbf{1} {'} \mathbf{w} - \hat{C})
+\beta = \lambda{\kappa} (\kappa + 1 / \kappa) - E[R]
+\label{eq:beta_eq}
 \end{equation}
 
-where the required inputs $\boldsymbol{\gamma}$ and $\boldsymbol{\mu}$ can be deduced from a crowdsourced rotated loadings matrix $L_{\circlearrowleft}$, estimated asset risk vector $\boldsymbol{\sigma}_X$, and expected asset returns $\boldsymbol{\hat{\mu}}$, as shown in the previous sections.
-
-The first order conditions are then
+Now, rearranging the first order conditions into the following cubic equation
 
 \begin{equation}
-\nabla_{\mathbf{w}} \mathcal{L} = -2 D(\boldsymbol{\gamma}) \mathbf{w}^{-3} - \lambda_R D(\boldsymbol{\mu}) \mathbf{w}^{-2} + \lambda_C \mathbf{1} = \mathbf{0}
-\end{equation}
-
-which can be rearranged into the following cubic equation.
-
-\begin{equation}
--2 \boldsymbol{\gamma} - \lambda_R D(\boldsymbol{\mu}) \mathbf{w} + \lambda_C \mathbf{w}^3 = \mathbf{0}
+- \lambda_C \mathbf{w}^3 + E[R] D(\boldsymbol{\mu}) \mathbf{w} + \beta \boldsymbol{\gamma} = \mathbf{0}
 \label{eq:rootfn}
 \end{equation}
 
-By Descartes' rule of signs, each budget share $w_i$ is guaranteed to have one positive real root (and two complex roots). Hence, the new problem formulation resulting from the modifications introduced in the previous sections guarantees positive budget shares.
+reveals that, by Descartes' rule of signs, each budget share $w_i$ is guaranteed to have one positive real root (and two complex roots). Hence, the new problem formulation resulting from the modifications introduced in the previous sections guarantees positive budget shares.
 
-WxMaxima returns the following solution for equation \ref{eq:rootfn}.
+The wxMaxima computer algebra system returns the following solution for equation \ref{eq:rootfn}.
 
 \begin{equation}
-{w^*}_i = {1 \over \sqrt{3}} (\lambda_C^{-{1 \over 3}} a_i^{1 \over 3} + \lambda_C^{-{2 \over 3}} \lambda_R \mu_i a_i^{-{1 \over 3}})
+{w^*}_i = \frac{1}{2^{1/3} 3^{1/2}} (\lambda_C^{-{1 / 3}} a_i^{1 / 3} + 2^{2 / 3} \lambda_C^{-2 / 3} E[R] \mu_i \lambda_R \mu_i a_i^{-1 / 3})
 \label{eq:w_sol1}
 \end{equation}
 
 where
 
 \begin{equation}
-a_i = \sqrt{27 \gamma_i^2 - \frac{\lambda_R^3}{\lambda_C} \mu_i^3} + \sqrt{27}\gamma_i
+a_i = \sqrt{27 \beta^2 \gamma_i^2 - 4 \frac{E[R]^3 \mu_i^3}{\lambda_C}} + \sqrt{27} \beta \gamma_i
 \label{eq:w_sol2}
 \end{equation}
 
-The lower bound of the budget shares $w^*_i$ is guaranteed to be greater than 0 by Descartes' rule of signs, but what about its upper bound? This is difficult to gauge from the rather ugly expression in equations \ref{eq:w_sol1} and \ref{eq:w_sol2}. However, $w^*_i$ can be coerced into a more instructive and compact form.
+The lower bound of the budget shares $w^*_i$ is guaranteed to be greater than $0$ by Descartes' rule of signs, but what about its upper bound? This is difficult to gauge from the rather ugly expression in equations \ref{eq:w_sol1} and \ref{eq:w_sol2}. However, $w^*_i$ can be coerced into a more instructive and compact form.
 
 First, note that the term $a_i$ can be factored as follows.
 
 \begin{equation}
-a_i = \sqrt{\frac{\lambda_R^3}{\lambda_C} \mu_i^3} \left( j \sqrt{1 - 27 \gamma_i^2 \frac{\lambda_C}{\lambda_R^3 \mu_i^3}} + \sqrt{27 \frac{\lambda_C \gamma_i^2}{\lambda_R^3 \mu_i^3}} \right)
+a_i = 2 {\beta \over \tau} \sqrt{\mu_i^3} \left( j \sqrt{1 - d_j^2} + d_j \right) \:\:;\:\:\: d_j = \frac{3 \sqrt{3} \gamma_i}{2 \sqrt{\mu_i^3}} \tau \:\:,\:\:\: \tau = \beta \sqrt{\frac{\lambda_C}{E[R]^3}}
 \end{equation}
 
 where $j$ is the imaginary number $j = \sqrt{-1}$.
 
-Now, note that the expression inside the parenthesis describes the sides of a triangle and can thus be rewritten in terms of sine and cosine.
+Now, note that the expression inside the parenthesis describes a triangle with hypotenuse $1$ and legs $d$, $\sqrt{1 - d^2}$; and can thus be rewritten in terms of sine and cosine.
 
 \begin{equation}
-a_i = \sqrt{\frac{\lambda_R^3 \mu_i^3}{\lambda_C}} \left( j \sin{\theta_i} + \cos{\theta_i} \right) \:\:; \:\:\:\: \theta_i = \arccos \left(\sqrt{27 \frac{\lambda_C \gamma_i^2}{\lambda_R^3 \mu_i^3}} \gamma_i \right)
+a_i = 2 {\beta \over \tau} \sqrt{\mu_i^3} \left( j \sin{\theta_i} + \cos{\theta_i} \right) \:\:; \:\:\:\: \theta_i = \arccos(d_j)
 \end{equation}
 
 By Euler's formula, moreover,
 
 \begin{equation}
-a_i = \sqrt{\frac{\lambda_R^3 \mu_i^3}{\lambda_C}} e^{j \theta_i}
+a_i = 2 {\beta \over \tau} \mu_i^3 e^{j \theta_i}
 \end{equation}
 
 Substituting this into equation \ref{eq:w_sol1} then reduces the budget share equation to
 
 \begin{equation}
-{w^*}_i = {1 \over \sqrt{3}} \sqrt{\frac{\lambda_R}{\lambda_C} \mu_i} \left(e^{j \theta_i / 3} + e^{-j \theta_i / 3} \right)
+w^*_i = {1 \over \sqrt{3}} {\beta \over \tau} \sqrt{\mu_i} \left(e^{j \theta_i / 3} + e^{-j \theta_i / 3} \right)
 \end{equation}
 
 which can also be expressed
 
 \begin{equation}
-{w^*}_i = {2 \over \sqrt{3}} \sqrt{\frac{\lambda_R \mu_i}{\lambda_C}} \cos \left( \theta_i \over 3 \right) \:\:; \:\:\:\: \theta_i = \arccos \left(3 \sqrt{3} \sqrt{\frac{\lambda_C \gamma_i^2}{\lambda_R^3 \mu_i^3}} \right)
+w^*_i = {2 \over \sqrt{3}} {\beta \over \tau} \sqrt{\mu_i} \cos \left( \theta_i \over 3 \right)
 \label{eq:wStar_eq}
 \end{equation}
 
-Since the domain of $\cos(\phi)$ is $-1 < \cos(\phi) < 1$ for any angle $\phi \in (0,\pi)$, this implies
+Since the domain of $\cos(\psi)$ is $-1 < \cos(\psi) < 1$ for any angle $\psi \in (0,\pi)$, this implies
 
 \begin{equation}
--\frac{2}{\sqrt{3}} \sqrt{\frac{\lambda_R \mu_i}{\lambda_C}} < {w^*}_i < \frac{2}{\sqrt{3}} \sqrt{\frac{\lambda_R \mu_i}{\lambda_C}}
+\frac{2}{\sqrt{3}} {\beta \over \tau} \sqrt{\mu_i} < {w^*}_i < \frac{1}{\sqrt{3}} {\beta \over \tau} \sqrt{\mu_i}
 \end{equation}
 
-However, the term $\sqrt{\frac{\lambda_R \mu_i}{\lambda_C}}$ is clearly always greater than zero. Hence, the domain of ${w^*}_i$ reduces to
+The domain of $\tau$ likewise follows as
 
 \begin{equation}
-0 < {w^*}_i < \frac{2}{\sqrt{3}} \sqrt{\frac{\lambda_R}{\lambda_C} \mu_i}
+-\frac{2}{3 \sqrt{3}} \frac{\sqrt{\mu_i^3}}{\gamma_i} < \tau < \frac{2}{3 \sqrt{3}} \frac{\sqrt{\mu_i^3}}{\gamma_i} \:\:;\:\:\: \forall i
+\label{eq:tau_domain}
 \end{equation}
 
-## Solving for the shadow prices in AR4D MV Analysis 
+The optimal budget allocation $\mathbf{w}^*$ for a given $\tau$ and budget constraint $C^*$ can be found by solving the optimized cost function $C^* = \mathbf{1} {'} \mathbf{w}^*$ for $\beta$, and then evaluating $\mathbf{w}^*$ at this value of $\beta$. With $\mathbf{w}^*$ in hand, it is then straightforward to evaluate the optimal return $E[R]^*$ and risk $\kappa^*$. The bounds on $E[R]^*$ and $\kappa^*$ can be found by evaluating at the bounds of $\tau$.
 
-The shadow prices $\lambda_R$ and $\lambda_C$ can be found for given budget $C^*$ and return target $R^*$ by setting up a Merton matrix equation along the lines of conventional MV Analysis. However, in the modified approach here, the Merton matrix will have non-constant entries, and so the system of two equations would have to be solved implicitly. A more straightforward route is to solve the system
+Having found $\kappa^*$ and $E[R]^*$, the risk and budget shadow prices can be found by solving $\beta$ (equation \ref{eq:beta_eq}) for $\lambda_{\kappa}$ and $\tau$ for $\lambda_C$, respectively.
 
-\begin{eqnarray}
-C^* &=& \mathbf{1}{'}\mathbf{w}^* \\
-&=& {2 \over \sqrt{3}} \sqrt{\frac{\lambda_R}{\lambda_C}} \boldsymbol{\mu}^{-{1 \over 2}} {'} \cos \left( \frac{1}{3}\boldsymbol{\theta} \right)
-\end{eqnarray}
-
-\begin{eqnarray}
-\ln (R^* / \bar{R}) &=& \boldsymbol{\mu}{'}\mathbf{w}^{*-1} \\
-&=& {\sqrt{3} \over 2} \sqrt{\frac{\lambda_C}{\lambda_R}} \boldsymbol{\mu}^{1 \over 2}{'} \cos^{-1} \left(\frac{1}{3}\boldsymbol{\theta} \right)
-\end{eqnarray}
-
-Alternatively, one of these equations could be replaced by the optimized risk equation.
-
-\begin{eqnarray}
-\sigma^{*2} &=& \boldsymbol{\gamma}{'}\mathbf{w}^{*-2} \\
-&=& {3 \over 4} \frac{\lambda_C}{\lambda_R} \boldsymbol{\gamma}{'}D(\boldsymbol{\mu})^{1 \over 2}{'} \cos^{-2} \left(\frac{1}{3}\boldsymbol{\theta} \right)
-\end{eqnarray}
-
-Note that, in general, [define rho etc...]
-
-As a practical matter, it is helpful to combine two of these equations so as to eliminate the common term ${\sqrt{3} \over 2} \sqrt{\frac{\lambda_C}{\lambda_R}}$, and then to solve for the ratio $r =\frac{\lambda_C}{\lambda_R^3}$. Combining the optimized return and cost functions, for example, gives
-
-\begin{equation}
-\ln(R / \bar{R}) = -C\frac{\rho(\mathbf{1}, 1; r, \boldsymbol{\mu}, \boldsymbol{\gamma})}{\rho(\boldsymbol{\mu}, -1; r, \boldsymbol{\mu}, \boldsymbol{\gamma})}
-\label{eq:r_rootfn}
-\end{equation}
-
-where the notation $\rho(\mathbf{x}, n; r, \boldsymbol{\mu}, \boldsymbol{\gamma})$ has been introduced to stand in for
-
-\begin{equation}
-\rho(\mathbf{x}, n; r, \boldsymbol{\mu}, \boldsymbol{\gamma}) = \mathbf{x}'D(\boldsymbol{\mu})^{-{n \over 2}} \cos^n \left(\frac{1}{3}\boldsymbol{\theta}\right)
-\end{equation}
-
-Equation \ref{eq:r_rootfn} can then be solved for $\frac{\lambda_C}{\lambda_R^3}$, given budget $C^*$ and return target $R^*$.
-
-This is computationally expedient, since the domain of $\frac{\lambda_C}{\lambda_R^3}$ is implied by equation \ref{eq:wStar_eq}, and can thus be fed to the rootfinding algorithm to reduce the search space.
-
-\begin{equation}
-0 < r <  {1 \over 27} \frac{\mu_i^3}{\gamma_i^2} \:\:\:;\:\: \forall i
-\end{equation}
-
-Once $r$ has been solved for, it can be substituted into $R^*$ or $C^*$ to solve for $\frac{\lambda_R}{\lambda_C}$, whence $\lambda_R$ and $\lambda_C$ can then be extracted individually.
-
-The range of $R^*$ can determined by evaluating it at the bounds of $r$.
-
-<!-- As a practical matter, note that the three preceding equations follow the general form -->
-
-<!-- \begin{eqnarray} -->
-<!-- f(\mathbf{x}, n; \lambda_R, \lambda_C, \boldsymbol{\mu}, \boldsymbol{\gamma}) &:=& \mathbf{x}'\mathbf{w}(\lambda_R, \lambda_C; \boldsymbol{\mu}, \boldsymbol{\gamma})^{*n} \\ -->
-<!-- &=& \left(2 \over \sqrt{3} \sqrt{\frac{\lambda_R}{\lambda_C}} \right)^n \rho(\mathbf{x}, n, \lambda_R, \lambda_C, \boldsymbol{\mu}, \boldsymbol{\gamma}) \:\:\:;\:\: \rho(\mathbf{x}, n, \lambda_R, \lambda_C, \boldsymbol{\mu}, \boldsymbol{\gamma}) = \mathbf{x}'D(\boldsymbol{\mu})^{-{n \over 2}} \cos^n \left(\frac{1}{3}\boldsymbol{\theta}\right) -->
-<!-- \label{eq:f_def} -->
-<!-- \end{eqnarray} -->
-
-<!-- That is to say, -->
-
-<!-- \begin{eqnarray} -->
-<!-- C^* &=& f(\mathbf{1}, 1; \lambda_R, \lambda_C, \boldsymbol{\mu}, \boldsymbol{\gamma}) \\ -->
-<!-- \ln(R^* / \bar{R}) &=& f(-\boldsymbol{\mu}, -1; \lambda_R, \lambda_C, \boldsymbol{\mu}, \boldsymbol{\gamma}) \\ -->
-<!-- \sigma^{*2} &=& f(\boldsymbol{\gamma}, -2; \lambda_R, \lambda_C, \boldsymbol{\mu}, \boldsymbol{\gamma}) -->
-<!-- \end{eqnarray} -->
-
-<!-- Note, moreover, that equation \ref{eq:f_def} can be rearranged -->
-
-<!-- \begin{equation} -->
-<!-- (\frac{f(\mathbf{x}, n; lambda_R, lambda_C, \boldsymbol{\mu}, \boldsymbol{\gamma})}{\rho(\mathbf{x}, n; \lambda_R, \lambda_C, \boldsymbol{\mu}, \boldsymbol{\gamma})})^{\frac{1}{n}} = 2 \over \sqrt{3} \sqrt{\frac{\lambda_R}{\lambda_C}} -->
-<!-- \end{equation} -->
-
-<!-- so that, for example, -->
-
-<!-- [apply to the fin data...(?)] -->
+In order to solve for the optimal budget allocation given only $C^*$ and an expected return target $E[R]^*$ or risk tolerance $\kappa$, two of these three equations must be solved for $\beta$ and $\tau$ using a root finding algorithm, whence it is then straightforward to extract $\lambda_{\kappa}$ and $\lambda_C$. In practice, I find it is computationally expedient to define the root function in the variable $\tau$, since the domain of $\tau$ is known (equation \ref{eq:tau_domain}) and can be passed to the root finding algorithm, thereby minimizing the search space.^[There are many algorithms that can be used to find the zeroes of such a function. I use Broyden's method in the uniroot.all() function from the rootSolve package, in R.] When setting an expected return target or risk tolerance, be sure to check that it is within the domain allowed by $\tau$.
 
 ## Mapping the signal budget shares back to individual portfolio asset shares
 
@@ -1650,7 +1581,7 @@ The signal definition in equation \ref{eq:sigs_def} suggests the following mappi
 \label{eq:wStar_map}
 \end{equation}
 
-To see this, recall that the rows of the definition in equation \ref{eq:sigs_def} indicate returns over an arbitrary step length $t$. In the financial example, the step length is one day. If the step length is increased to the length of the entire time period covered by the data set ($T$), then the time series is reduced to just one row. If expected return is defined as being equal to this period return, then
+<!-- To see this, recall that the rows of the definition in equation \ref{eq:sigs_def} indicate returns over an arbitrary step length $t$. In the financial example, the step length is one day. If the step length is increased to the length of the entire time period covered by the data set ($T$), then the time series is reduced to just one row. If expected return is defined as being equal to this period return, then -->
 
 \begin{equation}
 \boldsymbol{\mu} = \boldsymbol{\hat{\mu}} {'} \tilde{P}
@@ -1677,215 +1608,13 @@ Hence, the mapping $\mathbf{\hat{w}}^*$ defined in \ref{eq:wStar_map} satisfies 
 
 where $\boldsymbol{\chi}$ is a vector of arbitrary factors scaling the columns of $\tilde{P}$. The values of $\boldsymbol{\chi}$ may be chosen such that the asset weights $\mathbf{\hat{w}}^*$ are positive and sum to $C^*$.
 
-In practice, this scaling can be applied by simply computing $\mathbf{\hat{w}}^*$ via equation \ref{eq:wStar_map}. If the result contains negative values, add a constant $\alpha$ such that all weights become positive. Finally, divide by a constant $\beta$ such that the weights add to $C^*$.
+In practice, this scaling can be applied by simply computing $\mathbf{\hat{w}}^*$ via equation \ref{eq:wStar_map}. If the result contains negative values, add a constant $\alpha$ such that all weights become positive. (The parameter $\alpha$ may be tuned so as to guarantee a minimum investment in the lowest ranking portfolio item.) Finally, divide by a constant $\beta$ such that the weights add to $C^*$.
 
 The scaling $\boldsymbol{\chi}$ can then be found by rearranging equation \ref{eq:wStar_map_scaled} as follows.
 
 \begin{equation}
 D(\mathbf{w}^{*-1}) \tilde{P} {'} \mathbf{\hat{w}}^{*-1} = \boldsymbol{\chi}
 \end{equation}
-
-Note that $\alpha$ may be tuned so as to guarantee a minimum investment in the lowest ranking portfolio item.
-
-```{r, fig.show = "hold", fig.width = 5, fig.height=5, fig.align='left', fig.cap="\\label{fig:mvSigs}Optimal frontier and budget shares, signals portfolio.", echo = FALSE}
-ind_rearrange <- c(2, 1, 3:n_signals)
-#=============================================================================
-# To convince yourself that sign of eigenvectors can be changed with impunity
-# M <- matrix(runif(4*4), 4, 4)
-# M <- round(t(M) %*% M, 5)
-# P <- eigen(M)$vectors
-# U <- diag(eigen(M)$values)
-# these_cols <- c(2, 4)
-# P_new <- P
-# P_new[, these_cols] <- -P[, these_cols]
-# round(M - P %*% U %*% t(P), 4)
-# round(M - P_new %*% U %*% t(P_new), 4)
-#=============================================================================
-optimize_portfolio_dimRet <- function(om, nab_decRet, eigvals, Ctarg){
-  g_vec <- as.numeric(eigvals)
-  mu_vec <- as.numeric(nab_decRet)
-  term <- om * sqrt(g_vec^2 / mu_vec^3)  # k = a^2 * l_C
-  
-  theta_vec <- acos(3 * sqrt(3) / 2 * term)
-  rho_vec <- 2 / sqrt(3) * (diag(sqrt(mu_vec)) %*% as.matrix(cos(theta_vec / 3)))
-#---
-  ones_vec <- rep(1, length(g_vec))
-  rho_C <- as.numeric(t(ones_vec) %*% rho_vec)
-  muR_over_lC <- (rho_C / Ctarg)^2
-  wStar <- 1 / sqrt(muR_over_lC) * rho_vec
-  m_R <- -mu_vec %*% wStar^-1
-  s2_R <- g_vec %*% wStar^-2
-  mu_R <- exp(m_R + s2_R / 2)
-  l_C <- mu_R / muR_over_lC
-  beta <- om * sqrt(mu_R^3 / l_C)
-  CV_R <- sqrt(exp(s2_R) - 1)
-  l_CV <- (beta + mu_R) / (CV_R + 1 / CV_R)
-  #--
-  frontier_vec <- c(mu_R, CV_R, l_CV, l_C, beta)
-  outlist <- list(frontier_vec, wStar)
-  return(outlist)
-}
-
-
-#=========================================================================
-get_optimal_frontier_dimRet <- function(mu_vec, g_vec, Ctarg, n_points_on_frontier, backtest_info = NULL){
-om_up <- min(2 / (3 * sqrt(3)) * sqrt(mu_vec^3) / g_vec)
-om_lo <- -om_up
-om_vec <- seq(om_lo, om_up, length.out = n_points_on_frontier)
-list_frontier <- list()
-list_wStar <- list()
-for(i in 1:n_points_on_frontier){
-  om <- om_vec[i]
-  outlist <- optimize_portfolio_dimRet(om, mu_vec, g_vec, Ctarg)
-  frontier_vec <- outlist[[1]]
-  wStar <- outlist[[2]]
-  list_frontier[[i]] <- frontier_vec
-  list_wStar[[i]] <- wStar
-}
-
-df_frontier <- as.data.frame(do.call(rbind, list_frontier))
-colnames(df_frontier) <- c("ROI target",
-                           "Risk (CV)",
-                           "l_CV",
-                           "l_C",
-                           "beta")
-  df_wStar <- data.frame(df_frontier$`Risk (CV)`, t(do.call(cbind, list_wStar)))
-  varNames_ordered <- names(mu_vec)
-  colnames(df_wStar) <- c("Risk (CV)", varNames_ordered)
-  outlist <- list(df_frontier, df_wStar)
-  
-}
-#=========================================================================
-#=========================================================================
-#=========================================================================
-#=========================================================================
-mat_P_sigs <- mat_P[, 1:n_signals]
-mat_Sx_train <- mat_decDiff_eg_train %*% mat_P_sigs
-#----
-mat_P_sigs_test <- mat_P_test[, 1:n_signals]
-mat_Sx_test <- mat_decDiff_eg_test %*% mat_P_sigs_test
-eig_values_sigs_test <- eig_values_test[1:n_signals]
-#----
-nab_decRet_sigs_train <- (apply(mat_Sx_train, 2, function(x) prod(1 + x)) - 1)
-names(nab_decRet_sigs_train) <- paste("Signal", 1:n_signals)
-nab_decRet_sigs_test <- (apply(mat_Sx_test, 2, function(x) prod(1 + x)) - 1)
-#----
-nab_pctRet_sigs_train <- 100 * nab_decRet_sigs_train[ind_rearrange]
-nab_pctRet_sigs_test <- 100 * nab_decRet_sigs_test[ind_rearrange]
-#----
-mat_G <- diag(eig_values_sigs)
-mat_G_test <- diag(eig_values_sigs_test[ind_rearrange])
-#=========================================================================
-# dimRet:
-Ctarg <- 100
-covmat <- mat_G
-eigvals <- diag(covmat)
-covmat_test <- mat_G_test
-nab_decRet <- nab_pctRet_sigs_train
-nab_decRet_test <- nab_pctRet_sigs_test
-# covmat <- diag(eig_values)
-# covmat_test <- diag(eig_values_test)
-# nab_decRet <- nab_decRet_eg_train
-# nab_decRet_test <- nab_decRet_eg_test
-#---------------------------------------
-# backtest_info <- list()
-# backtest_info[["nab_decRet_test"]] <- nab_decRet_test
-# backtest_info[["covmat_test"]] <- covmat_test
-backtest_info <- NULL
-#-------------------------------------------------------------------------
-# eigvals <- eigen(covmat_decDiff_train)$values
-# nab_decRet <- nab_decRet_eg_train
-# backtest_info[["nab_decRet_test"]] <- nab_decRet_eg_test
-# backtest_info[["covmat_test"]] <- covmat_decDiff_test
-mu_vec <- nab_decRet
-g_vec <- eigvals
-outlist <- get_optimal_frontier_dimRet(mu_vec, g_vec, Ctarg, n_points_on_frontier, backtest_info)
-df_frontier <- outlist[[1]]
-df_wStar <- outlist[[2]]
-#df_frontier <- round(df_frontier, 4)
-plot(df_frontier$`Risk (CV)`, df_frontier$`ROI target`)
-
-gg <- plot_frontier(df_frontier, ROI_basis = T, list_graph_options = NULL, graph_on = F)
-gg_frontier <- gg
-#--------------------------------------------------------------
-n_items <- ncol(df_wStar) - 1
-bag_of_colors <- randomcoloR::distinctColorPalette(k = 5 * n_items)
-color_vec_mv_eg <- sample(bag_of_colors, n_items)
-gg_budget <- plot_budgetShares(df_wStar, color_vec = color_vec_mv_eg, graph_on = F, list_graph_options = NULL)
-#--------------------------------------------------------------
-gg_frontier + gg_budget + plot_layout(ncol = 1)
-
-
-```
-
-
-<!-- Inaccuracy in the efficient frontier due to noisy covariance matrices severely limits the usefulness of MV Analysis in everyday practice [@Michaud...]. A backtest of the efficient frontiers from the example pursued in this paper reaffirms this (Figure \ref{fig:backtest}). It stands to reason that replacement of the data covariance matrix with a signals derived covariance matrix could improve the accuracy of the efficient frontier. But the signals derived covariance matrix contains eigenvalues equal to zero, and is thus is not invertible; and hence cannot be used in MV Analysis. Nonetheless, there is an alternative route to the same goal of reducing noise in MV Analysis: the portfolio of assets can be replaced with a portfolio of signals. -->
-
-
-```{r, fig.show='hold', fig.width=5, fig.height=5, fig.align='center', fig.cap="\\label{fig:wDisagg}The asset budget shares derived from the signals."}
-
-# Map the signal weights back to the assets
-mat_wStar <- t(as.matrix(df_wStar[, -1]))
-#colSums(mat_L %*% diag(1 / colSums(mat_L)))
-mat_wStar_assets <- (mat_P_sigs %*% mat_wStar^-1)^-1
-#mat_wStar_assets <- exp(mat_wStar_assets)
-mat_wStar_assets <- apply(mat_wStar_assets, 2, function(x) x - min(x) * 1.1)
-mat_wStar_assets <- apply(mat_wStar_assets, 2, function(x) x / sum(x))
-
-df_wStar_assets <- data.frame(df_wStar$`Risk (CV)`, t(mat_wStar_assets))
-colnames(df_wStar_assets) <- c("Risk (CV)", row.names(mat_Lrot))
-gg_budget <- plot_budgetShares(df_wStar_assets, color_vec = color_vec, graph_on = F, list_graph_options = NULL)
-gg_budget
-# #==========================================================
-# 
-# 
-# 
-# # 
-# covmat_XX <- diag(eigen(cov(mat_pctDiff_eg_train * 10^-2))$values)
-# covmat_XX_test <- diag(eigen((cov(mat_pctDiff_eg_test * 10^-2)))$values)
-# Vtarg <- c()
-# ROItarg <- c()
-# Vtarg_test <- c()
-# ROItarg_test <- c()
-# #
-# for(i in 1:ncol(mat_wStar_assets)){
-#   wStar <- mat_wStar_assets[, i]
-#   Vtarg[i] <- t(wStar) %*% covmat_XX %*% wStar
-#   ROItarg[i] <- wStar %*% nab_decRet_eg_train
-#   Vtarg_test[i] <- t(wStar) %*% covmat_XX_test %*% wStar
-#   ROItarg_test[i] <- wStar %*% nab_decRet_eg_test
-# }
-# # #
-# # 
-#    df_frontier <- data.frame(sqrt(Vtarg), ROItarg, sqrt(Vtarg_test), ROItarg_test)
-#    colnames(df_frontier) <- c("Risk (standard deviation)", "ROI target", "Risk backtest", "ROI backtest")
-#   #plot_frontier(df_frontier, ROI_basis = T, graph_on = F)
-# 
-# df_plot_train <- df_frontier[, c("Risk (standard deviation)", "ROI target")]
-# df_plot_test <- df_frontier[, c("Risk backtest", "ROI backtest")]
-# df_plot_train$Type = "Efficient frontier"
-# df_plot_test$Type = "Backtest"
-# colnames(df_plot_train)[1:2] <- c("Risk (standard deviation)", "ROI")
-# colnames(df_plot_test)[1:2] <- c("Risk (standard deviation)", "ROI")
-# df_plot <- rbind(df_plot_train, df_plot_test)
-# 
-# gg <- ggplot(df_plot, aes(x = `Risk (standard deviation)`, y = ROI))
-# gg <- gg + geom_point()
-# gg <- gg + scale_color_manual(values = c("blue", "black"))
-# gg <- gg + labs(title = "Backtest")
-# gg <- gg + theme(axis.title.y = element_blank(),
-#                  legend.title = element_blank(),
-#                  legend.position = "bottom",
-#                  plot.title = element_text(face = "bold", size = 10))
-# gg_backtest <- gg
-# gg_backtest
-# 
-#   
-
-
-
-```
-
 
 # An illustrative example of AR4D risk adjusted portfolio optimization
 
@@ -1899,7 +1628,7 @@ A hypothetical list of AR4D proposals is presented in Figure \ref{fig:ExpPctRet_
 
 ```{r, fig.show = "hold", fig.width = 5, fig.height = 4, fig.align = "left", fig.cap = "\\label{fig:ExpPctRet_Examp}Hypothetical AR4D proposal estimated risks and returns."}
 #---------------------------------------------
-prop_CSA <- c("Heat Tolerant\nBeans", "Coffee Agroforestry", "Digital Agriculture", "Low Emission\nSilvopastoral")
+prop_CSA <- c("Heat Tolerant\nBeans", "Coffee\nAgroforestry", "Digital\nAgriculture", "Low Emission\nSilvopastoral")
 econGrowth_CSA <- c(0.17, 0.28, 0.4, -0.35)
 econEquality_CSA <- c(0.85, 0.32, 0.81, 0.27)
 envSust_CSA <- c(0.65, 0.42, 0.5, 0.8)
@@ -1910,7 +1639,7 @@ nutrition_CSA <- c(0.25, 0.01, 0.009, 0.012)
 # econEquality_socialCap <- c(0.87, 0.62, 0.79)
 # envSust_socialCap <- c(0.1, 0.1, 0)
 #---------------------------------------------
-prop_smallHolder <- c("Cassava for\nBio-ethanol", "Triple Purpose\nSweet Potato", "Dairy Cooperative", "Multi-stakeholder\nPlatforms")
+prop_smallHolder <- c("Cassava for\nBio-ethanol", "Triple Purpose\nSweet Potato", "Dairy\nCooperative", "Multi-stakeholder\nPlatforms")
 econGrowth_smallHolder <- c(0.67, -0.31, 0.15, 0.4)
 econEquality_smallHolder <- c(0.6, 0.75, 0.83, 0.81)
 envSust_smallHolder <- c(0.32, 0.4, -0.52, 0.1)
@@ -2020,6 +1749,61 @@ The required inputs $\boldsymbol{\gamma}$ and $\boldsymbol{\mu}$ can be deduced 
 The optimal frontier and budget shares for the signals portfolio are calculated in Figure \ref{fig:mvAR4D}.
 
 ```{r, fig.show='hold', fig.width=5, fig.height=5, fig.align='center', fig.cap="\\label{fig:mvAR4D}Optimal frontier and budget shares for the AR4D signals portfolio.", echo = FALSE}
+
+optimize_portfolio_dimRet <- function(om, nab_decRet, eigvals, Ctarg){
+  g_vec <- as.numeric(eigvals)
+  mu_vec <- as.numeric(nab_decRet)
+  term <- om * sqrt(g_vec^2 / mu_vec^3)  # k = a^2 * l_C
+  
+  theta_vec <- acos(3 * sqrt(3) / 2 * term)
+  rho_vec <- 2 / sqrt(3) * (diag(sqrt(mu_vec)) %*% as.matrix(cos(theta_vec / 3)))
+#---
+  ones_vec <- rep(1, length(g_vec))
+  rho_C <- as.numeric(t(ones_vec) %*% rho_vec)
+  muR_over_lC <- (rho_C / Ctarg)^2
+  wStar <- 1 / sqrt(muR_over_lC) * rho_vec
+  m_R <- -mu_vec %*% wStar^-1
+  s2_R <- g_vec %*% wStar^-2
+  mu_R <- exp(m_R + s2_R / 2)
+  l_C <- mu_R / muR_over_lC
+  beta <- om * sqrt(mu_R^3 / l_C)
+  CV_R <- sqrt(exp(s2_R) - 1)
+  l_CV <- (beta + mu_R) / (CV_R + 1 / CV_R)
+  #--
+  frontier_vec <- c(mu_R, CV_R, l_CV, l_C, beta)
+  outlist <- list(frontier_vec, wStar)
+  return(outlist)
+}
+
+#=========================================================================
+get_optimal_frontier_dimRet <- function(mu_vec, g_vec, Ctarg, n_points_on_frontier, backtest_info = NULL){
+om_up <- 2 / (3 * sqrt(3)) * min(sqrt(mu_vec^3) / g_vec)
+om_lo <- -om_up
+om_vec <- seq(om_lo, om_up, length.out = n_points_on_frontier)
+list_frontier <- list()
+list_wStar <- list()
+for(i in 1:n_points_on_frontier){
+  om <- om_vec[i]
+  outlist <- optimize_portfolio_dimRet(om, mu_vec, g_vec, Ctarg)
+  frontier_vec <- outlist[[1]]
+  wStar <- outlist[[2]]
+  list_frontier[[i]] <- frontier_vec
+  list_wStar[[i]] <- wStar
+}
+
+df_frontier <- as.data.frame(do.call(rbind, list_frontier))
+colnames(df_frontier) <- c("ROI target",
+                           "Risk (CV)",
+                           "l_CV",
+                           "l_C",
+                           "beta")
+  df_wStar <- data.frame(df_frontier$`Risk (CV)`, t(do.call(cbind, list_wStar)))
+  varNames_ordered <- names(mu_vec)
+  colnames(df_wStar) <- c("Risk (CV)", varNames_ordered)
+  outlist <- list(df_frontier, df_wStar)
+  
+}
+
 #--------------------------------------------------------------
 # Covariance matrix
 D_sdX <- diag(sqrt(sd2X_vec))
@@ -2047,6 +1831,7 @@ n_points_on_frontier <- 20
 #Rtarg_limits <- c(0.11, 0.19)
 backtest_info <- NULL
 #--------------------------------------------------------------
+Ctarg <- 100
 covmat <- covmat_SS
 eigvals <- diag(covmat_SS)
 #covmat_test <- mat_G_test
@@ -2079,7 +1864,7 @@ mat_wStar <- t(as.matrix(df_wStar[, -1]))
 #colSums(mat_L %*% diag(1 / colSums(mat_L)))
 mat_wStar_assets_inv <- mat_P_sigs %*% mat_wStar^-1
 mat_wStar_assets <- mat_wStar_assets_inv^-1
-mat_wStar_assets <- apply(mat_wStar_assets, 2, function(x) x - 4 * min(x))
+mat_wStar_assets <- apply(mat_wStar_assets, 2, function(x) x - 2 * min(x))
 mat_wStar_assets <- apply(mat_wStar_assets, 2, function(x) x / sum(x))
 df_wStar_assets <- data.frame(df_wStar$`Risk (CV)`, t(mat_wStar_assets))
 colnames(df_wStar_assets) <- c("Risk (CV)", row.names(mat_Lrot))
@@ -2095,6 +1880,7 @@ Interpretation of the example. Note that proposals with low expected return do n
 -elicitation can be accomplished in a variety of ways (eg.: online surveys, in-person events, consultation of strategy documents, some combination thereof, etc.).
 
 * May not be exactly "accurate", but generates an optimal solution that is consistent with what we think we know about the domain. Moreover, it should kept in mind that data are not infallible sources of information. Data of the sort considered here, in particular, are inherently noisy. Under such circumstances, arguably, it may be preferible to build up the covariance matrix from crowdsourced domain knowledge, in the manner shown above, rather than calculate it from data.
+Hence, domain knowledge of the key dimensions of the problem space, and of how the various moving parts of the problem (i.e. the portfolio items) map onto these dimensions, is a sufficient---and, in noisy contexts, possibly superior---substitute for data.
 
 # Discussion/Conclusion
 
@@ -2112,7 +1898,214 @@ Interpretation of the example. Note that proposals with low expected return do n
 <!-- MV analysis is, in many ways, still a work in progress, with unresolved methodological issues severely limiting its usefulness even in its native financial context. In particular, covariance matrices estimated from price data tend to contain a lot of noise; and the optimal solutions then tend to diverge considerably from reality as a result of this [@michaud1989markowitz]. In my adaptation below, I propose a new approach to this problem by first dimensionally reducing the portfolio from several dozen assets to just a handful of "signals" constructed from the eigenvectors of the correlation matrix that can be meaningfully distinguished from noise. -->
 
 
+<!-- # ```{r, fig.show = "hold", fig.width = 5, fig.height=5, fig.align='left', fig.cap="\\label{fig:mvSigs}Optimal frontier and budget shares, signals portfolio.", echo = FALSE} -->
+<!-- ind_rearrange <- c(2, 1, 3:n_signals) -->
+<!-- #============================================================================= -->
+<!-- # To convince yourself that sign of eigenvectors can be changed with impunity -->
+<!-- # M <- matrix(runif(4*4), 4, 4) -->
+<!-- # M <- round(t(M) %*% M, 5) -->
+<!-- # P <- eigen(M)$vectors -->
+<!-- # U <- diag(eigen(M)$values) -->
+<!-- # these_cols <- c(2, 4) -->
+<!-- # P_new <- P -->
+<!-- # P_new[, these_cols] <- -P[, these_cols] -->
+<!-- # round(M - P %*% U %*% t(P), 4) -->
+<!-- # round(M - P_new %*% U %*% t(P_new), 4) -->
+<!-- #============================================================================= -->
+<!-- optimize_portfolio_dimRet <- function(om, nab_decRet, eigvals, Ctarg){ -->
+<!--   g_vec <- as.numeric(eigvals) -->
+<!--   mu_vec <- as.numeric(nab_decRet) -->
+<!--   term <- om * sqrt(g_vec^2 / mu_vec^3)  # k = a^2 * l_C -->
+
+<!--   theta_vec <- acos(3 * sqrt(3) / 2 * term) -->
+<!--   rho_vec <- 2 / sqrt(3) * (diag(sqrt(mu_vec)) %*% as.matrix(cos(theta_vec / 3))) -->
+<!-- #--- -->
+<!--   ones_vec <- rep(1, length(g_vec)) -->
+<!--   rho_C <- as.numeric(t(ones_vec) %*% rho_vec) -->
+<!--   muR_over_lC <- (rho_C / Ctarg)^2 -->
+<!--   wStar <- 1 / sqrt(muR_over_lC) * rho_vec -->
+<!--   m_R <- -mu_vec %*% wStar^-1 -->
+<!--   s2_R <- g_vec %*% wStar^-2 -->
+<!--   mu_R <- exp(m_R + s2_R / 2) -->
+<!--   l_C <- mu_R / muR_over_lC -->
+<!--   beta <- om * sqrt(mu_R^3 / l_C) -->
+<!--   CV_R <- sqrt(exp(s2_R) - 1) -->
+<!--   l_CV <- (beta + mu_R) / (CV_R + 1 / CV_R) -->
+<!--   #-- -->
+<!--   frontier_vec <- c(mu_R, CV_R, l_CV, l_C, beta) -->
+<!--   outlist <- list(frontier_vec, wStar) -->
+<!--   return(outlist) -->
+<!-- } -->
+
+
+<!-- #========================================================================= -->
+<!-- get_optimal_frontier_dimRet <- function(mu_vec, g_vec, Ctarg, n_points_on_frontier, backtest_info = NULL){ -->
+<!-- om_up <- min(2 / (3 * sqrt(3)) * sqrt(mu_vec^3) / g_vec) -->
+<!-- om_lo <- -om_up -->
+<!-- om_vec <- seq(om_lo, om_up, length.out = n_points_on_frontier) -->
+<!-- list_frontier <- list() -->
+<!-- list_wStar <- list() -->
+<!-- for(i in 1:n_points_on_frontier){ -->
+<!--   om <- om_vec[i] -->
+<!--   outlist <- optimize_portfolio_dimRet(om, mu_vec, g_vec, Ctarg) -->
+<!--   frontier_vec <- outlist[[1]] -->
+<!--   wStar <- outlist[[2]] -->
+<!--   list_frontier[[i]] <- frontier_vec -->
+<!--   list_wStar[[i]] <- wStar -->
+<!-- } -->
+
+<!-- df_frontier <- as.data.frame(do.call(rbind, list_frontier)) -->
+<!-- colnames(df_frontier) <- c("ROI target", -->
+<!--                            "Risk (CV)", -->
+<!--                            "l_CV", -->
+<!--                            "l_C", -->
+<!--                            "beta") -->
+<!--   df_wStar <- data.frame(df_frontier$`Risk (CV)`, t(do.call(cbind, list_wStar))) -->
+<!--   varNames_ordered <- names(mu_vec) -->
+<!--   colnames(df_wStar) <- c("Risk (CV)", varNames_ordered) -->
+<!--   outlist <- list(df_frontier, df_wStar) -->
+
+<!-- } -->
+<!-- #========================================================================= -->
+<!-- #========================================================================= -->
+<!-- #========================================================================= -->
+<!-- #========================================================================= -->
+<!-- mat_P_sigs <- mat_P[, 1:n_signals] -->
+<!-- mat_Sx_train <- mat_decDiff_eg_train %*% mat_P_sigs -->
+<!-- #---- -->
+<!-- mat_P_sigs_test <- mat_P_test[, 1:n_signals] -->
+<!-- mat_Sx_test <- mat_decDiff_eg_test %*% mat_P_sigs_test -->
+<!-- eig_values_sigs_test <- eig_values_test[1:n_signals] -->
+<!-- #---- -->
+<!-- nab_decRet_sigs_train <- (apply(mat_Sx_train, 2, function(x) prod(1 + x)) - 1) -->
+<!-- names(nab_decRet_sigs_train) <- paste("Signal", 1:n_signals) -->
+<!-- nab_decRet_sigs_test <- (apply(mat_Sx_test, 2, function(x) prod(1 + x)) - 1) -->
+<!-- #---- -->
+<!-- nab_pctRet_sigs_train <- 100 * nab_decRet_sigs_train[ind_rearrange] -->
+<!-- nab_pctRet_sigs_test <- 100 * nab_decRet_sigs_test[ind_rearrange] -->
+<!-- #---- -->
+<!-- mat_G <- diag(eig_values_sigs) -->
+<!-- mat_G_test <- diag(eig_values_sigs_test[ind_rearrange]) -->
+<!-- #========================================================================= -->
+<!-- # dimRet: -->
+<!-- Ctarg <- 100 -->
+<!-- covmat <- mat_G -->
+<!-- eigvals <- diag(covmat) -->
+<!-- covmat_test <- mat_G_test -->
+<!-- nab_decRet <- nab_pctRet_sigs_train -->
+<!-- nab_decRet_test <- nab_pctRet_sigs_test -->
+<!-- # covmat <- diag(eig_values) -->
+<!-- # covmat_test <- diag(eig_values_test) -->
+<!-- # nab_decRet <- nab_decRet_eg_train -->
+<!-- # nab_decRet_test <- nab_decRet_eg_test -->
+<!-- #--------------------------------------- -->
+<!-- # backtest_info <- list() -->
+<!-- # backtest_info[["nab_decRet_test"]] <- nab_decRet_test -->
+<!-- # backtest_info[["covmat_test"]] <- covmat_test -->
+<!-- backtest_info <- NULL -->
+<!-- #------------------------------------------------------------------------- -->
+<!-- # eigvals <- eigen(covmat_decDiff_train)$values -->
+<!-- # nab_decRet <- nab_decRet_eg_train -->
+<!-- # backtest_info[["nab_decRet_test"]] <- nab_decRet_eg_test -->
+<!-- # backtest_info[["covmat_test"]] <- covmat_decDiff_test -->
+<!-- mu_vec <- nab_decRet -->
+<!-- g_vec <- eigvals -->
+<!-- outlist <- get_optimal_frontier_dimRet(mu_vec, g_vec, Ctarg, n_points_on_frontier, backtest_info) -->
+<!-- df_frontier <- outlist[[1]] -->
+<!-- df_wStar <- outlist[[2]] -->
+<!-- #df_frontier <- round(df_frontier, 4) -->
+<!-- plot(df_frontier$`Risk (CV)`, df_frontier$`ROI target`) -->
+
+<!-- gg <- plot_frontier(df_frontier, ROI_basis = T, list_graph_options = NULL, graph_on = F) -->
+<!-- gg_frontier <- gg -->
+<!-- #-------------------------------------------------------------- -->
+<!-- n_items <- ncol(df_wStar) - 1 -->
+<!-- bag_of_colors <- randomcoloR::distinctColorPalette(k = 5 * n_items) -->
+<!-- color_vec_mv_eg <- sample(bag_of_colors, n_items) -->
+<!-- gg_budget <- plot_budgetShares(df_wStar, color_vec = color_vec_mv_eg, graph_on = F, list_graph_options = NULL) -->
+<!-- #-------------------------------------------------------------- -->
+<!-- gg_frontier + gg_budget + plot_layout(ncol = 1) -->
+
+<!-- ``` -->
+
+
+<!-- Inaccuracy in the efficient frontier due to noisy covariance matrices severely limits the usefulness of MV Analysis in everyday practice [@Michaud...]. A backtest of the efficient frontiers from the example pursued in this paper reaffirms this (Figure \ref{fig:backtest}). It stands to reason that replacement of the data covariance matrix with a signals derived covariance matrix could improve the accuracy of the efficient frontier. But the signals derived covariance matrix contains eigenvalues equal to zero, and is thus is not invertible; and hence cannot be used in MV Analysis. Nonetheless, there is an alternative route to the same goal of reducing noise in MV Analysis: the portfolio of assets can be replaced with a portfolio of signals. -->
+
+
+<!-- # ```{r, fig.show='hold', fig.width=5, fig.height=5, fig.align='center', fig.cap="\\label{fig:wDisagg}The asset budget shares derived from the signals."} -->
+
+<!-- # Map the signal weights back to the assets -->
+<!-- mat_wStar <- t(as.matrix(df_wStar[, -1])) -->
+<!-- #colSums(mat_L %*% diag(1 / colSums(mat_L))) -->
+<!-- mat_wStar_assets <- (mat_P_sigs %*% mat_wStar^-1)^-1 -->
+<!-- #mat_wStar_assets <- exp(mat_wStar_assets) -->
+<!-- mat_wStar_assets <- apply(mat_wStar_assets, 2, function(x) x - min(x) * 1.1) -->
+<!-- mat_wStar_assets <- apply(mat_wStar_assets, 2, function(x) x / sum(x)) -->
+
+<!-- df_wStar_assets <- data.frame(df_wStar$`Risk (CV)`, t(mat_wStar_assets)) -->
+<!-- colnames(df_wStar_assets) <- c("Risk (CV)", row.names(mat_Lrot)) -->
+<!-- gg_budget <- plot_budgetShares(df_wStar_assets, color_vec = color_vec, graph_on = F, list_graph_options = NULL) -->
+<!-- gg_budget -->
+<!-- # #========================================================== -->
+<!-- #  -->
+<!-- #  -->
+<!-- #  -->
+<!-- # #  -->
+<!-- # covmat_XX <- diag(eigen(cov(mat_pctDiff_eg_train * 10^-2))$values) -->
+<!-- # covmat_XX_test <- diag(eigen((cov(mat_pctDiff_eg_test * 10^-2)))$values) -->
+<!-- # Vtarg <- c() -->
+<!-- # ROItarg <- c() -->
+<!-- # Vtarg_test <- c() -->
+<!-- # ROItarg_test <- c() -->
+<!-- # # -->
+<!-- # for(i in 1:ncol(mat_wStar_assets)){ -->
+<!-- #   wStar <- mat_wStar_assets[, i] -->
+<!-- #   Vtarg[i] <- t(wStar) %*% covmat_XX %*% wStar -->
+<!-- #   ROItarg[i] <- wStar %*% nab_decRet_eg_train -->
+<!-- #   Vtarg_test[i] <- t(wStar) %*% covmat_XX_test %*% wStar -->
+<!-- #   ROItarg_test[i] <- wStar %*% nab_decRet_eg_test -->
+<!-- # } -->
+<!-- # # # -->
+<!-- # #  -->
+<!-- #    df_frontier <- data.frame(sqrt(Vtarg), ROItarg, sqrt(Vtarg_test), ROItarg_test) -->
+<!-- #    colnames(df_frontier) <- c("Risk (standard deviation)", "ROI target", "Risk backtest", "ROI backtest") -->
+<!-- #   #plot_frontier(df_frontier, ROI_basis = T, graph_on = F) -->
+<!-- #  -->
+<!-- # df_plot_train <- df_frontier[, c("Risk (standard deviation)", "ROI target")] -->
+<!-- # df_plot_test <- df_frontier[, c("Risk backtest", "ROI backtest")] -->
+<!-- # df_plot_train$Type = "Efficient frontier" -->
+<!-- # df_plot_test$Type = "Backtest" -->
+<!-- # colnames(df_plot_train)[1:2] <- c("Risk (standard deviation)", "ROI") -->
+<!-- # colnames(df_plot_test)[1:2] <- c("Risk (standard deviation)", "ROI") -->
+<!-- # df_plot <- rbind(df_plot_train, df_plot_test) -->
+<!-- #  -->
+<!-- # gg <- ggplot(df_plot, aes(x = `Risk (standard deviation)`, y = ROI)) -->
+<!-- # gg <- gg + geom_point() -->
+<!-- # gg <- gg + scale_color_manual(values = c("blue", "black")) -->
+<!-- # gg <- gg + labs(title = "Backtest") -->
+<!-- # gg <- gg + theme(axis.title.y = element_blank(), -->
+<!-- #                  legend.title = element_blank(), -->
+<!-- #                  legend.position = "bottom", -->
+<!-- #                  plot.title = element_text(face = "bold", size = 10)) -->
+<!-- # gg_backtest <- gg -->
+<!-- # gg_backtest -->
+<!-- #  -->
+<!-- #    -->
+
+
+
+<!--# ``` -->
+
 \pagebreak
+
+# References
+
+<div id="refs"></div>
+
+
+\pagebreak
+
+# Appendix
 
 ```{r, fig.show = 'hold', fig.cap="\\label{fig:hReturns}Historical (top) daily returns and (bottom) period return, financial data.", fig.width=6, fig.height=6, fig.align='left', echo=FALSE}
 # Plot historical returns for period and items defined above
@@ -2132,10 +2125,3 @@ gg_barchart + gg_covmat + plot_layout(ncol = 1, heights = c(1, 2))
 #----------------------------------------------------------
 
 ```
-
-
-
-
-\pagebreak
-
-# References
