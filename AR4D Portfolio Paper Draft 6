@@ -1688,7 +1688,9 @@ list_graph_options[["legend_position"]] <- "none"
 list_graph_options[["axisTextX_off"]] <- T
 gg_perRet <- plot_returns_barchart(df_pctRet, group_colors, list_graph_options, graph_on = F)
 
-sdX_vec <- 1 / 2 * c(abs(as.matrix(nab_pctRet_ar4d) + 2 * as.matrix(rnorm(n_prop))))
+#sdX_vec <- 1 / 2 * c(abs(as.matrix(nab_pctRet_ar4d) + 2 * as.matrix(rnorm(n_prop))))
+sdX_vec <- 1.61 * c(abs(as.matrix(nab_pctRet_ar4d) * as.matrix(runif(n_prop))))
+sdX_vec <- c(21.2785349, 9.5972656, 18.4114015, 9.4742876, 2.7923296, 0.6912369, 5.9851785, 12.0813232, 7.0012194, 6.2880289, 7.1941543)
 #sdX_vec <- 1 / 2 * c(12.868125, 12.490252, 11.344356, 11.007095, 4.783202, 10.734870, 9.144469, 8.444207, 5.876558, 7.155542, 12.647645)
 df_sd <- data.frame(sdX_vec, Item = df_Lrot$Proposal, Group = df_Lrot$Group)
 list_graph_options[["fig_title"]] <- "Risk"
@@ -1775,8 +1777,8 @@ optimize_portfolio_dimRet <- function(tau, mu_vec, g_vec, Ctarg, Rceil){
   #exp(m_R - s2_R)
   M_R <- as.numeric(Rceil * exp(m_R + s2_R / 2))
   CV <- as.numeric(sqrt(exp(s2_R) - 1))
-  l_CV <- (1 - beta) / (1 + 1 / CV^2)
-  term <- l_CV / CV^2 * (CV^2 + 1) * log(CV^2 + 1) - l_C
+  l_CV <- 1 / 2 * (1 - beta) / (1 / CV^2 + 1)
+  term <- 2 * l_CV / CV^2 * (CV^2 + 1) * log(CV^2 + 1) - l_C
   MR_front <- Rceil / sqrt(CV^2 + 1) * exp(term)
   print(M_R - MR_front)
   #check_vec <- data.frame(tau, M_R, MR_front, CV, l_CV, l_C, term, beta)
@@ -1790,7 +1792,7 @@ optimize_portfolio_dimRet <- function(tau, mu_vec, g_vec, Ctarg, Rceil){
 get_optimal_frontier_dimRet <- function(mu_vec, g_vec, Ctarg, Rceil, n_points_on_frontier){
   tau_lo <- 0
   tau_up <- 2 / (3 * sqrt(3)) * min(sqrt(mu_vec^3) / g_vec)
-  #tau_lo <- -tau_up
+  tau_lo <- -tau_up
   tau_vec <- seq(tau_lo, tau_up, length.out = n_points_on_frontier)
   interval_tau <- c(tau_lo, tau_up)
   list_wStar <- list()
@@ -1869,6 +1871,7 @@ color_vec_mv_eg <- sample(bag_of_colors, n_items)
 gg_budget <- plot_budgetShares(df_wStar, color_vec = color_vec_mv_eg, graph_on = F, list_graph_options = NULL)
 #--------------------------------------------------------------
 gg_frontier + gg_budget + plot_layout(ncol = 1)
+sqrt(g_vec) / mu_vec
 ```
 
 The budget allocation to each AR4D proposal is then disaggregated from the signal budget shares by equation \ref{eq:}. The matrix of `r n_signals` leading eigenvectors $\tilde{P}$ of the proposal covariance matrix is required in order to perform this last step. Having deduced $B$ and $\Gamma$ above, it is possible to deduce $\tilde{P}$ by equation \ref{eq:...}.
