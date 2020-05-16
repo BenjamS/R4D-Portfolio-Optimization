@@ -1689,7 +1689,7 @@ list_graph_options[["axisTextX_off"]] <- T
 gg_perRet <- plot_returns_barchart(df_pctRet, group_colors, list_graph_options, graph_on = F)
 
 #sdX_vec <- 1 / 2 * c(abs(as.matrix(nab_pctRet_ar4d) + 2 * as.matrix(rnorm(n_prop))))
-sdX_vec <- 1.61 * c(abs(as.matrix(nab_pctRet_ar4d) * as.matrix(runif(n_prop))))
+#sdX_vec <- 1.61 * c(abs(as.matrix(nab_pctRet_ar4d) * as.matrix(runif(n_prop))))
 sdX_vec <- c(21.2785349, 9.5972656, 18.4114015, 9.4742876, 2.7923296, 0.6912369, 5.9851785, 12.0813232, 7.0012194, 6.2880289, 7.1941543)
 #sdX_vec <- 1 / 2 * c(12.868125, 12.490252, 11.344356, 11.007095, 4.783202, 10.734870, 9.144469, 8.444207, 5.876558, 7.155542, 12.647645)
 df_sd <- data.frame(sdX_vec, Item = df_Lrot$Proposal, Group = df_Lrot$Group)
@@ -1754,8 +1754,8 @@ The optimal frontier and budget shares for the signals portfolio are calculated 
 ```{r, fig.show='hold', fig.width=5, fig.height=5, fig.align='center', fig.cap="\\label{fig:mvAR4D}Optimal frontier and budget shares for the AR4D signals portfolio.", echo = FALSE}
 
 get_wStar <- function(tau, mu_vec, g_vec, Ctarg){
-  theta_vec <- asin(3 * sqrt(3) / 2 * g_vec / sqrt(mu_vec^3) * tau)
-rho_vec <- 2 / sqrt(3) * diag(sqrt(mu_vec)) %*% sin(theta_vec / 3)
+  theta_vec <- acos(3 * sqrt(3) / 2 * g_vec / sqrt(mu_vec^3) * tau)
+  rho_vec <- 2 / sqrt(3) * diag(sqrt(mu_vec)) %*% cos(theta_vec / 3)
   ones_vec <- rep(1, length(mu_vec))
   rho <- t(ones_vec) %*% rho_vec
   a <- as.numeric(rho^2 / Ctarg^2)
@@ -1770,19 +1770,29 @@ optimize_portfolio_dimRet <- function(tau, mu_vec, g_vec, Ctarg, Rceil){
   out <- get_wStar(tau, mu_vec, g_vec, Ctarg)
   wStar <- out[[1]]
   a <- out[[2]]
-  l_C <- a * Ctarg
+  C <- sum(wStar)
   beta <- tau / sqrt(a)
+  l_R <- 2 / (beta + 1)
+  l_C <- a * C * l_R
   m_R <- -t(mu_vec) %*% wStar^-1
   s2_R <- t(g_vec) %*% wStar^-2
   #exp(m_R - s2_R)
   M_R <- as.numeric(Rceil * exp(m_R + s2_R / 2))
   CV <- as.numeric(sqrt(exp(s2_R) - 1))
-  l_CV <- 1 / 2 * (1 - beta) / (1 / CV^2 + 1)
-  term <- 2 * l_CV / CV^2 * (CV^2 + 1) * log(CV^2 + 1) - l_C
+  # l_CV <- 1 / 2 * (1 - beta) / (1 / CV^2 + 1)
+  # term <- 2 * l_CV / CV^2 * (CV^2 + 1) * log(CV^2 + 1) - l_C
+  #l_CV <- 1 / 2 * (1 - beta)
+  term <- (-l_C + 2 * log(CV^2 + 1)) / l_R
   MR_front <- Rceil / sqrt(CV^2 + 1) * exp(term)
   print(M_R - MR_front)
   #check_vec <- data.frame(tau, M_R, MR_front, CV, l_CV, l_C, term, beta)
-  frontier_vec <- c(M_R, CV, l_CV, l_C)
+  term_soc <- 2 * m_R + 3 * s2_R
+  if(term_soc > 0){
+    soc_cond <- l_R < 6 * s2_R / term_soc
+  }else{
+    soc_cond <- l_R > 6 * s2_R / term_soc
+  }
+  frontier_vec <- c(MR_front, CV, l_R, l_C, soc_cond, tau)
   #return(check_vec)
   list_out <- list(frontier_vec, wStar)
   return(list_out)
@@ -1790,9 +1800,9 @@ optimize_portfolio_dimRet <- function(tau, mu_vec, g_vec, Ctarg, Rceil){
 }
 
 get_optimal_frontier_dimRet <- function(mu_vec, g_vec, Ctarg, Rceil, n_points_on_frontier){
-  tau_lo <- 0
-  tau_up <- 2 / (3 * sqrt(3)) * min(sqrt(mu_vec^3) / g_vec)
-  tau_lo <- -tau_up
+  tau_lo <- 10^-6
+  tau_up <- 2 / (3 * sqrt(3)) * min(sqrt(mu_vec^3) / g_vec) - 10^-6
+  #tau_lo <- -tau_up
   tau_vec <- seq(tau_lo, tau_up, length.out = n_points_on_frontier)
   interval_tau <- c(tau_lo, tau_up)
   list_wStar <- list()
@@ -1807,8 +1817,9 @@ list_frontier[[i]] <- outlist[[1]]
 df_frontier <- as.data.frame(do.call(rbind, list_frontier))
 colnames(df_frontier) <- c("ROI target",
                            "Risk (CV)",
-                           "l_CV",
-                           "l_C")
+                           "l_R",
+                           "l_C",
+                           "S.O.C. met?")
 df_wStar <- data.frame(df_frontier$`Risk (CV)`, t(do.call(cbind, list_wStar)))
   varNames_ordered <- names(mu_vec)
   colnames(df_wStar) <- c("Risk (CV)", varNames_ordered)
