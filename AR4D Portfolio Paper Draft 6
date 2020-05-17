@@ -954,7 +954,7 @@ where $\tilde{P}$ is a matrix containing the $m$ leading eigenvectors of the ful
 \label{eq:eigDecomp}
 \end{equation}
 
-where $\Gamma$ is the diagonal matrix of eigenvalues of $\Sigma_{XX}$. 
+where $\Gamma$ is the diagonal matrix of the leading eigenvalues of $\Sigma_{XX}$. 
 
 From the definition (\ref{eq:sigs_def}), it follows that the signals are uncorrelated with each other, and that their variance is given by the eigenvalues of the data covariance matrix.
 
@@ -1278,9 +1278,9 @@ plot_sigs_wHiLoad_items(mat_X_in, mat_S, mat_Lrot, color_vec, sigNames, load_thr
   
 ```  
 
-A calculation of varimax loadings over data from the subsequent period (`r test_start_date` to `r test_stop_date`), presented in Figure \ref{fig:corrXS_barchart_rot_test}, suggests that signal composition remains fairly stable from one period to the next, although signal order may change. In this case, the Financial and Physical Infrastructure Signal has changed places with the Pharmaceutical Signal. The order of a signal reflects its predominance in shaping the overall variance in the dataset.
+A calculation of varimax loadings over data from the subsequent period (`r test_start_date` to `r test_stop_date`), presented in Figure \ref{fig:corrXS_barchart_rot_test}, suggests that signal composition remains fairly stable from one period to the next, although signal order may change. In this case, the Financial and Physical Infrastructure Signal has changed places with the Pharmaceutical Signal. The order of signals reflects their relative predominance in shaping the overall variance in the dataset.
 
-```{r, fig.show='hold', fig.width=6, fig.height=3, fig.align='left', fig.cap="\\label{fig:corrXS_barchart_rot_test}Varimax rotated correlation of portfolio items with leading signals, backtest financial data.", echo=F}
+```{r, fig.show='hold', fig.width=6, fig.height=3, fig.align='left', fig.cap="\\label{fig:corrXS_barchart_rot_test}Varimax rotated correlation of portfolio items with leading signals, financial data from subsequent period.", echo=F}
 mat_X_in_test <- mat_pctDiff_eg_test
 list_out <- get_S_and_corrXS(mat_X_in_test)
 mat_S_test_all <- list_out[[1]]
@@ -1353,7 +1353,7 @@ The plot shows that the leading `r n_signals` signals are sufficient to meet thi
 
 ## "Reverse engineering" signal covariance and returns in the absence of data
 
-Equations \ref{eq:covmat_SS} to \ref{eq:Lrot} imply that it is possible to work backwards from the rotated loadings $L_{circle}$ and asset risk $\boldsymbol{\sigma}_X$, to arrive at the signals covariance matrix $\Gamma$. To see this, define $Q_{\circlearrowleft} = D(\boldsymbol{\sigma}_X)L_{\circlearrowleft}$, and note that
+Equations \ref{eq:covmat_SS} to \ref{eq:Lrot} imply that it is possible to work backwards from the rotated loadings $L_{\circlearrowleft}$ and asset risk $\boldsymbol{\sigma}_X$, to arrive at the signals covariance matrix $\Gamma$. To see this, define $Q_{\circlearrowleft} = D(\boldsymbol{\sigma}_X)L_{\circlearrowleft}$, and note that
 
 \begin{eqnarray}
 Q_{\circlearrowleft}'Q_{\circlearrowleft} &=& (\tilde{P} \tilde{\Gamma}^{1 \over 2} B)' \tilde{P} \tilde{\Gamma}^{1 \over 2} B \\
@@ -1369,7 +1369,12 @@ With $\Gamma$ and $B$ in hand, moreover, it is then possible to derive the impli
 \tilde{P} = Q_{\circlearrowleft}B'\Gamma^{-1 / 2}
 \end{equation}
 
-by which, given crowdsourced asset returns, it is possible to deduce signal returns via equation \ref{eq:sigs_def}.
+by which, given crowdsourced asset returns $\boldsymbol{\hat{\mu}}$, it is possible to deduce signal returns via equation \ref{eq:sigs_def}.
+
+\begin{equation}
+\boldsymbol{\mu} = \tilde{P} \boldsymbol{\hat{\mu}}
+\label{eq:sigMu_from_Xmu}
+\end{equation}
 
 If we are without the data $X$, then, but somehow given the signal loadings, risk estimates, and return estimates of each portfolio item, it is possible to deduce the signal covariance matrix and returns.
 
@@ -1381,7 +1386,8 @@ $$
 \nu = \frac{\text{confidence in domain knowledge}}{\text{confidence in data}}
 $$
 
-As $\nu$ is higher, the crowdsource approach to covariance matrix estimation is more suitable. As $\nu$ is lower, it becomes more appropriate to estimate the covariance matrix on the basis of data. For values of $\nu$ close to 1, one might consider a mixture of the two approaches. Regardless of accuracy, the crowdsourced covariance matrix has value in that it provides a picture...consistent with what we think we know about the system.
+As $\nu$ is higher, the crowdsource approach to covariance matrix estimation is more suitable. As $\nu$ is lower, it becomes more appropriate to estimate the covariance matrix on the basis of data. For values of $\nu$ close to 1, one might consider a mixture of the two approaches.
+<!-- Note, in passing, that the original data set $X$ may itself be considered a set of orthogonally rotated signals constructed from some higher dimensional dataset. This unobserved, higher dimensional dataset could likewise be considered a set of orthogonally rotated signals constructed from some still larget dataset, and so on, ad infinitum. Note that the eigenvalues of the system described by these nested datasets remain invariant under each successive step of dimensional reduction, while the eigenvectors change. In this sense, the eigenvalues of the original---or any---data covariance matrix are the "true" covariance matrix, while the eigenvectors may be considered an extraneous rotation of the true covariance matrix, not intrinsic to the construction of the signals, but rather applied extraneously, as an aid in their interpretation, or as a matter of contextualizing the abstract signals with respect to a particular set of concrete circumstances.  -->
 
 ## Aside: approximating the data covariance matrix from signals
 
@@ -1396,13 +1402,9 @@ L_{\circlearrowleft}L_{\circlearrowleft}' &=& LB (LB)' = LBB'L' = LL' \\
 \label{eq:cormat_from_Lrot}
 \end{eqnarray}
 
-If we are also given an estimate of the risk of each portfolio asset (i.e., a vector of asset standard deviations $\boldsymbol{\sigma}_X$), it is then straightforward to arrive at an approximate covariance matrix.
+(If we are also given an estimate of the risk of each portfolio asset (i.e., a vector of asset standard deviations $\boldsymbol{\sigma}_X$), it is then of course straightforward to also arrive at an approximate covariance matrix.)
 
-\begin{equation}
-\tilde{\Sigma}_{XX} = D(\boldsymbol{\sigma}_X) \tilde{K}_{XX} D(\boldsymbol{\sigma}_X)
-\end{equation}
-
-The difference between the financial data correlation matrix and the signals derived correlation matrix is shown in Figure \ref{fig:compareCorMats}. Note that the difference is remarkably small for most entries. The signals derived correlation matrix is approximate in the sense that it approximates the data correlation matrix; but it should not necessarily be considered inferior in terms of accuracy. To the extent that the original data are contaminated by noise, the signals derived correlation matrix may prove more accurate with respect to the "true process" that generates the data.
+The difference between the financial data correlation matrix and the signals derived correlation matrix is shown in Figure \ref{fig:compareCorMats}. Note that the difference is remarkably small for most entries. Again, the signals derived correlation matrix is approximate in the sense that it approximates the data correlation matrix; but it should not necessarily be considered inferior in terms of accuracy. To the extent that the original data are contaminated by noise, the signals derived correlation matrix may prove more accurate with respect to the "true process" that generates the data.
 
 ```{r, fig.show='hold', fig.width=6, fig.height=4, fig.align='center', fig.cap="\\label{fig:compareCorMats}The data correlation matrix minus the correlation matrix derived from the retained signals."}
 cormat_XX <- cor(mat_pctDiff_eg_train)
@@ -1412,190 +1414,31 @@ mat_diff_cormats <- cormat_XX - cormat_XX_derived
 plot_covmat(mat_diff_cormats, fig_title = NULL, graph_on = F)
 
 ```
-The deduced data covariance matrix may be useful in orienting stakeholder discussions, but it cannot be used for optimization purposes since, by definition, it contains eigenvalues that are equal to zero.^[Optimization requires an invertible covariance matrix.]
-<!-- Note, in passing, that the original data set $X$ may itself be considered a set of orthogonally rotated signals constructed from some higher dimensional dataset. This unobserved, higher dimensional dataset could likewise be considered a set of orthogonally rotated signals constructed from some still larget dataset, and so on, ad infinitum. Note that the eigenvalues of the system described by these nested datasets remain invariant under each successive step of dimensional reduction, while the eigenvectors change. In this sense, the eigenvalues of the original---or any---data covariance matrix are the "true" covariance matrix, while the eigenvectors may be considered an extraneous rotation of the true covariance matrix, not intrinsic to the construction of the signals, but rather applied extraneously, as an aid in their interpretation, or as a matter of contextualizing the abstract signals with respect to a particular set of concrete circumstances.  -->
+When calculated based on crowdsourced loadings, the signals-deduced covariance matrix reveals a detailed picture of tradeoffs and synergies (i.e. covariances) consistent with what the domain experts (think they) know about the system. The crowdsourced data covariance matrix may thus be useful in orienting stakeholder discussions, but it cannot be used for optimization purposes since, by definition, it contains eigenvalues that are equal to zero.^[Optimization requires an invertible covariance matrix.]
 
-# Positive budget shares follow automatically from the problem formulation
+## Crowdsourced signals portfolio optimization
 
-For purposes of optimization, in the 
-we can optimize over a portfolio of signals, and then map the optimal signal budget shares back to individual asset shares based on their correlation with the signals. To do this, we need the signal returns and signals covariance matrix $\Sigma_{SS}$. Both of these can be deduced from the risk assessment $\boldsymbol{\sigma}_X$, the asset expected returns $\boldsymbol{\hat{\mu}}$ and the crowdsourced loadings $L_{\circlearrowleft}$.
-
-Note that the 
-
-\begin{equation}
-\boldsymbol{\mu} = \tilde{P} \boldsymbol{\hat{\mu}}
-\label{eq:sigMu_from_Xmu}
-\end{equation}
-
-this is signals portfolio, then map back to portfolio items...
-
-## Problem formulation
-
-The risk adjusted portfolio optimization problem may now be formulated as folows
-...want to maximize expected return given a certain risk tolerance and budget constraint.
-
-\begin{equation}
-\max{E[R]}_{\mathbf{w}} \:\:\:\: s.t. \:\: \kappa^2 = \hat{\kappa}^2 \:\: C = \hat{C}
-\end{equation}
-
-where $\kappa$ is the portfolio risk to reward ratio $\sigma_p / \mu_p$.^[Also known as the coefficient of variation. One could replace this with risk $\sigma_p$ in the formulation, but use of $\kappa$ makes for more straightforward first order conditions below.]
-
-Assuming lognormal returns, $E[R]$ and $\kappa^2$ have the form
-
-\begin{eqnarray}
-E[R] = e^{m_R + s_R^2 / 2}
-\kappa^2 = e^{s_R^2 / 2} - 1
-\end{eqnarray}
-
-where
-
-\begin{equation}
-m_R = E[\ln R] = -\boldsymbol{\mu} {'} \mathbf{w}^{-1}
-\end{equation}
-
-\begin{equation}
-s_R^2 = Var(\ln R) = \mathbf{w}^{-1} {'} \Sigma_{SS} \mathbf{w}^{-1}
-\end{equation}
-
-which, recalling equation \ref{eq:covmat_SS}, reduces to
-
-\begin{eqnarray}
-s^2 &=& Var(\ln R) = \mathbf{w}^{-1} {'} \Gamma \mathbf{w}^{-1} \\
-&=& \boldsymbol{\gamma}'\mathbf{w}^{-2}
-\end{eqnarray}
-
-The Lagraingian is then
-
-\begin{equation}
-\mathcal{L} = E[R] - \lambda_{\kappa}(\kappa^2 - \bar{\kappa}^2) - \lambda_C(C - \bar{C})
-\end{equation}
-
-## Optimal resource allocation and shadow prices
-
-with first order conditions
-
-\begin{eqnarray}
-\nabla_{\mathbf{w}} \mathcal{L} &=& E[R] (D(\boldsymbol{\mu}) \mathbf{w}^{-2} - D(\boldsymbol{\gamma}) \mathbf{w}^{-3}) + \lambda_{\kappa}(\kappa + 1 / \kappa) D(\boldsymbol{\gamma}) \mathbf{w}^{-3} + \lambda_C \mathbf{1} = \mathbf{0} \\
-&=& E[R] D(\boldsymbol{\mu}) \mathbf{w}^{-2} + \beta D(\gamma) \mathbf{w}^{-3} - \lambda_C \mathbf{1}
-\end{eqnarray}
-
-where the shorthand $\beta$ has been introduced to stand in for
-
-\begin{equation}
-\beta = \lambda{\kappa} (\kappa + 1 / \kappa) - E[R]
-\label{eq:beta_eq}
-\end{equation}
-
-Now, rearranging the first order conditions into the following cubic equation
-
-\begin{equation}
-- \lambda_C \mathbf{w}^3 + E[R] D(\boldsymbol{\mu}) \mathbf{w} + \beta \boldsymbol{\gamma} = \mathbf{0}
-\label{eq:rootfn}
-\end{equation}
-
-reveals that, by Descartes' rule of signs, each budget share $w_i$ is guaranteed to have one positive real root (and two complex roots). Hence, the new problem formulation resulting from the modifications introduced in the previous sections guarantees positive budget shares.
-
-The wxMaxima computer algebra system returns the following solution for equation \ref{eq:rootfn}.
-
-\begin{equation}
-{w^*}_i = \frac{1}{2^{1/3} 3^{1/2}} (\lambda_C^{-{1 / 3}} a_i^{1 / 3} + 2^{2 / 3} \lambda_C^{-2 / 3} E[R] \mu_i \lambda_R \mu_i a_i^{-1 / 3})
-\label{eq:w_sol1}
-\end{equation}
-
-where
-
-\begin{equation}
-a_i = \sqrt{27 \beta^2 \gamma_i^2 - 4 \frac{E[R]^3 \mu_i^3}{\lambda_C}} + \sqrt{27} \beta \gamma_i
-\label{eq:w_sol2}
-\end{equation}
-
-The lower bound of the budget shares $w^*_i$ is guaranteed to be greater than $0$ by Descartes' rule of signs, but what about its upper bound? This is difficult to gauge from the rather ugly expression in equations \ref{eq:w_sol1} and \ref{eq:w_sol2}. However, $w^*_i$ can be coerced into a more instructive and compact form.
-
-First, note that the term $a_i$ can be factored as follows.
-
-\begin{equation}
-a_i = 2 {\beta \over \tau} \sqrt{\mu_i^3} \left( j \sqrt{1 - d_j^2} + d_j \right) \:\:;\:\:\: d_j = \frac{3 \sqrt{3} \gamma_i}{2 \sqrt{\mu_i^3}} \tau \:\:,\:\:\: \tau = \beta \sqrt{\frac{\lambda_C}{E[R]^3}}
-\end{equation}
-
-where $j$ is the imaginary number $j = \sqrt{-1}$.
-
-Now, note that the expression inside the parenthesis describes a triangle with hypotenuse $1$ and legs $d$, $\sqrt{1 - d^2}$; and can thus be rewritten in terms of sine and cosine.
-
-\begin{equation}
-a_i = 2 {\beta \over \tau} \sqrt{\mu_i^3} \left( j \sin{\theta_i} + \cos{\theta_i} \right) \:\:; \:\:\:\: \theta_i = \arccos(d_j)
-\end{equation}
-
-By Euler's formula, moreover,
-
-\begin{equation}
-a_i = 2 {\beta \over \tau} \mu_i^3 e^{j \theta_i}
-\end{equation}
-
-Substituting this into equation \ref{eq:w_sol1} then reduces the budget share equation to
-
-\begin{equation}
-w^*_i = {1 \over \sqrt{3}} {\beta \over \tau} \sqrt{\mu_i} \left(e^{j \theta_i / 3} + e^{-j \theta_i / 3} \right)
-\end{equation}
-
-which can also be expressed
-
-\begin{equation}
-w^*_i = {2 \over \sqrt{3}} {\beta \over \tau} \sqrt{\mu_i} \cos \left( \theta_i \over 3 \right)
-\label{eq:wStar_eq}
-\end{equation}
-
-Since the domain of $\cos(\psi)$ is $-1 < \cos(\psi) < 1$ for any angle $\psi \in (0,\pi)$, this implies
-
-\begin{equation}
-\frac{2}{\sqrt{3}} {\beta \over \tau} \sqrt{\mu_i} < {w^*}_i < \frac{1}{\sqrt{3}} {\beta \over \tau} \sqrt{\mu_i}
-\end{equation}
-
-The domain of $\tau$ likewise follows as
-
-\begin{equation}
--\frac{2}{3 \sqrt{3}} \frac{\sqrt{\mu_i^3}}{\gamma_i} < \tau < \frac{2}{3 \sqrt{3}} \frac{\sqrt{\mu_i^3}}{\gamma_i} \:\:;\:\:\: \forall i
-\label{eq:tau_domain}
-\end{equation}
-
-The optimal budget allocation $\mathbf{w}^*$ for a given $\tau$ and budget constraint $C^*$ can be found by solving the optimized cost function $C^* = \mathbf{1} {'} \mathbf{w}^*$ for $\beta$, and then evaluating $\mathbf{w}^*$ at this value of $\beta$. With $\mathbf{w}^*$ in hand, it is then straightforward to evaluate the optimal return $E[R]^*$ and risk $\kappa^*$. The bounds on $E[R]^*$ and $\kappa^*$ can be found by evaluating at the bounds of $\tau$.
-
-Having found $\kappa^*$ and $E[R]^*$, the risk and budget shadow prices can be found by solving $\beta$ (equation \ref{eq:beta_eq}) for $\lambda_{\kappa}$ and $\tau$ for $\lambda_C$, respectively.
-
-In order to solve for the optimal budget allocation given only $C^*$ and an expected return target $E[R]^*$ or risk tolerance $\kappa$, two of these three equations must be solved for $\beta$ and $\tau$ using a root finding algorithm, whence it is then straightforward to extract $\lambda_{\kappa}$ and $\lambda_C$. In practice, I find it is computationally expedient to define the root function in the variable $\tau$, since the domain of $\tau$ is known (equation \ref{eq:tau_domain}) and can be passed to the root finding algorithm, thereby minimizing the search space.^[There are many algorithms that can be used to find the zeroes of such a function. I use Broyden's method in the uniroot.all() function from the rootSolve package, in R.] When setting an expected return target or risk tolerance, be sure to check that it is within the domain allowed by $\tau$.
-
-## Mapping the signal budget shares back to individual portfolio asset shares
-
-Signal budget shares $\mathbf{w}^*$ can be mapped back to individual portfolio item resource allocations $\mathbf{\hat{w}}^*$ based on each item's correlation with each signal. The disaggregated budget shares must also, of course, be positive, add up to the budget $C^*$, and satisfy
+Above I have shown how, given crowdsourced loadings $L_{\circlearrowleft}$, risk assessment $\boldsymbol{\sigma}_X$, and asset expected returns $\boldsymbol{\hat{\mu}}$, it is possible to deduce the signals covariance matrix $\Gamma$ and expected returns $\boldsymbol{\mu}$. With this information in hand, it is then possible to conduct risk adjusted portfolio optimization over a dimensionally reduced portfolio of signals. This then gives the optimal budget allocation to each signal. Signal budget shares $\mathbf{w}^*$ can then be mapped back to portfolio asset shares $\mathbf{\hat{w}}^*$ based on asset correlations with signals. The disaggregated asset budget shares must also, of course, be positive, add up to the budget $C^*$, and the signals portfolio expected return must equal the original asset portfolio expected return.
 
 \begin{equation}
 \ln(R / \bar{R}) = -\boldsymbol{\hat{\mu}} {'} \mathbf{\hat{w}}^* = -\boldsymbol{\mu} {'} \mathbf{w}^*
 \label{eq:lnR_cond}
 \end{equation}
 
-given expected asset returns $\boldsymbol{\hat{\mu}}$.
-
-The signal definition in equation \ref{eq:sigs_def} suggests the following mapping.
+There are, perhaps, a number of ways to do this using the crowdsourced information. The signal expected returns mapping in equation \ref{eq:sigMu_from_Xmu} suggests the following.
 
 \begin{equation}
 \mathbf{\hat{w}}^{*-1} = \tilde{P} \mathbf{w}^{*-1}
 \label{eq:wStar_map}
 \end{equation}
 
-<!-- To see this, recall that the rows of the definition in equation \ref{eq:sigs_def} indicate returns over an arbitrary step length $t$. In the financial example, the step length is one day. If the step length is increased to the length of the entire time period covered by the data set ($T$), then the time series is reduced to just one row. If expected return is defined as being equal to this period return, then -->
-
-\begin{equation}
-\boldsymbol{\mu} = \boldsymbol{\hat{\mu}} {'} \tilde{P}
-\end{equation}
-
-where, to be clear, $\boldsymbol{\mu}$ is the vector of signal period returns, and $\boldsymbol{\hat{\mu}}$ is the vector of asset period returns.
-
-Post-mulitplying this equation through by the signal budget shares $-\mathbf{w}^{*-1}$ then gives
+To see this, post-mulitply equation \ref{eq:sigMu_from_Xmu} through by the signal budget shares $-\mathbf{w}^{*-1}$.
 
 \begin{equation}
 \ln(R^* / \hat{R}) = \boldsymbol{\mu} {'} \mathbf{w}^{*-1} = \boldsymbol{\hat{\mu}} {'} \tilde{P} \mathbf{w}^{*-1}
 \end{equation}
 
-Hence, the mapping $\mathbf{\hat{w}}^*$ defined in \ref{eq:wStar_map} satisfies equation \ref{eq:lnR_cond}. Now, to enforce the budget constraint and positive shares, recall that eigenvectors are defined up to scaling. That is, equations \ref{eq:sigs_def} and \ref{eq:wStar_map} are really
+Hence, the mapping $\mathbf{\hat{w}}^*$ defined in \ref{eq:wStar_map} satisfies the condition \ref{eq:lnR_cond}. Now, to enforce the budget constraint and positive shares, recall that eigenvectors are defined up to scaling. That is, equations \ref{eq:sigs_def} and \ref{eq:wStar_map} are really
 
 \begin{equation}
 \mathbf{S} = X \tilde{P} D(\boldsymbol{\chi})
@@ -1615,6 +1458,243 @@ The scaling $\boldsymbol{\chi}$ can then be found by rearranging equation \ref{e
 \begin{equation}
 D(\mathbf{w}^{*-1}) \tilde{P} {'} \mathbf{\hat{w}}^{*-1} = \boldsymbol{\chi}
 \end{equation}
+
+# Enforcing positive budget shares
+
+Below I show how positive budget shares follow automatically from the adjustments made so far, i.e. from the diminishing returns function (equation \ref{eq:}) and the diagonal signals covariance matrix $\Gamma$.
+
+To get started, consider that the risk adjusted portfolio optimization problem may be informally written as follows.
+
+\begin{equation}
+\min_{\mathbf{w}}{\text{Risk}} \:\:\:\: s.t. \:\:\:\: E[R] = \hat{E[R]} \:\:\:\: C = \hat{C}
+\label{eq:informal}
+\end{equation}
+
+That is, the investor wants to allocate budget shares so as to minimize risk given a certain expected return target $\hat{E[R]}$ and budget constraint $\hat{C}$. The functional forms of risk and expected return depend upon the probability density that portfolio returns are assumed to follow. In the financial context, it is generally a good idea to assume that this probability density is normal. In the AR4D context, however, this is not so straightforward. For the purposes of this exposition, I asssume that returns to AR4D investments are lognormally distributed. Such an assumption effecively gives science the benefit of the doubt, since it implies a big upside and relatively small downside to investment risk (Figure \ref{fig:...}). 
+
+```{r}
+
+
+```
+
+Combining this assumed probability density with the diminishing returns function gives the following expected returns function.
+
+\begin{equation}
+E[R] = \hat{R} e^{m_R + s_R^2 / 2}
+\end{equation}
+
+where
+
+\begin{equation}
+m_R = E[\ln{R}] = -\boldsymbol{\mu} {'} \mathbf{w}^{-1} \\
+\label{eq:mR_eq}
+\end{equation}
+
+\begin{equation}
+s_R^2 = Var[\ln{R}] = \mathbf{w}^{-1} {'} \Sigma \mathbf{w}^{-1}
+\label{eq:sR_eq}
+\end{equation}
+
+Recall from above that, when optimizing over the signals portfolio, $\Sigma = \Gamma$, and so $s_R^2$ reduces to
+
+\begin{equation}
+s_R^2 = \boldsymbol{\gamma} {'} \mathbf{w}^{-2}
+\end{equation}
+
+Risk can be modeled as the standard deviation, variance, or coefficient of variation of return. When assuming the lognormal probability density, the first and second order conditions of the optimization problem are greatly simplified if risk is defined as the square of the coefficient of variation ($\kappa^2 = e^{s_R^2} - 1$). There is no harm done, and great simplification gained, by further adding one to both sides.
+
+\begin{equation}
+\text{Risk} = \kappa^2 + 1 = e^{s_R^2}
+\end{equation}
+
+The optimization problem is simplified even further by taking logs. This results in the following formalization of the problem sketched in equation \ref{eq:informal}.
+
+\begin{equation}
+\min_{\mathbf{w}}{s_R^2} \:\:\:\: s.t. \:\:\:\: m_R + s_R^2 / 2 = \ln(\hat{E[R]}) \:\:\:\: \ln(\mathbf{w} {'} \mathbf{1}) = \ln(\hat{C})
+\label{eq:informal}
+\end{equation}
+
+with Lagrangian
+
+\begin{equation}
+\mathcal{L} = s_R^2 - \lambda_R (m_R + s_R^2 / 2 - \ln(\hat{E[R]}) ) + \lambda_C (\mathbf{w} {'} \mathbf{1} - \ln(\hat{C}))
+\end{equation}
+
+Note here that $\mathcal{L}$ is essentially a cost function that the investor wants to minimize. The signs on $\lambda_R$ and $\lambda_C$ are thus chosen in accordance with whether or not the respective terms contribute to or subtract from this cost.
+
+The first order conditions for a minimum are then
+
+\begin{equation}
+\nabla_{\mathbf{w}} \mathcal{L} = -2 D(\boldsymbol{\gamma}) \mathbf{w}^{-3} - \lambda_R (D(\boldsymbol{\mu}) \mathbf{w}^{-2} - D(\boldsymbol{\gamma}) \mathbf{w}^{-3}) + {\lambda_C \over C} \mathbf{1} = \mathbf{0}
+\end{equation}
+
+with second order condition
+
+\begin{equation}
+\mathbf{w}^* {'} \nabla_{\mathbf{w}}^2 \mathcal{L} \mathbf{w}^* = 6 s_R^2 - \lambda_R (2 m_R + 3 s_R^2) > 0
+\end{equation}
+
+which can be rearranged
+
+\begin{equation}
+3 > \lambda_R (m_R / s_R^2 + 3 / 2)
+\end{equation}
+
+Considering that $m_R < 0$ and $s_R^2 > 0$ (equations \ref{eq:mR_eq} and \ref{eq:sR_eq}), this means that $\lambda_R$ must be less than $2$. Given the sign fixed on $\lambda_R$ in the Lagrangian, moreover, $\lambda_R$ must be greater than $0$. Hence the domain of the returns shadow price $\lambda_R$ is
+
+\begin{equation}
+0 < \lambda_R < 2
+\label{eq:domain_lR}
+\end{equation}
+
+The frontier of optimal solutions can be found by dotting the first order conditions through by $\mathbf{w}$.
+
+\begin{equation}
+\mathbf{w} {'} \nabla_{\mathbf{w}} \mathcal{L} = -2 s_R^2 + \lambda_R \ln \left(E[R] / \bar{R} e^{s_R^2 / 2} + \lambda_C \right) = \mathbf{0}
+\end{equation}
+
+and then rearranging
+
+\begin{equation}
+E[R]^* = \bar{R} (\kappa^2 + 1)^{1 / \lambda_R - 1 / 2} e^{-\lambda_C / \lambda_R}
+\label{eq:front_eq}
+\end{equation}
+
+To find the optimal budget shares, the first order conditions can be rearranged as follows.
+
+\begin{equation}
+(2 / \lambda_R - 1) D(\boldsymbol{\gamma}) \mathbf{w}^{-3} + D(\boldsymbol{\mu}) \mathbf{w}^{-2} - {\lambda_C \over {\lambda_R C}} \mathbf{1} = \mathbf{0}
+\end{equation}
+
+Dotting through by $\mathbf{w}^3$ then gives the following cubic equation.
+
+\begin{equation}
+(2 / \lambda_R - 1) \boldsymbol{\gamma} + D(\boldsymbol{\mu}) \mathbf{w} + {\lambda_C \over {\lambda_R C}} \mathbf{w}^3 = \mathbf{0}
+\end{equation}
+
+Note that here it is already possible to tell, By Descartes' rule of signs, that each budget share is guaranteed to have one positive real solution (and two complex solutions).
+
+Introducing the shorthand $q = 2 / \lambda_R - 1$ and $v = {\lambda_C \over {\lambda_R C}}$, wxMaxima returns the following solution for $w_i^*$.
+
+\begin{equation}
+w_i^* = \frac{1}{2^{1 / 3} 3^{1 / 2}} (v^{-1 / 3} b_i^{1 / 3} + 2^{2 / 3} v^{-2 / 3} \mu_i b_i^{-1 / 3})
+\label{eq:wStar_raw}
+\end{equation}
+
+where
+
+\begin{equation}
+b_i = \sqrt{27 q ^2 \gamma_i^2 - 4 \mu_i^3 / v} + \sqrt(27) q \gamma_i
+\end{equation}
+
+This is a rather ugly expression. However, it can be coerced into a much more compact and instructive form by factoring $b_i$ as follows.
+
+\begin{equation}
+b_i = 2 \sqrt{\mu_i^3 / v} \left(j \sqrt(1 - d_i^2) + d_i \right)
+\label{eq:b_factrd}
+\end{equation}
+
+where $j$ is the imaginary number $j = \sqrt{-1}$, and
+
+\begin{equation}
+d_i = \sqrt{\frac{27 q^2 \gamma_i^2 q}{4 \mu_i^3}} = \frac{3 \sqrt{3}}{2} \frac{\gamma_i}{\sqrt{\mu_i^3}} q \sqrt{v}
+\label{eq:derive_tau_domain}
+\end{equation}
+
+Note, then, that the expression inside the paentheses in equation \ref{eq:b_factrd} describes a triangle with hypotenuse $1$ and legs $d$, $\sqrt{1 - d^2}$. It can thus be rewritten in terms of sine and cosine.
+
+\begin{equation}
+b_i = 2 \sqrt{\mu_i^3 / v} \left(j \sin(\theta_i) + \cos(\theta_i) \right)
+\end{equation}
+
+where the angle $\theta_i = \arccos(d_i)$.
+
+By Euler's formula, moreover, this reduces further to
+
+\begin{equation}
+b_i = 2 \sqrt{\mu_i^3 / v} e^{j \theta_i}
+\end{equation}
+
+Substituting this back into equation \ref{eq:wStar_raw} and simplifying then gives the following expression for the optimal budget shares.
+
+\begin{equation}
+w_i^* = {1 \over \sqrt{3}} \sqrt{\frac{\lambda_R}{\lambda_C} C\mu_i} \left( e^{j \theta_i / 3} + e^{-j \theta / 3} \right)
+\end{equation}
+
+which of course can also be expressed
+
+\begin{equation}
+w_i^* = {2 \over \sqrt{3}} \sqrt{\frac{\lambda_R}{\lambda_C} C\mu_i} \cos(\theta_i / 3)
+\end{equation}
+
+The domain of a given budget share $w_i^*$ can be deduced from the domain $-1 < \cos(\theta_i / 3) < 1$ as follows
+
+\begin{equation}
+-{2 \over \sqrt{3}} \sqrt{\frac{\lambda_R}{\lambda_C} C\mu_i} < w_i^* < {2 \over \sqrt{3}} \sqrt{\frac{\lambda_R}{\lambda_C} C\mu_i}
+\end{equation}
+
+However, most of the arguments of $d_i$ ($\mu_i,\:\gamma_i,\:\lambda_R,\:\lambda_C,\:C$) are known to be strictly positive. The domain of the one ambiguous argument $q$ is resolved by the second order condition, which restricts $\lambda_R$ to be less than $2$ (recall equation \ref{eq:domain_lR}), and, hence, $q$ to positive values. The domain of $d_i$, and hence of $\cos(\theta_i / 3)$, is thus strictly positive, which then reduces the domain of $w_i^*$ to
+
+\begin{equation}
+0 < w_i^* < {2 \over \sqrt{3}} \sqrt{\frac{\lambda_R}{\lambda_C} C\mu_i}
+\end{equation}
+
+thereby confirming that optimal budget shares are always strictly positve.
+
+## Solving for the optimal budget shares and shadow prices
+
+...
+To avoid mistakes, it is a good idea to make sure that $\lambda_R$ lies on the interval dictated by the second order condition for a minimum; and to evaluate both the optimized expected return function and the frontier equation (\ref{eq:front_eq}), making sure that they agree.
+
+
+
+
+When computing the optimal budget shares and frontier of solutions, it is also important to know the domain of $q\sqrt{v}$. This can be derived from equation \ref{eq:derive_tau_domain}. Introducing the shorthand $\tau = q\sqrt{v}$,
+
+\begin{equation}
+0 < \tau < \frac{2}{3 \sqrt{3}} \frac{\sqrt{\mu_i^3}}{\gamma_i}
+\end{equation}
+
+However, 
+
+In practice, the frontier of optimal solutions and corresponding budget shares can be found for given signal returns $\boldsymbol{\mu}$, variances $\boldsymbol{\gamma}$, and budget $\hat{C}$ by solving the optimized cost function for $v$ at successive values of $\tau$ along this interval.
+
+
+
+However, 
+
+So, the entire frontier is given by solving 
+
+\begin{equation}
+\hat{C} = \sqrt{\frac{1}{v}} \boldsymbol{\mu}^{1 / 2} {'}  
+\end{equation}
+
+for v at successive values of $q\sqrt{v}$ between 
+
+optimal budget allocation $\mathbf{w}^*$ for a given $\tau$ and budget constraint $C^*$ can be found by solving the optimized cost function $C^* = \mathbf{1} {'} \mathbf{w}^*$ for $v$. That is,
+
+
+
+and then evaluating $\mathbf{w}^*$ at this value of $\beta$. With $\mathbf{w}^*$ in hand, it is then straightforward to evaluate the optimal return $E[R]^*$ and risk $\kappa^*$. The bounds on $E[R]^*$ and $\kappa^*$ can be found by evaluating at the bounds of $\tau$.
+
+Having found $\kappa^*$ and $E[R]^*$, the risk and budget shadow prices can be found by solving $\beta$ (equation \ref{eq:beta_eq}) for $\lambda_{\kappa}$ and $\tau$ for $\lambda_C$, respectively.
+
+
+It is always a good idea to check the second order condition to ensure that this solution represents a minimum and not a maximum or inflection point.
+
+\begin{equation}
+\mathbf{w} {'} \nabla_{\mathbf{w}}^2 \mathcal{L} \mathbf{w} \big|_{\mathbf{w} = \mathbf{w}^*} = 6 s_R^{*2} - \lambda_R (2 m_R^* + 3 s_R^{*2}) > 0
+\end{equation}
+
+(where $\nabla_{\mathbf{w}}^2 \mathcal{L}$ is the Hessian of $\mathcal{L}$.)
+
+
+
+
+
+
+
+In order to solve for the optimal budget allocation given only $C^*$ and an expected return target $E[R]^*$ or risk tolerance $\kappa$, two of these three equations must be solved for $\beta$ and $\tau$ using a root finding algorithm, whence it is then straightforward to extract $\lambda_{\kappa}$ and $\lambda_C$. In practice, I find it is computationally expedient to define the root function in the variable $\tau$, since the domain of $\tau$ is known (equation \ref{eq:tau_domain}) and can be passed to the root finding algorithm, thereby minimizing the search space.^[There are many algorithms that can be used to find the zeroes of such a function. I use Broyden's method in the uniroot.all() function from the rootSolve package, in R.] When setting an expected return target or risk tolerance, be sure to check that it is within the domain allowed by $\tau$.
 
 # An illustrative example of AR4D risk adjusted portfolio optimization
 
@@ -1758,22 +1838,20 @@ get_wStar <- function(tau, mu_vec, g_vec, Ctarg){
   rho_vec <- 2 / sqrt(3) * diag(sqrt(mu_vec)) %*% cos(theta_vec / 3)
   ones_vec <- rep(1, length(mu_vec))
   rho <- t(ones_vec) %*% rho_vec
-  a <- as.numeric(rho^2 / Ctarg^2)
-  wStar <- 1 / sqrt(a) * rho_vec
-  outlist <- list(wStar, a)
-  #diag(mu_vec) %*% wStar - r * wStar^3 - tau / sqrt(r) * g_vec
-  # 3 * sin(theta_vec / 3) - 4 * sin(theta_vec / 3)^3 - 3 * sqrt(3) / 2 * g_vec / sqrt(mu_vec^3) * tau
+  v <- as.numeric(rho^2 / Ctarg^2)
+  wStar <- 1 / sqrt(v) * rho_vec
+  outlist <- list(wStar, v)
   return(outlist)
 }
 
 optimize_portfolio_dimRet <- function(tau, mu_vec, g_vec, Ctarg, Rceil){
   out <- get_wStar(tau, mu_vec, g_vec, Ctarg)
   wStar <- out[[1]]
-  a <- out[[2]]
+  v <- out[[2]]
   C <- sum(wStar)
-  beta <- tau / sqrt(a)
-  l_R <- 2 / (beta + 1)
-  l_C <- a * C * l_R
+  q <- tau / sqrt(v)
+  l_R <- 2 / (q + 1)
+  l_C <- v * C * l_R
   m_R <- -t(mu_vec) %*% wStar^-1
   s2_R <- t(g_vec) %*% wStar^-2
   #exp(m_R - s2_R)
@@ -1792,7 +1870,7 @@ optimize_portfolio_dimRet <- function(tau, mu_vec, g_vec, Ctarg, Rceil){
   }else{
     soc_cond <- l_R > 6 * s2_R / term_soc
   }
-  frontier_vec <- c(MR_front, CV, l_R, l_C, soc_cond, tau)
+  frontier_vec <- c(MR_front, CV, l_R, l_C, soc_cond, tau, q)
   #return(check_vec)
   list_out <- list(frontier_vec, wStar)
   return(list_out)
