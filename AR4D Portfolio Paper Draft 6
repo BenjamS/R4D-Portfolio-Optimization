@@ -1470,10 +1470,19 @@ To get started, consider that the risk adjusted portfolio optimization problem m
 \label{eq:informal}
 \end{equation}
 
-That is, the investor wants to allocate budget shares so as to minimize risk given a certain expected return target $\hat{E[R]}$ and budget constraint $\hat{C}$. The functional forms of risk and expected return depend upon the probability density that portfolio returns are assumed to follow. In the financial context, it is generally a good idea to assume that this probability density is normal. In the AR4D context, however, this is not so straightforward. For the purposes of this exposition, I asssume that returns to AR4D investments are lognormally distributed. Such an assumption effecively gives science the benefit of the doubt, since it implies a big upside and relatively small downside to investment risk (Figure \ref{fig:...}). 
+That is, the investor wants to allocate budget shares so as to minimize risk given a certain expected return target $\hat{E[R]}$ and budget constraint $\hat{C}$. The functional forms of risk and expected return depend upon the probability density that portfolio returns are assumed to follow. In the financial context, a normal density is generally assumed. In the AR4D context, however, this is not so straightforward. For the purposes of this exposition, I asssume that returns to AR4D investments are lognormally distributed. Such an assumption effecively gives science the benefit of the doubt, since it implies a big upside and relatively small downside to investment risk (Figure \ref{fig:lognormal_basic_illust}). 
 
-```{r}
+```{r, fig.show = 'hold', fig.width=4, fig.height=3, fig.align='center', fig.cap="\\label{fig:lognormal_basic_illust}The lognormal probability density.", echo=FALSE}
 
+x <- seq(0, 15,length = 100)
+y <- dlnorm(x, meanlog = 1.5, sdlog = 0.5, log = FALSE)
+df_plot <- data.frame(x, y)
+colnames(df_plot) <- c("Return", "Probability density")
+gg <- ggplot(df_plot, aes(Return, `Probability density`))
+gg <- gg + geom_line(size = 2)
+gg <- gg + theme(axis.ticks = element_blank(),
+                 axis.text = element_blank())
+gg
 
 ```
 
