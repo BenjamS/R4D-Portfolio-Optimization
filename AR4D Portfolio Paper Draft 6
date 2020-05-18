@@ -918,13 +918,13 @@ R(\mathbf{w}; \boldsymbol{\mu}, \bar{R}) = \bar{R}\exp(\boldsymbol{\mu} \cdot \m
 
 The graph of this function in Figure \ref{fig:dimRet_f_basic_illust} agrees with intuition and experience, exhibiting increasing returns up to a point of constant returns, and then decreasing returns. The function approaches, but never reaches, the upper bound given by $\bar{R}$.
 
-```{r, fig.show = 'hold', fig.width=4, fig.height=3, fig.align='center', fig.cap="\\label{fig:dimRet_f_basic_illust}The returns function derived from the law of diminishing returns. In this illustration, one budget share is allowed to vary while the rest are held contstant. The dashed line at the top indicates the ceiling given by hat R.", echo=FALSE}
+```{r, fig.show = 'hold', fig.width=3, fig.height=2, fig.align='center', fig.cap="\\label{fig:dimRet_f_basic_illust}The returns function derived from the law of diminishing returns. In this illustration, one budget share is allowed to vary while the rest are held contstant. The dashed line at the top indicates the ceiling given by $\\bar{R}$.", echo=FALSE}
 
 Investment <- seq(0, 4, length.out = 35)
 Return <- exp(-1 / Investment)
 gg <- ggplot(data.frame(Investment, Return), aes(Investment, Return))
-gg <- gg + geom_line(size = 1.5)
-gg <- gg + geom_hline(yintercept = 1, size = 1.5, linetype = "dashed")
+gg <- gg + geom_line(size = 1.2)
+gg <- gg + geom_hline(yintercept = 1, size = 1.2, linetype = "dashed")
 gg <- gg + theme(axis.text = element_blank(),
                  axis.ticks = element_blank())
 gg
@@ -1474,14 +1474,14 @@ To get started, consider that the risk adjusted portfolio optimization problem m
 
 That is, the investor wants to allocate budget shares so as to minimize risk given a certain expected return target $\hat{E[R]}$ and budget constraint $\hat{C}$. The functional forms of risk and expected return depend upon the probability density that portfolio returns are assumed to follow. In the financial context, a normal density is generally assumed. In the AR4D context, however, this is not so straightforward. For the purposes of this exposition, I asssume that returns to AR4D investments are lognormally distributed. Such an assumption effecively gives science the benefit of the doubt, since it implies a big upside and relatively small downside to investment risk (Figure \ref{fig:lognormal_basic_illust}). 
 
-```{r, fig.show = 'hold', fig.width=4, fig.height=3, fig.align='center', fig.cap="\\label{fig:lognormal_basic_illust}The lognormal probability density.", echo=FALSE}
+```{r, fig.show = 'hold', fig.width=3, fig.height=2, fig.align='center', fig.cap="\\label{fig:lognormal_basic_illust}The lognormal probability density.", echo=FALSE}
 
 x <- seq(0, 15,length = 100)
 y <- dlnorm(x, meanlog = 1.5, sdlog = 0.5, log = FALSE)
 df_plot <- data.frame(x, y)
 colnames(df_plot) <- c("Return", "Probability density")
 gg <- ggplot(df_plot, aes(Return, `Probability density`))
-gg <- gg + geom_line(size = 1.5)
+gg <- gg + geom_line(size = 1.2)
 gg <- gg + theme(axis.ticks = element_blank(),
                  axis.text = element_blank())
 gg
@@ -1744,7 +1744,7 @@ The next step is to invite the stakeholders to assess each AR4D proposal's corre
 
 The result of this two step exercise is a crowdsourced rotated loadings matrix ($L_{\circlearrowleft}$). In the hypothetical example presented here, the stakeholders have agreed that Economic Growth, Income Equality, Environmental Sustainability, and Nutritional Security are the signals that best register the evolution of the AR4D proposals under consideration. The stakeholders' average asessment of proposal's correlation with each of these signals is given in Figure \ref{fig:loadsRotExamp}.
 
-```{r, fig.show = "hold", fig.width = 6, fig.height = 3, fig.align = "center", fig.cap = "\\label{fig:loadsRotExamp}A hypothetical example of rotated signal loadings elicited from a stakeholder survey."}
+```{r, fig.show = "hold", fig.width = 6, fig.height = 4, fig.align = "center", fig.cap = "\\label{fig:loadsRotExamp}A hypothetical example of rotated signal loadings elicited from a stakeholder survey."}
 df_x <- df_Lrot
 df_x$Group <- NULL
 prop_col <- df_x$Proposal
@@ -1764,7 +1764,7 @@ plot_corrXS_barchart(mat_Lrot, group_info, xAxis_title, sigNames)
 ```
 During this exercise, participants should be encouraged to keep in mind that no AR4D proposal can "be all things to all people". A new yield enhancing variety of a high value crop, for example, might contribute towards increased trade competitiveness and GDP growth in the short term, but at the cost of increased deforestation and use of chemical inputs that degrade the environment. Conversely, a climate smart or pro-poor AR4D proposal might increase long term environmental and socio-economic sustainability at the cost of reduced short term growth and competitiveness. These tradeoffs require careful consideration.^[Participants might also be encouraged to beware of any received wisdom regarding tradeoffs and synergies. For example, it has long been customary in AR4D communities to assume that economic growth and economic equality are mutually exclusive goals [@Alston]. Recent empirical studies suggest a much more nuanced and synergistic relation [@berg2017inequality; @berg2011equality].]
 
-```{r, fig.show = "hold", fig.width = 4, fig.height = 3, fig.align = "center", fig.cap = "\\label{fig:sigRetRisk}AR4D signal returns and risk derived from crowdsourced information."}
+```{r, fig.show = "hold", fig.width = 2, fig.height = 3, fig.align = "center", fig.cap = "\\label{fig:sigRetRisk}AR4D signal returns and risk derived from crowdsourced information."}
 
 # Covariance matrix
 D_sdX <- diag(sdX_vec)
@@ -1868,7 +1868,7 @@ optimize_portfolio_dimRet <- function(tau, mu_vec, g_vec, Ctarg, Rceil){
   #l_CV <- 1 / 2 * (1 - beta)
   term <- (-l_C + 2 * log(CV^2 + 1)) / l_R
   MR_front <- Rceil / sqrt(CV^2 + 1) * exp(term)
-  print(M_R - MR_front)
+  #print(M_R - MR_front)
   #check_vec <- data.frame(tau, M_R, MR_front, CV, l_CV, l_C, term, beta)
   term_soc <- 2 * m_R + 3 * s2_R
   if(term_soc > 0){
@@ -1933,7 +1933,7 @@ gg_frontier <- gg
 gg_budget <- plot_budgetShares(df_wStar, color_vec = sig_colors, graph_on = F, list_graph_options = NULL)
 #--------------------------------------------------------------
 gg_frontier + gg_budget + plot_layout(ncol = 1)
-sqrt(g_vec) / mu_vec
+#sqrt(g_vec) / mu_vec
 #--------------------------------------------------------------
 max_ROI <- max(df_frontier$`ROI target (percent)`)
 min_ROI <- min(df_frontier$`ROI target (percent)`)
@@ -1946,8 +1946,6 @@ share_environ <- 10^2 * round(mean(df_wStar$`Environmental
 Sustainability`), 2)
 share_nutri <- 10^2 * round(mean(df_wStar$`Nutritional
 Security`), 2)
-
-
 ```
 The result indicates an increasing, linear relation between portfolio risk and return. Possible ROI targets range narrowly from `r min_ROI` to `r max_ROI`, while the associated risk ranges from `r min_risk` to `r max_risk`. The optimal budget allocation varies little across this range, with about `r share_GDP_growth`% allocated to the Economic Growth objective, `r share_econ_equal`% allocated to the Economic Equality objective, `r share_environ`% allocated to the Environmental Sustainability objective, and `r share_nutri`% allocated to the Nutritional Security objective.
 
@@ -2010,15 +2008,11 @@ At this point, the stakeholder exercise concludes, and the results in Figures \r
 
 <div id="refs"></div>
 
-\pagebreak
-
 # Appendix
 
 ## Securities appearing in the financial example
 
 ```{r, echo=FALSE}
-
-
 spy_sector_fullName <- c("Financial Select Sector SPDR Fund",
                          "Communication Services Select Sector SPDR Fund",
                          "Consumer Discretionary Select Sector SPDR Fund",
@@ -2038,7 +2032,7 @@ kable(df_table) %>% kable_styling(bootstrap_options = c("striped", "hover", "con
 
 ```
 
-```{r, fig.show = 'hold', fig.cap="\\label{fig:hReturns}Historical (top) daily returns and (bottom) period return, financial data.", fig.width=6, fig.height=6, fig.align='left', echo=FALSE}
+```{r, fig.show = 'hold', fig.cap="\\label{fig:hReturns}\\textit(Top) Period returns and \\textit(bottom) covariance matrix, financial data.", fig.width=6, fig.height=6, fig.align='left', echo=FALSE}
 # Plot historical returns for period and items defined above
 fig_title <- "Period Returns (%)"
 list_graph_options <- list()
@@ -2076,9 +2070,9 @@ where the lower bound is restricted to $0$ by the second order condition. So, th
 for $v$ at successive values of $\tau$ on this interval. The extraction of the shadow prices $\lambda_R$ and $\lambda_C$ from $q$, $v$, and $\hat{C}$ is then straightforward.
 
 \begin{eqnarray}
-q <- \tau / sqrt(v)
-\lambda_R <- 2 / (q + 1)
-\lambda_C <- v \hat{C} \lambda_R
+q &=& \tau / \sqrt(v) \\
+\lambda_R &=& 2 / (q + 1) \\
+\lambda_C &=& v \hat{C} \lambda_R
 \end{eqnarray}
 
 The optimal budget shares are then found, for each point along this frontier, by evaluating $\mathbf{w}^*$ at the respective values of $v$. With $\mathbf{w}^*$ in hand, it is then straightforward to evaluate the optimal return $E[R]^*$ and risk $\kappa^*$. To avoid mistakes, it is a good idea to also evaluate the frontier equation (\ref{eq:front_eq}), and to make sure that this agrees with the expected return evaluated at $\mathbf{w}^*$.
