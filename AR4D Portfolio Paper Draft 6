@@ -1764,7 +1764,7 @@ plot_corrXS_barchart(mat_Lrot, group_info, xAxis_title, sigNames)
 ```
 During this exercise, participants should be encouraged to keep in mind that no AR4D proposal can "be all things to all people". A new yield enhancing variety of a high value crop, for example, might contribute towards increased trade competitiveness and GDP growth in the short term, but at the cost of increased deforestation and use of chemical inputs that degrade the environment. Conversely, a climate smart or pro-poor AR4D proposal might increase long term environmental and socio-economic sustainability at the cost of reduced short term growth and competitiveness. These tradeoffs require careful consideration.^[Participants might also be encouraged to beware of any received wisdom regarding tradeoffs and synergies. For example, it has long been customary in AR4D communities to assume that economic growth and economic equality are mutually exclusive goals [@Alston]. Recent empirical studies suggest a much more nuanced and synergistic relation [@berg2017inequality; @berg2011equality].]
 
-```{r, fig.show = "hold", fig.width = 2, fig.height = 3, fig.align = "center", fig.cap = "\\label{fig:sigRetRisk}AR4D signal returns and risk derived from crowdsourced information."}
+```{r, fig.show = "hold", fig.width = 3, fig.height = 3, fig.align = "center", fig.cap = "\\label{fig:sigRetRisk}AR4D signal returns and risk derived from crowdsourced information."}
 
 # Covariance matrix
 D_sdX <- diag(sdX_vec)
