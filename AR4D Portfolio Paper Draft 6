@@ -52,7 +52,7 @@ However, he went on to observe that these steps were insufficient. An as of yet 
 
 Mills identified this lacuna at a time when AR4D centers were just beginning to come under pressure from public and private donors to "do a lot more with a lot less" [@Alston1995]. Methodological work in response to this pressure focused on Steps 1-4. The emergence and refinement of numerous ex-ante impact assessment models for the evaluation of individual research alternatives, in particular, is remarkable (see, for example, @Alston1995; @Antle1999; @Antle2015; Mills, 1998; and @nelson2014modeling). However, work has still not begun on Mills' missing fifth step.
 
-```{r, fig.show = 'hold', out.width="10cm", fig.align='center'}
+```{r, fig.show = 'hold', out.width="10cm", fig.cap="\\label{fig:mills_missing_step}The priority setting workflow, adapted from Mills (1998).", fig.align='center'}
 knitr::include_graphics("Mills_missing_step5.png")
 ```
 In hindsight, Mills' concern was well founded. Budgetary pressure on AR4D centers to "prove their relevance" [@Braunschweig2000], "show value for money" [@yet2016bayesian], and otherwise demonstrate "more efficient spending of resources" [@petsakos2018comparing] has only increased since the 1990s. Between Step 4 and the final allocation of funds, stakeholder politics, institutional inertia, ad hoc procedures and criteria, and other subjective forces have repeatedly undercut any careful, objective rigor occurring in Steps 1-4 [@Birner2016; @mccalla2014cgiar]. This inconsistency, opacity, and subjectivity in resource allocation decisions has, in turn, aggravated scientists' already longstanding distrust of budget allocation mechanisms. Relations between donors and the research programs they fund have, as a result, reached an historic level of toxicity [@Birner2016; @leeuwis2018reforming; @mccalla2014cgiar].
@@ -893,20 +893,22 @@ In the AR4D context, returns to investment are marginally diminishing. In other 
 
 Equation \ref{eq:dimRetDefine} can be used to arrive at an expression for $R$ as follows:
 
-\begin{eqnarray}
-\ln R &=& \int \nabla_{\ln \mathbf{w}} \ln R \cdot d\mathbf{w} \\
-&=& \int \nabla_{\mathbf{w}} \ln\mathbf{w} \cdot d\ln\mathbf{w} \\
-&=& \int \mathbf{w}^{-2} \cdot d\mathbf{w} \\
-&=& \boldsymbol{\alpha} \cdot \mathbf{w}^{-1} + k
-\end{eqnarray}
-
-Substituting $\bar{R}=\exp(k)$, this can be rewritten
-
 \begin{equation}
-R(\mathbf{w}; \boldsymbol{\alpha}, \bar{R}) = \bar{R}\exp(\boldsymbol{\alpha} \cdot \mathbf{w}^{-1})
+\begin{split}
+\ln R &= \int \nabla_{\ln \mathbf{w}} \ln R \cdot d\mathbf{w} \\
+&= \int \nabla_{\mathbf{w}} \ln\mathbf{w} \cdot d\ln\mathbf{w} \\
+&= \int \mathbf{w}^{-2} \cdot d\mathbf{w} \\
+&= \boldsymbol{\alpha} \cdot \mathbf{w}^{-1} + k
+\end{split}
 \end{equation}
 
-where the proportionality constants $\boldsymbol{\alpha}$ are determined by context. In the present setting, it makes sense to set $\boldsymbol{\alpha}$ equal to the expected return on investment in the corresponding portfolio items. The constant of integration, $\bar{R}$, represents the ceiling on $R$, i.e.,
+Substituting $\bar{R}=e^{k}$, this can be rewritten
+
+\begin{equation}
+R(\mathbf{w}; \boldsymbol{\alpha}, \bar{R}) = \bar{R}e^{\boldsymbol{\alpha} \cdot \mathbf{w}^{-1}}
+\end{equation}
+
+Where the proportionality constants $\boldsymbol{\alpha}$ are determined by context. In the present setting, it makes sense to set $\boldsymbol{\alpha}$ equal to the expected return on investment in the corresponding portfolio items. The constant of integration, $\bar{R}$, represents the ceiling on $R$, i.e.,
 
 \begin{equation}
 \bar{R} = \lim_{\mathbf{w} \rightarrow \infty} R
@@ -915,7 +917,7 @@ where the proportionality constants $\boldsymbol{\alpha}$ are determined by cont
 This results in
 
 \begin{equation}
-R(\mathbf{w}; \boldsymbol{\mu}, \bar{R}) = \bar{R}\exp(\boldsymbol{\mu} \cdot \mathbf{w}^{-1})
+R(\mathbf{w}; \boldsymbol{\mu}, \bar{R}) = \bar{R}e^{\boldsymbol{\mu} \cdot \mathbf{w}^{-1}}
 \label{eq:dimRetfn}
 \end{equation}
 
@@ -947,50 +949,58 @@ S = X \tilde{P}
 \label{eq:sigs_def}
 \end{equation}
 
-where $\tilde{P}$ is a matrix containing the $m$ leading eigenvectors of the full set of eigenvectors $P$, which is taken from the eigendecomposition of the data covariance matrix $\Sigma_{XX}$ (equation \ref{eq:eigDecomp}).
+Where $\tilde{P}$ is a matrix containing the $m$ leading eigenvectors of the full set of eigenvectors $P$, which is taken from the eigendecomposition of the data covariance matrix $\Sigma_{XX}$ (equation \ref{eq:eigDecomp}).
 
 \begin{equation}
 \Sigma_{XX} = P\Gamma P'
 \label{eq:eigDecomp}
 \end{equation}
 
-where $\Gamma$ is the diagonal matrix of the leading eigenvalues of $\Sigma_{XX}$. 
+Where $\Gamma$ is the diagonal matrix of the leading eigenvalues of $\Sigma_{XX}$. 
 
 From the definition (\ref{eq:sigs_def}), it follows that the signals are uncorrelated with each other, and that their variance is given by the eigenvalues of the data covariance matrix.
 
-\begin{eqnarray}
-\Sigma_{SS} &=& \frac{1}{n-1}S'S \\
-&=& \frac{1}{n-1} \tilde{P}'X'X\tilde{P} \\
-&=& \tilde{P}'\Sigma_{XX}\tilde{P} \\
-&=& \tilde{P}'P \Gamma P'\tilde{P}=\tilde{\Gamma}
+\begin{equation}
+\begin{split}
+\Sigma_{SS} &= \frac{1}{n-1}S'S \\
+&= \frac{1}{n-1} \tilde{P}'X'X\tilde{P} \\
+&= \tilde{P}'\Sigma_{XX}\tilde{P} \\
+&= \tilde{P}'P \Gamma P'\tilde{P}=\tilde{\Gamma}
+\end{split}
 \label{eq:covmat_SS}
-\end{eqnarray}
+\end{equation}
 
 The columns of the distilled matrix $S$ are referred to as the principal components (PC), or the PC scores, or the factor scores. When dealing with noisy time series, as in this paper, they might just as well be reffered to as the "signals", in the sense that they are signals extracted from noise.
 
 The dataset is thus effectively reduced in complexity from $n$ to $m$ dimensions. There then remains the question of what essential process these dimensions or signals describe. This can be interpreted based on how correlated they are with the variables in the original dataset. These correlations ($K_{XS}$) are found by first finding their corresponding covariances ($\Sigma_{XS}$).
 
-\begin{eqnarray}
-\Sigma_{XS} &=& \frac{1}{n-1}X'S \\
-&=& \frac{1}{n-1}X'XP \\
-&=& KP = P \Gamma P'P \\
-&=& P \Gamma
-\end{eqnarray}
+\begin{equation}
+\begin{split}
+\Sigma_{XS} &= \frac{1}{n-1}X'S \\
+&= \frac{1}{n-1}X'XP \\
+&= KP = P \Gamma P'P \\
+&= P \Gamma
+\end{split}
+\end{equation}
 
 The correlation matrix $K_{XS}$ then follows as
 
-\begin{eqnarray}
-K_{XS} &=& D(\boldsymbol{\sigma}_X)^{-1} \Sigma_{XS} D(\boldsymbol{\sigma}_S)^{-1} \\
-&=&D(\boldsymbol{\sigma}_X)^{-1} P \Gamma D(\boldsymbol{\sigma}_S)^{-1}
-\end{eqnarray}
+\begin{equation}
+\begin{split}
+K_{XS} &= D(\boldsymbol{\sigma}_X)^{-1} \Sigma_{XS} D(\boldsymbol{\sigma}_S)^{-1} \\
+&= D(\boldsymbol{\sigma}_X)^{-1} P \Gamma D(\boldsymbol{\sigma}_S)^{-1}
+\end{split}
+\end{equation}
 
 But the standard deviations of the signals are just the square roots of the eigenvalues (recall equation \ref{eq:covmat_SS}), so this reduces to
 
-\begin{eqnarray}
-K_{XS} &=& D(\boldsymbol{\sigma}_X)^{-1}\Sigma_{XS} \Gamma ^{-{1 \over 2}} \\
-&=& D(\boldsymbol{\sigma}_X)^{-1}P \Gamma \Gamma^{-{1 \over 2}} \\
-&=& D(\boldsymbol{\sigma}_X)^{-1}P \Gamma ^{1 \over 2}
-\end{eqnarray}
+\begin{equation}
+\begin{split}
+K_{XS} &= D(\boldsymbol{\sigma}_X)^{-1}\Sigma_{XS} \Gamma ^{-{1 \over 2}} \\
+&= D(\boldsymbol{\sigma}_X)^{-1}P \Gamma \Gamma^{-{1 \over 2}} \\
+&= D(\boldsymbol{\sigma}_X)^{-1}P \Gamma ^{1 \over 2}
+\end{split}
+\end{equation}
 
 Note that if $X$ were scaled to unit variance, then this would reduce further to
 
@@ -1157,7 +1167,7 @@ L_{\circlearrowleft} = LB
 \label{eq:Lrot}
 \end{equation}
 
-where $B$ is the orthogonal rotation matrix, such that $B'B = I$ and $BB' = I$.
+Where $B$ is the orthogonal rotation matrix, such that $B'B = I$ and $BB' = I$.
 <!-- Note that a rotation of $L$ implies a rotation of the signals, since -->
 
 <!-- \begin{equation} -->
@@ -1236,18 +1246,22 @@ plot_sigs_wHiLoad_items <- function(mat_X_in, mat_S, mat_L, color_vec, sigNames 
     
     if(i == n_signals){
       #gg <- gg + labs(title = paste("Signal", i), caption = fig_title)
-      gg <- gg + theme(#axis.text.x = element_text(angle = 60, hjust = 1),
+      gg <- gg + theme(axis.text.x = element_text(size = 8),
+                       axis.text.y = element_text(size = 8),
         axis.title.x = element_blank(),
         axis.title.y = element_blank(),
         legend.title = element_blank(),
+        legend.text = element_text(size = 7),
         plot.title = element_text(size = 8)
         #plot.caption = element_text(hjust = 0, size = 10)
       )
     }else{
       gg <- gg + theme(axis.text.x = element_blank(),
+                       axis.text.y = element_text(size = 8),
                        axis.title.x = element_blank(),
                        axis.title.y = element_blank(),
                        legend.title = element_blank(),
+                       legend.text = element_text(size = 8),
                        plot.title = element_text(size = 8))
     }
     
@@ -1332,11 +1346,11 @@ gg <- ggplot(df_plot, aes(x = Signal, y = Value, fill = `Portion explained`))
 gg <- gg + geom_bar(stat = "identity", color = "black", position = "dodge")
 gg <- gg + scale_fill_manual(values = c("wheat3", "paleturquoise"))
 gg <- gg + geom_hline(yintercept = 0.9, color = "coral", size = 1, linetype = "dashed")
-gg <- gg + theme(axis.text.y = element_text(size = 9),
-                 axis.text.x = element_text(size = 9, angle = 60, hjust = 1),
+gg <- gg + theme(axis.text.y = element_text(size = 7),
+                 axis.text.x = element_text(size = 7, angle = 60, hjust = 1),
                  axis.title = element_blank(),
-                 legend.title = element_text(size = 9),
-                 legend.text = element_text(size = 9))
+                 legend.title = element_text(size = 8),
+                 legend.text = element_text(size = 8))
 
 gg
 
@@ -1355,12 +1369,14 @@ The plot shows that the leading `r n_signals` signals are sufficient to meet thi
 
 Equations \ref{eq:covmat_SS} to \ref{eq:Lrot} imply that it is possible to work backwards from the rotated loadings $L_{\circlearrowleft}$ and asset risk $\boldsymbol{\sigma}_X$, to arrive at the signals covariance matrix $\Gamma$. To see this, define $Q_{\circlearrowleft} = D(\boldsymbol{\sigma}_X)L_{\circlearrowleft}$, and note that
 
-\begin{eqnarray}
+\begin{equation}
+\begin{split}
 \label{eq:crowdsource_G}
-Q_{\circlearrowleft}'Q_{\circlearrowleft} &=& (\tilde{P} \tilde{\Gamma}^{1 \over 2} B)' \tilde{P} \tilde{\Gamma}^{1 \over 2} B \\
-&=& B' \tilde{\Gamma}^{1 \over 2} \tilde{P}' \tilde{P} \tilde{\Gamma}^{1 \over 2} B \\
-&=& B' \tilde{\Gamma} B
-\end{eqnarray}
+Q_{\circlearrowleft}'Q_{\circlearrowleft} &= (\tilde{P} \tilde{\Gamma}^{1 \over 2} B)' \tilde{P} \tilde{\Gamma}^{1 \over 2} B \\
+&= B' \tilde{\Gamma}^{1 \over 2} \tilde{P}' \tilde{P} \tilde{\Gamma}^{1 \over 2} B \\
+&= B' \tilde{\Gamma} B
+\end{split}
+\end{equation}
 
 Hence, $\Gamma$ is obtained as the eigenvalues of $Q_{\circlearrowleft}'Q_{\circlearrowleft}$. The implicit orthogonal rotation $B$ is also recovered as the transpose of the corresponding eigenvectors.
 
@@ -1394,14 +1410,16 @@ As $\nu$ is higher, the crowdsource approach to covariance matrix estimation is 
 
 Note, in passing, that the data correlation matrix can also be approximated from the `r n_signals` retained signals, as their outer product.
 
-\begin{eqnarray}
-L_{\circlearrowleft}L_{\circlearrowleft}' &=& LB (LB)' = LBB'L' = LL' \\
-&=& (D(\sigma_X)^{-1} \tilde{P} \tilde{\Gamma}^{-{1 \over 2}}) (D(\sigma_X)^-1 \tilde{P} \tilde{\Gamma}^{-{1 \over 2}})' \\
-&=& (D(\sigma_X)^{-1} \tilde{P} \tilde{\Gamma}^{-{1 \over 2}}) \tilde{\Gamma}^{-{1 \over 2}} \tilde{P}' D(\sigma_X)^{-1} \\
-&=& D(\sigma_X)^{-1} \tilde{\Sigma}_{XX} D(\sigma_X)^{-1} \\
-&=& \hat{K}_{XX}
+\begin{equation}
+\begin{split}
+L_{\circlearrowleft}L_{\circlearrowleft}' &= LB (LB)' = LBB'L' = LL' \\
+&= (D(\sigma_X)^{-1} \tilde{P} \tilde{\Gamma}^{-{1 \over 2}}) (D(\sigma_X)^-1 \tilde{P} \tilde{\Gamma}^{-{1 \over 2}})' \\
+&= (D(\sigma_X)^{-1} \tilde{P} \tilde{\Gamma}^{-{1 \over 2}}) \tilde{\Gamma}^{-{1 \over 2}} \tilde{P}' D(\sigma_X)^{-1} \\
+&= D(\sigma_X)^{-1} \tilde{\Sigma}_{XX} D(\sigma_X)^{-1} \\
+&= \hat{K}_{XX}
+\end{split}
 \label{eq:cormat_from_Lrot}
-\end{eqnarray}
+\end{equation}
 
 (If we are also given an estimate of the risk of each portfolio asset, it is then of course straightforward to also arrive at an approximate covariance matrix.)
 
@@ -1450,7 +1468,7 @@ Hence, the mapping $\mathbf{\hat{w}}^*$ defined in \ref{eq:wStar_map} satisfies 
 \label{eq:wStar_map_scaled}
 \end{equation}
 
-where $\boldsymbol{\chi}$ is a vector of arbitrary factors scaling the columns of $\tilde{P}$. The values of $\boldsymbol{\chi}$ may be chosen such that the asset weights $\mathbf{\hat{w}}^*$ are positive and sum to $C^*$.
+Where $\boldsymbol{\chi}$ is a vector of arbitrary factors scaling the columns of $\tilde{P}$. The values of $\boldsymbol{\chi}$ may be chosen such that the asset weights $\mathbf{\hat{w}}^*$ are positive and sum to $C^*$.
 
 In practice, this scaling can be applied by simply computing $\mathbf{\hat{w}}^*$ via equation \ref{eq:wStar_map}. If the result contains negative values, add a constant $\alpha$ such that all weights become positive. (The parameter $\alpha$ may be tuned so as to guarantee a minimum investment in the lowest ranking portfolio item.) Finally, divide by a constant $\beta$ such that the weights add to $C^*$.
 
@@ -1468,10 +1486,12 @@ To get started, consider that the risk adjusted portfolio optimization problem m
 
 \begin{equation}
 \min_{\mathbf{w}}{\text{Risk}} \:\:\:\: s.t. \:\:\:\: E[R] = E[\hat{R}] \:\:\:\: C = \hat{C}
-\label{eq:informal}
+\label{eq:informal_prob}
 \end{equation}
 
-That is, the investor wants to allocate budget shares so as to minimize risk given a certain expected return target $E[\hat{R}]$ and budget constraint $\hat{C}$. The functional forms of risk and expected return depend upon the probability density that portfolio returns are assumed to follow. In the financial context, a normal density is generally assumed. In the AR4D context, however, this is not so straightforward. For the purposes of this exposition, I asssume that returns to AR4D investments are lognormally distributed. Such an assumption effecively gives science the benefit of the doubt, since it implies a big upside and relatively small downside to investment risk (Figure \ref{fig:lognormal_basic_illust}). 
+That is, the investor wants to allocate budget shares so as to minimize risk given a certain expected return target $E[\hat{R}]$ and budget constraint $\hat{C}$.
+
+The functional forms of risk and expected return depend upon the probability density that portfolio returns are assumed to follow. In the financial context, a normal density is generally assumed. In the AR4D context, however, this is not so straightforward. For the purposes of this exposition, I asssume that returns to AR4D investments are lognormally distributed. Such an assumption effecively gives science the benefit of the doubt, since it implies a big upside and relatively small downside to investment risk (Figure \ref{fig:lognormal_basic_illust}). 
 
 ```{r, fig.show = 'hold', fig.width=3, fig.height=2, fig.align='center', fig.cap="\\label{fig:lognormal_basic_illust}The lognormal probability density.", echo=FALSE}
 
@@ -1494,7 +1514,7 @@ Combining this assumed probability density with the diminishing returns function
 E[R] = \hat{R} e^{m_R + s_R^2 / 2}
 \end{equation}
 
-where
+Where
 
 \begin{equation}
 m_R = E[\ln{R}] = -\boldsymbol{\mu} {'} \mathbf{w}^{-1} \\
@@ -1518,11 +1538,10 @@ Risk can be modeled as the standard deviation, variance, or coefficient of varia
 \text{Risk} = \kappa^2 + 1 = e^{s_R^2}
 \end{equation}
 
-The optimization problem is facilitated even further by taking logs. This results in the following formalization of the problem sketched above in equation \ref{eq:informal}.
+The optimization problem is facilitated even further by taking logs. This results in the following formalization of the problem sketched above in equation \ref{eq:informal_prob}.
 
 \begin{equation}
 \min_{\mathbf{w}}{s_R^2} \:\:\:\: s.t. \:\:\:\: m_R + s_R^2 / 2 = \ln(\hat{E[R]}) \:\:\:\: \ln(\mathbf{w} {'} \mathbf{1}) = \ln(\hat{C})
-\label{eq:informal}
 \end{equation}
 
 with Lagrangian
@@ -1592,7 +1611,7 @@ w_i^* = \frac{1}{2^{1 / 3} 3^{1 / 2}} (v^{-1 / 3} b_i^{1 / 3} + 2^{2 / 3} v^{-2 
 \label{eq:wStar_raw}
 \end{equation}
 
-where
+Where
 
 \begin{equation}
 b_i = \sqrt{27 q ^2 \gamma_i^2 - 4 \mu_i^3 / v} + \sqrt(27) q \gamma_i
@@ -1605,7 +1624,7 @@ b_i = 2 \sqrt{\mu_i^3 / v} \left(j \sqrt(1 - d_i^2) + d_i \right)
 \label{eq:b_factrd}
 \end{equation}
 
-where $j$ is the imaginary number $j = \sqrt{-1}$, and
+Where $j$ is the imaginary number $j = \sqrt{-1}$, and
 
 \begin{equation}
 d_i = \sqrt{\frac{27 q^2 \gamma_i^2 q}{4 \mu_i^3}} = \frac{3 \sqrt{3}}{2} \frac{\gamma_i}{\sqrt{\mu_i^3}} q \sqrt{v}
@@ -1618,7 +1637,7 @@ Note, then, that the expression inside the paentheses in equation \ref{eq:b_fact
 b_i = 2 \sqrt{\mu_i^3 / v} \left(j \sin(\theta_i) + \cos(\theta_i) \right)
 \end{equation}
 
-where the angle $\theta_i = \arccos(d_i)$.
+Where the angle $\theta_i = \arccos(d_i)$.
 
 By Euler's formula, moreover, this reduces further to
 
@@ -1663,21 +1682,23 @@ Introducing the shorthand $\tau = q\sqrt{v}$, the domain of $\tau$ can be derive
 0 < \tau < \frac{2}{3 \sqrt{3}} \frac{\sqrt{\mu_i^3}}{\gamma_i}
 \end{equation}
 
-where the lower bound is restricted to $0$ by the second order condition. So, the entire frontier of risk reward possibilities is given by solving the optimized cost function
+Where the lower bound is restricted to $0$ by the second order condition. So, the entire frontier of risk reward possibilities is given by solving the optimized cost function
 
 \begin{equation}
-\hat{C} = \sqrt{\frac{1}{v}} \boldsymbol{\mu}^{1 / 2} {'}  
+\hat{C} = \sqrt{\frac{1}{v}} \boldsymbol{\mu}^{1 / 2} {'} \mathbf{w}^*
 \end{equation}
 
 for $v$ at successive values of $\tau$ on this interval. The extraction of the shadow prices $\lambda_R$ and $\lambda_C$ from $q$, $v$, and $\hat{C}$ is then straightforward.
 
 \begin{eqnarray}
-q &=& \tau / \sqrt(v) \\
+q &=& \tau / \sqrt{v} \\
 \lambda_R &=& 2 / (q + 1) \\
 \lambda_C &=& v \hat{C} \lambda_R
 \end{eqnarray}
 
-The optimal budget shares are then found, for each point along this frontier, by evaluating $\mathbf{w}^*$ at the respective values of $v$. With $\mathbf{w}^*$ in hand, it is then straightforward to evaluate the optimal return $E[R]^*$ and risk $\kappa^*$. To avoid mistakes, it is a good idea to also evaluate the frontier equation (\ref{eq:front_eq}), and to make sure that this agrees with the expected return evaluated at $\mathbf{w}^*$.
+The optimal budget shares are then found, for each point along this frontier, by evaluating $\mathbf{w}^*$ at the respective values of $v$. With $\mathbf{w}^*$ in hand, it is then straightforward to evaluate the optimal return $E[R]^*$ and risk $\kappa^{*2} + 1$. To avoid mistakes, it is a good idea to check these values against the frontier equation (\ref{eq:front_eq}), making sure they agree.
+
+The budget shadow price reflects the marginal value to the investor of a marginal increment in their budget. It can thus be looked to as an indicator of how beneficial it would be, from the investor's perspective, to borrow or otherwise leverage external funds over and above the existing budget. The return shadow price, on the other hand, reflects the marginal value to the investor of a marginal increment in the expected portfolio return. It can thus be interpreted as an indicator of how valuable additional increments of AR4D expected impacts are to the investor. By selecting a point on the optimal frontier, then, the investor reveals their preference or "willingness to pay" for more (expected) impact. The shadow prices are, in this sense, a means of non-market valuation of research.
 
 # An illustrative example of AR4D risk adjusted portfolio optimization
 
@@ -1689,7 +1710,7 @@ In practice, AR4D risk adjusted portfolio optimization would come after Step 3 i
 
 A hypothetical list of AR4D proposals is presented in Figure \ref{fig:ExpPctRet_Examp}, together with their estimated risk and expected returns.^[The AR4D proposals are loosely grouped into four categories to facilitate interpretation of the gaphics, but there is no strict rule followed, and clearly some overlap, in the grouping.]
 
-```{r, fig.show = "hold", fig.width = 3, fig.height = 3, fig.align = "center", fig.cap = "\\label{fig:ExpPctRet_Examp}Hypothetical AR4D proposal estimated risks and returns."}
+```{r, fig.show = "hold", fig.width = 4, fig.height = 4, fig.align = "center", fig.cap = "\\label{fig:ExpPctRet_Examp}Hypothetical AR4D proposal estimated risks and returns."}
 #---------------------------------------------
 prop_CSA <- c("Heat Tolerant\nBeans", "Coffee\nAgroforestry", "Digital\nAgriculture", "Low Emission\nSilvopastoral")
 econGrowth_CSA <- c(0.11, 0.38, 0.4, -0.35)
@@ -1967,12 +1988,14 @@ min_ROI <- round(min(df_frontier$`ROI target (percent)`))
 max_risk <- round(max(df_frontier$`Risk (CV)`), 2)
 min_risk <- round(min(df_frontier$`Risk (CV)`), 2)
 share_GDP_growth <- 10^2 * round(mean(df_wStar$`GDP Growth`), 2)
-share_econ_equal <- 10^2 * round(mean(df_wStar$`Economic
-                                      Equality`), 2)
-share_environ <- 10^2 * round(mean(df_wStar$`Environmental
-                                   Sustainability`), 2)
-share_nutri <- 10^2 * round(mean(df_wStar$`Nutritional
-                                 Security`), 2)
+share_econ_equal <- 10^2 * round(mean(df_wStar$`Economic\nEquality`), 2)
+share_environ <- 10^2 * round(mean(df_wStar$`Environmental\nSustainability`), 2)
+share_nutri <- 10^2 * round(mean(df_wStar$`Nutritional\nSecurity`), 2)
+#--
+# gg <- ggplot(df_frontier, aes(x = l_C, y = l_R))
+# gg <- gg + geom_line()
+# gg
+
 ```
 The result indicates an increasing, linear relation between portfolio risk and return. Possible ROI targets range narrowly from `r min_ROI`% to `r max_ROI`%, while the associated risk (coefficient of variation) ranges from `r min_risk` to `r max_risk`. The optimal budget allocation varies little across this range, with about `r share_GDP_growth`% allocated to the Economic Growth objective, `r share_econ_equal`% allocated to the Economic Equality objective, `r share_environ`% allocated to the Environmental Sustainability objective, and `r share_nutri`% allocated to the Nutritional Security objective.
 
@@ -1996,19 +2019,18 @@ gg_budget
 
 At this point, the stakeholder exercise concludes, and the results in Figures \ref{fig:mvAR4D} and \ref{fig:wDisagg_ar4d} are given to the "investor" (i.e., the donors, or board of directors, or the government, or the stakeholders themselves, or some combination thereof, as the case may be). The investor then decides which position they want to take along the frontier in accordance with their risk tolerance, and allocates the optimal AR4D budget corresponding to that point.
 
-The return and budget shadow prices corresponding to this decision are calculated using  reflects the marginal value to the investor of a marginal increase in expected return.    willingness to pay for more 
-
-By choosing a point on the risk-reward frontier, the investor reveals their  
+By choosing a point on the risk-reward frontier, the return and budget shadow prices can then be calculated, revealing the investor's inclination to leverage outside funding and to expand or scale up the research portfolio.
 
 # Discussion and conclusion
 
-* The CGIAR is said to "have a long history of good intentions but limited success in developing appropriate approaches for priority setting" [@Birner2016]. In this paper, I have attempted to remove, in some measure, the methodological premise for this limited success by adaptating financial risk-adjusted optimization to the AR4D context.
+* The CGIAR is said to "have a long history of good intentions but limited success in developing appropriate approaches for priority setting" [@Birner2016]. In this paper, I have attempted to remove, in some measure, the methodological premise for this limited success by adaptating financial risk-adjusted optimization to the AR4D context. Deciding how to optimally allocate a limited budget across a portfolio of proposals that are all, in one way or another, vitally important, is never an easy task. But the task has been made needlessly more painful still by the sustained absence of an objective, transparent resource allocation procedure. This absence---Mills' missing fifth step---...there is little to prevent it from defaulting to an ad hoc, politically driven process. In such an ecosystem, it is only natural that research programs grow increasingly entrenched in their respective silos. The situation resembles what in game theory is called a "credible commitment problem". The only solution to this problem, so the theory goes, is the establishment of an indpendent dispute resolving mechanism trusted by all participants. The present proposal is made in this spirit. Like any mechanism, it is subject to human abuse, but, at the very least, it is more difficult to abuse than decision making tools in current use.]
+
+*Experiment with different probability distributions. Directions to explore... results vary considerably from one set of inputs to another. revealed preference for leveraging and impact, maybe a means of non-market valuation of research ROI and risk.
 
 * In AR4D communities, there is, generally speaking, a glut of goal setting, and a dearth of careful thought given to the tradeoffs and synergies that inevitably arise between goals. Still less attention is given to the problem of how to best allocate investments so as to mitigate/capitalize upon these tradeoffs/synergies. The method presented here may be regarded as a tradeoff analysis and optimization tool designed to redress these concerns.
 
-* When the investor chooses a position along the frontier of possible risk reward combinations, they reveal their preference for leveraging and impact. May be a means of non-market valuation of impact and leveraging. shadow prices revealed preference Revealed preference---If every AR4D institute were to implement this sort of resource allocation, would effectively create a market for impact [Interpretation of the shadow prices...willingness to pay (lC = willingness to leverage (expand scope?), lCV = apetite for risk, impact pathways).]
 
-* Deciding how to optimally allocate a limited budget across a portfolio of proposals that are all, in one way or another, vitally important, is an inherently painful task. In the absence of an objective, transparent resource allocation procedure, the task is made more painful still as there is little to prevent it from defaulting to an ad hoc, politically driven process. In such an ecosystem, it is only natural that research programs grow increasingly entrenched in their respective silos. There arises what in game theory is called a "credible commitment problem", whereby particpants grow increasingly distrustful and uncooperative with each other, ultimately reaching an equilibrium state that is detrimental to all parties, relative to the equilibrium that could be achieved if they were to cooperate. The only solution to this problem, so the theory goes, is to establish an independent, incorruptible tribunal, trusted by all participants, to arbitrate in disputed matters. In this paper, I have tried to provide such a tribunal in the form of a  
+
 
 <!-- *Exploration of the risk adjusted portfolio optimization apparatus introduced in this article suggests that the shape of the risk-reward frontier and budget allocation can vary widely from one set of input values to another. In the hypothetical example above, I arbitrarily set proposal risk to be more or less proportional to proposal return. The shape and extent of the solution frontier vary considerably when risk is assigned in a more random fashion. -->
 
@@ -2035,11 +2057,11 @@ By choosing a point on the risk-reward frontier, the investor reveals their
 <!-- MV analysis is, in many ways, still a work in progress, with unresolved methodological issues severely limiting its usefulness even in its native financial context. In particular, covariance matrices estimated from price data tend to contain a lot of noise; and the optimal solutions then tend to diverge considerably from reality as a result of this [@michaud1989markowitz]. In my adaptation below, I propose a new approach to this problem by first dimensionally reducing the portfolio from several dozen assets to just a handful of "signals" constructed from the eigenvectors of the correlation matrix that can be meaningfully distinguished from noise. -->
 \pagebreak
 
-# References
+# References {-}
 
 <div id="refs"></div>
 
-# Appendix: Securities appearing in the financial example
+# Appendix: Securities appearing in the financial example {-}
 
 ```{r, echo=FALSE}
 spy_sector_fullName <- c("Financial Select Sector SPDR Fund",
@@ -2054,7 +2076,8 @@ spy_sector_fullName <- c("Financial Select Sector SPDR Fund",
                          "SPDR S&P Biotech ETF",
                          "iShares Transportation Average ETF")
 
-df_table <- data.frame(Name = spy_sector_fullName, Symbol = spy_sector_symbs, Tracks = spy_sector_detail)
+spy_sector_detail_modified <- paste("U.S.", spy_sector_detail, "Sector")
+df_table <- data.frame(Name = spy_sector_fullName, Symbol = spy_sector_symbs, Tracks = spy_sector_detail_modified)
 
 kable(df_table) %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
 
