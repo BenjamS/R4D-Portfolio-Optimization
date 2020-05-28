@@ -884,7 +884,7 @@ Below I address each of these challenges. First, I derive a portfolio return fun
 
 # Accommodating diminishing returns {#Marg_Rets_Fn_Deriv}
 
-In the AR4D context, returns to investment are marginally diminishing. In other words, _the additional return resulting from any small increase in investment in a given portfolio item will be inversely proportionate to the sum already invested in that portfolio item_. This is essentially a "production side" analogy of the time honored, empirical consumer side observation going back to Bernoulli (and perhaps as far back as Aristotle [@kauder1953genesis]) that
+In the AR4D context, returns to investment are marginally diminishing. In other words, _the additional return resulting from any small increase in investment in a given portfolio item will be inversely proportionate to the sum already invested in that portfolio item_. This is essentially a "production side" analogue of the time honored, empirical consumer side observation going back to Bernoulli (and perhaps as far back as Aristotle [@kauder1953genesis]) that
 
 >In the absence of the unusual, the utility resulting from any small increase in wealth will be inversely proportionate to the quantity of goods previously possessed [@bernoulli1954exposition].
 
@@ -895,7 +895,7 @@ Formalization of such statements depends upon how one interprets, mathematically
 \label{eq:dimRetDefine}
 \end{equation}
 
-Where, to be clear, the term $\frac{\partial \ln(R)}{\partial \ln(w_i)}$ is the portfolio return elasticity with respect to investment in the $i^{th}$ portfolio item. In other words, this indicates the percentage increase in portfolio return given a $1$ percent increase in investment in the $i^{th}$ portfolio item. The following portion of the equation, $\sim \frac{1}{w_i}$, then means "inversely proportionate to the quantity of funds already invested".
+Where, to be clear, the term $\frac{\partial \ln(R)}{\partial \ln(w_i)}$ is the portfolio return elasticity with respect to investment in the $i^{th}$ portfolio item. In other words, this indicates the percentage increase in portfolio return given a $1$ percent increase in investment in the $i^{th}$ portfolio item. The subsequent portion of the equation, "$\sim \frac{1}{w_i}$", then means "inversely proportionate to the quantity of funds already invested".
 
 An expression for $R$ can be derived from the formalization in equation \ref{eq:dimRetDefine} by first rewriting \ref{eq:dimRetDefine} as
 
@@ -928,10 +928,11 @@ And integrating this gradient with respect to the respective investment shares $
 \label{eq:integrate_lnR}
 \end{equation}
 
-And, substituting $\bar{R}=e^{k}$, one arrives at the following expression for $R$, derived entirely from the law of diminishing marginal returns formalized in equation \ref{eq:dimRetDefine}. 
+And substituting $\bar{R}=e^{k}$, one arrives at the following expression for $R$, derived entirely from the law of diminishing marginal returns formalized in equation \ref{eq:dimRetDefine}. 
 
 \begin{equation}
 R(\mathbf{w}; \boldsymbol{\alpha}, \bar{R}) = \bar{R}e^{\boldsymbol{\alpha} \cdot \mathbf{w}^{-1}}
+\label{eq:dimRetfn}
 \end{equation}
 
 The proportionality constants $\boldsymbol{\alpha}$ are determined by context; and so it is important to develop intuition regarding their meaning. Mathematically, the definition of $\alpha_i$ follows from equation \ref{eq:dimRetDefine_2}.
@@ -942,20 +943,11 @@ The proportionality constants $\boldsymbol{\alpha}$ are determined by context; a
 
 In words, this means that $\alpha_i$ represents the change in return elasticity given a change in the size of the marginal investment. More succinctly, $\alpha_i$ can be thought of as the respective portfolio item's "scaling sensitivity" to increases in invesment. In the AR4D context, this is related to, but more nuanced than, the expected impact assessed in step 3 of Mills' workflow (Figure \ref{fig:mills_missing_step}). In order to determine $\boldsymbol{\alpha}$ for a portfolio of AR4D proposals, the question of _expected scalability_---as opposed to the question of expected impact at a particular fixed level of investment---becomes critical.
 
-Finally, the constant of integration, $\bar{R}$, represents the ceiling on $R$, i.e.,
+The graph of this function in Figure \ref{fig:dimRet_f_basic_illust} agrees with intuition and experience, exhibiting increasing returns up to a point of constant returns, and then decreasing returns. The function approaches, but never reaches, the upper bound given by $\bar{R}$.
 
 \begin{equation}
 \bar{R} = \lim_{\mathbf{w} \rightarrow \infty} R
 \end{equation}
-
-Resulting in
-
-\begin{equation}
-R(\mathbf{w}; \boldsymbol{\mu}, \bar{R}) = \bar{R}e^{\boldsymbol{\mu} \cdot \mathbf{w}^{-1}}
-\label{eq:dimRetfn}
-\end{equation}
-
-The graph of this function in Figure \ref{fig:dimRet_f_basic_illust} agrees with intuition and experience, exhibiting increasing returns up to a point of constant returns, and then decreasing returns. The function approaches, but never reaches, the upper bound given by $\bar{R}$.
 
 ```{r, fig.show = 'hold', fig.width=3, fig.height=2, fig.align='center', fig.cap="\\label{fig:dimRet_f_basic_illust}The returns function derived from the law of diminishing returns. In this illustration, one budget share is allowed to vary while the rest are held contstant. The dashed line at the top indicates the ceiling given by $\\bar{R}$.", echo=FALSE}
 
@@ -970,7 +962,7 @@ gg <- gg + theme(axis.text = element_blank(),
 gg
 
 ```
-Again, there is room for exploration here, as this definition depends on the decision to interpret "additional change" as percentage change, and to set this proportional to the marginal increment in investment. Alternatively, the changes could be interpreted as marginal changes, in which case the law is formalized
+Again, there is room for exploration here, as this definition depends on the decision to interpret "additional change" as percentage change. Alternatively, the change could be interpreted as a marginal change, in which case the law is formalized
 
 \begin{equation}
 \frac{\partial R}{\partial w_i} \sim \frac{1}{w_i}
@@ -987,7 +979,25 @@ Integration of the gradient $\nabla_{\mathbf{w}} R$ with respect to the investme
 <!-- Pennings, E., & Lint, O. (1997). The option value of advanced R & D. European Journal of Operational Research, 103(1), 83–94. http://doi.org/10.1016/S0377-2217(96)00283-4
 Merton, R. C. (1976). Option pricing when underlying stock returns are discontinuous. Journal of Financial Economics, 3(1), 125–144.
 -->
-# Signals from noise: dimensional reduction of the portfolio
+
+# Non-market portfolio risk assessment
+
+Risk-adjusted portfolio optimization requires, of course, some assessment of the risk involved in each portfolio item. Less obviously, it also requires assessment of the covariance (synergies and tradeoffs) between portfolio items. In the financial context, this is easily accomplished thanks to market generated price data. It is conceivable that future generations will see the emergence of research impact markets---along the lines of, say, carbon markets---at which point research risk assessment will become as straightforward as stock risk assessment. For the time being, however, research risk must be evaluated by some other means.
+
+Ideally, the risk assessment of individual proposals would be conducted during Step 3 in Mills' workflow. Unfortunately, however, risk assessment is still not a standard part of proposal impact assessment procedures, or is implemented in a subjective and rudimentary fashion.^[Alston and Norton [@Alston1995] long ago acknowledged that the treatment of risk in impact assessment models is "rudimentary and in need of further refinement". This remains largely true today.] Alternatively, proposal risk assessments could be crowdsourced through, for example, an expert/stakeholder survey that elicits the maximum ($y_{\max}$), minimum ($y_{\min}$), and most probable ($y_{\text{prob}}$) impact of each given proposal. Individual proposal risk (standard deviation) could then be computed on the basis of a triangular distribution as
+
+\begin{equation}
+\sigma = \frac{1}{3\sqrt{2}} \sqrt{y_{\min}^2 + y_{\max}^2 + y_{\text{prob}}^2 - y_{\min}y_{\max} - y_{\min}y_{\text{prob}}-y_{\max}y_{\text{prob}}}
+\label{eq:individ_risk_assess}
+\end{equation}
+
+Assessment of research proposal covariances, however, is not so straightforward. In the context of corporate R&D, Pennings and Lint [-@pennings1997option] proposed explicitly synthesizing an R&D project price time series analogue based on stochastic jump diffusion modeling of the research process. With some finessing, perhaps, covariances could be calculated on the basis of such synthetic series. Below, I propose an alternative route that bypasses the question of temporally explicit research price analogue modeling altogether.
+
+Specifically, I propose deduction of research proposal covariances based on elicitation, from experts and/or stakeholders, of each proposal's correlation with a set of research dimensions (also elicited) defining a problem space that is of particular interest. I show how the results of this survey can be used to compute an implicit research proposal correlation matrix. Given individual proposal risk assessments (as might be calculated, for example, using equation \ref{eq:individ_risk_assess}), it is then straightforward to compute an implicit covariance matrix.
+
+
+
+## Signals from noise: 
 
 In principal components analysis, a dataset $X$ containing $t$ observations of $n$ variables is distilled into a dataset $S$ of just $m<n$ variables that capture the main tendencies and structure in the data.^[The data is always centered. If the variables in $X$ follow diverse scalings and/or units of measurement (i.e. if apples are being compared to oranges), then $X$ should also be scaled to unit variance. In this exposition, the variables are all of the same type, and so $X$ is centered but not scaled. See Abdi [-@abdi2010principal] for an introduction to principal components analysis.] The distilled matrix $S$ is defined
 
@@ -1207,7 +1217,7 @@ plot_corrXS_barchart(mat_L)
 
 ```
 
-Clearly, Signal 4 largely has to do with movements in communications. Signal 3 is concerned with Utilities and Real Estate, and so might be called the "Housing & Urban Development Signal". The interpretation of Signals 1 and 2 is not so straightforward, since they are correlated with many portfolio items. In such cases, it is often useful to apply an orthogonal rotation to $L$ in order to clarify the picture. That is to say, instead of examining $L$, one examines $L_{\circlearrowleft}$.
+Signal 4 appears to have something to do with price movements in the communications sector. Signal 3, meanwhile, is concerned with Utilities and Real Estate, and so might be called the "Housing & Urban Development Signal". The interpretation of Signals 1 and 2 is not so straightforward, since they are correlated with many portfolio items. In such cases, it is often useful to apply an orthogonal rotation to $L$ in order to clarify the picture. That is to say, instead of examining $L$, one examines $L_{\circlearrowleft}$.
 
 \begin{equation}
 L_{\circlearrowleft} = LB
@@ -1221,7 +1231,7 @@ Where $B$ is the orthogonal rotation matrix, such that $B'B = I$ and $BB' = I$.
 <!-- SR = XP -->
 <!-- \end{equation} -->
 
-In Figure \ref{fig:corrXS_barchart_rot} a special kind of orthogonal rotation, called a varimax rotation, is applied to $L$. Varimax rotations flesh out structure by maximizing sparseness in the rotated matrix. After applying this rotation, it becomes clear that Signal 1 is representative of Biotechnology and Healthcare; and so Signal 1 might be called the "Pharmaceutical Signal". Signal 2 loadings are now more pronounced, especially Financials, Industrial, and Transportation. Signal 2 might thus be called the "Financial and Physical Infrastructure Signal." In Figure \ref{fig:signals_with_hiCorr_items}, it becomes particularly evident how each signal hews closely to its most highly correlated items, offering visual confirmation of these interpretations. 
+In Figure \ref{fig:corrXS_barchart_rot} a special kind of orthogonal rotation, called a varimax rotation, is applied to $L$. Varimax rotations flesh out structure by maximizing sparseness in the rotated matrix. After applying this rotation, it becomes clear that Signal 1 is representative of Biotechnology and Healthcare; and so Signal 1 might be called the "Pharmaceutical Signal". Signal 2 loadings are now more pronounced, especially Financials, Industrial, and Transportation. Signal 2 might thus be called the "Financial and Physical Infrastructure Signal." In Figure \ref{fig:signals_with_hiCorr_items}, it becomes particularly evident how each signal hews closely to its most highly correlated items, offering visual confirmation of these interpretations.^[Gopikrishnan, Rosenow, Plerou, and Stanley [-@gopikrishnan2001quantifying] pursued a similar line of inquiry when they looked at the components of the eigenvectors of a financial data correlation matrix. However, they did not explain that their findings are indicative of PC-asset correlations; nor did they apply a varimax rotation to clarify the interpretation.]
 
 ```{r, fig.show='hold', fig.width=5, fig.height=3, fig.align='center', fig.cap="\\label{fig:corrXS_barchart_rot}Varimax rotated correlation of portfolio items with leading signals.", echo=F}
 
@@ -1412,9 +1422,54 @@ eig_values_sigs <- eig_values[1:n_signals]
 
 The plot shows that the leading `r n_signals` signals are sufficient to meet this criterion.
 
-# "Reverse engineering" signal covariance and returns in the absence of data
+An approximate data correlation matrix ($\tilde{K}_{XX}$) can be approximated from the these retained signals, as the outer product of $L_{\circlearrowleft}$ with itself.
 
-Equations \ref{eq:covmat_SS} to \ref{eq:Lrot} imply that it is possible to work backwards from the rotated loadings $L_{\circlearrowleft}$ and asset risk $\boldsymbol{\sigma}_X$, to arrive at the signals covariance matrix $\tilde{\Gamma}$. To see this, define $Q_{\circlearrowleft} = D(\boldsymbol{\sigma}_X)L_{\circlearrowleft}$, and note that
+\begin{equation}
+\begin{split}
+L_{\circlearrowleft}L_{\circlearrowleft}' &= LB (LB)' = LBB'L' = LL' \\
+&= (D(\sigma_X)^{-1} \tilde{P} \tilde{\Gamma}^{-{1 \over 2}}) (D(\sigma_X)^-1 \tilde{P} \tilde{\Gamma}^{-{1 \over 2}})' \\
+&= (D(\sigma_X)^{-1} \tilde{P} \tilde{\Gamma}^{-{1 \over 2}}) \tilde{\Gamma}^{-{1 \over 2}} \tilde{P}' D(\sigma_X)^{-1} \\
+&= D(\sigma_X)^{-1} \tilde{\Sigma}_{XX} D(\sigma_X)^{-1} \\
+&= \tilde{K}_{XX}
+\end{split}
+\label{eq:cormat_from_Lrot}
+\end{equation}
+
+(The approximate covariance matrix ($\tilde{\Sigma}_{XX}$) is then of course obtained by pre and post multiplying $\tilde{K}_{XX}$ by $D(\boldsymbol{\sigma}_X)$.)
+
+The difference between the financial data correlation matrix and the correlation matrix calculated in equation \ref{eq:cormat_from_Lrot} is shown in Figure \ref{fig:compareCorMats}. Note that the difference is remarkably small for most entries. The signals derived correlation matrix is approximate in the sense that it approximates the data correlation matrix; but it should not necessarily be considered inferior in terms of accuracy. To the extent that the original data are contaminated by noise, the signals derived correlation matrix may prove more accurate with respect to the "true process" that generates the data.
+
+```{r, fig.show='hold', fig.width=5, fig.height=3, fig.align='center', fig.cap="\\label{fig:compareCorMats}The data correlation matrix minus the correlation matrix derived from the retained signals, financial data."}
+cormat_XX <- cor(mat_pctDiff_eg_train)
+cormat_XX_derived <- mat_L %*% t(mat_L)
+mat_diff_cormats <- cormat_XX - cormat_XX_derived
+
+plot_covmat(mat_diff_cormats, fig_title = NULL, graph_on = F)
+
+```
+
+# "Reverse engineering" a portfolio covariance matrix in the absence of data
+
+Equations \ref{eq:covmat_SS} to \ref{eq:Lrot} imply that it is possible to work backwards from the orthogonally rotated loadings $L_{\circlearrowleft}$ and asset risk $\boldsymbol{\sigma}_X$, to arrive at the approximate covariance matrix $\tilde{\Sigma}_{XX}$.
+
+If we are without the data $X$, then, but somehow given the signal loadings, risk estimates, and return estimates of each portfolio item, it is possible to deduce the signal covariance matrix and returns.
+
+Asset risk and return can be elicited from domain knowledge experts. The loadings matrix could also be elicited by asking experts 1) to name and rank in order of importance the cross cutting tendencies (i.e. signals) that describe 90% of (or simply "best describe") the general evolution of the portfolio items; and 2) indicate how correlated each portfolio item is with each of these tendencies. The result of this consultation would essentially be a crowdsourced loadings matrix ($L$). However, loadings matrices are orthogonal. When loadings are elicited from domain knowledge, as opposed to calculated from data, they will generally not be orthogonal, and so must be interpreted as orthogonally rotated loadings ($L_{\circlearrowleft}$).
+
+Risk, return, and loadings deduced in this way will likely differ from their data based counterparts. However, this does not necessarily mean that they are inferior in terms of accuracy. In noisy contexts, it is conceivable that such crowdsourced estimates may prove more accurate than data based calculations. As a rule of thumb, the appropriateness of the crowdsourcing approach may be assessed by meditating upon the conceptual ratio $\nu$.
+
+$$
+\nu = \frac{\text{confidence in domain knowledge}}{\text{confidence in data}}
+$$
+
+As $\nu$ is higher, the crowdsource approach to covariance matrix estimation is more suitable. As $\nu$ is lower, it becomes more appropriate to estimate the covariance matrix on the basis of data. For values of $\nu$ close to 1, one might consider a mixture of the two approaches.
+<!-- Note, in passing, that the original data set $X$ may itself be considered a set of orthogonally rotated signals constructed from some higher dimensional dataset. This unobserved, higher dimensional dataset could likewise be considered a set of orthogonally rotated signals constructed from some still larget dataset, and so on, ad infinitum. Note that the eigenvalues of the system described by these nested datasets remain invariant under each successive step of dimensional reduction, while the eigenvectors change. In this sense, the eigenvalues of the original---or any---data covariance matrix are the "true" covariance matrix, while the eigenvectors may be considered an extraneous rotation of the true covariance matrix, not intrinsic to the construction of the signals, but rather applied extraneously, as an aid in their interpretation, or as a matter of contextualizing the abstract signals with respect to a particular set of concrete circumstances.  -->
+
+## The signals portfolio
+
+When calculated based on crowdsourced loadings, the signals-deduced covariance matrix reveals a detailed picture of tradeoffs and synergies (i.e. covariances) consistent with what the domain experts (think they) know about the system. The crowdsourced data covariance matrix may thus be useful in orienting stakeholder discussions, but it cannot be used for optimization purposes since, by definition, it contains eigenvalues that are equal to zero.^[Optimization requires an invertible covariance matrix.]
+
+work backward to signals covariance matrix $\tilde{\Gamma}$. To see this, define $Q_{\circlearrowleft} = D(\boldsymbol{\sigma}_X)L_{\circlearrowleft}$, and note that
 
 \begin{equation}
 \begin{split}
@@ -1440,51 +1495,9 @@ by which, given crowdsourced asset returns $\boldsymbol{\hat{\mu}}$, it is possi
 \label{eq:sigMu_from_Xmu}
 \end{equation}
 
-If we are without the data $X$, then, but somehow given the signal loadings, risk estimates, and return estimates of each portfolio item, it is possible to deduce the signal covariance matrix and returns.
+# Risk adjusted optimization of the signals portfolio, and positive budget shares
 
-Asset risk and return can be elicited from domain knowledge experts. The loadings matrix could also be elicited by asking experts 1) to name and rank in order of importance the cross cutting tendencies (i.e. signals) that describe 90% of (or simply "best describe") the general evolution of the portfolio items; and 2) indicate how correlated each portfolio item is with each of these tendencies. The result of this consultation would essentially be a crowdsourced loadings matrix ($L$). However, loadings matrices are orthogonal. When loadings are elicited from domain knowledge, as opposed to calculated from data, they will generally not be orthogonal, and so must be interpreted as orthogonally rotated loadings ($L_{\circlearrowleft}$).
-
-Risk, return, and loadings deduced in this way will likely differ from their data based counterparts. However, this does not necessarily mean that they are inferior in terms of accuracy. In noisy contexts, it is conceivable that such crowdsourced estimates may prove more accurate than data based calculations. As a rule of thumb, the appropriateness of the crowdsourcing approach may be assessed by meditating upon the conceptual ratio $\nu$.
-
-$$
-\nu = \frac{\text{confidence in domain knowledge}}{\text{confidence in data}}
-$$
-
-As $\nu$ is higher, the crowdsource approach to covariance matrix estimation is more suitable. As $\nu$ is lower, it becomes more appropriate to estimate the covariance matrix on the basis of data. For values of $\nu$ close to 1, one might consider a mixture of the two approaches.
-<!-- Note, in passing, that the original data set $X$ may itself be considered a set of orthogonally rotated signals constructed from some higher dimensional dataset. This unobserved, higher dimensional dataset could likewise be considered a set of orthogonally rotated signals constructed from some still larget dataset, and so on, ad infinitum. Note that the eigenvalues of the system described by these nested datasets remain invariant under each successive step of dimensional reduction, while the eigenvectors change. In this sense, the eigenvalues of the original---or any---data covariance matrix are the "true" covariance matrix, while the eigenvectors may be considered an extraneous rotation of the true covariance matrix, not intrinsic to the construction of the signals, but rather applied extraneously, as an aid in their interpretation, or as a matter of contextualizing the abstract signals with respect to a particular set of concrete circumstances.  -->
-
-# Aside: approximating the data covariance matrix from signals
-
-Note, in passing, that the data correlation matrix can also be approximated from the `r n_signals` retained signals, as their outer product.
-
-\begin{equation}
-\begin{split}
-L_{\circlearrowleft}L_{\circlearrowleft}' &= LB (LB)' = LBB'L' = LL' \\
-&= (D(\sigma_X)^{-1} \tilde{P} \tilde{\Gamma}^{-{1 \over 2}}) (D(\sigma_X)^-1 \tilde{P} \tilde{\Gamma}^{-{1 \over 2}})' \\
-&= (D(\sigma_X)^{-1} \tilde{P} \tilde{\Gamma}^{-{1 \over 2}}) \tilde{\Gamma}^{-{1 \over 2}} \tilde{P}' D(\sigma_X)^{-1} \\
-&= D(\sigma_X)^{-1} \tilde{\Sigma}_{XX} D(\sigma_X)^{-1} \\
-&= \hat{K}_{XX}
-\end{split}
-\label{eq:cormat_from_Lrot}
-\end{equation}
-
-(If an assessment of the risk of each portfolio asset is also available, it is of course then straightforward to also arrive at an approximate covariance matrix.)
-
-The difference between the financial data correlation matrix and the signals derived correlation matrix is shown in Figure \ref{fig:compareCorMats}. Note that the difference is remarkably small for most entries. Again, the signals derived correlation matrix is approximate in the sense that it approximates the data correlation matrix; but it should not necessarily be considered inferior in terms of accuracy. To the extent that the original data are contaminated by noise, the signals derived correlation matrix may prove more accurate with respect to the "true process" that generates the data.
-
-```{r, fig.show='hold', fig.width=5, fig.height=3, fig.align='center', fig.cap="\\label{fig:compareCorMats}The data correlation matrix minus the correlation matrix derived from the retained signals, financial data."}
-cormat_XX <- cor(mat_pctDiff_eg_train)
-cormat_XX_derived <- mat_L %*% t(mat_L)
-mat_diff_cormats <- cormat_XX - cormat_XX_derived
-
-plot_covmat(mat_diff_cormats, fig_title = NULL, graph_on = F)
-
-```
-When calculated based on crowdsourced loadings, the signals-deduced covariance matrix reveals a detailed picture of tradeoffs and synergies (i.e. covariances) consistent with what the domain experts (think they) know about the system. The crowdsourced data covariance matrix may thus be useful in orienting stakeholder discussions, but it cannot be used for optimization purposes since, by definition, it contains eigenvalues that are equal to zero.^[Optimization requires an invertible covariance matrix.]
-
-# Crowdsourced signals portfolio optimization
-
-Above I have shown how, given crowdsourced loadings $L_{\circlearrowleft}$, risk assessment $\boldsymbol{\sigma}_X$, and asset expected returns $\boldsymbol{\hat{\mu}}$, it is possible to deduce the signals covariance matrix $\tilde{\Gamma$} and expected returns $\boldsymbol{\mu}$. With this information in hand, it is then possible to conduct risk adjusted portfolio optimization over a dimensionally reduced portfolio of signals. This then gives the optimal budget allocation to each signal. Signal budget shares $\mathbf{w}^*$ can then be mapped back to portfolio asset shares $\mathbf{\hat{w}}^*$ based on asset correlations with signals. The disaggregated asset budget shares must also, of course, be positive, add up to the budget $\hat{C}$, and the signals portfolio expected return must equal the original asset portfolio expected return.
+Above I have shown how, given crowdsourced loadings $L_{\circlearrowleft}$, risk assessment $\boldsymbol{\sigma}_X$, and asset expected returns $\boldsymbol{\hat{\mu}}$, it is possible to deduce the signals covariance matrix $\tilde{\Gamma}$ and expected returns $\boldsymbol{\mu}$. With this information in hand, it is then possible to conduct risk adjusted portfolio optimization over a dimensionally reduced portfolio of signals. This then gives the optimal budget allocation to each signal. Signal budget shares $\mathbf{w}^*$ can then be mapped back to portfolio asset shares $\mathbf{\hat{w}}^*$ based on asset correlations with signals. The disaggregated asset budget shares must also, of course, be positive, add up to the budget $\hat{C}$, and the signals portfolio expected return must equal the original asset portfolio expected return.
 
 \begin{equation}
 \ln(R / \bar{R}) = -\boldsymbol{\hat{\mu}} {'} \mathbf{\hat{w}}^* = -\boldsymbol{\mu} {'} \mathbf{w}^*
@@ -1517,7 +1530,7 @@ Hence, the mapping $\mathbf{\hat{w}}^*$ defined in \ref{eq:wStar_map} satisfies 
 
 Where $\boldsymbol{\chi}$ is a vector of arbitrary factors scaling the columns of $\tilde{P}$. The values of $\boldsymbol{\chi}$ may be chosen such that the asset weights $\mathbf{\hat{w}}^*$ are positive and sum to $\hat{C}$.
 
-In practice, this scaling can be applied by simply computing $\mathbf{\hat{w}}^*$ via equation \ref{eq:wStar_map}. If the result contains negative values, add a constant $\alpha$ such that all weights become positive. (The parameter $\alpha$ may be tuned so as to guarantee a minimum investment in the lowest ranking portfolio item.) Finally, divide by a constant $\beta$ such that the weights add to $C^*$.
+In practice, this scaling can be applied by simply computing $\mathbf{\hat{w}}^*$ via equation \ref{eq:wStar_map}. If the result contains negative values, add a constant $\alpha$ such that all weights become positive. (The parameter $\alpha$ may be tuned so as to guarantee a minimum investment in the lowest ranking portfolio item.) Finally, divide by a constant $\beta$ such that the weights add to $\hat{C}$.
 
 The scaling $\boldsymbol{\chi}$ can then be found by rearranging equation \ref{eq:wStar_map_scaled} as follows.
 
@@ -1527,7 +1540,7 @@ D(\mathbf{w}^{*-1}) \tilde{P} {'} \mathbf{\hat{w}}^{*-1} = \boldsymbol{\chi}
 
 # Enforcing positive budget shares
 
-Below I show how positive budget shares follow automatically from the adjustments made so far, i.e. from the diminishing returns function (equation \ref{eq:dimRetfn}) and the diagonal signals covariance matrix \tilde{$\Gamma$}.
+Below I show how positive budget shares follow automatically from the adjustments made so far, i.e. from the diminishing returns function (equation \ref{eq:dimRetfn}) and the diagonal signals covariance matrix $\tilde{\Gamma}$.
 
 To get started, consider that the risk adjusted portfolio optimization problem may be informally written as follows.
 
@@ -1749,7 +1762,7 @@ The budget shadow price reflects the marginal value to the investor of a margina
 
 # An illustrative example of AR4D risk adjusted portfolio optimization
 
-In practice, AR4D risk adjusted portfolio optimization would come after Step 3 in the resource allocation workflow defined by Mills, either complementing or replacing the ranking of research proposals in order of priority that is slated to occur in Step 4. By this point in the resource allocation workflow, a list of research proposals would have been drawn up, and the expected scalability of each proposal assessed and quantified. Recall from the discussion in \ref{#Marg_Rets_Fn_Deriv} above that expected scalability differs from expected impact in that it is a measure of impact responsiveness to changes in investment, as opposed to a measure of impact at one particular level of investment.
+In practice, AR4D risk adjusted portfolio optimization would come after Step 3 in the resource allocation workflow defined by Mills, either complementing or replacing the ranking of research proposals in order of priority that is slated to occur in Step 4. By this point in the resource allocation workflow, a list of research proposals would have been drawn up, and the expected scalability of each proposal assessed and quantified. Recall from the discussion in section 2 that expected scalability differs from expected impact in that it is a measure of impact responsiveness to changes in investment, as opposed to a measure of impact at one particular level of investment.
 
 Ideally, estimates of proposal risk would accompany estimates of expected impacts. However, risk assessment is still not a standard part of proposal impact assessment procedures, or is implemented in a subjective and rudimentary fashion. Under such circumstances, it is better to crowdsource proposal risk assessments through, for example, a stakeholder survey that elicits the maximum, minimum, and most probable impact of each given proposal. The proposal risk (standard deviation) could then be computed on the basis of a triangular distribution as
 
@@ -1835,7 +1848,7 @@ gg_perRet / gg_perSd
 
 
 ```
-In order to obtain the signals covariance matrix $\Gamma$, rotated loadings must be elicited from the stakeholders.^[Elicitation can take place in a variety of ways, for example: online surveys, in-person conferences, teleconferences, consultation of literature, some combination thereof, etc.] This is a two step process. First, stakeholders must agree upon a set of signals or dimensions that best describe the evolution of the proposed AR4D activities and outcomes, within a particular problem space that is of interest to them. These key dimensions can be elicited by asking stakeholders questions such as "What are our key AR4D objectives? And what are the key metrics by which to measure progress towards those objectives?" In the AR4D context, there is often pre-existing consensus on such questions, which can be found laid out in strategy documents. The Sustainable Development Goals [@desa2016transforming] may be considered a set of dimensions defining a very broad problem space. The key dimensions of a particular AR4D portfolio space could be selected as a subset of these.
+In order to obtain the signals covariance matrix $\tilde{\Gamma}$, rotated loadings must be elicited from the stakeholders.^[Elicitation can take place in a variety of ways, for example: online surveys, in-person conferences, teleconferences, consultation of literature, some combination thereof, etc.] This is a two step process. First, stakeholders must agree upon a set of signals or dimensions that best describe the evolution of the proposed AR4D activities and outcomes, within a particular problem space that is of interest to them. These key dimensions can be elicited by asking stakeholders questions such as "What are our key AR4D objectives? And what are the key metrics by which to measure progress towards those objectives?" In the AR4D context, there is often pre-existing consensus on such questions, which can be found laid out in strategy documents. The Sustainable Development Goals [@desa2016transforming] may be considered a set of dimensions defining a very broad problem space. The key dimensions of a particular AR4D portfolio space could be selected as a subset of these.
 
 The next step is to invite the stakeholders to assess each AR4D proposal's correlation with or "loading onto" each of the key dimensions. If stakeholders are unfamiliar or uncomfortable with the technical concepts of correlation, loading, signals, and dimensions, then signals/dimensions could be referred to as "goals"; and stakeholders could be asked to rate each research proposal's contribution towards each goal on a scale of $-100$ to $100$. It should be explained that a positive rating means the proposal contributes toward the goal, while a negative rating means the proposal works against the goal; and a rating of zero means that the proposal has no influence upon the given objective one way or the other. These ratings can then be divided by $100$ and interpreted as proposal-signal correlations.
 
@@ -2066,20 +2079,17 @@ gg_budget
 
 ```
 
-At this point, the stakeholder exercise concludes, and the results in Figures \ref{fig:mvAR4D} and \ref{fig:wDisagg_ar4d} are given to the "investor" (i.e., the donors, or board of directors, or the government, or the stakeholders themselves, or some combination thereof, as the case may be). The investor then decides which position they want to take along the frontier in accordance with their risk tolerance, and allocates the optimal AR4D budget corresponding to that point.
-
-By choosing a point on the risk-reward frontier, the return and budget shadow prices can then be calculated, revealing the investor's inclination to leverage outside funding and to expand or scale up the research portfolio.
+At this point, the stakeholder exercise concludes, and the results in Figures \ref{fig:mvAR4D} and \ref{fig:wDisagg_ar4d} are given to the "investor" (i.e., the donors, or board of directors, or the government, or the stakeholders themselves, or some combination thereof, as the case may be). The investor then decides which position they want to take along the frontier in accordance with their risk tolerance, and allocates the optimal AR4D budget corresponding to that point. By choosing a point on the risk-reward frontier, the return and budget shadow prices can then be calculated, revealing the investor's inclination to leverage outside funding and to expand or scale up the research portfolio.
 
 # Discussion and conclusion
 
-The CGIAR is said to "have a long history of good intentions but limited success in developing appropriate approaches for priority setting" [@Birner2016]. In this paper, I have attempted to remove, in some measure, the methodological premise for this limited success by adaptating financial risk-adjusted optimization to the AR4D context. The task of deciding how to optimally allocate a limited budget across a portfolio of proposals that are all, in one way or another, vitally important, is never an easy one. The absence of an objective, transparent resource allocation procedure---Mills' missing fifth step---has left resource allocation procedures vulnerable to institutional inertia, politics, and other forms of subjective whim. In such an ecosystem, it is only natural that research programs grow increasingly entrenched in their respective silos. The situation resembles what is known in game theory as the "credible commitment problem". The only solution to this impasse, so the theory goes, is the establishment of an indpendent dispute resolving mechanism trusted by all participants.
+The CGIAR is said to "have a long history of good intentions but limited success in developing appropriate approaches for priority setting" [@Birner2016]. In this paper, I have attempted to reduce, in some measure, the methodological premise for this "limited success" by adaptating financial risk-adjusted portfolio optimization to the AR4D context.
 
-The present proposal is made in this spirit. More than any particular set of equations,...Experiment with different probability distributions. Directions to explore... results vary considerably from one set of inputs to another. revealed preference for leveraging and impact, maybe a means of non-market valuation of research ROI and risk.
+The task of deciding how to optimally allocate a limited budget across a portfolio of proposals that are all, in one way or another, vitally important, is never an easy one. The absence of an objective, transparent resource allocation procedure---Mills' missing fifth step---has made the task needlessly more painful still, leaving resource allocation procedures vulnerable to institutional inertia, politics, and other forms of subjective whim. In such an ecosystem, it is only natural to see research programs growing increasingly entrenched in their respective silos. The situation has come to resemble what is referred to in game theory as a "credible commitment problem". The only solution to the impasse, so the theory goes, is the establishment of an indpendent dispute resolving mechanism trusted by all participants.
 
+The intention here is to point to a potential path forward in the development of such a mechanism. Further exploration of this path is required to assess the precise relevance and role of risk adjusted portfolio optimization in the AR4D context. The hypothetical example given above takes place at the program level, but the proposed mechanism might also be applied at the project, or some other, level. The particular set of equations that constitute the mechanism may vary with assumptions regarding the shape of the AR4D impact probability distribution and the derivation of the diminishing returns function (as discussed in sections 7 and 2, respectively).
 
-
-
-
+Further pursuit of this inquiry may also require a more nuanced approach to ex-ante impact evaluation of individual proposals. In particular, the portfolio optimization mechanism proposed in this paper requires an emphasis on estimates of how AR4D proposal impacts scale with investment, rather than the impact they might have at a particular level of funding. Finally, it is important to keep in mind that research proposals are _not_ stocks and bonds. That is, when adapting tools from the financial context, it is important to beware of the ways that financial thinking might unduly condition our thinking in an AR4D resource allocation setting. If research risk is mostly upside---as implied by the assumption of lognormally distributed research impacts---then it is conceivable that there are circumstances under which the investor may want to maximize, rather than minimize, their AR4D portfolio risk.
 <!-- *Exploration of the risk adjusted portfolio optimization apparatus introduced in this article suggests that the shape of the risk-reward frontier and budget allocation can vary widely from one set of input values to another. In the hypothetical example above, I arbitrarily set proposal risk to be more or less proportional to proposal return. The shape and extent of the solution frontier vary considerably when risk is assigned in a more random fashion. -->
 
 <!-- In particular, I have introduced adjustments to the existing portfolio optimization method so as to accommodate the diminishing returns, lack of data, and strictly positive budget shares that distinguish the AR4D context from the financial context. -->
@@ -2132,7 +2142,7 @@ kable(df_table) %>% kable_styling(bootstrap_options = c("striped", "hover", "con
 
 ```
 
-```{r, fig.show = 'hold', fig.cap="\\label{fig:hReturns}\\textit(Top) Period returns and \\textit(bottom) covariance matrix, financial data.", fig.width=5, fig.height=5, fig.align='center', echo=FALSE}
+```{r, fig.show = 'hold', fig.cap="\\label{fig:hReturns}\\textit{(Top)} Period returns and \\textit{(bottom)} covariance matrix, financial data.", fig.width=5, fig.height=5, fig.align='center', echo=FALSE}
 # Plot historical returns for period and items defined above
 fig_title <- "Period Returns (%)"
 list_graph_options <- list()
