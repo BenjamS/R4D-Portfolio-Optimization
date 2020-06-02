@@ -1513,46 +1513,7 @@ Where $\boldsymbol{\chi}$ is a vector of arbitrary factors scaling the columns o
 
 # Risk adjusted optimization of the signals portfolio, and positive budget shares
 
-Above I have shown how, given crowdsourced loadings $L_{\circlearrowleft}$, risk assessment $\boldsymbol{\sigma}_X$, and asset expected returns $\boldsymbol{\hat{\mu}}$, it is possible to deduce the signals covariance matrix $\tilde{\Gamma}$ and expected returns $\boldsymbol{\mu}$. With this information in hand, below I apply risk adjusted portfolio optimization to the signals portfolio, and suggest a way for mapping the optimal signal resource shares $\mathbf{w}^*$ back to optimal resource shares allocated to each original portfolio asset $\mathbf{\hat{w}}^*$ based on their correlations with the signals. The disaggregated asset budget shares must also, of course, be positive, add up to the budget $\hat{C}$; and the signals portfolio expected return must equal the original asset portfolio expected return.
-
-\begin{equation}
-\ln(R / \bar{R}) = -\boldsymbol{\hat{\mu}} {'} \mathbf{\hat{w}}^* = -\boldsymbol{\mu} {'} \mathbf{w}^*
-\label{eq:lnR_cond}
-\end{equation}
-
-There are, perhaps, a number of ways to do this using the crowdsourced information. The signal expected returns mapping in equation \ref{eq:sigMu_from_Xmu} suggests the following.
-
-\begin{equation}
-\mathbf{\hat{w}}^{*-1} = \tilde{P} \mathbf{w}^{*-1}
-\label{eq:wStar_map}
-\end{equation}
-
-To see this, post-mulitply equation \ref{eq:sigMu_from_Xmu} through by the signal budget shares $-\mathbf{w}^{*-1}$.
-
-\begin{equation}
-\ln(R^* / \hat{R}) = \boldsymbol{\mu} {'} \mathbf{w}^{*-1} = \boldsymbol{\hat{\mu}} {'} \tilde{P} \mathbf{w}^{*-1}
-\end{equation}
-
-Hence, the mapping $\mathbf{\hat{w}}^*$ defined in \ref{eq:wStar_map} satisfies the condition \ref{eq:lnR_cond}. Now, to enforce the budget constraint and positive shares, recall that eigenvectors are defined up to scaling. That is, equations \ref{eq:sigs_def} and \ref{eq:wStar_map} are really
-
-\begin{equation}
-\mathbf{S} = X \tilde{P} D(\boldsymbol{\chi})
-\end{equation}
-
-\begin{equation}
-\mathbf{\hat{w}}^{*-1} = \tilde{P} D(\boldsymbol{\chi}) \mathbf{w}^{*-1}
-\label{eq:wStar_map_scaled}
-\end{equation}
-
-Where $\boldsymbol{\chi}$ is a vector of arbitrary factors scaling the columns of $\tilde{P}$. The values of $\boldsymbol{\chi}$ may be chosen such that the asset weights $\mathbf{\hat{w}}^*$ are positive and sum to $\hat{C}$.
-
-In practice, this scaling can be applied by simply computing $\mathbf{\hat{w}}^*$ via equation \ref{eq:wStar_map}. If the result contains negative values, add a constant $\alpha$ such that all weights become positive. (The parameter $\alpha$ may be tuned so as to guarantee a minimum investment in the lowest ranking portfolio item.) Finally, divide by a constant $\beta$ such that the weights add to $\hat{C}$.
-
-The scaling $\boldsymbol{\chi}$ can then be found by rearranging equation \ref{eq:wStar_map_scaled} as follows.
-
-\begin{equation}
-D(\mathbf{w}^{*-1}) \tilde{P} {'} \mathbf{\hat{w}}^{*-1} = \boldsymbol{\chi}
-\end{equation}
+Above I have shown how, given crowdsourced loadings $L_{\circlearrowleft}$, risk assessment $\boldsymbol{\sigma}_X$, and asset expected returns $\boldsymbol{\hat{\mu}}$, it is possible to deduce the signals covariance matrix $\tilde{\Gamma}$ and expected returns $\boldsymbol{\mu}$. With this information in hand, below I apply risk adjusted portfolio optimization to the signals portfolio, and suggest a way for mapping the optimal signal resource shares $\mathbf{w}^*$ back to optimal resource shares allocated to each original portfolio asset $\mathbf{\hat{w}}^*$ based on their correlations with the signals.
 
 ## Enforcing positive budget shares
 
@@ -1776,9 +1737,52 @@ The optimal budget shares are then found, for each point along this frontier, by
 
 The budget shadow price reflects the marginal value to the investor of a marginal increment in their budget. It can thus be looked to as an indicator of how beneficial it would be, from the investor's perspective, to borrow or otherwise leverage external funds over and above the existing budget. The return shadow price, on the other hand, reflects the marginal value to the investor of a marginal increment in the expected portfolio return. It can thus be interpreted as an indicator of how valuable additional increments of AR4D expected impacts are to the investor. By selecting a point on the optimal frontier, then, the investor reveals their preference or "willingness to pay" for more (expected) impact.
 
+## Mapping signal budget shares back to proposal budget shares
+
+The signal shares can be mapped back to proposal budget shares based on the ellicited proposal-signal correlations. The proposal budget shares must also, of course, be positive, add up to the budget $\hat{C}$; and the signals portfolio expected return must equal the proposal portfolio expected return.
+
+\begin{equation}
+\ln(R / \bar{R}) = -\boldsymbol{\hat{\mu}} {'} \mathbf{\hat{w}}^* = -\boldsymbol{\mu} {'} \mathbf{w}^*
+\label{eq:lnR_cond}
+\end{equation}
+
+There are, perhaps, a number of ways to meet these conditions using the crowdsourced information. The signal expected scalability mapping in equation \ref{eq:sigMu_from_Xmu} suggests the following.
+
+\begin{equation}
+\mathbf{\hat{w}}^{*-1} = \tilde{P} \mathbf{w}^{*-1}
+\label{eq:wStar_map}
+\end{equation}
+
+To see this, post-mulitply equation \ref{eq:sigMu_from_Xmu} through by the signal budget shares $-\mathbf{w}^{*-1}$.
+
+\begin{equation}
+\ln(R^* / \hat{R}) = \boldsymbol{\mu} {'} \mathbf{w}^{*-1} = \boldsymbol{\hat{\mu}} {'} \tilde{P} \mathbf{w}^{*-1}
+\end{equation}
+
+Hence, the mapping $\mathbf{\hat{w}}^*$ defined in \ref{eq:wStar_map} satisfies the condition \ref{eq:lnR_cond}. Now, to enforce the budget constraint and positive shares, once again recall that eigenvectors are defined up to scaling. That is, equations \ref{eq:sigs_def} and \ref{eq:wStar_map} are really
+
+\begin{equation}
+\mathbf{S} = X \tilde{P} D(\boldsymbol{\chi})
+\end{equation}
+
+\begin{equation}
+\mathbf{\hat{w}}^{*-1} = \tilde{P} D(\boldsymbol{\chi}) \mathbf{w}^{*-1}
+\label{eq:wStar_map_scaled}
+\end{equation}
+
+Where $\boldsymbol{\chi}$ is a vector of arbitrary factors scaling the columns of $\tilde{P}$. The values of $\boldsymbol{\chi}$ may be chosen such that the asset weights $\mathbf{\hat{w}}^*$ are positive and sum to $\hat{C}$.
+
+In practice, this scaling can be applied by simply computing $\mathbf{\hat{w}}^*$ via equation \ref{eq:wStar_map}. If the result contains negative values, add a constant $\alpha$ such that all weights become positive. (The parameter $\alpha$ may be tuned so as to guarantee a minimum investment in the lowest ranking portfolio item.) Finally, divide by a constant $\beta$ such that the weights add to $\hat{C}$.
+
+The scaling $\boldsymbol{\chi}$ can then be found by rearranging equation \ref{eq:wStar_map_scaled} as follows.
+
+\begin{equation}
+D(\mathbf{w}^{*-1}) \tilde{P} {'} \mathbf{\hat{w}}^{*-1} = \boldsymbol{\chi}
+\end{equation}
+
 # An illustrative example of AR4D risk adjusted portfolio optimization
 
-In practice, AR4D risk adjusted portfolio optimization would come after Step 3 in the resource allocation workflow defined by Mills, either complementing or replacing the ranking of research proposals in order of priority that is slated to occur in Step 4. By this point in the resource allocation workflow, a list of research proposals would have been drawn up, and the expected scalability of each proposal assessed and quantified. Recall from the discussion in section 2 that expected scalability differs from expected impact in that it is a measure of impact responsiveness to changes in the level of investment, as opposed to a measure of impact at one particular level of investment. Risk, meanwhile, is just the uncertainty surrounding the scalability estimate. 
+In practice, AR4D risk adjusted portfolio optimization would come after Step 3 in the resource allocation workflow defined by Mills, either complementing or replacing the ranking of research proposals in order of priority that is slated to occur in Step 4. By this point in the resource allocation workflow, a list of research proposals would have been drawn up, and the expected scalability of each proposal assessed and quantified. Recall from the discussion in section 2 that expected scalability differs from expected impact in that it is a measure of impact responsiveness to changes in the level of investment, as opposed to a measure of impact at one particular level of investment. Risk, meanwhile, is just the uncertainty surrounding the scalability estimate.
 
 A hypothetical list of such duly assessed AR4D proposals is presented in Figure \ref{fig:ExpPctRet_Examp}, together with their expected scalability and risk.^[The AR4D proposals are loosely grouped into four categories to facilitate interpretation of the gaphics, but there is no strict rule followed, and clearly some overlap, in the grouping.] To find the optimal risk adjusted budget allocation across these AR4D proposals, the optimal allocation across a set of signals is first found, and then mapped back to the AR4D proposals.
 ```{r, fig.show = "hold", fig.width = 4, fig.height = 4, fig.align = "center", fig.cap = "\\label{fig:ExpPctRet_Examp}Hypothetical AR4D proposal expected scalability and risk."}
@@ -1829,26 +1833,29 @@ n_signals <- ncol(df_Lrot) - 2
 # inv_scalability_ar4d <- exp(rnorm(n_prop))
 # inv_scalability_ar4d <- round(inv_scalability_ar4d / sum(inv_scalability_ar4d), 3) * 100
 #inv_scalability_ar4d <- runif(n_prop)
-scalability_ar4d <- 1 / c(15.9, 12.7, 17.6, 8.8, 7.4 , 9.0, 10.7, 10.8, 7.8 , 6.8, 9.4) # units of return per unit investment
-inv_scalability_ar4d <- 1 / scalability_ar4d 
+#scalability_ar4d <- 1 / c(15.9, 12.7, 17.6, 8.8, 7.4 , 9.0, 10.7, 10.8, 7.8 , 6.8, 9.4) # per unit investment
+#inv_scalability_ar4d <- 1 / scalability_ar4d 
 #nab_decRet_ar4d <- 10^-2 * inv_scalability_ar4d
 #inv_scalability_ar4d <- round(inv_scalability_ar4d / sum(inv_scalability_ar4d), 3) * 100
+inv_scalability_ar4d <- 10^-2 * c(15.9, 12.7, 17.6, 8.8, 7.4 , 9.0, 10.7, 10.8, 7.8 , 6.8, 9.4)
+scalability_ar4d <- 1 / inv_scalability_ar4d
+#sdX_vec <- 1 / 2 * c(abs(as.matrix(inv_scalability_ar4d) + 2 * as.matrix(rnorm(n_prop))))
+#sdX_vec <- 1.61 * c(abs(as.matrix(inv_scalability_ar4d) * as.matrix(runif(n_prop))))
+sdX_vec <- 10^-2 * c(21.2785349, 9.5972656, 18.4114015, 9.4742876, 2.7923296, 0.6912369, 5.9851785, 12.0813232, 7.0012194, 6.2880289, 7.1941543)
+#sdX_vec <- 1 / 2 * c(12.868125, 12.490252, 11.344356, 11.007095, 4.783202, 10.734870, 9.144469, 8.444207, 5.876558, 7.155542, 12.647645)
 df_pctRet <- data.frame(scalability_ar4d, Item = df_Lrot$Proposal, Group = df_Lrot$Group)
 names(inv_scalability_ar4d) <- df_Lrot$Proposal
 # Plot expected returns for each AR4D proposal
 group_colors <- group_colors_arb
 #plot_returns_barchart(df_pctRet, group_colors)
 list_graph_options <- list()
-list_graph_options[["fig_title"]] <- "Expected Scalability"
-list_graph_options[["ylab"]] <- "Return per\nInvestment Share"
+list_graph_options[["fig_title"]] <- "Expected scalability per unit investment"
+list_graph_options[["ylab"]] <- expression("Investment Share"^-1)
 list_graph_options[["legend_position"]] <- "none"
 list_graph_options[["axisTextX_off"]] <- T
 gg_perRet <- plot_returns_barchart(df_pctRet, group_colors, list_graph_options, graph_on = F)
-#sdX_vec <- 1 / 2 * c(abs(as.matrix(inv_scalability_ar4d) + 2 * as.matrix(rnorm(n_prop))))
-#sdX_vec <- 1.61 * c(abs(as.matrix(inv_scalability_ar4d) * as.matrix(runif(n_prop))))
-sdX_vec <- c(21.2785349, 9.5972656, 18.4114015, 9.4742876, 2.7923296, 0.6912369, 5.9851785, 12.0813232, 7.0012194, 6.2880289, 7.1941543)
-#sdX_vec <- 1 / 2 * c(12.868125, 12.490252, 11.344356, 11.007095, 4.783202, 10.734870, 9.144469, 8.444207, 5.876558, 7.155542, 12.647645)
-df_sd <- data.frame(10^-2 * sdX_vec, Item = df_Lrot$Proposal, Group = df_Lrot$Group)
+
+df_sd <- data.frame(sdX_vec, Item = df_Lrot$Proposal, Group = df_Lrot$Group)
 list_graph_options[["fig_title"]] <- "Risk (standard deviation)"
 list_graph_options[["legend_position"]] <- NULL
 list_graph_options[["axisTextX_off"]] <- NULL
@@ -1891,6 +1898,7 @@ During this exercise, participants should be encouraged to keep in mind that no 
 
 # Covariance matrix
 D_sdX <- diag(sdX_vec)
+#D_sdX <- diag(1/sdX_vec)
 mat_Q <- D_sdX %*% mat_Lrot
 eig_decomp_QQ <- eigen(t(mat_Q) %*% mat_Q)
 eig_values_QQ <- eig_decomp_QQ$values
@@ -1905,40 +1913,45 @@ if(mean(mat_P[, 1]) < 0){mat_P <- -mat_P}
 mat_P_sigs <- mat_P[, 1:n_signals]
 #--------------------------------------------------------
 # Expected returns vector
-#nab_decRet_ar4d <- 10^-2 * inv_scalability_ar4d
-#nab_decRet_ar4d_sigs <- as.numeric(t(nab_decRet_ar4d) %*% mat_P_sigs)
-#nab_decRet_ar4d_sigs <- 1 / as.numeric(t(1 / nab_decRet_ar4d) %*% mat_P_sigs)
-scalability_ar4d_sigs <- as.numeric(t(scalability_ar4d) %*% mat_P_sigs)
-if(sum(nab_decRet_ar4d_sigs < 0) > 0){
-  scalability_ar4d_sigs <- scalability_ar4d_sigs - 1.12 * min(scalability_ar4d_sigs)
+inv_scalability_ar4d_sigs <- as.numeric(t(inv_scalability_ar4d) %*% mat_P_sigs)
+if(sum(inv_scalability_ar4d_sigs < 0) > 0){
+  inv_scalability_ar4d_sigs <- inv_scalability_ar4d_sigs - 1.12 * min(inv_scalability_ar4d_sigs)
 }
+# scalability_ar4d_sigs <- as.numeric(t(scalability_ar4d) %*% mat_P_sigs)
+# if(sum(scalability_ar4d_sigs < 0) > 0){
+#   scalability_ar4d_sigs <- scalability_ar4d_sigs - 1.12 * min(scalability_ar4d_sigs)
+# }
+
 # fctr_P <- sum(nab_decRet_ar4d) / sum(nab_decRet_ar4d_sigs)
 # nab_decRet_ar4d_sigs <- nab_decRet_ar4d_sigs * fctr
 # scale_P <- 1 / as.numeric(nab_decRet_ar4d %*% mat_P_sigs %*% diag(1 / nab_decRet_ar4d_sigs))
-inv_scalability_ar4d_sigs <- 1 / scalability_ar4d_sigs
-scale_P <- 1 / as.numeric(scalability_ar4d %*% mat_P_sigs %*% diag(inv_scalability_ar4d_sigs))
+#inv_scalability_ar4d_sigs <- 1 / scalability_ar4d_sigs
+scalability_ar4d_sigs <- 1 / inv_scalability_ar4d_sigs
+# scale_P <- 1 / as.numeric(scalability_ar4d %*% mat_P_sigs %*% diag(inv_scalability_ar4d_sigs))
+scale_P <- 1 / as.numeric(inv_scalability_ar4d %*% mat_P_sigs %*% diag(scalability_ar4d_sigs))
 scale_P <- diag(scale_P)
 #check
-#nab_decRet_ar4d_sigs - nab_decRet_ar4d %*% mat_P_sigs %*% scale_P
-names(nab_decRet_ar4d_sigs) <- sigNames
-inv_scalability_ar4d_sigs <- 10^2 * nab_decRet_ar4d_sigs
+#scalability_ar4d_sigs - scalability_ar4d %*% mat_P_sigs %*% scale_P
+#inv_scalability_ar4d_sigs - inv_scalability_ar4d %*% mat_P_sigs %*% scale_P
+names(inv_scalability_ar4d_sigs) <- sigNames
+#inv_scalability_ar4d_sigs <- 10^2 * nab_decRet_ar4d_sigs
 #--------------------------------------------------------
 # Risk
-sdS_vec <- as.numeric(sqrt(eig_values_QQ))
+sdSinv_vec <- as.numeric(sqrt(eig_values_QQ))
 #--------------------------------------------------------
 # Graph
 n_groups <- length(sigNames)
 bag_of_colors <- randomcoloR::distinctColorPalette(k = 2 * n_groups)
 sig_colors <- sample(bag_of_colors, n_groups)
 
-df_pctRet <- data.frame(1 / nab_decRet_ar4d_sigs, Item = sigNames, Group = sigNames)
+df_pctRet <- data.frame(scalability_ar4d_sigs, Item = sigNames, Group = sigNames)
 list_graph_options <- list()
-list_graph_options[["fig_title"]] <- "Expected Scalability"
-list_graph_options[["ylab"]] <- "Investment Share"
+list_graph_options[["fig_title"]] <- "Expected scalability per unit investment"
+list_graph_options[["ylab"]] <- expression("Investment Share"^-1)
 list_graph_options[["legend_position"]] <- "none"
 list_graph_options[["axisTextX_off"]] <- T
 gg_perRet <- plot_returns_barchart(df_pctRet, sig_colors, list_graph_options, graph_on = F)
-df_sd <- data.frame(sdS_vec, Item = sigNames, Group = sigNames)
+df_sd <- data.frame(sdSinv_vec, Item = sigNames, Group = sigNames)
 list_graph_options[["fig_title"]] <- "Risk (standard deviation)"
 list_graph_options[["legend_position"]] <- "none"
 list_graph_options[["axisTextX_off"]] <- NULL
@@ -2047,8 +2060,8 @@ Ctarg <- 1
 Rceil <- 1
 covmat <- covmat_SS
 eigvals <- diag(covmat_SS)
-mu_vec <- nab_decRet_ar4d_sigs
-g_vec <- eigvals / 100^2
+mu_vec <- inv_scalability_ar4d_sigs
+g_vec <- eigvals
 backtest_info <- NULL
 #--------------------------------------------------------------
 outlist <- get_optimal_frontier_dimRet(mu_vec, g_vec, Ctarg, Rceil, n_points_on_frontier)
