@@ -471,7 +471,7 @@ get_hist_dfs_ready <- function(mat_ts_in, group_info){
 
 #=======================================================================
 # Define function to plot covariance/correlation matrices
-plot_covmat <- function(covmat, fig_title = "Covariance Matrix", graph_on = T){
+plot_covmat <- function(covmat, fig_title = "Covariance Matrix", round_to = 2, graph_on = T){
   covmat[upper.tri(covmat)] <- NA
   df_plot <- covmat %>% tbl_df()
   these_levels <- colnames(df_plot)
@@ -485,7 +485,7 @@ plot_covmat <- function(covmat, fig_title = "Covariance Matrix", graph_on = T){
   midpoint <- 0
   gg <- ggplot(df_plot, aes((ItemX), (ItemY)))
   gg <- gg + geom_tile(aes(fill = Value))#, width = 4, height = 4)
-  gg <- gg + geom_text(aes(label = round(Value, 2)), size = 2.5)
+  gg <- gg + geom_text(aes(label = round(Value, round_to)), size = 2.5)
   if(!is.null(fig_title)){
     gg <- gg + labs(title = fig_title)
   }
@@ -994,7 +994,7 @@ Ideally, the risk assessment of individual proposals would be conducted during S
 
 Assessment of research proposal covariances, however, is not so straightforward. In the context of corporate R&D, Pennings and Lint [-@pennings1997option] proposed explicitly synthesizing an R&D project price time series analogue based on stochastic jump diffusion modeling of the research process. With some finessing, perhaps, covariances could be calculated on the basis of such synthetic time series. Below, I propose an alternative route that bypasses the question of temporally explicit modeling of the research "price" altogether.
 
-Specifically, I propose an elicitation, from experts and/or stakeholders, of each proposal's correlation with a set of research dimensions, also elicited, that define a problem space that is of particular interest. The dimensions, better known to some as "principle components", can, in the AR4D context, be thought of as strategic objectives (SO), or, as I like to characterize them below, "signals" distilled from noise. The elicited proposal-SO correlations can then be combined with elicited proposal risk assessments to deduce an SO covariance matrix. A vector of the expected scalability or investment response of each proposal can also be deduced from this information. In the subsequent section, I then apply risk adjusted optimization to the SO portfolio to solve for the optimal resource allocation to each SO, and suggest a way to map these SO resource shares back to proposal resource shares based on the proposal-SO correlations.
+Specifically, I propose an elicitation, from experts and/or stakeholders, of each proposal's correlation with a set of research dimensions, also elicited, that define a problem space that is of particular interest. The dimensions, better known to some as "principal components", can, in the AR4D context, be thought of as strategic objectives (SO), or, as I characterize them below, "signals" distilled from noise. The elicited proposal-SO correlations can then be combined with elicited proposal risk assessments to deduce an SO covariance matrix. A vector of the expected scalability or investment response of each proposal can also be deduced from this information. In the subsequent section, I then apply risk adjusted optimization to the SO portfolio to solve for the optimal resource allocation to each SO, and suggest a way to map these SO resource shares back to proposal resource shares based on the proposal-SO correlations.
 
 In the process, I also show how an approximate proposal covariance matrix can be deduced from the elicited proposal-SO correlations and proposal risk assessments. The approximate proposal covariance matrix may be useful for orienting discussion regarding AR4D tradeoffs and synergies; but it has eigenvalues equal to zero, and so cannot be inverted, and hence cannot be used for purposes of optimization.
 
@@ -1411,9 +1411,7 @@ gg <- gg + theme(axis.text.y = element_text(size = 7),
                  axis.title = element_blank(),
                  legend.title = element_text(size = 8),
                  legend.text = element_text(size = 8))
-
 gg
-
 #====================================================
 n_signals <- which(ck_vec > 0.9)[1]
 mat_S <- mat_S_all[, 1:n_signals]
@@ -1833,24 +1831,24 @@ n_signals <- ncol(df_Lrot) - 2
 # inv_scalability_ar4d <- exp(rnorm(n_prop))
 # inv_scalability_ar4d <- round(inv_scalability_ar4d / sum(inv_scalability_ar4d), 3) * 100
 #inv_scalability_ar4d <- runif(n_prop)
-#scalability_ar4d <- 1 / c(15.9, 12.7, 17.6, 8.8, 7.4 , 9.0, 10.7, 10.8, 7.8 , 6.8, 9.4) # per unit investment
+inv_scalability_ar4d <- 10^-2 * c(15.9, 12.7, 17.6, 8.8, 7.4 , 9.0, 10.7, 10.8, 7.8 , 6.8, 9.4) # per unit investment
 #inv_scalability_ar4d <- 1 / scalability_ar4d 
 #nab_decRet_ar4d <- 10^-2 * inv_scalability_ar4d
 #inv_scalability_ar4d <- round(inv_scalability_ar4d / sum(inv_scalability_ar4d), 3) * 100
-inv_scalability_ar4d <- 10^-2 * c(15.9, 12.7, 17.6, 8.8, 7.4 , 9.0, 10.7, 10.8, 7.8 , 6.8, 9.4)
+#inv_scalability_ar4d <- 10^-2 * c(15.9, 12.7, 17.6, 8.8, 7.4 , 9.0, 10.7, 10.8, 7.8 , 6.8, 9.4)
 scalability_ar4d <- 1 / inv_scalability_ar4d
 #sdX_vec <- 1 / 2 * c(abs(as.matrix(inv_scalability_ar4d) + 2 * as.matrix(rnorm(n_prop))))
 #sdX_vec <- 1.61 * c(abs(as.matrix(inv_scalability_ar4d) * as.matrix(runif(n_prop))))
 sdX_vec <- 10^-2 * c(21.2785349, 9.5972656, 18.4114015, 9.4742876, 2.7923296, 0.6912369, 5.9851785, 12.0813232, 7.0012194, 6.2880289, 7.1941543)
 #sdX_vec <- 1 / 2 * c(12.868125, 12.490252, 11.344356, 11.007095, 4.783202, 10.734870, 9.144469, 8.444207, 5.876558, 7.155542, 12.647645)
-df_pctRet <- data.frame(scalability_ar4d, Item = df_Lrot$Proposal, Group = df_Lrot$Group)
+df_pctRet <- data.frame(inv_scalability_ar4d, Item = df_Lrot$Proposal, Group = df_Lrot$Group)
 names(inv_scalability_ar4d) <- df_Lrot$Proposal
 # Plot expected returns for each AR4D proposal
 group_colors <- group_colors_arb
 #plot_returns_barchart(df_pctRet, group_colors)
 list_graph_options <- list()
-list_graph_options[["fig_title"]] <- "Expected scalability per unit investment"
-list_graph_options[["ylab"]] <- expression("Investment Share"^-1)
+list_graph_options[["fig_title"]] <- "AR4D proportionality constants"
+list_graph_options[["ylab"]] <- NULL
 list_graph_options[["legend_position"]] <- "none"
 list_graph_options[["axisTextX_off"]] <- T
 gg_perRet <- plot_returns_barchart(df_pctRet, group_colors, list_graph_options, graph_on = F)
@@ -1897,7 +1895,7 @@ During this exercise, participants should be encouraged to keep in mind that no 
 ```{r, fig.show = "hold", fig.width = 3, fig.height = 3, fig.align = "center", fig.cap = "\\label{fig:sigRetRisk}Expected AR4D signal scalability and risk derived from crowdsourced information."}
 
 # Covariance matrix
-D_sdX <- diag(sdX_vec)
+D_sdX <- diag(10^2 * sdX_vec)
 #D_sdX <- diag(1/sdX_vec)
 mat_Q <- D_sdX %*% mat_Lrot
 eig_decomp_QQ <- eigen(t(mat_Q) %*% mat_Q)
@@ -1937,21 +1935,21 @@ names(inv_scalability_ar4d_sigs) <- sigNames
 #inv_scalability_ar4d_sigs <- 10^2 * nab_decRet_ar4d_sigs
 #--------------------------------------------------------
 # Risk
-sdSinv_vec <- as.numeric(sqrt(eig_values_QQ))
+sdS_vec <- 10^-2 *as.numeric(sqrt(eig_values_QQ))
 #--------------------------------------------------------
 # Graph
 n_groups <- length(sigNames)
 bag_of_colors <- randomcoloR::distinctColorPalette(k = 2 * n_groups)
 sig_colors <- sample(bag_of_colors, n_groups)
 
-df_pctRet <- data.frame(scalability_ar4d_sigs, Item = sigNames, Group = sigNames)
+df_pctRet <- data.frame(inv_scalability_ar4d_sigs, Item = sigNames, Group = sigNames)
 list_graph_options <- list()
-list_graph_options[["fig_title"]] <- "Expected scalability per unit investment"
-list_graph_options[["ylab"]] <- expression("Investment Share"^-1)
+list_graph_options[["fig_title"]] <- "AR4D Signal proportionality constants"
+list_graph_options[["ylab"]] <- NULL
 list_graph_options[["legend_position"]] <- "none"
 list_graph_options[["axisTextX_off"]] <- T
 gg_perRet <- plot_returns_barchart(df_pctRet, sig_colors, list_graph_options, graph_on = F)
-df_sd <- data.frame(sdSinv_vec, Item = sigNames, Group = sigNames)
+df_sd <- data.frame(sdS_vec, Item = sigNames, Group = sigNames)
 list_graph_options[["fig_title"]] <- "Risk (standard deviation)"
 list_graph_options[["legend_position"]] <- "none"
 list_graph_options[["axisTextX_off"]] <- NULL
@@ -1964,12 +1962,13 @@ The signal scalability parameters and risk are then derived from the proposal ri
 
 ```{r, fig.show = "hold", fig.width = 6, fig.height = 4, fig.align = "left", fig.cap = "\\label{fig:covmatProps}AR4D proposal covariance matrix derived from the elicited loadings."}
 
+#D_sdX <- diag(10^2 * sdX_vec)
 D_sdX <- diag(sdX_vec)
 cormat_XX_derived <- mat_Lrot %*% t(mat_Lrot)
 covmat_XX_derived <- D_sdX %*% cormat_XX_derived %*% D_sdX
 colnames(covmat_XX_derived) <- colnames(cormat_XX_derived)
 fig_title <- "Crowdsourced AR4D Proposal Covariance Matrix"
-plot_covmat(covmat_XX_derived, fig_title, graph_on = F)
+plot_covmat(covmat_XX_derived, fig_title, round_to = 4, graph_on = F)
 
 ```
 
@@ -2059,7 +2058,7 @@ n_points_on_frontier <- 50
 Ctarg <- 1
 Rceil <- 1
 covmat <- covmat_SS
-eigvals <- diag(covmat_SS)
+eigvals <- 10^-4 * diag(covmat_SS)
 mu_vec <- inv_scalability_ar4d_sigs
 g_vec <- eigvals
 backtest_info <- NULL
