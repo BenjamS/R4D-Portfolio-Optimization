@@ -55,9 +55,9 @@ Mills identified this lacuna at a time when AR4D centers were just beginning to 
 ```{r, fig.show = 'hold', out.width="10cm", fig.cap="\\label{fig:mills_missing_step}The AR4D priority setting workflow, adapted from Mills (1998).", fig.align='center'}
 knitr::include_graphics("Mills_missing_step5.png")
 ```
-In hindsight, Mills' concern was well founded. Budgetary pressure on AR4D centers to "prove their relevance" [@Braunschweig2000], "show value for money" [@yet2016bayesian], and otherwise demonstrate "more efficient spending of resources" [@petsakos2018comparing] has only increased since the 1990s. Between Step 4 and the final allocation of funds, stakeholder politics, institutional inertia, ad hoc procedures and criteria, and other subjective forces have repeatedly undercut any careful, objective rigor occurring in Steps 1-4 [@Birner2016; @mccalla2014cgiar]. This inconsistency, opacity, and subjectivity in resource allocation decisions has, in turn, aggravated scientists' already longstanding distrust of budget allocation mechanisms. It is only natural, under such circumstances, to see research programs growing increasingly entrenched in their respective silos, and relations between donors and research programs deteriorating to an historic level of toxicity [@Birner2016; @leeuwis2018reforming; @mccalla2014cgiar].
+In hindsight, Mills' concern was well founded. Budgetary pressure on AR4D centers to "prove their relevance" [@Braunschweig2000], "show value for money" [@yet2016bayesian], and otherwise demonstrate "more efficient spending of resources" [@petsakos2018comparing] has only increased since the 1990s. Between Step 4 and the final allocation of funds, stakeholder politics, institutional inertia, ad hoc procedures and criteria, and other subjective forces have repeatedly undercut any careful, objective rigor occurring in Steps 1-4 [@Birner2016; @mccalla2014cgiar]. This inconsistency, opacity, and subjectivity in resource allocation decisions has, in turn, aggravated scientists' already longstanding distrust of budget allocation mechanisms. It is only natural, under such circumstances, to see research programs growing increasingly entrenched in their respective silos, and relations between donors and research programs deteriorating to historic levels of toxicity [@Birner2016; @leeuwis2018reforming; @mccalla2014cgiar].
 
-The task of deciding how to optimally allocate a limited budget across a portfolio of research proposals that are all, in one way or another, vitally important, is never an easy one. However, the peculiar, sustained absence of an impartial, transparent resource allocation mechanism, has clearly made the process more painful than it has to be. In this paper, I explore the possibility of developing such a tool based on risk-adjusted portfolio optimization techniques developed in the financial context.
+The task of deciding how to optimally allocate a limited budget across a portfolio of research proposals that are all, in one way or another, vitally important, is never an easy one. However, the problem articulated by Mills over twenty years ago at once suggests its solution: An impartial, transparent resource allocation mechanism, at the portfolio level, could substantially reduce the pain involved in such decisions. In this paper, I explore the possibility of developing such a tool based on risk-adjusted portfolio optimization techniques developed in the financial context.
 
 ## AR4D risk-adjusted portfolio optimization
 
@@ -1548,7 +1548,7 @@ To get started, consider that the risk adjusted portfolio optimization problem m
 \label{eq:informal_prob}
 \end{equation}
 
-That is, the investor wants to allocate budget shares $\mathbf{\hat{w}}$ so as to minimize risk given a certain expected return target $k_R$ and budget constraint $k_C$.^[The "$\hat$" symbol over the budget shares means that these are signal budget shares, as opposed to proposal budget shares.]
+That is, the investor wants to allocate budget shares $\mathbf{\hat{w}}$ so as to minimize risk given a certain expected return target $k_R$ and budget constraint $k_C$.^[The "$\hat{}$" symbol over the budget shares means that these are signal budget shares, as opposed to proposal budget shares.]
 
 The functional forms of risk and expected return depend upon the probability density that portfolio returns are assumed to follow. In the financial context, portfolio returns are typically assumed to be normally distributed. In the AR4D context, however, this is not so straightforward. Below, I asssume that AR4D portfolio returns are lognormally distributed. Arguably, such an assumption gives science the benefit of the doubt, since it implies a big upside and relatively small downside to investment risk (Figure \ref{fig:lognormal_basic_illust}).
 
@@ -1600,13 +1600,13 @@ Risk can be modeled as the standard deviation, variance, or coefficient of varia
 The optimization problem is facilitated further still by taking logs. This results in the following formalization of the problem sketched above in equation \ref{eq:informal_prob}.
 
 \begin{equation}
-\min_{\mathbf{\hat{w}}}{s_R^2} \:\:\:\: s.t. \:\:\:\: m_R + s_R^2 / 2 = \ln(\hat{E[R]}) \:\:\:\: \ln(\mathbf{\hat{w}} {'} \mathbf{1}) = \ln(\hat{C})
+\min_{\mathbf{\hat{w}}}{s_R^2} \:\:\:\: s.t. \:\:\:\: m_R + s_R^2 / 2 = \ln(k_R) \:\:\:\: \ln(\mathbf{\hat{w}} {'} \mathbf{1}) = \ln(k_C)
 \end{equation}
 
 with Lagrangian
 
 \begin{equation}
-\mathcal{L} = s_R^2 - \lambda_R (m_R + s_R^2 / 2 - \ln(\hat{E[R]}) ) + \lambda_C (\mathbf{\hat{w}} {'} \mathbf{1} - \ln(\hat{C}))
+\mathcal{L} = s_R^2 - \lambda_R (m_R + s_R^2 / 2 - \ln(k_R) ) + \lambda_C (\mathbf{\hat{w}} {'} \mathbf{1} - \ln(k_C))
 \end{equation}
 
 Note here that $\mathcal{L}$ is essentially a cost function that the investor wants to minimize. The signs on $\lambda_R$ and $\lambda_C$ are thus chosen in accordance with whether or not the respective terms contribute to or subtract from this cost.
@@ -1616,7 +1616,7 @@ Note here that $\mathcal{L}$ is essentially a cost function that the investor wa
 The first order conditions for a minimum are then
 
 \begin{equation}
-\nabla_{\mathbf{\hat{w}}} \mathcal{L} = -2 D(\boldsymbol{\gamma}) \mathbf{\hat{w}}^{-3} - \lambda_R (D(\boldsymbol{\mu}) \mathbf{\hat{w}}^{-2} - D(\boldsymbol{\gamma}) \mathbf{\hat{w}}^{-3}) + {\lambda_C \over C} \mathbf{1} = \mathbf{0}
+\nabla_{\mathbf{\hat{w}}} \mathcal{L} = -2 D(\boldsymbol{\gamma}) \mathbf{\hat{w}}^{-3} - \lambda_R (D(\boldsymbol{\hat{\mu}}) \mathbf{\hat{w}}^{-2} - D(\boldsymbol{\gamma}) \mathbf{\hat{w}}^{-3}) + {\lambda_C \over C} \mathbf{1} = \mathbf{0}
 \end{equation}
 
 with second order condition
@@ -1656,13 +1656,13 @@ E[R]^* = \bar{R} (\kappa^2 + 1)^{1 / \lambda_R - 1 / 2} e^{-\lambda_C / \lambda_
 To find the optimal budget shares, the first order conditions can be rearranged as follows.
 
 \begin{equation}
-(2 / \lambda_R - 1) D(\boldsymbol{\gamma}) \mathbf{\hat{w}}^{-3} + D(\boldsymbol{\mu}) \mathbf{\hat{w}}^{-2} - {\lambda_C \over {\lambda_R C}} \mathbf{1} = \mathbf{0}
+(2 / \lambda_R - 1) D(\boldsymbol{\gamma}) \mathbf{\hat{w}}^{-3} + D(\boldsymbol{\hat{\mu}}) \mathbf{\hat{w}}^{-2} - {\lambda_C \over {\lambda_R C}} \mathbf{1} = \mathbf{0}
 \end{equation}
 
 Dotting through by $\mathbf{\hat{w}}^3$ then gives the following cubic equation.
 
 \begin{equation}
-(2 / \lambda_R - 1) \boldsymbol{\gamma} + D(\boldsymbol{\mu}) \mathbf{\hat{w}} + {\lambda_C \over {\lambda_R C}} \mathbf{\hat{w}}^3 = \mathbf{0}
+(2 / \lambda_R - 1) \boldsymbol{\gamma} + D(\boldsymbol{\hat{\mu}}) \mathbf{\hat{w}} + {\lambda_C \over {\lambda_R C}} \mathbf{\hat{w}}^3 = \mathbf{0}
 \end{equation}
 
 Note here that it is already possible to tell, by Descartes' rule of signs, that each budget share is guaranteed to have one positive real solution (and two complex solutions).
@@ -1737,7 +1737,7 @@ thereby confirming that optimal signal budget shares are always positve.
 
 ## A practical guide to solving for the optimal frontier, budget shares, and shadow prices
 
-In practice, the frontier of optimal solutions and corresponding budget shares can be found for given signal proportionality constants $\boldsymbol{\mu}$, variances $\boldsymbol{\gamma}$, and budget $\hat{C}$ by solving the optimized cost function for $v$ at successive values of $q\sqrt{v}$.
+In practice, the frontier of optimal solutions and corresponding budget shares can be found for given signal proportionality constants $\boldsymbol{\hat{\mu}}$, variances $\boldsymbol{\gamma}$, and budget $\hat{C}$ by solving the optimized cost function for $v$ at successive values of $q\sqrt{v}$.
 
 Introducing the shorthand $\tau = q\sqrt{v}$, the domain of $\tau$ can be derived from equation \ref{eq:derive_tau_domain}.
 
@@ -1748,7 +1748,7 @@ Introducing the shorthand $\tau = q\sqrt{v}$, the domain of $\tau$ can be derive
 Where the lower bound is restricted to $0$ by the second order condition. So, the entire frontier of risk reward possibilities is given by solving the optimized cost function
 
 \begin{equation}
-\hat{C} = \sqrt{\frac{1}{v}} \boldsymbol{\mu}^{1 / 2} {'} \mathbf{\hat{w}}^*
+\hat{C} = \sqrt{\frac{1}{v}} \boldsymbol{\hat{\mu}}^{1 / 2} {'} \mathbf{\hat{w}}^*
 \end{equation}
 
 for $v$ at successive values of $\tau$ on this interval. The extraction of the shadow prices $\lambda_R$ and $\lambda_C$ from $q$, $v$, and $\hat{C}$ is then straightforward.
