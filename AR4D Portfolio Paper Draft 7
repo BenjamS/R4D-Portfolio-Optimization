@@ -55,9 +55,9 @@ Mills identified this lacuna at a time when AR4D centers were just beginning to 
 ```{r, fig.show = 'hold', out.width="10cm", fig.cap="\\label{fig:mills_missing_step}The AR4D priority setting workflow, adapted from Mills (1998).", fig.align='center'}
 knitr::include_graphics("Mills_missing_step5.png")
 ```
-In hindsight, Mills' concern was well founded. Budgetary pressure on AR4D centers to "prove their relevance" [@Braunschweig2000], "show value for money" [@yet2016bayesian], and otherwise demonstrate "more efficient spending of resources" [@petsakos2018comparing] has only increased since the 1990s. Between Step 4 and the final allocation of funds, stakeholder politics, institutional inertia, ad hoc procedures and criteria, and other subjective forces have repeatedly undercut any careful, objective rigor occurring in Steps 1-4 [@Birner2016; @mccalla2014cgiar]. This inconsistency, opacity, and subjectivity in resource allocation decisions has, in turn, aggravated scientists' already longstanding distrust of budget allocation mechanisms. Relations between donors and the research programs they fund have, as a result, reached an historic level of toxicity [@Birner2016; @leeuwis2018reforming; @mccalla2014cgiar].
+In hindsight, Mills' concern was well founded. Budgetary pressure on AR4D centers to "prove their relevance" [@Braunschweig2000], "show value for money" [@yet2016bayesian], and otherwise demonstrate "more efficient spending of resources" [@petsakos2018comparing] has only increased since the 1990s. Between Step 4 and the final allocation of funds, stakeholder politics, institutional inertia, ad hoc procedures and criteria, and other subjective forces have repeatedly undercut any careful, objective rigor occurring in Steps 1-4 [@Birner2016; @mccalla2014cgiar]. This inconsistency, opacity, and subjectivity in resource allocation decisions has, in turn, aggravated scientists' already longstanding distrust of budget allocation mechanisms. It is only natural, under such circumstances, to see research programs growing increasingly entrenched in their respective silos, and relations between donors and research programs deteriorating to an historic level of toxicity [@Birner2016; @leeuwis2018reforming; @mccalla2014cgiar].
 
-A rigorous tool _at the portfolio level_, along the lines suggested by Mills over twenty years ago, could go a long ways in guaranteeing the consistency, transparency, and objectivity that has been lacking from the process. It would also be nice if such a method took explicit account of the risk associated with each research alternative, and were quick and inexpensive to implement relative to existing consensus building mechanisms such as the Analytical Hierarchy Process [@Braunschweig2000]. In this paper, I explore the possibility of building such a tool based on risk-adjusted portfolio optimization techniques developed in the financial context.
+The task of deciding how to optimally allocate a limited budget across a portfolio of research proposals that are all, in one way or another, vitally important, is never an easy one. However, the peculiar, sustained absence of an impartial, transparent resource allocation mechanism, has clearly made the process more painful than it has to be. In this paper, I explore the possibility of developing such a tool based on risk-adjusted portfolio optimization techniques developed in the financial context.
 
 ## AR4D risk-adjusted portfolio optimization
 
@@ -902,7 +902,7 @@ An expression for $R$ can be derived from this formalization by first rewriting 
 \label{eq:dimRetDefine_2}
 \end{equation}
 
-Where $\alpha_i$ is a proportionality constant.
+Where $\alpha_i$ is a proportionality parameter.
 
 Now, letting $\nabla_{\ln \mathbf{w}} \ln R$ denote the gradient of the logged portfolio return with respect to all $n$ portfolio items, i.e.,
 
@@ -952,14 +952,14 @@ gg <- gg + theme(axis.text = element_blank(),
 gg
 
 ```
-The proportionality constants $\boldsymbol{\alpha}$ are determined by context; and so it is important to build intuition regarding their meaning. First of all, note that return is decreasing in $\boldsymbol{\alpha}$. That is,
+The proportionality parameters $\boldsymbol{\alpha}$ are determined by context; and so it is important to build intuition regarding their meaning. First of all, note that return is decreasing in $\boldsymbol{\alpha}$. That is,
 
 \begin{equation}
 \frac{\partial R}{\partial \alpha_i} = -\frac{R}{w_i} < 0
 \label{eq:dRda}
 \end{equation}
 
-This means that, as $\alpha_i$ is lower, return is more responsive to increments in funding. Conversely, as $\alpha_i$ is higher, return is less responsive to increments in funding. The proportionality constant $\alpha_i$ can thus be thought of as the inverse of the respective portfolio item's return response to increases in investment, or, more succinctly, the inverse of its _expected scalability_.
+This means that, as $\alpha_i$ is lower, return is more responsive to increments in funding. Conversely, as $\alpha_i$ is higher, return is less responsive to increments in funding. The proportionality parameter $\alpha_i$ can thus be thought of as the inverse of the respective portfolio item's return response to increases in investment, or, more succinctly, the inverse of its _expected scalability_.
 <!-- This is related to, but also quite different from, the expected return typically assessed in a conventional ex-ante impact assessment exercise occurring in step 3 of Mills' resource allocation workflow (Figure \ref{fig:mills_missing_step}). Explicit accounting of the law of diminishing returns implies a shift in emphasis from expected return at a particular fixed level of investment to a focus on _expected scalability_.  -->
 
 Note also that equation \ref{eq:dRda} can be multiplied through by $\alpha_i / R$ to arrive at
@@ -971,7 +971,7 @@ Note also that equation \ref{eq:dRda} can be multiplied through by $\alpha_i / R
 \end{split}
 \end{equation}
 
-The percentage change in return given a $1$ percent change in $\alpha_i$ is thus equal to the negative of the return elasticity with respect to investment.
+The percentage change in return given a $1$ percent change in $\alpha_i$ is thus equal to the negative of the portfolio return elasticity with respect to investment.
 
 In practice, a given $\alpha_i$ can be deduced by assessing expected return at a wide range of investment levels and evaluating
 
@@ -1025,7 +1025,7 @@ Where $\tilde{P}$ is a matrix containing the $m$ leading eigenvectors of the ful
 
 Where $\Gamma$ is the diagonal matrix of the leading eigenvalues of $\Sigma_{XX}$. 
 
-From the definition (\ref{eq:sigs_def}), it follows that the signals are uncorrelated with each other, and that their variance is given by the eigenvalues of the data covariance matrix.
+From the definition (\ref{eq:sigs_def}), it follows that the columns of $S$ are uncorrelated with each other, and that their variance is given by the leading $m$ eigenvalues of the data covariance matrix.
 
 \begin{equation}
 \begin{split}
@@ -1039,7 +1039,7 @@ From the definition (\ref{eq:sigs_def}), it follows that the signals are uncorre
 
 The columns of the distilled matrix $S$ are referred to as the principal components (PC), or the PC scores, or the factor scores. When dealing with noisy time series, as in this paper, they might just as well be referred to as the "signals", in the sense that they are signals extracted from noise.
 
-The original dataset $X$ is thus effectively reduced in complexity from its $n$ to the $m$ dimensions of $S$. There then remains the question of what essential process these dimensions or signals $S$ describe. This can be interpreted based on how correlated they are with the variables in $X$. These correlations ($K_{XS}$) are found by first finding their corresponding covariances ($\Sigma_{XS}$).
+There then remains the question of what essential process these dimensions or signals $S$ describe. This can be interpreted based on how correlated they are with the variables in $X$. These correlations ($K_{XS}$) are found by first finding their corresponding covariances ($\Sigma_{XS}$).
 
 \begin{equation}
 \begin{split}
@@ -1227,7 +1227,7 @@ plot_corrXS_barchart(mat_L)
 
 ```
 
-Signal 4 appears to have something to do with price movements in the communications sector. Signal 3, meanwhile, is concerned with Utilities and Real Estate, and so might be called the "Housing & Urban Development Signal". The interpretation of Signals 1 and 2, on the other hand, is not so straightforward, since they are correlated with many portfolio items. In such cases, it is often useful to apply an orthogonal rotation to $L$ in order to clarify the picture. That is to say, instead of examining $L$, one examines $L_{\circlearrowleft}$.
+Signal 4, for example, appears to have something to do with price movements in the communications sector. Signal 3, meanwhile, is concerned with Utilities and Real Estate, and so might be called the "Housing & Urban Development Signal". The interpretation of Signals 1 and 2, on the other hand, is not so straightforward, since they are correlated with many portfolio items. In such cases, it is often useful to apply an orthogonal rotation to $L$ in order to clarify the picture. That is to say, instead of examining $L$, one examines $L_{\circlearrowleft}$.
 
 \begin{equation}
 L_{\circlearrowleft} = LB
@@ -1478,13 +1478,13 @@ Note that the implicit orthogonal rotation $B$ is also recovered as the transpos
 \label{eq:deducePcrowd}
 \end{equation}
 
-## "Reverse engineering" data and signals covariance matrices from domain knowledge
+## "Reverse engineering" covariance matrices from domain knowledge
 <!-- Equations \ref{eq:covmat_SS} to \ref{eq:Lrot} -->
 The foregoing discussion implies that it is possible to work backwards from the orthogonally rotated loadings $L_{\circlearrowleft}$ and asset risk $\boldsymbol{\sigma}_X$, to arrive at an approximate data covariance matrix and signals covariance matrix.
 
 This could be useful in situations where the original data $X$ is relatively scarce or suspect, but where domain knowledge is relatively abundant. That is, in the absence of the data ($X$), experts with a great deal of knowledge about the underlying system that would generate the data could be asked to name and rank in order of importance the cross cutting tendencies that describe 90% of (or simply "best describe") the general evolution of the system. These cross-cutting tendencies could then be interpreted as signals. The experts could then be asked how influential each portfolio item is---on a scale, say, of -100 to 100---in shaping (or being shaped by) the direction of these tendencies. The experts' responses could then be divided by 100 and interpreted as correlations between signals and portfolio items. The result of this expert consultation is could thus be considered the rotated loadings matrix ($L_{\circlearrowleft}$) of an unobserved dataset.^[The expert survey response must be considered an _orthogonally rotated_ loadings matrix, as opposed to a loadings matrix, because loadings matrices are always orthogonal, whereas the elicited loadings will generally not be orthogonal.] Given the risk associated with each portfolio item ($\boldsymbol{\sigma}_X$), which could also be elicited, it is then possible to generate approximate covariance matrices for the unobserved data and corresponding signals via equations \ref{eq:cormat_from_Lrot} and \ref{eq:crowdsource_G}, respectively.
 
-Again, such an approach makes sense only in contexts where a general lack of data is compensated by a general abundance of domain knowledge. As a rule of thumb, the appropriateness of the crowdsourcing approach may be assessed by meditating upon the conceptual ratio $\nu$.
+Again, such an approach makes sense only in contexts where a relative lack of data is compensated by a relative abundance of domain knowledge. As a rule of thumb, the appropriateness of the crowdsourcing approach may be assessed by meditating upon the conceptual ratio $\nu$.
 <!-- In the AR4D context, the process is the same, except that expected asset return is replaced by the research proposal expected proportionality constants $\boldsymbol{\alpha}$. (Recall that these may be thought of as the inverse of the proposal scalability.) -->
 $$
 \nu = \frac{\text{confidence in domain knowledge}}{\text{confidence in data}}
@@ -1494,25 +1494,25 @@ As $\nu$ is higher, the crowdsourcing approach to covariance matrix estimation i
 
 Financial contexts, characterized by abundant data and relatively scarce or suspect domain knowledge, will typically have a low $\nu$ value. The crowdsourcing approach is thus inappropriate in such settings, except perhaps as a knowledge validating exercise. The AR4D context, on the other hand, generally has a high $\nu$ value; and is thus an appropriate setting for the crowdsourcing approach.
 
-An financial example of signals, and of how signals define the evolution of portfolio items in a problem space, was given above. But what might signals look like in the AR4D context, and how might these be elicited from experts? Here it is important, first of all, to have a clear idea of what the unobserved dataset $X$ represents. In the financial context, $X$ represents daily (or weekly, or monthly, etc., as the case may be) returns. Given the diminishing returns to investment encountered in the AR4D context, on the other hand, the dataset $X$ must be imagined to capture the evolution of the AR4D proposal proportionality parameters $\boldsymbol{\alpha}$ introduced in the derivation of the diminishing returns function. What, then, are the dimensions that best describe the evolution of these parameters within the particular problem space that is of interest? This can be elicited by asking experts and stakeholders questions such as "What are our key objectives? And what are the key performance indicators by which to measure progress towards those objectives?" In the AR4D context, there is often pre-existing consensus on such questions, which can be found laid out in strategy documents. The Sustainable Development Goals [@desa2016transforming] may be considered a set of dimensions defining a very broad AR4D problem space. The key dimensions of any given AR4D portfolio space could be selected as a subset of these.
+A financial example of signals, and of how signals define the evolution of portfolio items in a problem space, was given above. But what might signals look like in the AR4D context, and how might these be elicited from experts? Here it is important, first of all, to have a clear idea of what the unobserved dataset $X$ represents. In the financial context, $X$ represents daily (or weekly, or monthly, etc., as the case may be) returns. Given the diminishing returns to investment encountered in the AR4D context, on the other hand, the dataset $X$ must be imagined to capture the evolution of the AR4D proposal proportionality parameters $\boldsymbol{\alpha}$ introduced in the derivation of the diminishing returns function. What, then, are the dimensions that best describe the evolution of these parameters within the particular problem space that is of interest? This can be elicited by asking experts and stakeholders questions such as "What are our key objectives? And what are the key performance indicators by which to measure progress towards those objectives?" In the AR4D context, there is often pre-existing consensus on such questions, which can be found laid out in strategy documents. The Sustainable Development Goals [@desa2016transforming] may be considered a set of dimensions defining a very broad AR4D problem space. The key dimensions of any given AR4D portfolio space could be selected as a subset of these.
 <!-- Note, in passing, that the original data set $X$ may itself be considered a set of orthogonally rotated signals constructed from some higher dimensional dataset. This unobserved, higher dimensional dataset could likewise be considered a set of orthogonally rotated signals constructed from some still larget dataset, and so on, ad infinitum. Note that the eigenvalues of the system described by these nested datasets remain invariant under each successive step of dimensional reduction, while the eigenvectors change. In this sense, the eigenvalues of the original---or any---data covariance matrix are the "true" covariance matrix, while the eigenvectors may be considered an extraneous rotation of the true covariance matrix, not intrinsic to the construction of the signals, but rather applied extraneously, as an aid in their interpretation, or as a matter of contextualizing the abstract signals with respect to a particular set of concrete circumstances.  -->
 
-## Crowdsourced signal proportionality parameters
+## The signals portfolio
 
 The crowdsourced proposal covariance matrix reveals a picture of tradeoffs and synergies (i.e. covariances) consistent with what the domain experts (think they) know about the system, and may thus be useful in orienting discussions. However, it cannot be used for optimization purposes since, by definition, it contains eigenvalues that are equal to zero.^[Risk adjusted optimization generally requires an invertible covariance matrix.]
 
-For purposes of optimal resource allocation, I propose first determining the optimal resource allocation across signals, and then disaggregating these optimal signal resource allocations down to optimal proposal allocations. Risk adjusted optimization of the signals portfolio requires the signals covariance matrix $\tilde{\Gamma}$ and the expected value of the signal proportionality parameters $\boldsymbol{\hat{\mu}}$.
+For purposes of optimal resource allocation, I propose first determining the optimal resource allocation across signals, and then disaggregating these optimal signal resource allocations down to optimal proposal allocations. This requires the signals covariance matrix $\tilde{\Gamma}$ and the expected value of the signal proportionality parameters $\boldsymbol{\hat{\mu}}$.
 
 \begin{equation}
 \boldsymbol{\hat{\mu}} = E[\boldsymbol{\hat{\alpha}}]
 \end{equation}
 
-Where $\boldsymbol{\hat{\alpha}}$ stands for the signal proportionality constants.
+Where $\boldsymbol{\hat{\alpha}}$ stands for the signal proportionality parameters.
 
-The signals covariance matrix can be calculated from crowdsourced loadings via equation \ref{eq:crowdsource_G}, as shown above. The signal proportionality constants can likewise be derived from crowdsourced information. If $X$ represents the unobserved evolution of the AR4D proposal proportionality parameters ($\boldsymbol{\alpha}$), and $\boldsymbol{\mu} = E[\boldsymbol{\alpha}]$ then, by definition (equation \ref{eq:sigs_def}),
+The signals covariance matrix can be calculated from crowdsourced loadings via equation \ref{eq:crowdsource_G}, as shown above. The $\boldsymbol{\hat{\mu}}$ can likewise be derived from crowdsourced information. If $X$ represents the unobserved evolution of the AR4D proposal proportionality parameters ($\boldsymbol{\alpha}$), and $\boldsymbol{\mu} = E[\boldsymbol{\alpha}]$ then, by definition (equation \ref{eq:sigs_def}),
 
 \begin{equation}
-\boldsymbol{\hat{\mu}} = \boldsymbol{\mu} \tilde{P}
+\boldsymbol{\hat{\mu}} = \boldsymbol{\mu} {'} \tilde{P}
 \label{eq:sigMu_from_Xmu}
 \end{equation}
 
@@ -1525,7 +1525,7 @@ It is important that the entries of $\boldsymbol{\hat{\mu}}$ be positive. Howeve
 \label{eq:sigMu_from_Xmu2}
 \end{equation}
 
-Where $\boldsymbol{\chi}$ is a vector of arbitrary factors scaling the columns of $P$. Hence, the columns of $P$ may be scaled so as to ensure positive signal returns.
+Where $\boldsymbol{\chi}$ is a vector of arbitrary factors scaling the columns of $\tilde{P}$. Hence, the columns of $\tilde{P}$ may be scaled so as to ensure positive signal returns.
 
 In practice, this scaling can be applied by simply computing $\boldsymbol{\hat{\mu}}$ via equation \ref{eq:sigMu_from_Xmu}. If the result contains negative values, add a constant $\epsilon$ such that all weights become positive. (The parameter $\epsilon$ may be tuned so as to guarantee a minimum positive value for the smallest signal proportionality parameter.) If so desired, the scale factors $\boldsymbol{\chi}$ corresponding to this operation can then be retrieved by solving equation \ref{eq:sigMu_from_Xmu2} for $\boldsymbol{\chi}$ as follows.
 
@@ -1535,7 +1535,7 @@ In practice, this scaling can be applied by simply computing $\boldsymbol{\hat{\
 
 # Risk adjusted optimization of the signals portfolio
 
-With the signals covariance matrix and proportionality constants in hand, it is then possible to apply risk adjusted optimization over the signals portfolio. This results in an optimal resource allocation across the signals (or dimensions or strategic objectives), which can then be mapped back to the original portfolio items based on proposal-signal correlations. Along the way, it turns out that postive signal budget shares follow naturally from the AR4D adaptations made so far.
+With the signals covariance matrix and expected proportionality parameters in hand, it is then possible to apply risk adjusted optimization over the signals portfolio. This results in an optimal resource allocation across the signals (or dimensions or strategic objectives), which can then be mapped back to the original portfolio items based on proposal-signal correlations. Along the way, it turns out that postive signal budget shares follow naturally from the AR4D adaptations made so far.
 <!-- Above I have shown how, given crowdsourced loadings $L_{\circlearrowleft}$, risk assessment $\boldsymbol{\sigma}_X$, and asset expected returns $\boldsymbol{\hat{\mu}}$, it is possible to deduce the signals covariance matrix $\tilde{\Gamma}$ and expected returns $\boldsymbol{\mu}$. With this information in hand, below I apply risk adjusted portfolio optimization to the signals portfolio, and suggest a way for mapping the optimal signal resource shares $\mathbf{w}^*$ back to optimal resource shares allocated to each original portfolio asset $\mathbf{\hat{w}}^*$ based on their correlations with the signals. -->
 
 ## Choosing a portfolio return probability density function
@@ -1544,11 +1544,11 @@ With the signals covariance matrix and proportionality constants in hand, it is 
 To get started, consider that the risk adjusted portfolio optimization problem may be informally written as follows.
 
 \begin{equation}
-\min_{\mathbf{w}}{\text{Risk}} \:\:\:\: s.t. \:\:\:\: E[R] = k_R \:\:\:\: C = k_C
+\min_{\mathbf{\hat{w}}}{\text{Risk}} \:\:\:\: s.t. \:\:\:\: E[R] = k_R \:\:\:\: C = k_C
 \label{eq:informal_prob}
 \end{equation}
 
-That is, the investor wants to allocate budget shares so as to minimize risk given a certain expected return target $t_R$ and budget constraint $k_C$.
+That is, the investor wants to allocate budget shares $\mathbf{\hat{w}}$ so as to minimize risk given a certain expected return target $k_R$ and budget constraint $k_C$.^[The "$\hat$" symbol over the budget shares means that these are signal budget shares, as opposed to proposal budget shares.]
 
 The functional forms of risk and expected return depend upon the probability density that portfolio returns are assumed to follow. In the financial context, portfolio returns are typically assumed to be normally distributed. In the AR4D context, however, this is not so straightforward. Below, I asssume that AR4D portfolio returns are lognormally distributed. Arguably, such an assumption gives science the benefit of the doubt, since it implies a big upside and relatively small downside to investment risk (Figure \ref{fig:lognormal_basic_illust}).
 
@@ -1576,7 +1576,7 @@ E[R] = \bar{R} e^{m_R + s_R^2 / 2}
 Where
 
 \begin{equation}
-m_R = E[\ln{R}] = -\boldsymbol{\mu} {'} \mathbf{\hat{w}}^{-1} \\
+m_R = E[\ln{R}] = -\boldsymbol{\hat{\mu}} {'} \mathbf{\hat{w}}^{-1} \\
 \label{eq:mR_eq}
 \end{equation}
 
@@ -1677,13 +1677,13 @@ w_i^* = \frac{1}{2^{1 / 3} 3^{1 / 2}} (v^{-1 / 3} b_i^{1 / 3} + 2^{2 / 3} v^{-2 
 Where
 
 \begin{equation}
-b_i = \sqrt{27 q ^2 \gamma_i^2 - 4 \mu_i^3 / v} + \sqrt(27) q \gamma_i
+b_i = \sqrt{27 q ^2 \gamma_i^2 - 4 \mu_i^3 / v} + \sqrt{27} q \gamma_i
 \end{equation}
 
-This is a rather ugly expression. However, it can be coerced into a more compact and instructive form by factoring $b_i$ as follows.
+This is a rather ugly expression. However, it can be coerced to a more compact and instructive form by factoring $b_i$ as follows.
 
 \begin{equation}
-b_i = 2 \sqrt{\mu_i^3 / v} \left(j \sqrt(1 - d_i^2) + d_i \right)
+b_i = 2 \sqrt{\mu_i^3 / v} \left(j \sqrt{1 - d_i^2} + d_i \right)
 \label{eq:b_factrd}
 \end{equation}
 
@@ -1694,7 +1694,7 @@ d_i = \sqrt{\frac{27 q^2 \gamma_i^2 q}{4 \mu_i^3}} = \frac{3 \sqrt{3}}{2} \frac{
 \label{eq:derive_tau_domain}
 \end{equation}
 
-Note, then, that the expression inside the paentheses in equation \ref{eq:b_factrd} describes a triangle with hypotenuse $1$ and legs $d$, $\sqrt{1 - d^2}$. It can thus be rewritten in terms of sine and cosine.
+Note, then, that the expression inside the parentheses in equation \ref{eq:b_factrd} describes a triangle with hypotenuse $1$ and legs $d$, $\sqrt{1 - d^2}$. It can thus be rewritten in terms of sine and cosine.
 
 \begin{equation}
 b_i = 2 \sqrt{\mu_i^3 / v} \left(j \sin(\theta_i) + \cos(\theta_i) \right)
@@ -1720,7 +1720,7 @@ which of course can also be expressed
 w_i^* = {2 \over \sqrt{3}} \sqrt{\frac{\lambda_R}{\lambda_C} C\mu_i} \: \cos(\theta_i / 3)
 \end{equation}
 
-The domain of a given budget share $w_i^*$ can be deduced from the domain $-1 < \cos(\theta_i / 3) < 1$ as follows
+The domain of a given budget share $w_i^*$ can thus be deduced from the domain $-1 < \cos(\theta_i / 3) < 1$ as follows
 
 \begin{equation}
 -{2 \over \sqrt{3}} \sqrt{\frac{\lambda_R}{\lambda_C} C\mu_i} < w_i^* < {2 \over \sqrt{3}} \sqrt{\frac{\lambda_R}{\lambda_C} C\mu_i}
@@ -1735,7 +1735,7 @@ However, most of the arguments of $d_i$ ($\mu_i,\:\gamma_i,\:\lambda_R,\:\lambda
 thereby confirming that optimal signal budget shares are always positve.
 <!-- A practical guide to solving for the optimal budget shares, shadow prices, risk, and expected return, is given in the Appendix. -->
 
-## A practical guide
+## A practical guide to solving for the optimal frontier, budget shares, and shadow prices
 
 In practice, the frontier of optimal solutions and corresponding budget shares can be found for given signal proportionality constants $\boldsymbol{\mu}$, variances $\boldsymbol{\gamma}$, and budget $\hat{C}$ by solving the optimized cost function for $v$ at successive values of $q\sqrt{v}$.
 
@@ -1765,7 +1765,7 @@ Note that the budget shadow price reflects the marginal value to the investor of
 
 ## Mapping signal budget shares back to proposal budget shares
 
-Signal budget shares ($\mathbf{\hat{w}}^*$) can be mapped back to proposal budget shares ($\mathbf{w}^*$) based on the elicited proposal-signal correlations. The proposal budget shares must also, of course, be positive, add up to the budget $\hat{C}$; and the signals portfolio expected return must equal the proposal portfolio expected return.
+The optimal signal budget shares ($\mathbf{\hat{w}}^*$) can be mapped back to optimal proposal budget shares ($\mathbf{w}^*$) based on the elicited proposal-signal correlations. The proposal budget shares must also, of course, be positive, add up to the budget constraint $k_C$; and the signals portfolio expected return must equal the proposal portfolio expected return.
 
 \begin{equation}
 \ln(R / \bar{R}) = -\boldsymbol{\hat{\mu}} {'} \mathbf{\hat{w}}^* = -\boldsymbol{\mu} {'} \mathbf{w}^*
@@ -1795,9 +1795,9 @@ Hence, the mapping defined in equation \ref{eq:wStar_map} satisfies the conditio
 \label{eq:wStar_map_scaled}
 \end{equation}
 
-Where, again, $\boldsymbol{\chi}$ is a vector of arbitrary factors scaling the columns of $\tilde{P}$. The values of $\boldsymbol{\chi}$ may thus be chosen such that the proposal weights $\mathbf{w}^*$ are positive and sum to $\hat{C}$.
+Where, again, $\boldsymbol{\chi}$ is a vector of arbitrary factors scaling the columns of $\tilde{P}$. The values of $\boldsymbol{\chi}$ may thus be chosen such that the proposal weights $\mathbf{w}^*$ are positive and sum to $k_C$.
 
-In practice, this scaling can be applied by simply computing $\mathbf{w}^*$ via equation \ref{eq:wStar_map}. If the result contains negative values, add a constant $\epsilon$ such that all weights become positive. (The parameter $\epsilon$ may be tuned so as to guarantee a minimum investment in the lowest ranking portfolio item.) Finally, divide by a constant $\beta$ such that the weights add to $\hat{C}$. The scaling $\boldsymbol{\chi}$ can be found post hoc by rearranging equation \ref{eq:wStar_map_scaled} as follows.
+In practice, this scaling can be applied by simply computing $\mathbf{w}^*$ via equation \ref{eq:wStar_map}. If the result contains negative values, add a constant $\epsilon$ such that all weights become positive. (The parameter $\epsilon$ may be tuned so as to guarantee a minimum investment in the lowest ranking portfolio item.) Finally, divide by a constant $\beta$ such that the weights add to $k_C$. The scaling $\boldsymbol{\chi}$ can be recovered by rearranging equation \ref{eq:wStar_map_scaled} as follows.
 
 \begin{equation}
 D(\mathbf{\hat{w}}^{*-1}) \tilde{P} {'} \mathbf{w}^{*-1} = \boldsymbol{\chi}
@@ -1805,10 +1805,10 @@ D(\mathbf{\hat{w}}^{*-1}) \tilde{P} {'} \mathbf{w}^{*-1} = \boldsymbol{\chi}
 
 # An illustrative example of AR4D risk adjusted portfolio optimization
 
-AR4D risk adjusted portfolio optimization would come after Step 3 in the resource allocation workflow defined by Mills, either complementing or replacing the ranking of research proposals in order of priority that is slated to occur in Step 4. By this point in the resource allocation workflow, a list of research proposals would have been drawn up, and the expected proportionality parameters of each proposal assessed and quantified. (Recall from the discussion in section 2 that a proposal's proportionality constant may be thought of as the inverse of its scalability.) Risk, meanwhile, is just the uncertainty surrounding the expected proportionality parameter.
+AR4D risk adjusted portfolio optimization would come after Step 3 in the resource allocation workflow defined by Mills, either complementing or replacing the ranking of research proposals in order of priority that is slated to occur in Step 4. By this point in the resource allocation workflow, a list of research proposals would have been drawn up, and the expected proportionality parameters of each proposal assessed and quantified. Recall from the discussion in section 2 that a proposal's proportionality constant may be thought of as the inverse of its scalability. Risk, meanwhile, is just the uncertainty surrounding the expected proportionality parameter.
 
-A hypothetical list of such AR4D proposals is presented in Figure \ref{fig:ExpPctRet_Examp}, together with their expected proportionality parameters and risk.^[The AR4D proposals are loosely grouped into four categories to facilitate interpretation of the gaphics, but there is no strict rule followed, and clearly some overlap, in the grouping.]
-```{r, fig.show = "hold", fig.width = 4, fig.height = 4, fig.align = "center", fig.cap = "\\label{fig:ExpPctRet_Examp}Hypothetical AR4D proposal expected scalability and risk."}
+A hypothetical list of such AR4D proposals is presented in Figure \ref{fig:ExpPctRet_Examp}, together with their expected proportionality parameters and risk.^[The AR4D proposals are loosely grouped into four categories to facilitate interpretation of the graphics, but there is no strict rule followed, and clearly some overlap, in the grouping.]
+```{r, fig.show = "hold", fig.width = 4, fig.height = 4, fig.align = "center", fig.cap = "\\label{fig:ExpPctRet_Examp}Hypothetical AR4D proposal expected proportionality parameters and risk."}
 #---------------------------------------------
 prop_CSA <- c("Heat Tolerant\nBeans", "Coffee\nAgroforestry", "Digital\nAgriculture", "Low Emission\nSilvopastoral")
 econGrowth_CSA <- c(0.11, 0.38, 0.4, -0.35)
@@ -1872,7 +1872,7 @@ names(inv_scalability_ar4d) <- df_Lrot$Proposal
 group_colors <- group_colors_arb
 #plot_returns_barchart(df_pctRet, group_colors)
 list_graph_options <- list()
-list_graph_options[["fig_title"]] <- "AR4D proportionality constants"
+list_graph_options[["fig_title"]] <- "AR4D proposal proportionality parameters"
 list_graph_options[["ylab"]] <- NULL
 list_graph_options[["legend_position"]] <- "none"
 list_graph_options[["axisTextX_off"]] <- T
@@ -1889,13 +1889,11 @@ gg_perRet / gg_perSd
 
 
 ```
-In accordance with the method proposed in this paper, the optimal risk adjusted budget allocation across these AR4D proposals is found by first optimizing over a signals proposal, which is constructed from a crowdsourced matrix of proposal-signal correlations (i.e., the orthogonally rotated loadings $L_\circlearrowleft$).
+In addition to the proposal proportionality parameters and their associated uncertainty, the method introduced in this paper requires elicitation of proposal-signal correlations. Elicitation can take place in a variety of ways, for example: online surveys, in-person conferences, teleconferences, consultation of literature, or some combination thereof. It should be explained to participants that a positive proposal-signal correlation means the proposal contributes toward the signal, while a negative rating means the proposal works against the signal; and a correlation of zero means that the proposal has no influence upon the given signal one way or the other. Again, the language used in this survey should be familiar to participants. In most AR4D resource allocation settings, what I have characterized above as "signals" should probably be referred to as "strategic objectives", or simply "goals".
 
-Stakeholder elicitation of proposal-signal correlations is a two step process.^[Elicitation can take place in a variety of ways, for example: online surveys, in-person conferences, teleconferences, consultation of literature, or some combination thereof.] First, stakeholders must agree upon a set of signals or dimensions that best describe the evolution of the proposed AR4D activities and outcomes, within a particular problem space that is of interest to them. These key dimensions can be elicited by asking stakeholders questions such as "What are our key AR4D objectives? And what are the key metrics by which to measure progress towards those objectives?" In the AR4D context, there is often pre-existing consensus on such questions, which can be found laid out in strategy documents. The Sustainable Development Goals [@desa2016transforming] may be considered a set of dimensions defining a very broad problem space. The key dimensions of a particular AR4D portfolio space could be selected as a subset of these.
+In the hypothetical example presented here, the stakeholders have agreed that Economic Growth, Income Equality, Environmental Sustainability, and Nutritional Security are the dimensions that best describe the evolution of the AR4D proposals within the problem space that is of interest to them. The stakeholders' average asessment of each proposal's correlation with each of the strategic objectives is given in Figure \ref{fig:loadsRotExamp}.
 
-The next step is to invite the stakeholders to assess each AR4D proposal's correlation with or "loading onto" each of the key dimensions. If stakeholders are unfamiliar or uncomfortable with the technical concepts of correlation, loading, signals, and dimensions, then signals/dimensions could be referred to as "goals"; and stakeholders could be asked to rate each research proposal's contribution towards each goal on a scale of $-100$ to $100$. It should be explained that a positive rating means the proposal contributes toward the goal, while a negative rating means the proposal works against the goal; and a rating of zero means that the proposal has no influence upon the given objective one way or the other. These ratings can then be divided by $100$ and interpreted as proposal-signal correlations.
-
-The result of this two step exercise is a crowdsourced, orthogonally rotated loadings matrix ($L_{\circlearrowleft}$). In the hypothetical example presented here, the stakeholders have agreed that Economic Growth, Income Equality, Environmental Sustainability, and Nutritional Security are the signals that best register the evolution of the AR4D proposals under consideration. The stakeholders' average asessment of proposal's correlation with each of these signals is given in Figure \ref{fig:loadsRotExamp}.
+During this exercise, participants should be encouraged to keep in mind that no AR4D proposal can "be all things to all people". A new yield enhancing variety of a high value crop, for example, might contribute towards increased trade competitiveness and GDP growth, but at the cost of increased deforestation and use of chemical inputs that degrade the environment. Conversely, a climate smart or pro-poor AR4D proposal might increase long term environmental and socio-economic sustainability at the cost of reduced short-medium term growth and competitiveness. These tradeoffs require careful consideration.^[Participants might also be encouraged to beware of any received wisdom regarding tradeoffs and synergies. For example, it has long been customary in AR4D communities to assume that economic growth and economic equality are mutually exclusive goals [@Alston1995]. Recent empirical research suggests a much more nuanced and synergistic relation [@berg2017inequality].]
 
 ```{r, fig.show = "hold", fig.width = 6, fig.height = 4, fig.align = "center", fig.cap = "\\label{fig:loadsRotExamp}A hypothetical example of proposal-signal correlations (a.k.a. orthogonally rotated signal loadings) elicited from a stakeholder survey."}
 df_x <- df_Lrot
@@ -1915,9 +1913,10 @@ xAxis_title <- "Rotated Correlations"
 plot_corrXS_barchart(mat_Lrot, group_info, xAxis_title, sigNames)
 
 ```
-During this exercise, participants should be encouraged to keep in mind that no AR4D proposal can "be all things to all people". A new yield enhancing variety of a high value crop, for example, might contribute towards increased trade competitiveness and GDP growth in the short term, but at the cost of increased deforestation and use of chemical inputs that degrade the environment. Conversely, a climate smart or pro-poor AR4D proposal might increase long term environmental and socio-economic sustainability at the cost of reduced short term growth and competitiveness. These tradeoffs require careful consideration.^[Participants might also be encouraged to beware of any received wisdom regarding tradeoffs and synergies. For example, it has long been customary in AR4D communities to assume that economic growth and economic equality are mutually exclusive goals [@Alston1995]. Recent empirical research suggests a much more nuanced and synergistic relation [@berg2017inequality].
 
-```{r, fig.show = "hold", fig.width = 3, fig.height = 3, fig.align = "center", fig.cap = "\\label{fig:sigRetRisk}Expected AR4D signal scalability and risk derived from crowdsourced information."}
+These crowdsourced proposal-SO correlations are then interpreted as the orthogonally rotated loadings matrix $L_{\circlearrowleft}$. The signal covariance matrix ($\boldsymbol{\hat{\mu}}$) is then extracted from this information via equation \ref{eq:crowdsource_G}. The expected values of the signal proportionality parameters, meanwhile, are calculated from the elicited information via equations \ref{eq:deducePcrowd} and \ref{eq:sigMu_from_Xmu2}. The signal proportionality parameters and risk (i.e. the diagonal elements of $\tilde{\Gamma}$) are presented in Figure \ref{fig:sigRetRisk}. This is the information needed to conduct risk adjusted optimization over the signals portfolio. Before proceeding with that task, however, it may be worthwhile, as a stimulus to stakeholder discussion, to first deduce the approximate proposal covariance matrix from the crowdsourced information (Figure \ref{fig:covmatProps}).
+
+```{r, fig.show = "hold", fig.width = 3, fig.height = 3, fig.align = "center", fig.cap = "\\label{fig:sigRetRisk}Expected AR4D signal proportionality parameters and risk derived from crowdsourced information."}
 
 # Covariance matrix
 D_sdX <- diag(10^2 * sdX_vec)
@@ -1969,7 +1968,7 @@ sig_colors <- sample(bag_of_colors, n_groups)
 
 df_pctRet <- data.frame(inv_scalability_ar4d_sigs, Item = sigNames, Group = sigNames)
 list_graph_options <- list()
-list_graph_options[["fig_title"]] <- "AR4D Signal proportionality constants"
+list_graph_options[["fig_title"]] <- "AR4D Signal proportionality parameters"
 list_graph_options[["ylab"]] <- NULL
 list_graph_options[["legend_position"]] <- "none"
 list_graph_options[["axisTextX_off"]] <- T
@@ -1983,14 +1982,13 @@ gg_perSd <- plot_returns_barchart(df_sd, sig_colors, list_graph_options, graph_o
 gg_perRet / gg_perSd
 ```
 
-The signal scalability parameters and risk are then derived from the proposal risk assessment, proposal expected scalability, and crowdsourced proposal-signal correlations by equations \ref{eq:crowdsource_G}-\ref{eq:sigMu_from_Xmu} and presented in Figure \ref{fig:sigRetRisk}. This is the information needed to conduct risk adjusted optimization of the signals portfolio. Before proceeding with that task, however, it may be worthwhile, as a stimulus to stakeholder discussion, to first deduce and examine the proposal covariance matrix (Figure \ref{fig:covmatProps}).
-
 ```{r, fig.show = "hold", fig.width = 6, fig.height = 4, fig.align = "left", fig.cap = "\\label{fig:covmatProps}AR4D proposal covariance matrix derived from the elicited loadings."}
 
 #D_sdX <- diag(10^2 * sdX_vec)
 D_sdX <- diag(sdX_vec)
 cormat_XX_derived <- mat_Lrot %*% t(mat_Lrot)
 covmat_XX_derived <- D_sdX %*% cormat_XX_derived %*% D_sdX
+covmat_XX_derived <- round(covmat_XX_derived, 4)
 colnames(covmat_XX_derived) <- colnames(cormat_XX_derived)
 fig_title <- "Crowdsourced AR4D Proposal Covariance Matrix"
 plot_covmat(covmat_XX_derived, fig_title, round_to = 4, graph_on = F)
@@ -2115,7 +2113,7 @@ share_nutri <- 10^2 * round(mean(df_wStar$`Nutritional\nSecurity`), 2)
 ```
 The result indicates an increasing, linear relation between portfolio risk and return. Possible ROI targets range narrowly from `r min_ROI`% to `r max_ROI`%, while the associated risk (coefficient of variation) ranges from `r min_risk` to `r max_risk`. The optimal budget allocation varies little across this range, with about `r share_GDP_growth`% allocated to the Economic Growth objective, `r share_econ_equal`% allocated to the Economic Equality objective, `r share_environ`% allocated to the Environmental Sustainability objective, and `r share_nutri`% allocated to the Nutritional Security objective.
 
-These signal budget shares are then mapped to proposal shares via equation \ref{} in Figure \ref{fig:wDisagg_ar4d}. Note that considerably more variation in the budget allocation is evident at the proposal level. In particular, the share allocated to the Digital Agriculture proposal increases with investor risk tolerance; while the share allocated to Triple Purpose Sweet Potato decreases with risk tolerance. Note also that, with risk taken into account, the optimal budget shares allocated to each proposal are not necessarily porportional to their expected scalability.
+These signal budget shares are then mapped to proposal shares via equation \ref{eq:wStar_map} in Figure \ref{fig:wDisagg_ar4d}. Note that considerably more variation in the budget allocation is evident at the proposal level. In particular, the share allocated to the Digital Agriculture proposal increases with investor risk tolerance; while the share allocated to Triple Purpose Sweet Potato decreases with risk tolerance. Note also that, with risk taken into account, the optimal budget shares allocated to each proposal are not necessarily porportional to their expected scalability.
 
 ```{r, fig.show='hold', fig.width=4, fig.height=4, fig.align='center', fig.cap="\\label{fig:wDisagg_ar4d}AR4D proposal budget allocation derived from the signal budget shares."}
 #--------------------------------------------------------
@@ -2137,13 +2135,13 @@ At this point, the stakeholder exercise concludes, and the results in Figures \r
 
 # Discussion and conclusion
 
-The CGIAR is said to "have a long history of good intentions but limited success in developing appropriate approaches for priority setting" [@Birner2016]. In this paper, I have attempted to reduce, in some measure, the methodological premise for this "limited success" by adaptating financial risk-adjusted portfolio optimization to the AR4D context.
+The CGIAR is said to "have a long history of good intentions but limited success in developing appropriate approaches for priority setting" [@Birner2016]. In this paper, I have attempted to reduce, in some measure, the methodological premise for this "limited success" by adaptating financial risk-adjusted portfolio optimization to the AR4D context. The proposed method can also be viewed as an AR4D tradoff/synergy assessment tool.
 
-Further exploration of the proposed mechanism is required to assess the precise relevance and role of risk adjusted portfolio optimization in the AR4D context. The particular set of equations that constitute the mechanism may vary considerably with assumptions regarding the shape of the AR4D impact probability density and the derivation of the diminishing returns function. One might also explore what happens to optimal solutions when the scalability mean is replaced by the mode. Further pursuit of this inquiry also requires a more nuanced approach to the ex-ante impact evaluation of individual proposals in Step 3 of Mills' resource allocation workflow---one that includes a mature risk assessment method, and that focuses on how AR4D proposal impacts scale with investment, rather than the impact they might have at a particular level of funding. The hypothetical example given above takes place at the program level, but could have also been given at the project, or some other, level, so long as the portfolio items are scaleable.
+The particular set of equations that constitute the proposed mechanism may vary considerably with assumptions regarding the shape of the AR4D impact probability density and the derivation of the diminishing returns function. One might also explore what happens to optimal solutions if the mean portfolio return is replaced by the mode of the portfolio return. The hypothetical example given above takes place at the program level, but could have also been given at the project, or some other, level, so long as the proposals are scaleable.
 
-An investor's research budget and return shadow prices, which are revealed in course of risk-adjusted optimization, essentially constitute the investor's bid price for research capital and impact, respectively. If publicized, these shadow prices could help investors in search of leveraging to find suitable partners. More broadly, they could even serve to lay some of the demand side groundwork for an AR4D market. At the same time, however, it is important to keep in mind that research proposals are _not_ stocks and bonds. One critical difference between the two paradigms, for example, may lie in the treatment of risk. If research risk is mostly upside---as implied by the assumption of a right skewed research impact probabiity density---then AR4D risk may not be such a bad thing after all. In adapting financial tools to the AR4D context, there may arise many such questions requiring careful attention and an open mind, unconditioned by financial tropes.
+Further pursuit of this inquiry implies a more nuanced approach to the ex-ante impact evaluation of individual AR4D proposals in Step 3 of Mills' resource allocation workflow. In particular, to be of real use in risk adjusted optimization of resource allocations, ex-ante impact assessment methods must focus on how AR4D proposal impacts _scale_ with investment, rather than the impact they might have at a given level of funding. They must also include a mature risk assessment method.
 
-The task of deciding how to optimally allocate a limited budget across a portfolio of research proposals that are all, in one way or another, vitally important, is never an easy one. However, the sustained absence of an objective, transparent resource allocation procedure---Mills' missing fifth step---has made the process more painful than it has to be, leaving resource allocation procedures vulnerable to institutional inertia, politics, and other forms of subjective whim. It is only natural, under such circumstances, to see research programs growing increasingly uncooperative and entrenched in their respective silos, as the funding ecosystem deteriorates towards what is referred to in game theory as a "credible commitment problem". The only solution to the impasse, so the theory goes, is the establishment of an indpendent dispute resolving mechanism trusted by all participants. The intention here is to point to a potential path forward in the development of such a mechanism.
+The AR4D investor's budget and return shadow prices are revealed as a byproduct of the method proposed here. These shadow prices essentially constitute the investor's bid price for research capital and impact, respectively. If publicized, they could thus help guide investors in search of leveraging towards suitable partners. More broadly, they might also serve to lay some of the demand side groundwork for an AR4D marketplace. At the same time, however, it is important to keep in mind that research proposals are _not_ stocks and bonds. Adaptation of financial tools to the AR4D context requires an open mind, unconditioned by financial tropes.
 <!-- *Exploration of the risk adjusted portfolio optimization apparatus introduced in this article suggests that the shape of the risk-reward frontier and budget allocation can vary widely from one set of input values to another. In the hypothetical example above, I arbitrarily set proposal risk to be more or less proportional to proposal return. The shape and extent of the solution frontier vary considerably when risk is assigned in a more random fashion. -->
 
 <!-- In particular, I have introduced adjustments to the existing portfolio optimization method so as to accommodate the diminishing returns, lack of data, and strictly positive budget shares that distinguish the AR4D context from the financial context. -->
