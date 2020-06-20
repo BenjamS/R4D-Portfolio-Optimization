@@ -1023,7 +1023,7 @@ Where $\tilde{P}$ is a matrix containing the $m$ leading eigenvectors of the ful
 \label{eq:eigDecomp}
 \end{equation}
 
-Where $\Gamma$ is the diagonal matrix of the leading eigenvalues of $\Sigma_{XX}$. 
+Where $\Gamma$ is the diagonal matrix of the eigenvalues of $\Sigma_{XX}$. 
 
 From the definition (\ref{eq:sigs_def}), it follows that the columns of $S$ are uncorrelated with each other, and that their variance is given by the leading $m$ eigenvalues of the data covariance matrix.
 
@@ -1037,7 +1037,7 @@ From the definition (\ref{eq:sigs_def}), it follows that the columns of $S$ are 
 \label{eq:covmat_SS}
 \end{equation}
 
-The columns of the distilled matrix $S$ are referred to as the principal components (PC), or the PC scores, or the factor scores. When dealing with noisy time series, as in this paper, they might just as well be referred to as the "signals", in the sense that they are signals extracted from noise.
+The columns of the distilled matrix $S$ are often referred to as the principal components (PC), or the PC scores, or the factor scores. When dealing with noisy time series, as in this paper, they might just as well be referred to as the "signals", in the sense that they are signals extracted from noise.
 
 There then remains the question of what essential process these dimensions or signals $S$ describe. This can be interpreted based on how correlated they are with the variables in $X$. These correlations ($K_{XS}$) are found by first finding their corresponding covariances ($\Sigma_{XS}$).
 
@@ -1548,7 +1548,7 @@ To get started, consider that the risk adjusted portfolio optimization problem m
 \label{eq:informal_prob}
 \end{equation}
 
-That is, the investor wants to allocate budget shares $\mathbf{\hat{w}}$ so as to minimize risk given a certain expected return target $k_R$ and budget constraint $k_C$.^[The "$^$" symbol over the budget shares means that these are signal budget shares, as opposed to proposal budget shares.]
+That is, the investor wants to allocate budget shares $\mathbf{\hat{w}}$ so as to minimize risk given a certain expected return target $k_R$ and budget constraint $k_C$.^[The "^" symbol over the budget shares means that these are signal budget shares, as opposed to proposal budget shares.]
 
 The functional forms of risk and expected return depend upon the probability density that portfolio returns are assumed to follow. In the financial context, portfolio returns are typically assumed to be normally distributed. In the AR4D context, however, this is not so straightforward. Below, I asssume that AR4D portfolio returns are lognormally distributed. Arguably, such an assumption gives science the benefit of the doubt, since it implies a big upside and relatively small downside to investment risk (Figure \ref{fig:lognormal_basic_illust}).
 
@@ -1737,7 +1737,7 @@ thereby confirming that optimal signal budget shares are always positve.
 
 ## A practical guide to solving for the optimal frontier, budget shares, and shadow prices
 
-In practice, the frontier of optimal solutions and corresponding budget shares can be found for given signal proportionality constants $\boldsymbol{\hat{\mu}}$, variances $\boldsymbol{\gamma}$, and budget $\hat{C}$ by solving the optimized cost function for $v$ at successive values of $q\sqrt{v}$.
+In practice, the frontier of optimal solutions and corresponding budget shares can be found for given signal proportionality constants $\boldsymbol{\hat{\mu}}$, variances $\boldsymbol{\gamma}$, and budget $k_C$ by solving the optimized cost function for $v$ at successive values of $q\sqrt{v}$.
 
 Introducing the shorthand $\tau = q\sqrt{v}$, the domain of $\tau$ can be derived from equation \ref{eq:derive_tau_domain}.
 
@@ -1748,15 +1748,15 @@ Introducing the shorthand $\tau = q\sqrt{v}$, the domain of $\tau$ can be derive
 Where the lower bound is restricted to $0$ by the second order condition. So, the entire frontier of risk reward possibilities is given by solving the optimized cost function
 
 \begin{equation}
-\hat{C} = \sqrt{\frac{1}{v}} \boldsymbol{\hat{\mu}}^{1 / 2} {'} \mathbf{\hat{w}}^*
+k_C = \sqrt{\frac{1}{v}} \boldsymbol{\hat{\mu}}^{1 / 2} {'} \mathbf{\hat{w}}^*
 \end{equation}
 
-for $v$ at successive values of $\tau$ on this interval. The extraction of the shadow prices $\lambda_R$ and $\lambda_C$ from $q$, $v$, and $\hat{C}$ is then straightforward.
+for $v$ at successive values of $\tau$ on this interval. The extraction of the shadow prices $\lambda_R$ and $\lambda_C$ from $q$, $v$, and $k_C$ is then straightforward.
 
 \begin{eqnarray}
 q &=& \tau / \sqrt{v} \\
 \lambda_R &=& 2 / (q + 1) \\
-\lambda_C &=& v \hat{C} \lambda_R
+\lambda_C &=& v k_C \lambda_R
 \end{eqnarray}
 
 The optimal budget shares are then found, for each point along this frontier, by evaluating $\mathbf{\hat{w}}^*$ at the respective values of $v$. With $\mathbf{\hat{w}}^*$ in hand, it is then straightforward to evaluate the optimal return $E[R]^*$ and risk $\kappa^{*2} + 1$. To avoid mistakes, it is a good idea to check these values against the frontier equation (\ref{eq:front_eq}), making sure they agree.
@@ -1772,7 +1772,7 @@ The optimal signal budget shares ($\mathbf{\hat{w}}^*$) can be mapped back to op
 \label{eq:lnR_cond}
 \end{equation}
 
-There are, perhaps, a number of ways to disaggregate $\mathbf{\hat{w}}^*$ down to $\mathbf{w}^*$ while meeting these conditions. The definition of the mean signal proportionality parameters (equation \ref{eq:sigMu_from_Xmu}), suggests the following.
+There are, perhaps, a number of ways to disaggregate $\mathbf{\hat{w}}^*$ down to $\mathbf{w}^*$ while meeting these conditions. The definition of the mean signal proportionality parameters (equation \ref{eq:sigMu_from_Xmu}), suggests the following:
 
 \begin{equation}
 \mathbf{w}^{*-1} = \tilde{P} \mathbf{\hat{w}}^{*-1}
@@ -2113,7 +2113,7 @@ share_nutri <- 10^2 * round(mean(df_wStar$`Nutritional\nSecurity`), 2)
 ```
 The result indicates an increasing, linear relation between portfolio risk and return. Possible ROI targets range narrowly from `r min_ROI`% to `r max_ROI`%, while the associated risk (coefficient of variation) ranges from `r min_risk` to `r max_risk`. The optimal budget allocation varies little across this range, with about `r share_GDP_growth`% allocated to the Economic Growth objective, `r share_econ_equal`% allocated to the Economic Equality objective, `r share_environ`% allocated to the Environmental Sustainability objective, and `r share_nutri`% allocated to the Nutritional Security objective.
 
-These signal budget shares are then mapped to proposal shares via equation \ref{eq:wStar_map} in Figure \ref{fig:wDisagg_ar4d}. Note that considerably more variation in the budget allocation is evident at the proposal level. In particular, the share allocated to the Digital Agriculture proposal increases with investor risk tolerance; while the share allocated to Triple Purpose Sweet Potato decreases with risk tolerance. Note also that, with risk taken into account, the optimal budget shares allocated to each proposal are not necessarily porportional to their expected scalability.
+These signal budget shares are then mapped to proposal shares via equation \ref{eq:wStar_map} in Figure \ref{fig:wDisagg_ar4d}. Note that considerably more variation in the budget allocation is evident at the proposal level. In particular, the share allocated to the Digital Agriculture proposal increases with investor risk tolerance; while the share allocated to Triple Purpose Sweet Potato decreases with risk tolerance.
 
 ```{r, fig.show='hold', fig.width=4, fig.height=4, fig.align='center', fig.cap="\\label{fig:wDisagg_ar4d}AR4D proposal budget allocation derived from the signal budget shares."}
 #--------------------------------------------------------
