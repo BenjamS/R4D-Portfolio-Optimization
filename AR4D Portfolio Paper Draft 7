@@ -1680,7 +1680,7 @@ Where
 b_i = \sqrt{27 q ^2 \gamma_i^2 - 4 \mu_i^3 / v} + \sqrt{27} q \gamma_i
 \end{equation}
 
-This is a rather ugly expression. However, it can be coerced to a more compact and instructive form by factoring $b_i$ as follows.
+This rather ugly expression can be coerced to a more compact and instructive form by factoring $b_i$ as follows.
 
 \begin{equation}
 b_i = 2 \sqrt{\mu_i^3 / v} \left(j \sqrt{1 - d_i^2} + d_i \right)
