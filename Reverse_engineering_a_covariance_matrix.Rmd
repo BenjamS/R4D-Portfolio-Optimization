@@ -8,7 +8,7 @@ address:
   - code: CIAT
     address: Alliance Bioversity-CIAT, Km 17 Recta Cali-Palmira, Valle del Cauca, Colombia
 abstract: |
-  In many program planning contexts, it is useful to know project covariance in order to determine project impact synergies and tradeoffs. This is generally not possible, however, since the data does not exist. Drawing on principle components analysis, I propose a rigorous method for determining project impact synergies/tradeoffs of strategic objectives that does not require data. Instead, the covariance matrix is reverse engineered from the unobserved dataset's principle components and component-project correlations, which are elicited from domain experts. I provide a proof of concept using financial data, and then walk through an illustrative example of how the technique would work in the development context.
+  In many institutional project portfolio planning contexts, an estimate of project synergies and tradeoffs (i.e. covariances) is essential to the optimal leveraging of institution resources. The data by which to make such estimates generally do not exist. Institutions may often draw on domain expertise to fill this gap, but it is not clear how such ad hoc information can be quantified and fed into an optimal resource allocation workflow. Drawing on principal components analysis, I propose a method for "reverse engineering" project synergies and tradeoffs from domain expertise. I also show how the project synergy/tradeoff problem is dual to another important problem that arises in such contexts: that of determining the synergies and tradeoffs between an institution's strategic objectives. The method proposed here provides a solution to both problems.
 keywords: AR4D, ex-ante impact assessment, foresight, synergy, tradeoff, principal components analysis, dimensional reduction
 journal: European Journal of Operations Research
 bibliography: Reverse engineering synergies and tradeoffs.bib
@@ -40,11 +40,11 @@ library(kableExtra)
 
 # Introduction
 
-Agricultural research for development (AR4D) institutions tend to give careful consideration to the impact assessment of individual projects in their portfolio, but very little, if any, consideration to the tradeoffs and synergies that may arise between projects. Project synergies can enhance portfolio impact while tradeoffs can effectively annul it. A clear understanding of these tradeoffs and synergies is therefore essential to the optimal leveraging of investments.
+Agricultural research for development (AR4D) institutions tend to give careful consideration to the impact assessment of individual projects in their portfolio, but very little, if any, consideration to the tradeoffs and synergies that may arise between projects. Project synergies can enhance portfolio impact while tradeoffs can effectively annul it. A clear understanding of project synergies and tradeoffs is therefore essential to the optimal leveraging of investments.
 
 In statistical parlance, synergies and tradeoffs are known as positive and negative covariances, respectively. In the AR4D context, there is typically no data by which to calculate project covariances. AR4D institutions can usually draw on a wealth of domain expertise to shed light on these synergies and tradeoffs, but it is not clear how such ad hoc assessments can be quantified. There are also inevitably gaps where domain experts are unable or hesitant to venture an estimate. For example: What is the synergy or tradeoff between a heat tolerant bean project and a digital agriculture project?
 
-Here I propose a method for "reverse engineering" project covariances from domain knowledge in such minimum data contexts. Specifically, I propose a survey whereby each project's correlation with the institution's strategic objectives (SOs) is elicited from domain experts. Drawing on principal components analysis (PCA), I show how an approximate project covariance matrix can be deduced as the outer product of these crowdsourced project-SO correlations.
+Here I propose a method for "reverse engineering" project covariances from domain knowledge in such minimum data contexts. Specifically, I propose a survey whereby each project's correlation with the institution's strategic objectives (SOs) is elicited from domain experts. Drawing on principal components analysis (PCA), I then show how an approximate project covariance matrix can be deduced from these crowdsourced project-SO correlations.
 
 In the process, it turns out that the project covariance problem is mathematically dual to another, parallel problem: AR4D institutions tend to give careful consideration to the formulation of their strategic SOs, but very little, if any, consideration to the tradeoffs and synergies that may arise between them. Again, this issue is critical for optimal leveraging of resources. How do investments under an Economic Growth SO, for example, capitalize upon or work against investments under a Nutritional Security SO? The method proposed here can be used to reverse engineer both project and SO synergies/tradeoffs.
 
@@ -463,7 +463,7 @@ get_hist_dfs_ready <- function(mat_ts_in, group_info){
 
 #=======================================================================
 # Define function to plot covariance/correlation matrices
-plot_covmat <- function(covmat, fig_title = "Covariance Matrix", round_to = 2, graph_on = T, legend_position = NULL){
+plot_covmat <- function(covmat, fig_title = "Covariance Matrix", round_to = 2, graph_on = T, legend_position = NULL, num_size = NULL){
   covmat[upper.tri(covmat)] <- NA
   df_plot <- covmat %>% tbl_df()
   these_levels <- colnames(df_plot)
@@ -477,7 +477,11 @@ plot_covmat <- function(covmat, fig_title = "Covariance Matrix", round_to = 2, g
   midpoint <- 0
   gg <- ggplot(df_plot, aes((ItemX), (ItemY)))
   gg <- gg + geom_tile(aes(fill = Value))#, width = 4, height = 4)
-  gg <- gg + geom_text(aes(label = round(Value, round_to)), size = 2.5)
+  if(!is.null(num_size)){
+    gg <- gg + geom_text(aes(label = round(Value, round_to)), size = num_size)
+  }else{
+    gg <- gg + geom_text(aes(label = round(Value, round_to)), size = 2.5)
+  }
   if(!is.null(fig_title)){
     gg <- gg + labs(title = fig_title)
   }
@@ -648,7 +652,7 @@ K_{XS} = \tilde{P} \tilde{\Gamma}^{1 \over 2}
 
 The correlations matrix $K_{XS}$ is sometimes referred to as the "loadings" matrix, in the sense that it indicates how much each variable in $X$ loads onto a given signal (or, vice versa, how much each signal loads onto a given variable).^[These terms vary in the literature. Many prefer to call $P$ the loadings.] In keeping with this convention, and in order to reduce notational clutter, $K_{XS}$ is henceforth relabeled $L$.
 
-An example of loadings is given in Figure \ref{fig:corrXS_barchart}. In this case, the variables are `r ncol(mat_pctDiff_eg_train)` daily price series of financial securities covering the period `r train_start_date` to `r train_stop_date`.^[Downloaded from yahoo finance using the R tidyquant package. The securities chosen for this example are exchange traded funds broadly representative of the U.S. economy. See Appendix for details.] The signals are presented in descending order of their corresponding eigenvalues, with Signal 1 representing the principal component with the highest eigenvalue. The eigenvalue reflects the degree to which the signal describes the overall evolution of the data. Here, only the first four signals of the financial data set are shown. The question of how many signals should be extracted from the noise is addressed at the end of the section.
+An example of loadings is given in Figure \ref{fig:corrXS_barchart}. In this case, the variables are the daily returns of `r ncol(mat_pctDiff_eg_train)` financial securities covering the period `r train_start_date` to `r train_stop_date`.^[Downloaded from yahoo finance using the R tidyquant package. The securities chosen for this example are exchange traded funds broadly representative of the U.S. economy. See Appendix for details.] The signals are presented in descending order of their corresponding eigenvalues, with Signal 1 representing the principal component with the highest eigenvalue. The eigenvalue reflects the degree to which the signal describes the overall evolution of the data. Here, only the first four signals of the financial data set are shown. The question of how many signals should be extracted from the noise is addressed at the end of the section.
 
 ```{r, fig.show='hold', fig.width=5, fig.height=3, fig.align='center', fig.cap="\\label{fig:corrXS_barchart}Correlation of portfolio items with leading signals."}
 
@@ -831,7 +835,7 @@ plot_corrXS_barchart(mat_Lrot, group_info = NULL, xAxis_title, sigNames = NULL)
 
 ```
 
-In Figure \ref{fig:corrXS_barchart_rot} a special kind of orthogonal rotation, called a varimax rotation, is applied to $L$. Varimax rotations flesh out structure by maximizing sparseness in the rotated matrix. After applying this rotation, Signal 1 is now clearly representative of Biotechnology and Healthcare, and so might be called the "Pharmaceutical" Signal. Signal 2 loadings are also now more distinctly pronounced, especially Financials, Industrial, and Transportation. Signal 2 might thus be called the "Financial and Physical Infrastructure" Signal. The rotation has also cleared up the overlap between Signals 3 and 4. Signal 4 is now exclusively descriptive of price movements in the Communications sector, with some description of the Luxury Goods sector. Signal 4 can thus be relabeled, more succinctly, the "Communications" Signal. Likewise, Signal 3 is now more exlusively descriptive of movements in Real Estate and Utilities, with some description of movements in the Consumer Goods sector.^[Gopikrishnan, Rosenow, Plerou, and Stanley [-@gopikrishnan2001quantifying] pursued a similar line of inquiry when they looked at the components of the eigenvectors of a financial data correlation matrix. However, they did not explain that their findings are indicative of PC-asset correlations; nor did they apply an orthogonal rotation to clarify the interpretation.]
+In Figure \ref{fig:corrXS_barchart_rot} a special kind of orthogonal rotation, called a varimax rotation, is applied to $L$. Varimax rotations flesh out structure by maximizing sparseness in the rotated matrix. After applying this rotation, Signal 1 is now clearly representative of Biotechnology and Healthcare, and so might be called the "Pharmaceutical" Signal. Signal 2 loadings are also now more distinctly pronounced, especially Financials, Industrial, and Transportation. Signal 2 might thus be called the "Financial and Physical Infrastructure" Signal. The rotation has also cleared up the overlap between Signals 3 and 4. Signal 4 is now more exclusively descriptive of price movements in the Communications sector and can thus be relabeled, more succinctly, the "Communications" Signal. Likewise, Signal 3 is now more exlusively descriptive of movements in Real Estate and Utilities, with some description of movements in the Consumer Goods sector.^[Gopikrishnan, Rosenow, Plerou, and Stanley [-@gopikrishnan2001quantifying] pursued a similar line of inquiry when they looked at the components of the eigenvectors of a financial data correlation matrix. However, they did not explain that their findings are indicative of PC-asset correlations; nor did they apply an orthogonal rotation to clarify the interpretation.]
 
 Further visual confirmation of these interpretations of signal meaning is given by plotting the signals in the time domain together with their highest loading portfolio items superimposed (Figure \ref{fig:signals_with_hiCorr_items}). Note how the highest loading items tend to hew closely to their respective signals.
 
@@ -1006,7 +1010,7 @@ eig_values_sigs <- eig_values[1:n_signals]
 
 The plot shows that, for the financial data set, the leading `r n_signals` signals are sufficient to meet this criterion.
 
-# Approximating the data correlation matrix from the loadings matrix
+# Approximating the data correlation matrix from the loadings
 
 An approximate data correlation matrix ($\tilde{K}_{XX}$) can be computed from these retained signals, as the outer product of $L_{\circlearrowleft}$ with itself.
 
@@ -1032,7 +1036,7 @@ plot_covmat(mat_diff_cormats, fig_title = NULL, graph_on = F)
 
 ```
 
-# The signals correlation matrix and "signal ROI"
+# Recovering the signals correlation matrix and leading eigenvectors from the loadings
 
 Note that the orthogonally rotated signals correlation matrix (call this $K_{SS}^{\circlearrowleft}$) can likewise be obtained from the rotated loadings via the inner product $L_{\circlearrowleft}'L_{\circlearrowleft}$. 
 
@@ -1048,21 +1052,18 @@ L_{\circlearrowleft} {'} L_{\circlearrowleft} &= (\tilde{P} \tilde{\Gamma}^{1 \o
 
 The project synergy/tradeoff problem is thus dual to the SO synergy/tradeoff problem.
 
-The unrotated signal variances $\tilde{\Gamma}$ and the rotation matrix $B$ can also be recovered via an eigendecomposition of this matrix. Moreover, with $\tilde{\Gamma}$ and $B$ in hand, it is then possible to derive the implicit leading eigenvectors of the data covariance matrix ($\tilde{P}$).
-[CORR VS COV, remove D()?]
+Note that the unrotated signal variances $\tilde{\Gamma}$ and the rotation matrix $B$ can be recovered via an eigendecomposition of $K_{SS}^{\circlearrowleft}$. Moreover, with $\tilde{\Gamma}$ and $B$ in hand, it is then possible to derive the implicit leading eigenvectors of the data correlation matrix ($\tilde{P}$), as follows.
+
 \begin{equation}
-\tilde{P} = D(\boldsymbol{\sigma}_X) L_{\circlearrowleft} B {'} \tilde{\Gamma}^{-1 / 2}
+\tilde{P} = L_{\circlearrowleft} B {'} \tilde{\Gamma}^{-1 / 2}
 \label{eq:deducePcrowd}
 \end{equation}
 
-With $\tilde{P}$ in hand, it is then possible, via equation \ref{eq:sigs_def}, to project a given set of project ROI onto the signals, thereby introducing the notion of "signal ROI" or "strategic objective ROI".
-
 # "Reverse engineering" project and SO correlation matrices from domain knowledge
 
-The foregoing implies that it is possible to work backwards from the orthogonally rotated loadings $L_{\circlearrowleft}$ to arrive at an approximate data correlation matrix. In other words, instead of starting with
-a correlation matrix and working towards a definition of the principal components, one starts from well defined principal components, and works towards a definition of the correlation matrix.
+The foregoing implies that it is possible to work backwards from the orthogonally rotated loadings $L_{\circlearrowleft}$ to arrive at an approximate data correlation matrix.
 
-In the AR4D context, an institution's SOs are comparable to a set of principal components describing 90% of the problem space that is of interest to the institution. Given a portfolio of projects, a survey of domain experts and/or stakeholders could be conducted to determine how correlated each project is with each SO. These correlations may then be interpreted as orthogonally (but not necessarily varimax) rotated loadings $L_{\circlearrowleft}$ corresponding to an unobserved dataset measuring project impact.^[It is important to have a clear notion of this unobserved dataset. When two projects are said to be correlated, what exactly about the two projects is correlated? In many cases, project return on investment (ROI) may be the variable of interest. But other measures might also be considered, such as net present value or scaleability.] The project impact correlation matrix can then be calculated from this information via equation \ref{eq:cormat_from_Lrot}, and the SO correlation matrix can be calculated via equation \ref{eq:crowdsource_SOcormat}.
+In the AR4D context, an institution's SOs are comparable to a set of principal components describing 90% of the problem space that is of interest to the institution. Given a portfolio of projects, a survey of domain experts and/or stakeholders could be conducted to determine how correlated each project is with each SO. These correlations may then be interpreted as orthogonally (not necessarily varimax) rotated loadings $L_{\circlearrowleft}$ corresponding to an unobserved dataset measuring project impact.^[It is important to have a clear notion of this unobserved dataset. When two projects are said to be correlated, what exactly about the two projects is correlated? In many cases, project return on investment (ROI) may be the variable of interest. But other measures might also be considered, such as net present value or scaleability.] The project impact correlation matrix can then be calculated from this information via equation \ref{eq:cormat_from_Lrot}, and the SO correlation matrix can be calculated via equation \ref{eq:crowdsource_SOcormat}.
 
 If project risk (standard deviation) can be calculated beforehand during ex-ante impact assessment exercises, then it is straightforward to calculate a project covariance matrix as well. However, risk assessment is still not a standard part of ex-ante impact assessment models.^[Alston and Norton acknowledged in 1995 that the treatment of risk in impact assessment models was "rudimentary and in need of further refinement" [-@Alston1995]. Unfortunately, this remains true today.] If ex-ante risk assessments are not available, then they can be elicited in the survey of domain experts. Project risk might be crowdsourced, for example, by asking survey participants to estimate the maximum, minimum, and most probable impact of each given project. With these three inputs, it is then straightforward to compute standard deviation on the basis of an assumed project impact probability density.^[For example, the minimum and maximum could be interpreted as the bounds of the 95% confidence interval of a lognormal probability density, and the "most probable impact" could be interpreted as its mode. From this it is then straightforward to derive the standard deviation.]
 
@@ -1076,14 +1077,14 @@ As $\nu$ is higher, the reverse engineering approach makes more sense. As $\nu$ 
 
 # An illustrative example
 <!-- AR4D risk adjusted portfolio optimization would come after Step 3 in the resource allocation workflow defined by Mills, either complementing or replacing the ranking of research proposals in order of priority that is slated to occur in Step 4. By this point in the resource allocation workflow, a list of research proposals would have been drawn up, and the expected proportionality parameters of each proposal assessed and quantified. Recall from the discussion in section 2 that a proposal's proportionality constant may be thought of as the inverse of its scalability. Risk, meanwhile, is just the uncertainty surrounding the expected proportionality parameter. -->
-A list of hypothetical AR4D projects is presented in table \ref{tab:exampLoadings}. The projects are loosely grouped into four categories to facilitate interpretation, but there is no strict rule followed, and clearly some overlap, in the grouping.
+A list of hypothetical AR4D projects is presented in Table \ref{tab:exampLoadings}. The projects are loosely grouped into four categories to facilitate interpretation, but there is no strict rule followed, and clearly some overlap, in the grouping.
 <!-- Project ROIs would have been calculated during ex-ante impact assessments prior to the exercise presented below. Project risk might have also been calculated during ex-ante impact assessment, although this is not likely since risk assessment is not a standard part of impact modeling.^[Alston and Norton acknowledged in 1995 that the treatment of risk in AR4D ex-ante impact assessment models was "rudimentary and in need of further refinement" [-@Alston1995]. Unfortunately, this remains true today.] -->
 
 The SOs in this example are "Economic Growth", "Income Equality", "Environmental Sustainability", and "Nutritional Security", which roughly correspond to UN Sustainable Development Goals 8, 1, 13, and 3, respectively. Project-SO correlations are elicited via a survey (online or in-person) of domain experts and/or stakeholders. Literature may also be consulted.
 
 It should be clearly explained to survey participants that a positive project-signal correlation means the project contributes toward the SO, while a negative correlation means the project works against it; and a correlation of zero means that the project has no influence upon the given SO one way or the other. The language used in this survey should be familiar to participants. In most AR4D resource allocation settings, what I have characterized above as "signals" should probably be referred to as "strategic objectives", "criteria", or simply "goals".
 
-```{r exampLoadings, echo = F}
+```{r exampLoadings, results = "markup", echo = F}
 # fig.show = "hold", fig.width = 4, fig.height = 4, fig.align = "center", fig.cap = "\\label{fig:ExpPctRet_Examp}Hypothetical AR4D project expected returns and risk."}
 #---------------------------------------------
 prop_CSA <- c("Heat Tolerant\nBeans", "Coffee\nAgroforestry", "Digital\nAgriculture", "Low Emission\nSilvopastoral")
@@ -1125,7 +1126,13 @@ colnames(df_Lrot)[2:5] <- gsub("\\.", " ", colnames(df_Lrot)[2:(ncol(df_Lrot) - 
 df_table <- df_Lrot[, c("Proposal", "Group")]
 colnames(df_table)[1] <- "Project"
 
-kable(df_table) %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+df_table$Project <- gsub("\n", " ", df_table$Project)
+df_table$Group <- gsub("\n", " ", df_table$Group)
+
+kable(df_table,
+      format = "pandoc",
+      caption = "Hypothetical list of AR4D projects\\label{tab:exampLoadings}") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
 
 
 group_names <- as.character(unique(df_Lrot$Group))
@@ -1189,6 +1196,7 @@ list_groups <- list(prop_highYcommod, prop_smallHolder, prop_CSA)
 group_info <- list(list_groups, group_names, group_colors)
 
 sigNames <- c("GDP Growth", "Economic\nEquality", "Environmental\nSustainability", "Nutritional\nSecurity")
+n_signals <- length(sigNames)
 sigNames <- paste("SO", 1:n_signals, "\n", sigNames)
 xAxis_title <- "Rotated Correlations"
 plot_corrXS_barchart(mat_Lrot, group_info, xAxis_title, sigNames)
@@ -1215,7 +1223,7 @@ plot_corrXS_barchart(mat_Lrot, group_info, xAxis_title, sigNames)
 
 ```
 
-The survey exercise concludes. The resulting crowdsourced project-SO correlations are then interpreted as the orthogonally rotated loadings matrix $L_{\circlearrowleft}$. The project correlation matrix is reverse engineered from them via equation \ref{eq:cormat_from_Lrot}, while the SO correlation matrix is reverse engineered via equation \ref{eq:crowdsource_SOcormat}.^[Since these are correlation matrices, their diagonal elements must equal 1. When deduced from a set of $m < n$ loadings (whether crowd- or data-sourced), the diagonal elements will diverge from 1. In the correlation matrices below, then, I correct for this divergence by dividing the matrices through by the diagonal.]
+The survey exercise concludes. The resulting crowdsourced project-SO correlations are then interpreted as the orthogonally rotated loadings matrix $L_{\circlearrowleft}$. The project correlation matrix is then reverse engineered from $L_{\circlearrowleft}$ via equation \ref{eq:cormat_from_Lrot}, while the SO correlation matrix is reverse engineered via equation \ref{eq:crowdsource_SOcormat}.^[Since these are correlation matrices, their diagonal elements must equal 1. When deduced from a set of $m < n$ loadings, the diagonal elements will diverge from 1 (whether crowd- or data-sourced). In the correlation matrices below, then, I correct for this divergence by dividing the matrices through by their diagonals.]
 <!-- then extracted from this information via equation \ref{eq:crowdsource_G}... -->
 <!-- The expected values of the signal proportionality parameters, meanwhile, are calculated from the elicited information via equations \ref{eq:deducePcrowd} and \ref{eq:sigMu_from_Xmu2}. The signal proportionality parameters and risk (i.e. the diagonal elements of $\tilde{\Gamma}$) are presented in Figure \ref{fig:sigRetRisk}. This is the information needed to conduct risk adjusted optimization over the signals portfolio. Before proceeding with that task, however, it may be worthwhile, as a stimulus to stakeholder discussion, to first -->
 
@@ -1296,9 +1304,9 @@ plot_covmat(cormat_XX_derived, fig_title, round_to = 2, graph_on = F)
 
 ```
 
-The project correlation matrix (Figure \ref{fig:cormatProps}) can then be used to orient stakeholder discussions regarding tradeoffs and synergies between projects. Some of the matrix elements may serve to confirm expectations, while other elements may come as a surprise, or serve to fill in a gap where experts are hesitant to venture an estimate. It probably comes as no surprise to the hypothetical survey participants, for example, that the high yielding, high value AR4D proposals (Hyper Rice, Mega Maize, and Ultra Cow) are strongly correlated with each other, or that the livestock project is negatively correlated with the climate smart AR4D proposals. On the other hand, few experts would be willing to venture an assessment of the synergy or tradeoff between the Cassava for Bio-ethanol and Coffee Agroforestry projects. The deduced covariance matrix effectively fills in such gaps with values that maximize consistency with the domain knowledge captured by the survey.
+The project correlation matrix (Figure \ref{fig:cormatProps}) can then be used to orient stakeholder discussions regarding tradeoffs and synergies between projects. Some of the matrix elements may serve to confirm expectations, while other elements may come as a surprise, or serve to fill in a gap where experts are hesitant to venture an estimate. It probably comes as no surprise to the hypothetical survey participants, for example, that the high yielding, high value AR4D projects (Hyper Rice, Mega Maize, and Ultra Cow) are strongly correlated with each other, or that they are negatively correlated with some of the climate smart projects (the Low Emission Silvopastoral proposal, in particular). On the other hand, few experts would be willing to venture an assessment of the synergy or tradeoff between the Cassava for Bio-ethanol and Coffee Agroforestry projects. The deduced covariance matrix effectively fills in such gaps with values that maximize consistency with the domain knowledge captured by the survey.
 
-Likewise, the SO correlation matrix (Figure \ref{fig:cormatSOs}) can be useful in orienting discussion regarding tradeoffs and synergies between SOs. For example, the matrix indicates that enhanced impacts resulting from synergies between the Economic Equality SO and the Environmental Sustainability and Nutritional Security SOs is partially offset by a tradeoff between the Environmental Sustainability and Nutritional Security SOs. Moreover, it may come as a surprise that very little tradeoff exists between the GDP Growth and Economic Equality SOs. The matrix thus arms the institution with a rough guide by which to capitalize on synergies while mitigating tradeoffs.
+Likewise, the SO correlation matrix (Figure \ref{fig:cormatSOs}) can be useful in orienting discussion regarding tradeoffs and synergies between SOs. For example, the matrix indicates that enhanced impacts resulting from synergies between the Economic Equality SO and the Environmental Sustainability and Nutritional Security SOs is partially offset by a tradeoff between the Environmental Sustainability and Nutritional Security SOs. Moreover, it may come as a surprise that very little tradeoff exists between the GDP Growth and Economic Equality SOs. The reverse engineered matrix thus arms the institution with a rough guide by which to capitalize on synergies while mitigating tradeoffs.
 
 ```{r, fig.show = "hold", fig.width = 6, fig.height = 4, fig.align = "left", fig.cap = "\\label{fig:cormatSOs}SO correlation matrix deduced from the crowdsourced project-SO correlations."}
 
@@ -1313,13 +1321,35 @@ plot_covmat(cormat_SS_derived, fig_title, round_to = 2, graph_on = F)
 
 # Discussion and conclusion
 
-A covariance matrix reverse engineered from domain knowledge in the manner proposed above offers a perspective on otherwise unquantifiable project synergies and tradeoffs. The accuracy of this perspective depends on 1) how completely the chosen SOs capture the evolution of projects within the problem space (in the literal sense of equation \ref{eq:SO_ck}); and 2) the accuracy of the domain knowledge whence SO-project correlations are deduced. It is thus imporant to apply this method in contexts where there is a high degree of confidence in domain knowledge compensating a general lack of good data (i.e. a high $\nu$ ratio). The method is open to criticism insofar as the domain knowledge is skewed by institutional inertia, politicized thinking, and other sources of subjective bias. However, the alternative method of covariance estimation based on data does not necessarily have a comparative advantage in this respect, as it is likewise subject to a host of different, but no less problematic, sources of bias and error.
+A covariance matrix reverse engineered from domain knowledge in the manner proposed above offers a perspective on otherwise unquantifiable project and SO synergies and tradeoffs. The accuracy of this perspective depends on 1) how completely the chosen SOs capture the evolution of projects within the problem space (in the literal sense of equation \ref{eq:SO_ck}); and 2) the accuracy of the domain knowledge whence SO-project correlations are deduced. It is thus imporant to apply this method in contexts where there is a high degree of confidence in domain knowledge compensating a general lack of good data (i.e. a high $\nu$ ratio). The method is open to criticism insofar as the domain knowledge is skewed by institutional inertia, politicized thinking, and other sources of subjective bias. However, the alternative method of covariance estimation based on data does not necessarily have a comparative advantage in this respect, as it is likewise subject to a host of different, but no less problematic, sources of bias and error.
 
 Regardless of accuracy, the proposed method may be used as a crowdsourcing tool to build institutional consensus in areas where expert opinions differ or are lacking altogether. The method confronts experts and/or stakeholders with potentially unexpected logical implications of what they (think they) know about the problem space, and about the evolution of projects through that space.
 
-The illustrative example given above focuses on AR4D priority setting, but the method presented here is applicable to any portfolio level planning context with a high $\nu$ ratio. The method might also be used in pre-breeding activities, for example, to deduce trait and variety correlation matrices. An example of such a crowdsourcing exercise is given in Figure \ref{fig:corrXS_tratVarty}, with the variety and trait correlation matrices reverse engineered from this information given in Figure \ref{fig:cormatTraitVartys}.
+Some may be tempted to use the reverse engineered covariance matrix in a risk-adjusted portfolio optimization problem. For example, if expected portfolio utility is defined
 
-```{r, fig.show='hold', fig.width=5, fig.height=3, fig.align='center', fig.cap="\\label{fig:corrXS_tratVarty}Hypothetical example of crowdsourced, orthogonally rotated trait-variety correlations.", echo=F}
+\begin{equation}
+E[U] = E[\mathbf{x}] {'} \mathbf{w}
+\end{equation}
+
+where $E[\mathbf{x}]$ is the vector of expected project ROIs and $\mathbf{w}$ is the vector of budget shares invested in each project, then portfolio risk or variance, it follows, is defined
+
+\begin{equation}
+Var[U] = \mathbf{w} {'} \Sigma_{XX} \mathbf{w}
+\end{equation}
+
+In the absence of data by which to calculate the project covariances in $\Sigma_{XX}$, an AR4D institution may want to substitute the reverse engineered covariance matrix $\tilde{\Sigma}_{XX}$, and then solve the problem
+
+\begin{equation}
+\max_{\mathbf{w}}{E[U]} \:\:\: s.t. \:\:\: Var[U] = v \:\:\: \mathbf{w} {'} \mathbf{1} = c
+\end{equation}
+
+where $v$ and $c$ are the institution's risk and budget constraints, respectively. However, when solving this problem for the optimal budget shares it becomes necessary at some point to invert the covariance matrix; whereas the reverse engineered covariance matrix has $n-m$ eigenvalues equal to zero, and is thus non-invertible. Careful consideration must also go into the formulation of the portfolio expected utility function $E[U]$ so as to avoid negative budget shares, and to accurately reflect decreasing returns to investment in any given project.^[The naive formulation above is analogous to financial portfolio optimization, where negative investment shares are permitted (short-selling), and returns are linear in investment. One simple (and perhaps facile) way to ensure positive weights is to replace $\mathbf{w}$ with $\ln(\mathbf{w})$.]
+
+On the other hand, it _is_ possible to optimize criteria weights, i.e. the weight or emphasis given to each SO by the institution and/or stakeholders. Such weights are typically assigned in a highly subjective and ad hoc manner. The method presented here suggests a more rigorous, objective approach. Unlike the reverse engineered project correlation matrix, the reverse engineered SO corrrelation matrix (equation \ref{eq:crowdsource_SOcormat}) is invertible, and can thus be used in the optimization problem above.
+
+The illustrative example examined in this article focuses on priority setting, but the method presented here is applicable to any portfolio level planning context with a high $\nu$ ratio. The method might also be used in pre-breeding activities, for example, to deduce trait and variety correlation matrices. An example of such a crowdsourcing exercise for beans is given in Figure \ref{fig:corrXS_tratVarty}, with the bean variety and trait correlation matrices reverse engineered from this information given in Figure \ref{fig:cormatTraitVartys}.
+
+```{r, fig.show='hold', fig.width=6, fig.height=4, fig.align='center', fig.cap="\\label{fig:corrXS_tratVarty}Hypothetical example of crowdsourced, orthogonally rotated trait-variety correlations.", echo=F}
 #---------------------------------------------
 n_varieties <- 10
 df_Lrot <- data.frame(`Bean variety` = paste("Variety", c(1:n_varieties)),
@@ -1359,45 +1389,21 @@ D_adj <- diag(1 / sqrt(diag(cormat_XX_derived)))
 cormat_XX_derived <- D_adj %*% cormat_XX_derived %*% D_adj
 colnames(cormat_XX_derived) <- row.names(mat_Lrot)
 fig_title <- "Reverse engineered variety\ncorrelation matrix"
-gg_covmat_varty <- plot_covmat(cormat_XX_derived, fig_title, round_to = 2, graph_on = F, legend_position = "none")
-
+gg_covmat_varty <- plot_covmat(cormat_XX_derived, fig_title, round_to = 2, graph_on = F, legend_position = "none", num_size = 1.5)
 
 cormat_SS_derived <- t(mat_Lrot) %*% mat_Lrot
 D_adj <- diag(1 / sqrt(diag(cormat_SS_derived)))
 cormat_SS_derived <- D_adj %*% cormat_SS_derived %*% D_adj
 colnames(cormat_SS_derived) <- colnames(mat_Lrot)
 fig_title <- "Reverse engineered trait\ncorrelation matrix"
-gg_covmat_trait <- plot_covmat(cormat_SS_derived, fig_title, round_to = 2, graph_on = F, legend_position = "right")
+gg_covmat_trait <- plot_covmat(cormat_SS_derived, fig_title, round_to = 2, graph_on = F, legend_position = "none")
 
 list_gg <- list(gg_covmat_varty, gg_covmat_trait)
 wrap_plots(list_gg, ncol = 2)
 
 
 ```
-
-Some may be tempted to use the reverse engineered covariance matrix in a risk-adjusted portfolio optimization problem. For example, if expected portfolio utility is defined
-
-\begin{equation}
-E[U] = E[\mathbf{x}] {'} \ln(\mathbf{w})
-\end{equation}
-
-where $E[\mathbf{x}]$ is the vector of expected project ROIs and $\mathbf{w}$ is the vector of budget shares invested in each project, then portfolio risk or variance, it follows, is defined
-
-\begin{equation}
-Var[U] = \mathbf{w} {'} \tilde{\Sigma}_{XX} \mathbf{w}
-\end{equation}
-
-In the absence of data by which to calculate the project covariances in $\Sigma_{XX}$, an AR4D institution may want to substitute the reverse engineered covariance matrix $\tilde{\Sigma}_{XX}$, and then solve the problem
-
-\begin{equation}
-\max{E[U]}_{\mathbf{w}} \:\:\: s.t. \:\:\: Var[U] = v \:\:\: \mathbf{w} {'} \mathbf{1} = c
-\end{equation}
-
-where $v$ and $c$ are the institution's risk and budget constraints, respectively. However, when solving this problem for the optimal budget shares it becomes necessary at some point to invert the covariance matrix; whereas the reverse engineered covariance matrix has $n-m$ eigenvalues equal to zero, and is thus non-invertible. Careful consideration must also go into the formulation of the portfolio utility function so as to avoid negative budget shares, and to accurately reflect decreasing returns to investment in any given project.^[The naive formulation above is analogous to financial portfolio optimization, where negative investment shares are permitted (short-selling), and returns are linear in investment.]
-
-On the other hand, it _is_ possible to optimize criteria weights, i.e. the weight or emphasis given to each SO by the institution and/or stakeholders. Such weights are typically assigned in a highly subjective and ad hoc manner. The method presented here suggests a more rigorous, objective approach. Unlike the reverse engineered project correlation matrix, the reverse engineered SO corrrelation matrix (equation \ref{eq:crowdsource_SOcormat}) is invertible, and can thus be used in an optimization problem such as that which is stated above. In the formulation of the objective function $E[U]$, project ROI is replaced with SO ROI, deduced from the crowdsourced loadings via equations \ref{eq:deducePcrowd} and \ref{eq:sigs_def}. Again, care must be taken to ensure positive weights^[One simple (and perhaps facile) way to ensure positive weights is to replace $\mathbf{w}$ with $\ln(\mathbf{w})$.] and an accurate representation of the benefits of marginal increases in weights.
-
-<!-- The problem is not unique to the AR4D context. Researchers in physics and medicine, in particular,   is faced by research institutes across disciplines and scales. -->
+Nor are the problems addressed in this article particularly unique to the AR4D context. Budget planners in many disciplines are under increasing pressure to optimize investments across large portfolios of projects that are all, in one way or another, vitally important [@Collins2011; @Nowotny2006]. These allocation tasks are often gutwrenching for all involved due to their high vulnerability to ad hoc, arbitrary, and/or politically driven decision making. And this, in turn, has contributed to the increasingly toxic relationship between researchers and donors noted by Leeuwis et al. [-@leeuwis2018reforming], Petsko [-@Petsko2011], and Moriarity [-@Moriarty2008]. The consensus building potential of the tool presented here may serve to reduce, in some measure, the methodological premise for this toxicity.
 
 <!-- "One of the geniuses" of the CG centers is said to be their ability to consistently attract "aid funding of long-term research" while keeping "aid professionals from setting research agendas" [@mccalla2014cgiar]. -->
 
