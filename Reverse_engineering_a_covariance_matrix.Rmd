@@ -1,5 +1,5 @@
 ---
-title: "Reverse engineering covariance matrices in minimum data environments"
+title: '"Reverse engineering" policy and project covariance matrices from domain expertise in minimum data contexts'
 author:
   - name: Benjamin Schiek
     email: b.schiek@cgiar.org
@@ -8,9 +8,9 @@ address:
   - code: CIAT
     address: Alliance Bioversity-CIAT, Km 17 Recta Cali-Palmira, Valle del Cauca, Colombia
 abstract: |
-  In many institutional project portfolio planning contexts, an estimate of project synergies and tradeoffs (i.e. covariances) is essential to the optimal leveraging of institution resources. The data by which to make such estimates generally do not exist. Institutions may often draw on domain expertise to fill this gap, but it is not clear how such ad hoc information can be quantified and fed into an optimal resource allocation workflow. Drawing on principal components analysis, I propose a method for "reverse engineering" project synergies and tradeoffs from domain expertise. I also show how the project synergy/tradeoff problem is dual to another important problem that arises in such contexts: that of determining the synergies and tradeoffs between an institution's strategic objectives. The method proposed here provides a solution to both problems.
-keywords: AR4D, ex-ante impact assessment, foresight, synergy, tradeoff, principal components analysis, dimensional reduction
-journal: European Journal of Operations Research
+  In research portfolio planning contexts, an estimate of research policy and project synergies/tradeoffs (i.e. covariances) is essential to the optimal leveraging of institution resources. The data by which to make such estimates generally do not exist. Research institutions may often draw on domain expertise to fill this gap, but it is not clear how such ad hoc information can be quantified and fed into an optimal resource allocation workflow. Drawing on principal components analysis, I propose a method for "reverse engineering" synergies/tradeoffs from domain expertise at both the policy and porject level. I discuss extentions to other problems and detail how the method can be fed into a research portfolio optimization workflow.
+keywords: Tradeoff, synergy, risk management, research policy, research portfolio optimization, agricultural research for development
+journal: Research Policy
 bibliography: Reverse engineering synergies and tradeoffs.bib
 header-includes:
   - \usepackage{float}
@@ -38,17 +38,23 @@ library(patchwork)
 library(kableExtra)
 ```
 
+This research did not receive any specific grant from funding agencies in the public, commercial, or not-for-profit sectors.
+
+Declarations of interest: none
+  
+\pagebreak
+
 # Introduction
 
-Agricultural research for development (AR4D) institutions tend to give careful consideration to the impact assessment of individual projects in their portfolio, but very little, if any, consideration to the tradeoffs and synergies that may arise between projects. Project synergies can enhance portfolio impact while tradeoffs can effectively annul it. A clear understanding of project synergies and tradeoffs is therefore essential to the optimal leveraging of investments.
+Agricultural research for development (AR4D) institutions tend to give careful consideration to the formulation of their policies and strategic objectives, but very little, if any, consideration to the tradeoffs and synergies that may arise between policies. An institution may decide to simultaneously pursue, for example, food security and environmental sustainability as overarching strategic objectives, without considering the implicit tradeoffs between capital-intensive, high input agriculture, on the one hand, and pro-poor, agroecological agriculture, on the other. Such tradeoffs mean that progress towards one strategic objective (SO) can offset or even annul progress towards another. Conversely, there may be areas where the institution's policies complement each other, generating synergies and enhancing impacts.
 
-In statistical parlance, synergies and tradeoffs are known as positive and negative covariances, respectively. In the AR4D context, there is typically no data by which to calculate project covariances. AR4D institutions can usually draw on a wealth of domain expertise to shed light on these synergies and tradeoffs, but it is not clear how such ad hoc assessments can be quantified. There are also inevitably gaps where domain experts are unable or hesitant to venture an estimate. For example: What is the synergy or tradeoff between a heat tolerant bean project and a digital agriculture project?
+A parallel problem exists at the project level: careful consideration is often given to the potential impacts of individual research projects within the institution's portfolio; but very little, if any, consideration is given to the tradeoffs and synergies that may arise between projects. AR4D institutions can usually draw on a wealth of domain expertise to shed light on these synergies and tradeoffs in a piecemeal fashion; but efforts to scale and quantify such ad hoc assessments---for example, through the Delphi Method---are costly and time consuming. There are also inevitably gaps where domain experts are unable or hesitant to venture an estimate. For example: What is the synergy/tradeoff between a heat tolerant bean project and a digital agriculture project?
 
-Here I propose a method for "reverse engineering" project covariances from domain knowledge in such minimum data contexts. Specifically, I propose a survey whereby each project's correlation with the institution's strategic objectives (SOs) is elicited from domain experts. Drawing on principal components analysis (PCA), I then show how an approximate project covariance matrix can be deduced from these crowdsourced project-SO correlations.
+In this article, I propose a low cost, expedient method for "reverse engineering" synergies and tradeoffs at both the policy and project levels. Drawing on principal components analysis, I show how a project synergies/tradeoffs (a.k.a. covariance) matrix can be approximated based upon an expert survey of correlations between the institution's projects and its policies (or SOs). It turns out that the project level problem is mathematically dual to the policy level problem, such that a policy synergies/tradeoffs matrix is also obtained in this process.
 
-In the process, it turns out that the project covariance problem is mathematically dual to another, parallel problem: AR4D institutions tend to give careful consideration to the formulation of their strategic SOs, but very little, if any, consideration to the tradeoffs and synergies that may arise between them. Again, this issue is critical for optimal leveraging of resources. How do investments under an Economic Growth SO, for example, capitalize upon or work against investments under a Nutritional Security SO? The method proposed here can be used to reverse engineer both project and SO synergies/tradeoffs.
+To build intuition and provide a proof of concept, I illustrate the reverse engineering method with a graphical example based on financial data. I then walk through an illustrative example of how the method applies in the AR4D context. I then discuss potential applications in plant breeding and research portfolio optimization.
 
-I first provide a proof of concept using data from financial markets. I then walk through an illustrative example of how the method might be applied in the AR4D context. I conclude by sketching out a couple of potential directions for future exploration.
+The motivating context for this article is not-for-profit agricultural research. However, the method proposed here is applicable across disciplines, in any policy or project portfolio level planning context where a relative lack of data is compensated by a relative abundance of domain expertise.
 
 ```{r, fig.width=14, fig.height=14, fig.align='center', echo = FALSE, include = FALSE}
 #options(warn = -1); options(scipen = 999)
@@ -582,7 +588,9 @@ test_stop_date <- row.names(mat_pctDiff_eg_test)[nrow(mat_pctDiff_eg_test)]
 
 ```
 
-# Signals from noise: dimensional reduction of portfolios
+# "Reverse engineering" principal components analysis to deduce synergies and tradeoffs
+
+## Signals from noise: dimensional reduction of portfolios
 
 In principal components analysis, a dataset $X$ containing $\tau$ observations of $n$ variables is distilled into a dataset $S$ of just $m<n$ variables that capture the main tendencies and structure in the data.^[The data are always centered. If the variables in $X$ follow diverse scalings and/or units of measurement (i.e. if apples are being compared to oranges), then $X$ should also be scaled to unit variance. In this exposition, the variables are all of the same type, and so $X$ is centered but not scaled. See Abdi [-@abdi2010principal] for an introduction to principal components analysis.] The distilled matrix $S$ is defined
 
@@ -612,7 +620,7 @@ From the definition (\ref{eq:sigs_def}), it follows that the columns of $S$ are 
 \label{eq:covmat_SS}
 \end{equation}
 
-The columns of the distilled matrix $S$ are often referred to as the principal components (PC), or the PC scores, or the factor scores. When dealing with noisy time series, as in this paper, they might just as well be referred to as the "signals", in the sense that they are signals extracted from noise.
+The columns of the distilled matrix $S$ are often referred to as the principal components (PC), or the PC scores, or the factor scores. When dealing with noisy time series, as in this article, they might just as well be referred to as the "signals", in the sense that they are signals extracted from noise.
 
 There then remains the question of what essential process these dimensions or signals $S$ describe. This can be interpreted based on how correlated they are with the variables in $X$. These correlations ($K_{XS}$) are found by first finding their corresponding covariances ($\Sigma_{XS}$).
 
@@ -806,6 +814,8 @@ plot_corrXS_barchart(mat_L)
 
 Concrete meaning can now be attributed to the otherwise abstract signals by examining the loadings---i.e. by examining how correlated the signals are with the individual price series. Signal 4, for example, appears to have something to do with price movements in Communications, and is negatively correlated with movements in the Real Estate sector. Signal 3, meanwhile, is positively correlated with Real Estate and Utilities, as well as Communications. Signal 3 might thus be loosely characterized as the "Housing and Urban Development" or "HUD" Signal, while Signal 4 might be called, rather convolutedly, the "Telecommunications Not Related to HUD" Signal. The interpretation of Signals 1 and 2 is still less straightforward, since they are both correlated with many portfolio items.
 
+## Applying a rotation to clarify loadings
+
 When the loadings are convoluted like this, it is useful to apply an orthogonal rotation to $L$ in order to clarify the picture. That is to say, instead of examining $L$, one examines $L_{\circlearrowleft}$.
 
 \begin{equation}
@@ -964,6 +974,9 @@ plot_sigs_wHiLoad_items(mat_X_in, mat_S, mat_Lrot, color_vec, sigNames, load_thr
 <!-- # plot_corrXS_barchart(mat_Lrot_test[, 1:4], group_info = NULL, xAxis_title, sigNames = NULL) -->
 <!-- ``` -->
 <!-- A calculation of varimax loadings over data from the subsequent period (`r test_start_date` to `r test_stop_date`), presented in Figure \ref{fig:corrXS_barchart_rot_test}, suggests that signal composition remains fairly stable from one period to the next, although signal order may change. In this case, the Financial and Physical Infrastructure Signal has changed places with the Pharmaceutical Signal. -->
+
+## How many signals to retain?
+
 In practice, the number of signals that should be distilled from the original data set $X$ depends upon how much of the variance in $X$ the researcher wishes to capture or reflect in the signals, and how many signals are required to reach this subjectively determined threshold. The portion of the system's evolution reflected in any given signal ($c_i$) is defined as the signal's variance divided by the sum of all signal variances. Recalling from equation \ref{eq:covmat_SS} that a signal's variance is just the corresponding eigenvalue $\gamma_i$ extracted from $\Sigma_{XX}$, this is expressed
 
 \begin{equation}
@@ -973,7 +986,7 @@ c_i = \frac{u_i}{\sum_{i = 1}^n \gamma_i}
 The cumulative variance captured by a group of $k$ signals is then
 
 \begin{equation}
-c_k <- \frac{\sum_{i=1}^k \gamma_i}{\sum_{i = 1}^n \gamma_i}
+\kappa = \sum_{i=1}^k c_i
 \label{eq:SO_ck}
 \end{equation}
 
@@ -1010,7 +1023,7 @@ eig_values_sigs <- eig_values[1:n_signals]
 
 The plot shows that, for the financial data set, the leading `r n_signals` signals are sufficient to meet this criterion.
 
-# Approximating the data correlation matrix from the loadings
+## Approximating the data correlation matrix from the loadings
 
 An approximate data correlation matrix ($\tilde{K}_{XX}$) can be computed from these retained signals, as the outer product of $L_{\circlearrowleft}$ with itself.
 
@@ -1036,7 +1049,7 @@ plot_covmat(mat_diff_cormats, fig_title = NULL, graph_on = F)
 
 ```
 
-# Recovering the signals correlation matrix and leading eigenvectors from the loadings
+## Recovering the signals correlation matrix and leading eigenvectors from the loadings
 
 Note that the orthogonally rotated signals correlation matrix (call this $K_{SS}^{\circlearrowleft}$) can likewise be obtained from the rotated loadings via the inner product $L_{\circlearrowleft}'L_{\circlearrowleft}$. 
 
@@ -1059,7 +1072,7 @@ Note that the unrotated signal variances $\tilde{\Gamma}$ and the rotation matri
 \label{eq:deducePcrowd}
 \end{equation}
 
-# "Reverse engineering" project and SO correlation matrices from domain knowledge
+## "Reverse engineering" project and SO correlation matrices from domain knowledge
 
 The foregoing implies that it is possible to work backwards from the orthogonally rotated loadings $L_{\circlearrowleft}$ to arrive at an approximate data correlation matrix.
 
@@ -1077,12 +1090,12 @@ As $\nu$ is higher, the reverse engineering approach makes more sense. As $\nu$ 
 
 # An illustrative example
 <!-- AR4D risk adjusted portfolio optimization would come after Step 3 in the resource allocation workflow defined by Mills, either complementing or replacing the ranking of research proposals in order of priority that is slated to occur in Step 4. By this point in the resource allocation workflow, a list of research proposals would have been drawn up, and the expected proportionality parameters of each proposal assessed and quantified. Recall from the discussion in section 2 that a proposal's proportionality constant may be thought of as the inverse of its scalability. Risk, meanwhile, is just the uncertainty surrounding the expected proportionality parameter. -->
-A list of hypothetical AR4D projects is presented in Table \ref{tab:exampLoadings}. The projects are loosely grouped into four categories to facilitate interpretation, but there is no strict rule followed, and clearly some overlap, in the grouping.
+In the example below, a hypothetical AR4D institution has the task of identifying synergies and tradeoffs in its project portfolio; and is also interested in quantifying any synergies and tradeoffs between its overarching policies. The institution's projects are listed in Table \ref{tab:exampLoadings}. The projects are loosely grouped into four categories to facilitate interpretation of the subsequent graphics, but there is no strict rule followed, and clearly some overlap, in the grouping.
 <!-- Project ROIs would have been calculated during ex-ante impact assessments prior to the exercise presented below. Project risk might have also been calculated during ex-ante impact assessment, although this is not likely since risk assessment is not a standard part of impact modeling.^[Alston and Norton acknowledged in 1995 that the treatment of risk in AR4D ex-ante impact assessment models was "rudimentary and in need of further refinement" [-@Alston1995]. Unfortunately, this remains true today.] -->
 
-The SOs in this example are "Economic Growth", "Income Equality", "Environmental Sustainability", and "Nutritional Security", which roughly correspond to UN Sustainable Development Goals 8, 1, 13, and 3, respectively. Project-SO correlations are elicited via a survey (online or in-person) of domain experts and/or stakeholders. Literature may also be consulted.
+The institution's policies or SOs in this example are "Economic Growth", "Income Equality", "Environmental Sustainability", and "Nutritional Security", which roughly correspond to UN Sustainable Development Goals 8, 1, 13, and 3, respectively. Project-SO correlations are elicited via a survey of domain experts and/or stakeholders. Literature may also be consulted.
 
-It should be clearly explained to survey participants that a positive project-signal correlation means the project contributes toward the SO, while a negative correlation means the project works against it; and a correlation of zero means that the project has no influence upon the given SO one way or the other. The language used in this survey should be familiar to participants. In most AR4D resource allocation settings, what I have characterized above as "signals" should probably be referred to as "strategic objectives", "criteria", or simply "goals".
+It should be clearly explained to survey participants that a positive project-signal correlation means the project contributes toward the SO (i.e. is a synergy), while a negative correlation means the project works against it (i.e. is a tradeoff); and a correlation of zero means that the project has no influence upon the given SO one way or the other. The language used in this survey should be familiar to participants. In most AR4D resource allocation settings, what I characterized in the financial example above as "signals" should probably be referred to as "policies", "strategic objectives", "criteria", or simply "goals".
 
 ```{r exampLoadings, results = "markup", echo = F}
 # fig.show = "hold", fig.width = 4, fig.height = 4, fig.align = "center", fig.cap = "\\label{fig:ExpPctRet_Examp}Hypothetical AR4D project expected returns and risk."}
@@ -1319,46 +1332,31 @@ plot_covmat(cormat_SS_derived, fig_title, round_to = 2, graph_on = F)
 
 ```
 
-# Discussion and conclusion
+# Discussion
 
 A covariance matrix reverse engineered from domain knowledge in the manner proposed above offers a perspective on otherwise unquantifiable project and SO synergies and tradeoffs. The accuracy of this perspective depends on 1) how completely the chosen SOs capture the evolution of projects within the problem space (in the literal sense of equation \ref{eq:SO_ck}); and 2) the accuracy of the domain knowledge whence SO-project correlations are deduced. It is thus imporant to apply this method in contexts where there is a high degree of confidence in domain knowledge compensating a general lack of good data (i.e. a high $\nu$ ratio). The method is open to criticism insofar as the domain knowledge is skewed by institutional inertia, politicized thinking, and other sources of subjective bias. However, the alternative method of covariance estimation based on data does not necessarily have a comparative advantage in this respect, as it is likewise subject to a host of different, but no less problematic, sources of bias and error.
 
-Regardless of accuracy, the proposed method may be used as a crowdsourcing tool to build institutional consensus in areas where expert opinions differ or are lacking altogether. The method confronts experts and/or stakeholders with potentially unexpected logical implications of what they (think they) know about the problem space, and about the evolution of projects through that space.
+Regardless of accuracy, the proposed method may have value as a consensus building tool regarding synergies and tradeoffs about which expert opinions differ or are lacking altogether. The method fills in such gaps with the values that effectively maximize consistency with the expert knowledge captured by the survey. In this process, the method may confront experts and stakeholders with potentially surprising logical implications of what they (think they) know about the problem space, and about the evolution of projects and policies through that space, thereby stimulating policy debate and dialogue.
 
-Some may be tempted to use the reverse engineered covariance matrix in a risk-adjusted portfolio optimization problem. For example, if expected portfolio utility is defined
+## Potential application in plant breeding decision pipelines
 
-\begin{equation}
-E[U] = E[\mathbf{x}] {'} \mathbf{w}
-\end{equation}
+Applications of the method presented here are not limited to the assessment of policies and projects. Another potential area of application within the AR4D arena, for example, is in the assessment of trait and variety correlations.
 
-where $E[\mathbf{x}]$ is the vector of expected project ROIs and $\mathbf{w}$ is the vector of budget shares invested in each project, then portfolio risk or variance, it follows, is defined
+Plant breeders are typically tasked with the development of new varieties featuring a particular new trait---say, for example, resistance to a particular pest or disease---as well as numerous other traits such as fast maturation time, a particular taste, color, shape, nutritional content, and so on. In this process, a map of synergies and tradeoffs between traits and between varieties may be useful in guiding selection decisions.
+<!-- it may be of interest to identify and quantify potential covariances between traits and between varieties. -->
 
-\begin{equation}
-Var[U] = \mathbf{w} {'} \Sigma_{XX} \mathbf{w}
-\end{equation}
-
-In the absence of data by which to calculate the project covariances in $\Sigma_{XX}$, an AR4D institution may want to substitute the reverse engineered covariance matrix $\tilde{\Sigma}_{XX}$, and then solve the problem
-
-\begin{equation}
-\max_{\mathbf{w}}{E[U]} \:\:\: s.t. \:\:\: Var[U] = v \:\:\: \mathbf{w} {'} \mathbf{1} = c
-\end{equation}
-
-where $v$ and $c$ are the institution's risk and budget constraints, respectively. However, when solving this problem for the optimal budget shares it becomes necessary at some point to invert the covariance matrix; whereas the reverse engineered covariance matrix has $n-m$ eigenvalues equal to zero, and is thus non-invertible. Careful consideration must also go into the formulation of the portfolio expected utility function $E[U]$ so as to avoid negative budget shares, and to accurately reflect decreasing returns to investment in any given project.^[The naive formulation above is analogous to financial portfolio optimization, where negative investment shares are permitted (short-selling), and returns are linear in investment. One simple (and perhaps facile) way to ensure positive weights is to replace $\mathbf{w}$ with $\ln(\mathbf{w})$.]
-
-On the other hand, it _is_ possible to optimize criteria weights, i.e. the weight or emphasis given to each SO by the institution and/or stakeholders. Such weights are typically assigned in a highly subjective and ad hoc manner. The method presented here suggests a more rigorous, objective approach. Unlike the reverse engineered project correlation matrix, the reverse engineered SO corrrelation matrix (equation \ref{eq:crowdsource_SOcormat}) is invertible, and can thus be used in the optimization problem above.
-
-The illustrative example examined in this article focuses on priority setting, but the method presented here is applicable to any portfolio level planning context with a high $\nu$ ratio. The method might also be used in pre-breeding activities, for example, to deduce trait and variety correlation matrices. An example of such a crowdsourcing exercise for beans is given in Figure \ref{fig:corrXS_tratVarty}, with the bean variety and trait correlation matrices reverse engineered from this information given in Figure \ref{fig:cormatTraitVartys}.
+In this setting, the varieties are analogous to the set of principal components describing 90% of the problem space. Correlations between varieties and traits are elicited through a survey of breeding experts. A hypothetical example of such a crowdsourcing exercise for beans is given in Figure \ref{fig:corrXS_tratVarty}.  The variety and trait correlation matrices are then reverse engineered from this information in Figure \ref{fig:cormatTraitVartys}.
 
 ```{r, fig.show='hold', fig.width=6, fig.height=4, fig.align='center', fig.cap="\\label{fig:corrXS_tratVarty}Hypothetical example of crowdsourced, orthogonally rotated trait-variety correlations.", echo=F}
 #---------------------------------------------
 n_varieties <- 10
 df_Lrot <- data.frame(`Bean variety` = paste("Variety", c(1:n_varieties)),
                       Palatability = rnorm(n_varieties),
-                      `Iron content` = runif(n_varieties),
+                      `Iron\ncontent` = runif(n_varieties),
                       #`Vit. A content` = runif(n_varieties),
-                      `Protein content` = runif(n_varieties),
-                      `Fast maturing` = rnorm(n_varieties),
-                      `Drought resistant` = rnorm(n_varieties))
+                      `Protein\ncontent` = runif(n_varieties),
+                      `Fast\nmaturing` = rnorm(n_varieties),
+                      `Drought\nresistant` = rnorm(n_varieties))
 colnames(df_Lrot) <- gsub("\\.", " ", colnames(df_Lrot))
 
 fun <- function(x){
@@ -1403,7 +1401,87 @@ wrap_plots(list_gg, ncol = 2)
 
 
 ```
-Nor are the problems addressed in this article particularly unique to the AR4D context. Budget planners in many disciplines are under increasing pressure to optimize investments across large portfolios of projects that are all, in one way or another, vitally important [@Collins2011; @Nowotny2006]. These allocation tasks are often gutwrenching for all involved due to their high vulnerability to ad hoc, arbitrary, and/or politically driven decision making. And this, in turn, has contributed to the increasingly toxic relationship between researchers and donors noted by Leeuwis et al. [-@leeuwis2018reforming], Petsko [-@Petsko2011], and Moriarity [-@Moriarty2008]. The consensus building potential of the tool presented here may serve to reduce, in some measure, the methodological premise for this toxicity.
+
+## Potential application in research portfolio optimization
+
+Some may be tempted to use the reverse engineered covariance matrix in a risk-adjusted portfolio optimization problem, so as to solve for the optimal resource allocation across projects. For example, if expected (logged) portfolio utility is defined
+
+\begin{equation}
+E[\ln(U)] = E[\mathbf{x}] {'} \ln(\mathbf{w})
+\end{equation}
+
+where $\mathbf{x}$ is the vector of project returns (i.e. the percentage increase in portfolio utility per one percent increase in project funding) and $\mathbf{w}$ is the vector of budget allocations invested in each project, then portfolio variance or risk, it follows, is defined
+
+\begin{equation}
+Var[\ln(U)] = \ln(\mathbf{w}) {'} \Sigma_{XX} \ln(\mathbf{w})
+\end{equation}
+
+In the absence of data by which to calculate the project covariances in $\Sigma_{XX}$, an AR4D institution may try to substitute the reverse engineered covariance matrix $\tilde{\Sigma}_{XX}$, and then solve the problem
+
+\begin{equation}
+\min_{\mathbf{w}} \ln(\mathbf{w}) {'} \tilde{\Sigma}_{XX} \ln(\mathbf{w}) \:\:\: s.t. \:\:\: E[\mathbf{x}] {'} \ln(\mathbf{w}) = E[U_R] \:\:\: \mathbf{1} {'} \ln(\mathbf{w}) = U_C
+\label{eq:optProb}
+\end{equation}
+
+where $U_R$ and $U_C$ are the institution's return target and budget constraint, respectively. However, for this problem to be well posed, the covariance matrix must be invertible. The reverse engineered covariance matrix has $n-m$ eigenvalues equal to zero, and so is not invertible. The constrained risk minimization problem in equation \ref{eq:optProb} is thus ill posed. 
+
+On the other hand, the reverse engineered policy corrrelation matrix $K_{SS}^{\circlearrowleft}$ (equation \ref{eq:crowdsource_SOcormat}) _is_ invertible, thereby opening up the possibility of solving for optimal "policy weights"---i.e. the weight or emphasis given to each policy by the institution. Such weights are often assigned in a highly subjective, ad hoc manner. The method pursued thus far suggests the following, more rigorous approach.
+
+In this case, $\mathbf{x}$ stands for the "policy returns", i.e. the institution's returns under each SO, and the $\mathbf{w}$ stand for the amount invested under each policy. Moreover, $Var(\ln(U))$ is replaced by the quantity $\ln(\mathbf{w}) {'} K_{SS}^{\circlearrowleft} \ln(\mathbf{w})$. This is a nuanced quantity. Because the policy variances are scaled to unity in the correlation matrix $K_{SS}^{\circlearrowleft}$, it is less a reflection of portfolio risk than it is an indicator of portfolio net synergy, i.e., total synergy minus total tradeoffs, given an investment allocation $\mathbf{w}$. Since net synergy is something desireable, the problem becomes a constrained synergy maximization problem, as opposed to a constrained risk minimization problem.
+
+\begin{equation}
+\max_{\mathbf{w}}{\ln(\mathbf{w}) {'} K_{SS}^{\circlearrowleft} \ln(\mathbf{w})} \:\:\: s.t. \:\:\: E[\mathbf{x}] {'} \ln(\mathbf{w}) = U_R \:\:\: \mathbf{1} {'} \ln(\mathbf{w}) = U_C
+\label{eq:optProb2}
+\end{equation}
+
+The Lagrangian and first order conditions are then:
+
+\begin{equation}
+\begin{split}
+\mathcal{L} &= \ln(\mathbf{w}) {'} K_{SS}^{\circlearrowleft} \ln(\mathbf{w}) + \lambda_R (E[\mathbf{x}] {'} \ln(\mathbf{w}) - U_R) - \lambda_C (\mathbf{1} {'} \ln(\mathbf{w}) - U_C) \\
+\nabla_{\ln(\mathbf{x})} \mathcal{L} &= 2 K_{SS} \ln(\mathbf{w}) + \lambda_R E[\mathbf{x}] - \lambda_C \mathbf{1} = \mathbf{0}
+\end{split}
+\end{equation}
+
+and with second order condition:
+
+\begin{equation}
+\ln(\mathbf{w}) {'} \nabla^2_{\ln(\mathbf{w})} \mathcal{L} \ln(\mathbf{w}) = \ln(\mathbf{w}) {'} K_{SS}^{\circlearrowleft} \ln(\mathbf{w}) < 0
+\end{equation}
+
+The first order conditions can then be solved for the optimal policy weights as follows.
+
+\begin{equation}
+\mathbf{w}^* = 1 / 2 K_{SS}^{\circlearrowleft -1} [\mathbf{x}, \mathbf{1}] \left[ \begin{matrix} -\lambda_R \\ \lambda_B \end{matrix} \right]
+\end{equation}
+
+where
+
+\begin{equation}
+\left[ \begin{matrix} -\lambda_R \\ \lambda_B \end{matrix} \right] =
+2 M^{-1} \left[ \begin{matrix} U_R \\ U_B \end{matrix} \right] \:;\:\:\: M = [\mathbf{x}, \mathbf{1}] {'} K_{SS}^{\circlearrowleft -1} [\mathbf{x}, \mathbf{1}]
+\end{equation}
+
+Solving for $\mathbf{w}^*$ requires not only the reverse engineered correlation matrix, but also an estimate of the expected policy returns $E[\mathbf{x}]$. In high $\nu$ contexts, the data required to arrive at such an estimate do not readily exist (for the same reasons that the data needed to compute a covariance matrix do not exist). However, domain expertise in such circumstances is typically sufficient to approximate $E[\mathbf{x}]$ through ex-ante impact assessment studies.
+
+The optimal resource allocation $\mathbf{w}^*$ may refer to actual funds, or may be interpreted more loosely as an allocation of attention, time, political will, or enthusiasm, as appropriate. In the case where $K_{SS}^{\circlearrowleft}$ is a variety correlation matrix, $\mathbf{w}^*$ represents the optimal resource allocation across the varieties under consideration.
+
+# Conclusion
+
+For a long time now, research institutions have faced increasing donor pressure to "do more with less" [@Norton1992], "prove their relevance" [@Braunschweig2000], "show value for money" [@yet2016bayesian], and otherwise demonstrate "more efficient spending of resources" [@petsakos2018comparing].
+
+In response to this pressure, researchers have focused on the development of models for the ex-ante impact assessment of individual projects [@Alston1995; @Antle1999; @Antle2015; Mills, 1998; and @nelson2014modeling]. However, new decision support tools are still urgently required at the portfolio level to determine optimal resource allocations across strategic objectives. In the absence of such tools, resource allocation procedures have been repeatedly undercut by stakeholder politics, institutional inertia, and other forms of subjective bias; and this, in turn, has contributed to an historic level of toxicity in AR4D donor-researcher relations [@Birner2016; @leeuwis2018reforming; @mccalla2014cgiar]. The toxicity is palpable across other disciplines as well [@Petsko2011; @Moriarty2008].
+
+The task of allocating limited resources across strategic objectives that are all, in one way or another, vitally important, will never be an easy one. Nonetheless, it stands to reason that the introduction of objective, transparent resource allocation mechanisms can substantially ameliorate the current atmosphere of distrust. The present article is intended as a step in this direction. The proposed method can aid in identifying areas where research impacts capitalize upon and enhance, or, conversely, annul and offset, each other. The ...can then be critical in optimal allocation of resources.
+
+<!-- stakeholder politics, institutional inertia, ad hoc procedures and criteria, and other subjective forces have repeatedly undercut any careful, objective rigor occurring in Steps 1-4 [@Birner2016; @mccalla2014cgiar]. This inconsistency, opacity, and subjectivity in resource allocation decisions has, in turn, aggravated scientists' already longstanding distrust of budget allocation mechanisms. It is only natural, under such circumstances, to see research programs growing increasingly entrenched in their respective silos, and relations between donors and research programs deteriorating to historic levels of toxicity [@Birner2016; @leeuwis2018reforming; @mccalla2014cgiar]. -->
+
+
+<!-- The method is suitable in any portfolio planning context with a high $\nu$ ratio. -->
+
+<!-- Budget planners in many disciplines are under increasing pressure to optimize investments across large portfolios of projects that are all, in one way or another, vitally important [@Collins2011; @Nowotny2006]. These allocation tasks are often gutwrenching for all involved due to their high vulnerability to ad hoc, arbitrary, and/or politically driven decision making. And this, in turn, has contributed to the increasingly toxic relationship between researchers and donors noted by Leeuwis et al. [-@leeuwis2018reforming], Petsko [-@Petsko2011], and Moriarity [-@Moriarty2008]. The consensus building potential of the tool presented here may serve to reduce, in some measure, the methodological premise for this toxicity in policy debates. -->
+
+<!-- The CGIAR is said to "have a long history of good intentions but limited success in developing appropriate approaches for priority setting" [@Birner2016]. In this paper, I have attempted to reduce, in some measure, the methodological premise for this "limited success" by adaptating financial risk-adjusted portfolio optimization to the AR4D context. -->
 
 <!-- "One of the geniuses" of the CG centers is said to be their ability to consistently attract "aid funding of long-term research" while keeping "aid professionals from setting research agendas" [@mccalla2014cgiar]. -->
 
