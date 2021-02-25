@@ -1,15 +1,15 @@
 ---
-title: '"Reverse engineering" policy and project covariance matrices from domain expertise in minimum data contexts'
-author:
-  - name: Benjamin Schiek
-    email: b.schiek@cgiar.org
-    affiliation: CIAT
-address:
-  - code: CIAT
-    address: Alliance Bioversity-CIAT, Km 17 Recta Cali-Palmira, Valle del Cauca, Colombia
+title: '"Reverse engineering" research portfolio synergies and tradeoffs from domain expertise in minimum data contexts'
+# author:
+#   - name: Benjamin Schiek
+#     email: b.schiek@cgiar.org
+#     affiliation: CIAT
+# address:
+#   - code: CIAT
+#     address: Corresponding author. Alliance Bioversity-CIAT, Km 17 Recta Cali-Palmira, Valle del Cauca, Colombia, CP 763537, b.schiek@cgiar.org
 abstract: |
-  In research portfolio planning contexts, an estimate of research policy and project synergies/tradeoffs (i.e. covariances) is essential to the optimal leveraging of institution resources. The data by which to make such estimates generally do not exist. Research institutions may often draw on domain expertise to fill this gap, but it is not clear how such ad hoc information can be quantified and fed into an optimal resource allocation workflow. Drawing on principal components analysis, I propose a method for "reverse engineering" synergies/tradeoffs from domain expertise at both the policy and porject level. I discuss extentions to other problems and detail how the method can be fed into a research portfolio optimization workflow.
-keywords: Tradeoff, synergy, risk management, research policy, research portfolio optimization, agricultural research for development
+  In research portfolio planning contexts, an estimate of research policy and project synergies/tradeoffs (i.e. covariances) is essential to the optimal leveraging of institution resources. The data by which to make such estimates generally do not exist. Research institutions may often draw on domain expertise to fill this gap, but it is not clear how such ad hoc information can be quantified and fed into an optimal resource allocation workflow. Drawing on principal components analysis, I propose a method for "reverse engineering" synergies/tradeoffs from domain expertise at both the policy and project level. I discuss extentions to other problems and detail how the method can be fed into a research portfolio optimization workflow.
+keywords: Tradeoffs and synergies, risk management, management of innovation, research portfolio optimization, agricultural research for development
 journal: Research Policy
 bibliography: Reverse engineering synergies and tradeoffs.bib
 header-includes:
@@ -38,6 +38,10 @@ library(patchwork)
 library(kableExtra)
 ```
 
+Example title: "Reverse engineering" portfolio synergies and tradeoffs: an objective aid to resource allocation
+
+JEL classification codes: C0, C3
+
 This research did not receive any specific grant from funding agencies in the public, commercial, or not-for-profit sectors.
 
 Declarations of interest: none
@@ -53,8 +57,6 @@ A parallel problem exists at the project level: careful consideration is often g
 In this article, I propose a low cost, expedient method for "reverse engineering" synergies and tradeoffs at both the policy and project levels. Drawing on principal components analysis, I show how a project synergies/tradeoffs (a.k.a. covariance) matrix can be approximated based upon an expert survey of correlations between the institution's projects and its policies (or SOs). It turns out that the project level problem is mathematically dual to the policy level problem, such that a policy synergies/tradeoffs matrix is also obtained in this process.
 
 To build intuition and provide a proof of concept, I illustrate the reverse engineering method with a graphical example based on financial data. I then walk through an illustrative example of how the method applies in the AR4D context. I then discuss potential applications in plant breeding and research portfolio optimization.
-
-The motivating context for this article is not-for-profit agricultural research. However, the method proposed here is applicable across disciplines, in any policy or project portfolio level planning context where a relative lack of data is compensated by a relative abundance of domain expertise.
 
 ```{r, fig.width=14, fig.height=14, fig.align='center', echo = FALSE, include = FALSE}
 #options(warn = -1); options(scipen = 999)
@@ -1345,7 +1347,7 @@ Applications of the method presented here are not limited to the assessment of p
 Plant breeders are typically tasked with the development of new varieties featuring a particular new trait---say, for example, resistance to a particular pest or disease---as well as numerous other traits such as fast maturation time, a particular taste, color, shape, nutritional content, and so on. In this process, a map of synergies and tradeoffs between traits and between varieties may be useful in guiding selection decisions.
 <!-- it may be of interest to identify and quantify potential covariances between traits and between varieties. -->
 
-In this setting, the varieties are analogous to the set of principal components describing 90% of the problem space. Correlations between varieties and traits are elicited through a survey of breeding experts. A hypothetical example of such a crowdsourcing exercise for beans is given in Figure \ref{fig:corrXS_tratVarty}.  The variety and trait correlation matrices are then reverse engineered from this information in Figure \ref{fig:cormatTraitVartys}.
+In this setting, varieties play the role that projects do in the previous example, while traits are analogous to the set of principal components describing 90% of the problem space. Correlations between varieties and traits are elicited through a survey of breeding experts. A hypothetical example of such a crowdsourcing exercise for beans is given in Figure \ref{fig:corrXS_tratVarty}. The variety and trait correlation matrices are then reverse engineered from this information in Figure \ref{fig:cormatTraitVartys}.
 
 ```{r, fig.show='hold', fig.width=6, fig.height=4, fig.align='center', fig.cap="\\label{fig:corrXS_tratVarty}Hypothetical example of crowdsourced, orthogonally rotated trait-variety correlations.", echo=F}
 #---------------------------------------------
@@ -1423,7 +1425,7 @@ In the absence of data by which to calculate the project covariances in $\Sigma_
 \label{eq:optProb}
 \end{equation}
 
-where $U_R$ and $U_C$ are the institution's return target and budget constraint, respectively. However, for this problem to be well posed, the covariance matrix must be invertible. The reverse engineered covariance matrix has $n-m$ eigenvalues equal to zero, and so is not invertible. The constrained risk minimization problem in equation \ref{eq:optProb} is thus ill posed. 
+where $U_R$ and $U_C$ are the institution's return target and budget constraint, respectively, and $\mathbf{1}$ is a vector of ones. However, for this problem to be well posed, the covariance matrix must be invertible. The reverse engineered covariance matrix has $n-m$ eigenvalues equal to zero, and so is not invertible. The constrained risk minimization problem in equation \ref{eq:optProb} is thus ill posed. 
 
 On the other hand, the reverse engineered policy corrrelation matrix $K_{SS}^{\circlearrowleft}$ (equation \ref{eq:crowdsource_SOcormat}) _is_ invertible, thereby opening up the possibility of solving for optimal "policy weights"---i.e. the weight or emphasis given to each policy by the institution. Such weights are often assigned in a highly subjective, ad hoc manner. The method pursued thus far suggests the following, more rigorous approach.
 
@@ -1443,7 +1445,7 @@ The Lagrangian and first order conditions are then:
 \end{split}
 \end{equation}
 
-and with second order condition:
+Where $\mathbf{0}$ is a vector of zeroes. The second order condition then follows as
 
 \begin{equation}
 \ln(\mathbf{w}) {'} \nabla^2_{\ln(\mathbf{w})} \mathcal{L} \ln(\mathbf{w}) = \ln(\mathbf{w}) {'} K_{SS}^{\circlearrowleft} \ln(\mathbf{w}) < 0
@@ -1464,7 +1466,7 @@ where
 
 Solving for $\mathbf{w}^*$ requires not only the reverse engineered correlation matrix, but also an estimate of the expected policy returns $E[\mathbf{x}]$. In high $\nu$ contexts, the data required to arrive at such an estimate do not readily exist (for the same reasons that the data needed to compute a covariance matrix do not exist). However, domain expertise in such circumstances is typically sufficient to approximate $E[\mathbf{x}]$ through ex-ante impact assessment studies.
 
-The optimal resource allocation $\mathbf{w}^*$ may refer to actual funds, or may be interpreted more loosely as an allocation of attention, time, political will, or enthusiasm, as appropriate. In the case where $K_{SS}^{\circlearrowleft}$ is a variety correlation matrix, $\mathbf{w}^*$ represents the optimal resource allocation across the varieties under consideration.
+The optimal resource allocation $\mathbf{w}^*$ may refer to actual funds, or may be interpreted more loosely as an allocation of attention, time, political will, or enthusiasm, as appropriate. In the case where $K_{SS}^{\circlearrowleft}$ is a variety correlation matrix, $\mathbf{w}^*$ represents the optimal resource allocation across the traits under consideration.
 
 # Conclusion
 
@@ -1472,8 +1474,9 @@ For a long time now, research institutions have faced increasing donor pressure 
 
 In response to this pressure, researchers have focused on the development of models for the ex-ante impact assessment of individual projects [@Alston1995; @Antle1999; @Antle2015; Mills, 1998; and @nelson2014modeling]. However, new decision support tools are still urgently required at the portfolio level to determine optimal resource allocations across strategic objectives. In the absence of such tools, resource allocation procedures have been repeatedly undercut by stakeholder politics, institutional inertia, and other forms of subjective bias; and this, in turn, has contributed to an historic level of toxicity in AR4D donor-researcher relations [@Birner2016; @leeuwis2018reforming; @mccalla2014cgiar]. The toxicity is palpable across other disciplines as well [@Petsko2011; @Moriarty2008].
 
-The task of allocating limited resources across strategic objectives that are all, in one way or another, vitally important, will never be an easy one. Nonetheless, it stands to reason that the introduction of objective, transparent resource allocation mechanisms can substantially ameliorate the current atmosphere of distrust. The present article is intended as a step in this direction. The proposed method can aid in identifying areas where research impacts capitalize upon and enhance, or, conversely, annul and offset, each other. The ...can then be critical in optimal allocation of resources.
+The task of allocating limited resources across strategic objectives that are all, in one way or another, vitally important, will never be an easy one. Nonetheless, it stands to reason that the introduction of objective, transparent resource allocation mechanisms can substantially ameliorate the current atmosphere of distrust. As a step in this direction, above I have presented a novel project and policy synergy/tradeoff reverse engineering method based on principal components analysis. The proposed method aids in identifying areas in the AR4D portfolio where research impacts capitalize upon and enhance, or, conversely, annul and offset, each other.
 
+The method can be applied to portfolios of projects or portfolios of policies. For policy portfolios, I showed how the reverse engineered synergy tradeoff matrix may be used in a constrained portfolio synergy maximization problem to solve for optimal policy weights---which can then, in turn, guide the optimal allocation of institution resources. I have also sketched out how the proposed method might be applied to the analogous problem of plant trait selection. The proposed method is not limited to these expository examples, nor even to the AR4D context, but rather applies to any portfolio level planning context where a relative lack of data is compensated by a relative abundance of domain expertise.
 <!-- stakeholder politics, institutional inertia, ad hoc procedures and criteria, and other subjective forces have repeatedly undercut any careful, objective rigor occurring in Steps 1-4 [@Birner2016; @mccalla2014cgiar]. This inconsistency, opacity, and subjectivity in resource allocation decisions has, in turn, aggravated scientists' already longstanding distrust of budget allocation mechanisms. It is only natural, under such circumstances, to see research programs growing increasingly entrenched in their respective silos, and relations between donors and research programs deteriorating to historic levels of toxicity [@Birner2016; @leeuwis2018reforming; @mccalla2014cgiar]. -->
 
 

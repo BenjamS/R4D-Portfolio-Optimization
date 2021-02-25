@@ -1,0 +1,31 @@
+---
+title: '"Reverse engineering" research portfolio synergies and tradeoffs from domain expertise in minimum data contexts'
+author:
+  - name: Benjamin Schiek
+    email: b.schiek@cgiar.org
+    affiliation: CIAT
+address:
+  - code: CIAT
+    address: Corresponding author. Alliance Bioversity-CIAT, Km 17 Recta Cali-Palmira, Valle del Cauca, Colombia, CP 763537, b.schiek@cgiar.org
+# abstract: |
+#   In research portfolio planning contexts, an estimate of research policy and project synergies/tradeoffs (i.e. covariances) is essential to the optimal leveraging of institution resources. The data by which to make such estimates generally do not exist. Research institutions may often draw on domain expertise to fill this gap, but it is not clear how such ad hoc information can be quantified and fed into an optimal resource allocation workflow. Drawing on principal components analysis, I propose a method for "reverse engineering" synergies/tradeoffs from domain expertise at both the policy and project level. I discuss extentions to other problems and detail how the method can be fed into a research portfolio optimization workflow.
+# keywords: Tradeoff, synergy, risk management, research policy, research portfolio optimization, agricultural research for development
+journal: Research Policy
+#bibliography: Reverse engineering synergies and tradeoffs.bib
+header-includes:
+    - \renewenvironment{abstract}{}{}
+#   - \usepackage{float}
+#   - \floatplacement{figure}{H}
+#linenumbers: true
+#numbersections: true
+output:
+  rticles::elsevier_article:
+    latex_engine: xelatex
+mainfont: Garamond
+---
+
+Example title: "Reverse engineering" portfolio synergies and tradeoffs: an objective aid to resource allocation
+
+This research did not receive any specific grant from funding agencies in the public, commercial, or not-for-profit sectors.
+
+Declarations of interest: none
