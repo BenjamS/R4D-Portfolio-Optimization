@@ -1,0 +1,1761 @@
+---
+title: '"Reverse engineering" research portfolio synergies and tradeoffs from domain expertise in minimum data contexts'
+author:
+  - name: Benjamin Schiek
+    email: b.schiek@cgiar.org
+    affiliation: CIAT
+    corresponding: b.schiek@cgiar.org
+address:
+  - code: CIAT
+    address: Alliance Bioversity-CIAT, Km 17 Recta Cali-Palmira, Valle del Cauca, Colombia, CP 763537
+abstract: |
+  \singlespacing In research portfolio planning contexts, an estimate of research policy and project synergies/tradeoffs (i.e. covariances) is essential to the optimal leveraging of institution resources. The data by which to make such estimates generally do not exist. Research institutions may often draw on domain expertise to fill this gap, but it is not clear how such ad hoc information can be quantified and fed into an optimal resource allocation workflow. Drawing on principal components analysis, I propose a method for "reverse engineering" synergies/tradeoffs from domain expertise at both the policy and project level. I discuss extentions to other problems and detail how the method can be fed into a research portfolio optimization workflow. I also briefly discuss the relevance of the proposed method in the context of the currently toxic relations beteween research communities and the donors that fund them.
+# keywords: Tradeoffs and synergies, risk management, R&D portfolio optimization, agricultural research for development
+# journal: R&D Management
+bibliography: Reverse engineering synergies and tradeoffs.bib
+#geometry: "left=3cm,right=3cm,top=2cm,bottom=2cm"
+output: rticles::plos_article
+csl: plos.csl
+header-includes:
+  - \usepackage{setspace}\doublespacing
+  - \usepackage{float}
+  #- \usepackage[nomarkers,tablesonly]{endfloat}
+  #- \usepackage[printfigures]{figcaps}
+  - \floatplacement{figure}{H}
+  - \usepackage[nolists]{endfloat}
+  #linenumbers: true
+#numbersections: true
+# output:
+#   rticles::elsevier_article:
+#     latex_engine: xelatex
+# mainfont: Garamond
+---
+<!-- https://tug.org/FontCatalogue/ -->
+<!-- Source Serif Pro Light -->
+<!-- rmarkdown::draft("Test.Rmd", template = "elsevier_article", package = "rticles") -->
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      message = FALSE,
+                      warning = FALSE,
+                      dev = c("png", "tiff"),
+                      dpi = 300)
+#devtools::install_github("thomasp85/patchwork")
+library(plyr)
+library(tidyverse)
+library(zoo)
+library(tidyquant)
+library(patchwork)
+library(kableExtra)
+```
+
+<!-- Word count (in Word): 4369 (03-03-21) -->
+
+<!-- JEL classification codes: C0, C3 -->
+
+<!-- This research did not receive any specific grant from funding agencies in the public, commercial, or not-for-profit sectors. -->
+
+<!-- Declarations of interest: none -->
+
+<!-- All code and data used in this article are available from the author upon request. -->
+  
+\pagebreak
+
+\doublespacing
+
+# Introduction
+
+Agricultural research for development (AR4D) institutions tend to give careful consideration to the formulation of their policies and strategic objectives, but very little, if any, consideration to the tradeoffs and synergies that may arise between policies. An institution may decide to simultaneously pursue, for example, food security and environmental sustainability as overarching strategic objectives, without considering the implicit tradeoffs between capital-intensive, high input agriculture, on the one hand, and pro-poor, agroecological agriculture, on the other. Such tradeoffs mean that progress towards one strategic objective can offset or even annul progress towards another. Conversely, there may be areas where the institution's policies complement each other, generating synergies and enhancing impacts.
+
+A parallel problem exists at the project level: careful consideration is often given to the potential impacts of individual research projects within the institution's portfolio; but very little, if any, consideration is given to the tradeoffs and synergies that may arise between projects. AR4D institutions can usually draw on a wealth of domain expertise to shed light on these synergies and tradeoffs in a piecemeal fashion; but efforts to scale and quantify such ad hoc assessments---for example, through the Delphi Method or the Analytical Hierarchy Process [@braunschweig2004choosing]---are costly and time consuming. There are also inevitably gaps where domain experts are unable or hesitant to venture an estimate. For example: What is the synergy/tradeoff between a heat tolerant bean project and a digital agriculture project?
+
+In this article, I propose a low cost, expedient method for "reverse engineering" synergies and tradeoffs at both the policy and project levels. Drawing on principal components analysis, I show how a project synergies/tradeoffs (a.k.a. correlation) matrix can be approximated based upon an expert survey of correlations between the institution's projects and its policies. It turns out that the project level problem is mathematically dual to the policy level problem, such that the policy synergies/tradeoffs are also obtained in this process.
+
+To build intuition and provide a proof of concept, I illustrate the reverse engineering method with a graphical example based on financial data. I then walk through an illustrative example of how the method applies in the AR4D context. I then discuss potential applications in plant breeding and research portfolio optimization. I close with a brief discussion of the proposed method's relevance in the context of currently toxic relations between the research community and the donor community.
+
+```{r, fig.width=14, fig.height=14, fig.align='center', echo = FALSE, include = FALSE}
+#options(warn = -1); options(scipen = 999)
+spy_sector_symbs <- c("XLF", "XLC", "XLY", "XLP", "XLV", "XLK", "RWR",
+                      "XLU", "XLI", "XBI", "IYT") #"TTEK"
+spy_sector_detail <- c("Financials", "Communications", "Luxury goods", "Consumer\ngoods",
+                       "Healthcare", "Technology", "Real estate", "Utilities", "Industrial",
+                       "Biotechnology", "Transportation") #"Gov. foreign aid"
+minerals_symbs <- c("GLD", "SLV", "PPLT", "JJC", "JJM") #"XME"
+minerals_detail <- c("Gold", "Silver", "Platinum", "Copper", "Industrial metals") #"US metals and mining"
+agriculture_symbs <- c("JJG", "BAL", "SOYB", "SGG", "JO", "NIB", "DBA")
+agriculture_detail <- c("Grains", "Cotton", "Soybean", "Sugar", "Coffee", "Cacao", "General agriculture")
+energy_symbs <- c("WTI", "FUE", "WOOD", "ICLN", "KOL", "UNG")
+energy_detail <- c("Oil (W&T Offshore Inc.)", "Biofuels", "Timber", "Clean energy", "Coal", "US natural gas")
+#currency_symbs <- c("EMLC", "UUP", "FXE", "FXY", "FXF", "FXC", "FXB", "FXA")
+#currency_detail <- c("Emerging mkt currencies", "USD", "EUR", "JPY", "CHF", "CND", "GBP", "AUD")
+currency_symbs <- c("EURUSD=X", "JPY=X", "CHF=X", "CAD=X",
+                    "GBPUSD=X", "AUDUSD=X", "INR=X")
+currency_detail <- c("EUR/USD", "USD/JPY",
+                     "USD/CHF", "USD/CAD", "GBP/USD", "AUD/USD", "USD/INR")
+emerg_mkt_symbs <- c("EMLC", "ELD", "BKF", "VWOB")
+emerg_mkt_detail <- c("Emerg mkts debt", "Emerg mkts gov. bonds", "BRIC countries", "Emerging mkt currencies")
+crypto_symbs <- c("BLOK", "LEGR", "BCNA")
+crypto_detail <- c("Blockchain tech.", "Blockchain companies", "Blockchain in China")
+Tbond_symbs <- c("IEI", "IEF", "TLT")#, "BIL"
+Tbond_detail <- c("T-bond 3-7 yrs", "T-bond 7-10 yrs", "T-bond 20+ yrs") #"T-bond 1-3 months"
+
+ts_symb_vec <- c(spy_sector_symbs, minerals_symbs, agriculture_symbs, energy_symbs,
+                 currency_symbs, emerg_mkt_symbs, crypto_symbs, Tbond_symbs)
+ts_detail_vec <- c(spy_sector_detail, minerals_detail, agriculture_detail, energy_detail,
+                   currency_detail, emerg_mkt_detail, crypto_detail, Tbond_detail)
+df_symb_detail <- data.frame(symbol = ts_symb_vec, detail = ts_detail_vec)
+#--
+#length(ts_symb_vec)
+#--
+# list_groups <- list(spy_sector_symbs, minerals_symbs, agriculture_symbs, energy_symbs,
+#                      currency_symbs, emerg_mkt_symbs, crypto_symbs, Tbond_symbs)
+#-------------------------------------------
+# Create grouping info for plots (required input into functions)
+list_groups <- list(spy_sector_detail, minerals_detail, agriculture_detail, energy_detail,
+                    currency_detail, emerg_mkt_detail, Tbond_detail) #crypto_detail,
+group_names <- c("US Sectors", "Minerals", "Agriculture", "Energy", "Major Currency Pairs",
+                 "Emerging Markets", "T-Bonds") #"Cryptocurrencies/\nBlockchain"
+n_groups <- length(list_groups)
+#group_colors <- RColorBrewer::brewer.pal(n = n_groups, "Dark2")
+# "Darjeeling"
+# group_colors <- wesanderson::wes_palette("Darjeeling1", n = n_groups, type = "continuous")
+bag_of_colors <- randomcoloR::distinctColorPalette(k = 5 * n_groups)
+group_colors <- sample(bag_of_colors, n_groups)
+#--------------------------------------------------------------
+# Define function to order data by group
+group_fn <- function(group_info){
+  list_groups <- group_info[[1]]
+  group_names <- group_info[[2]]
+  group_colors <- group_info[[3]]
+  varNames_ordered <- do.call(c, list_groups)
+  n_groups <- length(group_names)
+  n_items <- length(varNames_ordered)
+  if(is.na(group_colors)){
+    bag_of_colors <- randomcoloR::distinctColorPalette(k = 5 * n_groups)
+    group_colors <- sample(bag_of_colors, n_groups)
+    #group_colors <- viridis::viridis_pal(option = "D")(length(group_names))
+  }
+  #if(reverse_order){group_colors <- rev(group_colors)}
+  #varNames_ordered <- colnames(mat_pctDiff)
+  group_vec <- rep(NA, n_items)
+  group_color_vec <- rep(NA, n_items)
+  for(i in 1:n_groups){
+    this_group_vec <- list_groups[[i]]
+    this_group_name <- group_names[i]
+    this_group_color <- group_colors[i]
+    group_vec[which(varNames_ordered %in% this_group_vec)] <- this_group_name
+    group_color_vec[which(varNames_ordered %in% this_group_vec)] <- this_group_color
+  }
+  ind_ordered_cols <- order(factor(group_vec))
+  cols_ordered_by_group <- as.character(varNames_ordered[ind_ordered_cols])
+  group_color_vec <- group_color_vec[ind_ordered_cols]
+  group_vec_ordered <- group_vec[ind_ordered_cols]
+  out_list <- list(cols_ordered_by_group, group_color_vec, group_vec_ordered, ind_ordered_cols, group_vec)
+  return(out_list)
+}
+#--------------------------------------------------------------
+group_info <- list(list_groups, group_names, group_colors)
+outlist <- group_fn(group_info)
+cols_ordered_by_group <- outlist[[1]]
+group_color_vec <- outlist[[2]]
+group_vec_ordered <- outlist[[3]]
+ind_ordered_cols <- outlist[[4]]
+df_match_group <- data.frame(Item = cols_ordered_by_group, Group = group_vec_ordered)
+#--------------------------------------------------------------
+#per_ema <- 13
+#fromdate = Sys.Date() - 360
+fromdate = "2018-06-20"
+todate = "2019-08-09"
+# tbl_ohlcv <- tq_get(ts_symb_vec, get = "stock.prices", from = fromdate, to = todate)
+# df_ohlcv <- as.data.frame(tbl_ohlcv)
+#write.csv(df_ohlcv, "Financial data backup.csv")
+df_ohlcv <- read.csv("Financial data backup.csv", stringsAsFactors = F)
+df_ohlcv$X <- NULL
+df_ohlcv$date <- as.Date(df_ohlcv$date)
+#--
+# Crypto ts can have duplicate date entries sometimes (BTC-USD)
+# Get rid of these duplicates, if any
+# df_ohlcv <- as.data.frame(df_ohlcv %>% group_by(symbol) %>% mutate(dup = duplicated(date)))
+# df_ohlcv <- subset(df_ohlcv, dup == F)
+# df_ohlcv$dup <- NULL
+#--
+
+#df_ohlcv$p <- rowSums(df_ohlcv[, c(4:6)]) / 3
+#--
+#df <- df_ohlcv[, c("date", "symbol", "p")]
+# df <- df_ohlcv %>% group_by(symbol) %>% tq_transmute(select = adjusted, 
+#                      mutate_fun = periodReturn, 
+#                      period     = "monthly")
+#--
+df <- df_ohlcv[, c("date", "symbol", "adjusted")]
+df <- df %>% spread(symbol, adjusted)
+ind_shift <- which(colnames(df) %in% currency_symbs)
+df[, ind_shift] <- rbind(rep(NA, length(ind_shift)), df[-nrow(df), ind_shift])
+df <- df[-c(1, nrow(df)), ]
+date_vec <- df$date
+mat_ts_dy <- na.approx(df[, -1])
+row.names(mat_ts_dy) <- as.character(date_vec)
+#o <- apply(mat_ts_dy, 2, function(x) length(which(is.na(x))))
+#table(o)
+#which(o==1)
+#xts_ts_dy <- xts(mat_ts_dy, date_vec)
+#date_vec <- index(xts_ts_dy)
+#-----
+mat_pctDiff_dy <- diff(mat_ts_dy) / mat_ts_dy[-nrow(mat_ts_dy), ] * 100
+#mat_pctDiff_dy <- diff(log(mat_ts_dy))
+row.names(mat_pctDiff_dy) <- as.character(date_vec[-1])
+ts_avg_dy <- rowMeans(mat_pctDiff_dy)
+mu_ret_dy <- colMeans(mat_pctDiff_dy)
+sd_ret_dy <- apply(mat_pctDiff_dy, 2, sd)
+
+mat_ts_wk <- to.weekly(xts(mat_ts_dy, date_vec), OHLC = F)
+mat_pctDiff_wk <- diff(mat_ts_wk) / mat_ts_wk[-nrow(mat_ts_wk), ] * 100
+mat_pctDiff_wk <- as.matrix(mat_pctDiff_wk[-1, ])
+ts_avg_wk <- rowMeans(mat_pctDiff_wk)
+mu_ret_wk <- colMeans(mat_pctDiff_wk)
+sd_ret_wk <- apply(mat_pctDiff_wk, 2, sd)
+
+mat_ts_mo <- to.monthly(xts(mat_ts_dy, date_vec), OHLC = F)
+mat_pctDiff_mo <- diff(mat_ts_mo) / mat_ts_mo[-nrow(mat_ts_mo), ] * 100
+mat_pctDiff_mo <- as.matrix(mat_pctDiff_mo[-1, ])
+ts_avg_mo <- rowMeans(mat_pctDiff_mo)
+mu_ret_mo <- colMeans(mat_pctDiff_mo)
+sd_ret_mo <- apply(mat_pctDiff_mo, 2, sd)
+#----------------------------------------------
+# mu_pctRet <- apply(10^-2 * mat_pctDiff_dy, 2, function(x) prod(1 + x)) - 1
+# mu_pctRet_check <- (mat_ts_dy[nrow(mat_ts_dy), ] - mat_ts_dy[1, ]) / mat_ts_dy[1, ]
+# mu_pctRet / mu_pctRet_check
+#----------------------------------------------
+# Compare histograms of daily, weekly, and monthly returns
+# df_plot <- data.frame(ts_id = names(mu_ret_dy), mu_ret_dy, mu_ret_wk, mu_ret_mo)
+# colnames(df_plot)[-1] <- c("Mean Daily Return", "Mean Weekly Return", "Mean Monthly Return")
+# gathercols <- colnames(df_plot)[-1]
+# df_plot <- df_plot %>% gather_("Return Type", "Value", gathercols)
+# #gg <- ggplot(df_plot, aes(Value, fill = `Return Type`))
+# gg <- ggplot(df_plot, aes(Value))
+# gg <- gg + geom_density(alpha = 0.4)
+# gg <- gg + facet_wrap(~`Return Type`, nrow = 1, scales = "free")
+# #gg <- gg + coord_cartesian(xlim = c(-0.02, 0.02))
+# gg
+#----------------------------------------------
+mat_ts <- mat_ts_dy
+colnames(mat_ts) <- as.character(df_symb_detail$detail[order(df_symb_detail$symbol)])
+#----------------------------------------------
+mat_pctDiff <- mat_pctDiff_dy
+#mat_pctDiff <- mat_pctDiff_wk
+date_vec <- row.names(mat_pctDiff)
+#length(date_vec)
+row.names(mat_pctDiff) <- as.character(date_vec)
+colnames(mat_pctDiff) <- as.character(df_symb_detail$detail[order(df_symb_detail$symbol)])
+#----------------------------------------------
+check_on_data <- F
+if(check_on_data){
+  df_plot <- as.data.frame(mat_pctDiff)
+  gathercols <- colnames(df_plot)
+  df_plot$Date <- date_vec
+  df_plot <- df_plot %>% gather_("Security", "Weekly change (%)", gathercols)
+  df_plot$Type <- NA
+  df_plot$Type[which(df_plot$Security %in% spy_sector_detail)] <- "US Sectors"
+  df_plot$Type[which(df_plot$Security %in% minerals_detail)] <- "Minerals"
+  df_plot$Type[which(df_plot$Security %in% agriculture_detail)] <- "Agriculture"
+  df_plot$Type[which(df_plot$Security %in% energy_detail)] <- "Energy"
+  df_plot$Type[which(df_plot$Security %in% currency_detail)] <- "Major Currency Pairs"
+  df_plot$Type[which(df_plot$Security %in% emerg_mkt_detail)] <- "Emerging Markets"
+  df_plot$Type[which(df_plot$Security %in% crypto_detail)] <- "Cryptocurrencies/\nBlockchain"
+  df_plot$Type[which(df_plot$Security %in% Tbond_detail)] <- "T-bonds"
+  #------------------------------------------------------------
+  # gg <- ggplot(df_plot, aes(x = Year, y = Value, group = Security, color = Security))
+  # gg <- gg + geom_line()
+  # gg <- gg + facet_wrap(~ Type, nrow = 3, scales = "free")
+  # gg <- gg + theme(legend.position = "none")
+  # gg
+  #------------------------------------------------------------
+  this_type <- "US Sectors"
+  df_plot2 <- subset(df_plot, Type == this_type)
+  gg <- ggplot(df_plot2, aes(x = Date, y = `Weekly change (%)`, group = Security, color = Security))
+  gg <- gg + geom_line(lwd = 1.1)
+  gg <- gg + geom_point(size = 2)
+  gg <- gg + labs(title = this_type)
+  gg
+  this_type <- "Minerals"
+  df_plot2 <- subset(df_plot, Type == this_type)
+  gg <- ggplot(df_plot2, aes(x = Date, y = `Weekly change (%)`, group = Security, color = Security))
+  gg <- gg + geom_line(lwd = 1.1)
+  gg <- gg + geom_point(size = 2)
+  gg <- gg + labs(title = this_type)
+  gg
+  this_type <- "Agriculture"
+  df_plot2 <- subset(df_plot, Type == this_type)
+  gg <- ggplot(df_plot2, aes(x = Date, y = `Weekly change (%)`, group = Security, color = Security))
+  gg <- gg + geom_line(lwd = 1.1)
+  gg <- gg + geom_point(size = 2)
+  gg <- gg + labs(title = this_type)
+  gg
+  this_type <- "Energy"
+  df_plot2 <- subset(df_plot, Type == this_type)
+  gg <- ggplot(df_plot2, aes(x = Date, y = `Weekly change (%)`, group = Security, color = Security))
+  gg <- gg + geom_line(lwd = 1.1)
+  gg <- gg + geom_point(size = 2)
+  gg <- gg + labs(title = this_type)
+  gg
+  this_type <- "Major Currency Pairs"
+  df_plot2 <- subset(df_plot, Type == this_type)
+  gg <- ggplot(df_plot2, aes(x = Date, y = `Weekly change (%)`, group = Security, color = Security))
+  gg <- gg + geom_line(lwd = 1.1)
+  gg <- gg + geom_point(size = 2)
+  gg <- gg + labs(title = this_type)
+  gg
+  this_type <- "Emerging Markets"
+  df_plot2 <- subset(df_plot, Type == this_type)
+  gg <- ggplot(df_plot2, aes(x = Date, y = `Weekly change (%)`, group = Security, color = Security))
+  gg <- gg + geom_line(lwd = 1.1)
+  gg <- gg + geom_point(size = 2)
+  gg <- gg + labs(title = this_type)
+  gg
+  this_type <- "Cryptocurrencies/Blockchain"
+  df_plot2 <- subset(df_plot, Type == this_type)
+  gg <- ggplot(df_plot2, aes(x = Date, y = `Weekly change (%)`, group = Security, color = Security))
+  gg <- gg + geom_line(lwd = 1.1)
+  gg <- gg + geom_point(size = 2)
+  gg <- gg + labs(title = this_type)
+  gg
+  this_type <- "T-bonds"
+  df_plot2 <- subset(df_plot, Type == this_type)
+  gg <- ggplot(df_plot2, aes(x = Date, y = `Weekly change (%)`, group = Security, color = Security))
+  gg <- gg + geom_line(lwd = 1.1)
+  gg <- gg + geom_point(size = 2)
+  gg <- gg + labs(title = this_type)
+  gg
+}
+
+```
+
+```{r, fig.show = 'hold', fig.cap="\\label{fig:hReturns}Historical (top) daily returns and (bottom) period return, financial data.", fig.width=6, fig.height=6, fig.align='left', echo=FALSE}
+#=======================================================================
+# Define function to plot period returns as barchart with colors
+plot_returns_barchart <- function(df_pctRet, group_colors, list_graph_options, graph_on = T){
+  if(is.null(list_graph_options)){
+    fig_title <- NULL
+    legend_position <- NULL
+    ylab <- NULL
+    axisTextX_off <- NULL
+  }else{
+    fig_title <- list_graph_options[["fig_title"]]
+    legend_position <- list_graph_options[["legend_position"]]
+    ylab <- list_graph_options[["ylab"]]
+    axisTextX_off <- list_graph_options[["axisTextX_off"]]
+  }
+  
+  if(is.null(group_colors)){
+    n_groups <- length(unique(df_pctRet$Group))
+    bag_of_colors <- randomcoloR::distinctColorPalette(k = 5 * n_groups)
+    group_colors <- sample(bag_of_colors, n_groups)
+  }
+  
+  colnames(df_pctRet)[1] <- "Period Return"
+  df_plot <- df_pctRet
+  gg <- ggplot(df_plot, aes(x = Item, y = `Period Return`, fill = Group))
+  #gg <- gg + scale_color_brewer(palette = "Dark2")
+  gg <- gg + scale_fill_manual(values = group_colors)
+  gg <- gg + geom_bar(stat = "identity", color = "black", position = "dodge")
+  if("Dataset" %in% colnames(df_plot)){
+    gg <- gg + facet_wrap(~Dataset, ncol = 1)
+  }
+  if(!is.null(fig_title)){
+    gg <- gg + labs(title = fig_title)
+    gg <- gg + theme(plot.title = element_text(face = "bold", size = 8))
+  }
+  if(!is.null(ylab)){
+    gg <- gg + labs(y = ylab)
+    gg <- gg + theme(axis.title.y = element_text(size = 7))
+  }else{
+    gg <- gg + theme(axis.title.y = element_blank())
+  }
+  if(!is.null(legend_position)){
+    gg <- gg + theme(legend.position = legend_position)
+  }else{
+    gg <- gg + theme(legend.position = "bottom")
+  }
+  if(!is.null(axisTextX_off)){
+    gg <- gg + theme(axis.text.x = element_blank())
+  }else{
+    gg <- gg + theme(axis.text.x = element_text(size = 7, angle = 60, hjust = 1))
+  }
+  gg <- gg + theme(axis.title.x = element_blank(),
+                   axis.text.y = element_text(size = 7),
+                   #axis.title.y = element_text(size = 9),
+                   legend.title = element_blank(),
+                   legend.text = element_text(size = 7))
+  #  gg <- gg + coord_equal()
+  #  gg <- gg + coord_flip()
+  if(graph_on){print(gg)}
+  return(gg)
+  
+}
+
+#=======================================================================
+# Define function to plot daily returns box and whiskers chart 
+# plot_boxchart <- function(df_pctDiff, group_colors, list_graph_options, graph_on = T){
+#   if(is.null(list_graph_options)){
+#     legend_position <- "right" #"none"
+#     axis_titles <- "on" #"off"
+#     axis_text <- "on" #"y only"
+#     fig_title <- NULL
+#   }else{
+#     legend_position <- list_graph_options[["legend_position"]]
+#     axis_titles <- list_graph_options[["axis_titles"]]
+#     axis_text <- list_graph_options[["axis_text"]]
+#     fig_title <- list_graph_options[["fig_title"]]
+#   }
+#   
+#   df_plot <- df_pctDiff
+#     gg <- ggplot(df_plot, aes(x = Item, y = `Daily Returns`, fill = Group))
+#   #gg <- gg + scale_color_brewer(palette = "Dark2")
+#   gg <- gg + scale_fill_manual(values = group_colors)
+#   #gg <- gg + geom_bar(stat = "identity", color = "black", position = "dodge")
+#   gg <- gg + geom_boxplot()
+#   if("Dataset" %in% colnames(df_plot)){
+#     gg <- gg + facet_wrap(~Dataset, ncol = 1)
+#   }
+#   if(!is.null(fig_title)){
+#     gg <- gg + labs(title = fig_title)
+#     gg <- gg + theme(plot.title = element_text(face = "bold", size = 9))
+#   }
+#   if(axis_titles == "off"){
+#     gg <- gg + theme(axis.title = element_blank())
+#   }
+#   if(axis_text == "y only"){
+#     gg <- gg + theme(axis.text.x = element_blank(),
+#                      axis.text.y = element_text(size = 9))
+#   }
+#   if(axis_text == "on"){
+#     gg <- gg + theme(axis.text.y = element_text(size = 9),
+#                      axis.text.x = element_text(size = 9, angle = 60, hjust = 1))
+#   }
+#     gg <- gg + theme(legend.position = legend_position)
+#     if(graph_on){print(gg)}
+#     return(gg)
+# 
+# }
+#=======================================================================
+# Define function to order data frames by group for period returns barchart and daily returns box and whiskers plots
+get_hist_dfs_ready <- function(mat_ts_in, group_info){
+  #------------------------------------------------------------
+  # Group the vars according to provided group info
+  #varNames_ordered <- do.call(c, group_info[[1]])
+  outlist <- group_fn(group_info)
+  cols_ordered_by_group <- outlist[[1]]
+  group_color_vec <- outlist[[2]]
+  group_vec_ordered <- outlist[[3]]
+  ind_ordered_cols <- outlist[[4]]
+  df_match_group <- data.frame(Item = cols_ordered_by_group, Group = group_vec_ordered)
+  mat_ts_ordered <- mat_ts_in[, cols_ordered_by_group]
+  #------------------------------------------------------------
+  # Get date info
+  from_date <- row.names(mat_ts_ordered)[1]
+  to_date <- row.names(mat_ts_ordered)[nrow(mat_ts_ordered)]
+  from_date <- gsub("-", "/", from_date)
+  to_date <- gsub("-", "/", to_date)
+  date_interval <- paste(from_date, to_date, sep = " - ")
+  #------------------------------------------------------------
+  # Get returns barchart df organized by group
+  nab_pctRet <- 100 * (mat_ts_ordered[nrow(mat_ts_ordered), ] - mat_ts_ordered[1, ]) / mat_ts_ordered[1, ]
+  #---
+  # check
+  mat_pctDiff <- 100 * diff(mat_ts) / mat_ts[-nrow(mat_ts), ]
+  nab_pctRet_check <- 100 * apply(10^-2 * mat_pctDiff, 2, function(x) prod(1 + x)) - 1
+  nab_pctRet / nab_pctRet_check
+  #---
+  df_pctRet <- data.frame(Returns = nab_pctRet)
+  df_pctRet$Item <- row.names(df_pctRet)
+  df_pctRet$Group <- factor(group_vec_ordered)
+  df_pctRet$Item <- factor(df_pctRet$Item, levels = cols_ordered_by_group)
+  #------------------------------------------------------------
+  # Get boxplot df organized by group
+  # df_pctDiff <- as.data.frame(mat_pctDiff_ordered)
+  # df_pctDiff <- df_pctDiff %>% gather_("Item", "Daily Returns", colnames(df_pctDiff))
+  # df_match_group <- data.frame(Item = cols_ordered_by_group, Group = group_vec_ordered)
+  # df_pctDiff <- merge(df_pctDiff, df_match_group, by = "Item")
+  # df_pctDiff$Item <- factor(df_pctDiff$Item, levels = cols_ordered_by_group)
+  # df_pctDiff$Group <- factor(df_pctDiff$Group)
+  #------------------------------------------------------------
+  out_list <- list(df_pctRet, date_interval)
+  return(out_list)
+}
+
+
+#=======================================================================
+# Define function to plot covariance/correlation matrices
+plot_covmat <- function(covmat, fig_title = "Covariance Matrix", round_to = 2, graph_on = T, legend_position = NULL, num_size = NULL){
+  covmat[upper.tri(covmat)] <- NA
+  df_plot <- covmat %>% tbl_df()
+  these_levels <- colnames(df_plot)
+  df_plot$ItemX <- colnames(df_plot)
+  gathercols <- colnames(df_plot)[-ncol(df_plot)]
+  df_plot <- df_plot %>% gather_("ItemY", "Value", gathercols)
+  df_plot$ItemX <- factor(df_plot$ItemX, levels = these_levels)
+  df_plot$ItemY <- factor(df_plot$ItemY, levels = these_levels)
+  
+  #midpoint <- min(covmat) + (max(covmat) - min(covmat)) / 2
+  midpoint <- 0
+  gg <- ggplot(df_plot, aes((ItemX), (ItemY)))
+  gg <- gg + geom_tile(aes(fill = Value))#, width = 4, height = 4)
+  if(!is.null(num_size)){
+    gg <- gg + geom_text(aes(label = round(Value, round_to)), size = num_size)
+  }else{
+    gg <- gg + geom_text(aes(label = round(Value, round_to)), size = 2.5)
+  }
+  if(!is.null(fig_title)){
+    gg <- gg + labs(title = fig_title)
+  }
+  gg <- gg + theme_bw()
+  gg <- gg + theme(axis.text.x = element_text(size = 7, angle = 60, hjust = 1),
+                   axis.text.y = element_text(size = 7),
+                   axis.title = element_blank(),
+                   legend.title = element_blank(),
+                   plot.title = element_text(face = "bold", size = 8))
+  if(!is.null(legend_position)){
+    gg <- gg + theme(legend.position = legend_position)
+  }
+  gg <- gg + scale_fill_gradient2(low = "magenta", mid = "khaki", high = "cyan", midpoint, na.value = "white")
+  if(graph_on){print(gg)}
+  return(gg)
+  
+}
+#=======================================================================
+# End function definition
+#=======================================================================
+# Separate out a reduced matrix for the basic MV Analysis demonstration
+# group_names
+demonstration_group <- c("US Sectors")
+ind_group <- which(group_names %in% demonstration_group)
+these_items <- do.call(c, list_groups[ind_group])
+ind_keep <- which(colnames(mat_ts) %in% these_items)
+mat_ts_eg <- mat_ts[, ind_keep]
+#-----------------------------------------------------------------------
+# For a good illustrative example of portfolio optimization, select a financial period over which the returns in the portfolio are as varied as possible yet with the minimum return being >= 2%. This can be achieved by adjusting "buffer". Also'd be nice to have all signal period returns > 0, but this does not seem possible in this data set.
+#-----------------------------------------------------------------------
+# ind_train <- 1:round(nrow(mat_pctDiff) * 1 / 2)
+# ind_test <- setdiff(1:nrow(mat_pctDiff), ind_train)
+length_Q <- 67 # Length of a financial quarter (3 months)
+buffer <- 5#36 # Select to give high cv of returns but with min return >=1-2%
+#------------------------------------------------------------
+# min_pctRet <- c()
+# cv_pctRet <- c()
+# buffr <- c()
+# n_negRet_sigs_train <- c()
+# n_negRet_sigs_test <- c()
+# for(i in 1:110){
+# buffer <- 2+i
+#------------------------------------------------------------
+ind_train <- (nrow(mat_ts_eg) - 2 * length_Q - buffer + 1):(nrow(mat_ts_eg) -  length_Q - buffer)
+ind_test <- (nrow(mat_ts_eg) - length_Q - buffer + 1):(nrow(mat_ts_eg) - buffer)
+mat_ts_eg_train <- mat_ts_eg[ind_train, ]
+mat_ts_eg_test <- mat_ts_eg[ind_test, ]
+#------------------------------------------------------------
+# Get returns barchart df organized by group
+nab_decRet_eg_train <- (mat_ts_eg_train[nrow(mat_ts_eg_train), ] - mat_ts_eg_train[1, ]) / mat_ts_eg_train[1, ]
+nab_decRet_eg_test <- (mat_ts_eg_test[nrow(mat_ts_eg_test), ] - mat_ts_eg_test[1, ]) / mat_ts_eg_test[1, ]
+nab_pctRet_eg_train <- 100 * nab_decRet_eg_train
+nab_pctRet_eg_test <- 100 * nab_decRet_eg_test
+#---
+# check
+# mat_pctDiff <- 100 * diff(mat_ts_eg_train) / mat_ts_eg_train[-nrow(mat_ts_eg_train), ]
+# nab_pctRet_check <- 100 * (apply(10^-2 * mat_pctDiff, 2, function(x) prod(1 + x)) - 1)
+# nab_pctRet / nab_pctRet_check
+#------------------------------------------------------------
+mat_decDiff_eg_train <- diff(mat_ts_eg_train) / mat_ts_eg_train[-nrow(mat_ts_eg_train), ]
+mat_decDiff_eg_test <- diff(mat_ts_eg_test) / mat_ts_eg_test[-nrow(mat_ts_eg_test), ]
+mat_pctDiff_eg_train <- 100 * mat_decDiff_eg_train
+mat_pctDiff_eg_test <- 100 * mat_decDiff_eg_test
+covmat_decDiff_train <- cov(mat_decDiff_eg_train)
+covmat_decDiff_test <- cov(mat_decDiff_eg_train)
+covmat_pctDiff_train <- cov(mat_pctDiff_eg_train)
+covmat_pctDiff_test <- cov(mat_pctDiff_eg_train)
+#------------------------------------------------------------
+# mat_P <- eigen(covmat_decDiff_train)$vectors
+# mat_S <- mat_decDiff_eg_train %*% mat_P
+# mat_P_test <- eigen(covmat_decDiff_test)$vectors
+# mat_S_test <- mat_decDiff_eg_test %*% mat_P_test
+# nab_decRet_sigs_train <- (apply(mat_S, 2, function(x) prod(1 + x)) - 1)
+# nab_decRet_sigs_test <- (apply(mat_S_test, 2, function(x) prod(1 + x)) - 1)
+# n_negRet_sigs_train[i] <- length(which(nab_decRet_sigs_train[1:4] < 0))
+# n_negRet_sigs_test[i] <- length(which(nab_decRet_sigs_test[1:4] < 0))
+# min_pctRet[i] <- min(nab_pctRet)
+# cv_pctRet[i] <- sd(nab_pctRet) / mean(nab_pctRet)
+# buffr[i] <- buffer
+# }
+# View(data.frame(buffr, min_pctRet, cv_pctRet, n_negRet_sigs_train, n_negRet_sigs_test))
+#----------------------------------------------------------
+train_start_date <- row.names(mat_pctDiff_eg_train)[1]
+train_stop_date <- row.names(mat_pctDiff_eg_train)[nrow(mat_pctDiff_eg_train)]
+test_start_date <- row.names(mat_pctDiff_eg_test)[1]
+test_stop_date <- row.names(mat_pctDiff_eg_test)[nrow(mat_pctDiff_eg_test)]
+#----------------------------------------------------------
+
+```
+
+```{r, fig.show = 'hold', fig.width = 4, fig.height=5, fig.align='left', fig.cap="\\label{fig:mvConv}\\textit{(Top)} Frontier of optimal portfolio returns and \\textit{(bottom)} their corresponding budget shares, financial data.", echo = FALSE}
+#=======================================================================
+#=======================================================================
+#=======================================================================
+# End function definitions
+#=======================================================================
+#=======================================================================
+
+```
+
+# "Reverse engineering" principal components analysis to deduce synergies and tradeoffs
+
+## Signals from noise: dimensional reduction of portfolios
+
+In principal components analysis, a dataset $X$ containing $\tau$ observations of $n$ variables is distilled into a dataset $S$ of just $m<n$ retained variables that capture the main tendencies and structure in the data.^[The data are always centered. If the variables in $X$ follow diverse scalings and/or units of measurement (i.e. if apples are being compared to oranges), then $X$ should also be scaled to unit variance. See Abdi [-@abdi2010principal] for an introduction to principal components analysis.] The distilled matrix $S$ is defined
+
+\begin{equation}
+S = X \tilde{P}
+\label{eq:sigs_def}
+\end{equation}
+
+Where $\tilde{P}$ is a matrix containing the $m$ leading eigenvectors of the full set of eigenvectors $P$, which is taken from the eigendecomposition of the data covariance matrix $\Sigma_{XX}$ (equation \ref{eq:eigDecomp}).
+
+\begin{equation}
+\Sigma_{XX} = P\Gamma P'
+\label{eq:eigDecomp}
+\end{equation}
+
+Where $\Gamma$ is the diagonal matrix of the eigenvalues of $\Sigma_{XX}$. 
+
+From the definition (\ref{eq:sigs_def}), it follows that the columns of $S$ are uncorrelated with each other, and that their variance is given by the retained leading $m$ eigenvalues of the data covariance matrix.
+
+\begin{equation}
+\begin{split}
+\Sigma_{SS} &= \frac{1}{n-1}S'S \\
+&= \frac{1}{n-1} \tilde{P}'X'X\tilde{P} \\
+&= \tilde{P}'\Sigma_{XX}\tilde{P} \\
+&= \tilde{P}'P \Gamma P'\tilde{P}=\tilde{\Gamma}
+\end{split}
+\label{eq:covmat_SS}
+\end{equation}
+
+The columns of the distilled matrix $S$ are often referred to as the principal components (PC), or the PC scores, or the factor scores. When dealing with noisy time series, as in this article, they might just as well be referred to as the "signals", in the sense that they are signals extracted from noise.
+
+There then remains the question of what essential process these dimensions or signals $S$ describe. This can be interpreted based on how correlated they are with the variables in $X$. These signal-variable correlations ($K_{XS}$) are found by first finding their corresponding covariances ($\Sigma_{XS}$).
+
+\begin{equation}
+\begin{split}
+\Sigma_{XS} &= \frac{1}{n-1}X'S \\
+&= \frac{1}{n-1}X'X \tilde{P} \\
+&= \Sigma_{XX} \tilde{P} \\
+&= P \Gamma P'\tilde{P} \\
+&= \tilde{P} \tilde{\Gamma}
+\end{split}
+\end{equation}
+
+Given the standard deviations of the variables in $X$ (call this $\boldsymbol{\sigma}_X$), and the standard deviations of the signals $S$ (call this $\boldsymbol{\sigma}_S$), the signal-variable correlation matrix $K_{XS}$ then follows as
+
+\begin{equation}
+\begin{split}
+K_{XS} &= D(\boldsymbol{\sigma}_X)^{-1} \Sigma_{XS} D(\boldsymbol{\sigma}_S)^{-1} \\
+&= D(\boldsymbol{\sigma}_X)^{-1} \tilde{P} \tilde{\Gamma} D(\boldsymbol{\sigma}_S)^{-1}
+\end{split}
+\end{equation}
+
+(Where the notation $D(\boldsymbol{\sigma}_X)$ stands for a diagonal matrix with the vector $\boldsymbol{\sigma}_X$ along the diagonal.) But the standard deviations of the signals are just the square roots of the retained eigenvalues (recall equation \ref{eq:covmat_SS}), so this reduces to
+
+\begin{equation}
+\begin{split}
+K_{XS} &= D(\boldsymbol{\sigma}_X)^{-1}\Sigma_{XS} \tilde{\Gamma}^{-{1 \over 2}} \\
+&= D(\boldsymbol{\sigma}_X)^{-1}\tilde{P} \tilde{\Gamma} \tilde{\Gamma}^{-{1 \over 2}} \\
+&= D(\boldsymbol{\sigma}_X)^{-1}\tilde{P} \tilde{\Gamma} ^{1 \over 2}
+\end{split}
+\end{equation}
+
+Moreover, if $X$ is scaled to unit variance, then this further reduces to
+
+\begin{equation}
+K_{XS} = \tilde{P} \tilde{\Gamma}^{1 \over 2}
+\end{equation}
+
+The signal-variable correlations matrix $K_{XS}$ is sometimes referred to as the "loadings" matrix, in the sense that it indicates how much each variable in $X$ loads onto a given signal (or, vice versa, how much each signal loads onto a given variable).^[These terms vary in the literature. Many prefer to call $P$ the loadings.] In keeping with this convention, and in order to reduce notational clutter, $K_{XS}$ is henceforth relabeled $L$. That is to say,
+
+\begin{equation}
+L = K_{XS} = D(\boldsymbol{\sigma}_X)^{-1} \tilde{P} \tilde{\Gamma}^{1 \over 2}
+\label{eq:defLret}
+\end{equation}
+
+Or, if $X$ is scaled to unit variance,
+
+\begin{equation}
+L = K_{XS} = \tilde{P} \tilde{\Gamma}^{1 \over 2}
+\label{eq:defLretScal}
+\end{equation}
+
+Note that, in the latter case, the inner product of the loadings is equivalent to the signals covariance matrix $\Sigma_{SS}$ derived in equation \ref{eq:covmat_SS}.
+
+\begin{equation}
+\begin{split}
+L'L &= (\tilde{P} \tilde{\Gamma}^{1 \over 2})' \tilde{P} \tilde{\Gamma}^{1 \over 2} \\
+&= \tilde{\Gamma}^{1 \over 2} P' \tilde{P} \tilde{\Gamma}^{1 \over 2} \\
+&= \tilde{\Gamma}
+\end{split}
+\label{eq:LLinner}
+\end{equation}
+
+The inner product of the loadings is thus orthogonal when the data $X$ are scaled to unit variance.
+
+Note, moreover, that the data correlation matrix $K_{XX}$ can be calculated as the outer product of the full set of loadings with itself.
+
+\begin{equation}
+\begin{split}
+LL' &= D(\boldsymbol{\sigma}_X)^{-1} P \Gamma^{1 \over 2} (D(\boldsymbol{\sigma}_X)^{-1} P \Gamma^{1 \over 2})' \\
+&= D(\boldsymbol{\sigma}_X)^{-1} P \Gamma^{1 \over 2}) \Gamma^{1 \over 2} P' D(\boldsymbol{\sigma}_X)^{-1} \\
+&= D(\boldsymbol{\sigma}_X)^{-1} P \Gamma P' D(\boldsymbol{\sigma}_X)^{-1} \\
+&= K_{XX}
+\end{split}
+\label{eq:KfromLL}
+\end{equation}
+
+(Where $L$, in this instance, refers to the full set of loadings, $L = D(\boldsymbol{\sigma}_X)^{-1} P \Gamma^{1 \over 2}$, as opposed to the set of retained loadings, as defined in equation \ref{eq:defLret}.)
+
+An example of loadings is given in Fig \ref{fig:corrXS_barchart}. In this case, the variables are the daily returns of `r ncol(mat_pctDiff_eg_train)` financial securities covering the period `r train_start_date` to `r train_stop_date`.^[Downloaded from yahoo finance using the R tidyquant package. The securities chosen for this example are exchange traded funds broadly representative of the U.S. economy. See Appendix for details. The dataset is centered, but not scaled to unit variance.] The signals are presented in descending order of their corresponding eigenvalues, with Signal 1 representing the principal component with the highest eigenvalue. The eigenvalue reflects the degree to which the signal describes the overall evolution of the data. Here, only the first four signals of the financial data set are shown. The question of how many signals should be extracted from the noise is addressed at the end of the section.
+
+```{r, fig.show = 'hold', fig.width=5, fig.height=3, fig.align='left', fig.cap="\\label{fig:corrXS_barchart}Correlation of portfolio items with leading signals."}
+
+
+# Define function to calculate variable-signal correlations, financial data
+get_S_and_corrXS <- function(mat_X_in){
+  # mat_P = eigenvectors of the data correlation matrix
+  # mat_G = corresponding eigenvalues
+  mat_X_centered <- scale(mat_X_in, scale = F)
+  # out_svd <- svd(mat_X_centered)
+  # sing_values <- out_svd$d
+  # n_obs <- nrow(mat_X_centered)
+  # eig_values <- sing_values^2 / (n_obs - 1)
+  # mat_P <- out_svd$v
+  
+  mat_P <- eigen(cov(mat_X_in))$vectors
+  if(mean(mat_P[, 1]) < 0){mat_P <- -mat_P}
+  eig_values <- eigen(cov(mat_X_in))$values
+  mat_G <- diag(eig_values)
+  
+  #mat_P_sigs <- mat_P[, 1:n_signals]
+  # eig_values[1:n_signals] / eigen(cov(mat_X_centered))$values[1:n_signals] #check
+  # mat_P / eigen(cov(mat_X_in))$vectors #check
+  
+  #mat_G <- diag(eig_values)
+  
+  #mat_G_sigs <- matU[, 1:n_signals]
+  #---------------------------------------------
+  sd_X <- apply(mat_X_in, 2, sd)
+  D_sdX_inv <- diag(1 / sd_X)
+  cormat_XS <- D_sdX_inv %*% mat_P %*% sqrt(mat_G)
+  row.names(cormat_XS) <- colnames(mat_X_in)
+  mat_L <- cormat_XS
+  #mat_L <- diag(1 / apply(mat_X_in, 2, sd)) %*% mat_P %*% sqrt(mat_G)
+  #---------------------------------------------------------
+  # Set sign of eigenvectors such that signals best conform to their most highly correlated items
+  # First have to get average of highest correlated items for each signal
+  corrThresh <- 0.55
+  n_items <- ncol(mat_L)
+  list_X_hiCorr_avg <- list()
+  for(i in 1:n_items){
+    this_loadvec <- mat_L[, i]
+    ind_tracks <- which(abs(this_loadvec) >= corrThresh)
+    if(length(ind_tracks) == 0){
+      ind_tracks <- which(abs(this_loadvec) == max(abs(this_loadvec)))
+    }
+    if(length(ind_tracks) == 1){
+      list_X_hiCorr_avg[[i]] <- mat_X_centered[, ind_tracks]
+    }else{
+      loadvec_kept <- this_loadvec[ind_tracks]
+      list_X_hiCorr_avg[[i]] <- rowMeans(mat_X_centered[, ind_tracks])
+      
+    }
+  }
+  mat_X_hiCorr_avg <- do.call(cbind, list_X_hiCorr_avg)
+  mat_S_all <- mat_X_centered %*% mat_P
+  #mat_S_all <- mat_X_in %*% mat_P
+  for(i in 1:n_items){
+    this_S <- mat_S_all[, i]
+    this_X_hiCorr_avg <- mat_X_hiCorr_avg[, i]
+    mse <- mean((this_S - this_X_hiCorr_avg)^2)
+    mse_neg <- mean((-this_S - this_X_hiCorr_avg)^2)
+    if(mse_neg < mse){
+      mat_P[, i] <- -mat_P[, i]
+    }
+  }
+  cormat_XS <- D_sdX_inv %*% mat_P %*% sqrt(mat_G)
+  row.names(cormat_XS) <- colnames(mat_X_in)
+  mat_L <- cormat_XS
+  mat_S_all <- mat_X_centered %*% mat_P
+  #---------------------------------------------
+  # res <- FactoMineR::PCA(mat_pctDiff_in, scale.unit = F, ncp = ncol(mat_pctDiff_in), graph = F)
+  # mat_L_FactoMiner <- res$var$coord
+  # mat_L / mat_L_FactoMiner
+  
+  list_out <- list(mat_S_all, cormat_XS, eig_values, mat_P)
+  return(list_out)
+}
+#====================================================
+# Barchart of variable-signal correlations
+plot_corrXS_barchart <- function(mat_L, group_info = NULL, xAxis_title = NULL, sigNames = NULL){
+  
+  n_signals <- ncol(mat_L)
+  df_plot <- data.frame(Item = row.names(mat_L), mat_L)
+  df_plot$Item <- as.character(df_plot$Item)
+  #-------------------------------------------------------
+  if(is.null(sigNames)){
+    signal_id <- paste("Signal", 1:n_signals)
+  }else{
+    #signal_id <- paste("Signal", 1:n_signals, "\n", sigNames)
+    signal_id <- sigNames
+  }
+  colnames(df_plot)[2:(n_signals + 1)] <- signal_id
+  #-------------------------------------------------------
+  gathercols <- as.character(signal_id) 
+  df_plot <- gather_(df_plot, "Signal", "Correlation", gathercols)
+  df_plot <- transform(df_plot,
+                       Signal = factor(Signal, levels = gathercols))
+  
+  if(!is.null(group_info)){
+    outlist <- group_fn(group_info)
+    cols_ordered_by_group <- outlist[[1]]
+    group_color_vec <- outlist[[2]]
+    group_vec_ordered <- outlist[[3]]
+    df_match_group <- data.frame(Item = cols_ordered_by_group, Group = group_vec_ordered)
+    df_plot <- merge(df_plot, df_match_group, by = "Item")
+    df_plot <- df_plot[order(df_plot$Group), ]
+    df_plot$Item <- factor(df_plot$Item, levels = unique(df_plot$Item))
+    gg <- ggplot(df_plot, aes(x = Item, y = Correlation, fill = Group))
+    gg <- gg + scale_fill_manual(values = unique(group_color_vec))
+  }else{
+    df_plot$Item <- factor(df_plot$Item,
+                           levels = rev(unique(df_plot$Item)))
+    gg <- ggplot(df_plot, aes(x = Item, y = Correlation))
+  }
+  gg <- gg + geom_bar(stat = "identity", color = "black", position = "dodge")
+  gg <- gg + ylim(limits = c(-1, 1))
+  gg <- gg + facet_wrap(~ Signal, nrow = 1)
+  if(!is.null(xAxis_title)){
+    gg <- gg + labs(y = xAxis_title)
+  }
+  gg <- gg + theme(axis.text = element_text(size = 7),
+                   axis.title.x = element_text(size = 7),
+                   axis.title.y = element_blank(),
+                   legend.title = element_blank(),
+                   legend.text = element_text(size = 7),
+                   strip.text = element_text(size = 7))
+  gg <- gg + coord_equal()
+  gg <- gg + coord_flip()
+  gg
+  
+}
+
+#====================================================
+n_signals <- 4
+mat_X_in <- mat_pctDiff_eg_train
+#mat_X_in <- mat_ts_eg_train
+list_out <- get_S_and_corrXS(mat_X_in)
+mat_S_all <- list_out[[1]]
+cormat_XS <- list_out[[2]]
+eig_values <- list_out[[3]]
+mat_P <- list_out[[4]]
+mat_S <- mat_S_all[, 1:n_signals]
+mat_L <- cormat_XS[, 1:n_signals]
+
+#eigen(cov(mat_S))$values / eig_values[1:n_signals]
+
+plot_corrXS_barchart(mat_L)
+ggsave("Fig 1.tiff")
+
+```
+
+**Fig 1:** Correlation of portfolio items with leading signals.
+
+&nbsp;
+
+Concrete meaning can now be attributed to the otherwise abstract signals by examining the loadings---i.e. by examining how correlated the signals are with the individual price series. Signal 4, for example, appears to have something to do with price movements in Communications, and is negatively correlated with movements in the Real Estate sector. Signal 3, meanwhile, is positively correlated with Real Estate and Utilities, as well as Communications. Signal 3 might thus be loosely characterized as the "Housing and Urban Development" or "HUD" Signal, while Signal 4 might be called, rather convolutedly, the "Telecommunications Not Related to HUD" Signal. The interpretation of Signals 1 and 2 is still less straightforward, since they are both correlated with many portfolio items.
+
+## Applying an orthogonal rotation to clarify loadings
+
+When the loadings are convoluted like this, it is useful to apply an orthogonal rotation to $L$ in order to clarify the picture. That is to say, instead of examining $L$, one examines $L_{\circlearrowleft}$.
+
+\begin{equation}
+L_{\circlearrowleft} = LB
+\label{eq:Lrot}
+\end{equation}
+
+Where $B$ is the orthogonal rotation matrix, such that $B'B = I$ and $BB' = I$. It is important that $B$ be orthogonal because the data correlation matrix $K_{XX}$ is defined up to an orthogonal rotation of the full set of loadings. In other words, orthogonal rotations of the loadings leave the data correlation matrix unaltered. To see this, recall that the data correlation matrix can be calculated as the outer product of the full set of loadings with itself (equation \ref{eq:KfromLL}). And then note that this result is invariant under post multiplication of $L$ by the orthogonal rotation matrix $B$.
+
+\begin{equation}
+\begin{split}
+L_{\circlearrowleft} L_{\circlearrowleft}' &= LB (LB)' \\
+&= LBB'L' \\
+&= LL' \\
+&= K_{XX}
+\end{split}
+\label{eq:cormatInvar}
+\end{equation}
+
+In Fig \ref{fig:corrXS_barchart_rot} a special kind of orthogonal rotation, called a varimax rotation, is applied to $L$. Varimax rotations flesh out structure by maximizing sparseness in the rotated matrix.^[For more details on varimax rotations, see Abdi [-@abdi2003factor].] After applying this rotation, Signal 1 is now clearly representative of Biotechnology and Healthcare, and so might be called the "Pharmaceutical" Signal. Signal 2 loadings are also now more distinctly pronounced, especially Financials, Industrial, and Transportation. Signal 2 might thus be called the "Financial and Physical Infrastructure" Signal. The rotation has also cleared up the overlap between Signals 3 and 4. Signal 4 is now more exclusively descriptive of price movements in the Communications sector and can thus be relabeled, more succinctly, the "Communications" Signal. Likewise, Signal 3 is now more exclusively descriptive of movements in Real Estate and Utilities, with some description of movements in the Consumer Goods sector.^[Gopikrishnan, Rosenow, Plerou, and Stanley [-@gopikrishnan2001quantifying] pursued a similar line of inquiry when they looked at the components of the eigenvectors of a financial data correlation matrix. However, they did not explain that their findings are indicative of PC-asset correlations; nor did they apply an orthogonal rotation to clarify the interpretation.]
+
+```{r, fig.show = 'hold', fig.width=5, fig.height=3, fig.align='left', fig.cap="\\label{fig:corrXS_barchart_rot}Varimax rotated correlation of portfolio items with leading signals.", echo=F}
+
+mat_Lrot <- varimax(mat_L)[[1]]
+mat_Lrot <- matrix(as.numeric(mat_Lrot),
+                   attributes(mat_Lrot)$dim,
+                   dimnames = attributes(mat_Lrot)$dimnames)
+mat_R <- varimax(mat_L)[[2]]
+mat_R <- matrix(as.numeric(mat_R),
+                attributes(mat_R)$dim,
+                dimnames = attributes(mat_R)$dimnames)
+
+xAxis_title <- "Varimax Rotated Correlation"
+plot_corrXS_barchart(mat_Lrot, group_info = NULL, xAxis_title, sigNames = NULL)
+
+ggsave("Fig 2.tiff")
+
+```
+
+**Fig 2:** Varimax rotated correlation of portfolio items with leading signals.
+
+&nbsp;
+
+Further visual confirmation of these interpretations of signal meaning is given by plotting the signals in the time domain together with their highest loading portfolio items superimposed (Fig \ref{fig:signals_with_hiCorr_items}). Note how the highest loading items tend to hew closely to their respective signals.
+
+```{r, fig.show = 'hold', fig.width=6, fig.height=5, fig.align='left', fig.cap="\\label{fig:signals_with_hiCorr_items}Signals (thick grey lines) plotted together with their most highly correlated assets."}
+# Define function to plot signals with their highest loading items.
+plot_sigs_wHiLoad_items <- function(mat_X_in, mat_S, mat_L, color_vec, sigNames = NULL, load_threshold = 0.55, n_display_max = 4){
+  n_signals <- ncol(mat_L)
+  if(is.null(sigNames)){
+    fig_title_vec <- paste("Signal", 1:n_signals)
+  }else{
+    fig_title_vec <- paste("Signal", 1:n_signals, "-", sigNames)
+  }
+  # Plot signals against highest correlated variables
+  date_vec <- row.names(mat_S)
+  xAxis_labels <- date_vec[seq(1, nrow(mat_S), length.out = 5)]
+  list_gg <- list()
+  for(i in 1:n_signals){
+    this_loadvec <- mat_L[, i]
+    ind_tracks <- which(abs(this_loadvec) >= load_threshold)
+    if(length(ind_tracks) == 0){
+      ind_tracks <- which(abs(this_loadvec) == max(abs(this_loadvec)))
+    }
+    
+    n_display <- length(ind_tracks)
+    loadvec_kept <- this_loadvec[ind_tracks]
+    if(n_display > n_display_max){
+      n_to_omit <- n_display - n_display_max
+      #random_omission <- sample(1:n_display, n_to_omit)
+      #mat_pctDiff_tracks <- mat_pctDiff_tracks[, -random_omission]
+      ind_omit <- order(loadvec_kept)[c(1:n_to_omit)]
+      ind_tracks <- ind_tracks[-ind_omit]
+      loadvec_kept <- this_loadvec[ind_tracks]
+    }
+    mat_X_tracks <- mat_X_in[, ind_tracks]
+    color_vec_tracks <- color_vec[ind_tracks]
+    #------------
+    df_plot_sig <- data.frame(Date = date_vec, Value = mat_S[, i])
+    df_plot_tracks <- data.frame(Date = date_vec, mat_X_tracks)
+    if(ncol(df_plot_tracks) > 2){
+      gathercols <- colnames(mat_X_tracks)
+      colnames(df_plot_tracks)[-1] <- gathercols
+      df_plot_tracks <- df_plot_tracks %>% gather_("ts", "Value", gathercols)
+    }else{
+      colnames(df_plot_tracks)[-1] <- "Value"
+      df_plot_tracks$ts <- colnames(mat_X_in)[ind_tracks]
+    }
+    #------------
+    gg <- ggplot()
+    gg <- gg + geom_line(data = df_plot_sig, aes(x = Date, y = Value, group = 1), color = "grey", lwd = 1.3)
+    gg <- gg + geom_line(data = df_plot_tracks, aes(x = Date, y = Value, group = ts, color = ts))
+    gg <- gg + scale_color_manual(values = color_vec_tracks)
+    gg <- gg + scale_x_discrete(breaks = xAxis_labels)
+    gg <- gg + labs(title = fig_title_vec[i])
+    
+    if(i == n_signals){
+      #gg <- gg + labs(title = paste("Signal", i), caption = fig_title)
+      gg <- gg + theme(axis.text.x = element_text(size = 7),
+                       axis.text.y = element_text(size = 7),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        legend.title = element_blank(),
+        legend.text = element_text(size = 7),
+        plot.title = element_text(size = 7)
+        #plot.caption = element_text(hjust = 0, size = 10)
+      )
+    }else{
+      gg <- gg + theme(axis.text.x = element_blank(),
+                       axis.text.y = element_text(size = 7),
+                       axis.title.x = element_blank(),
+                       axis.title.y = element_blank(),
+                       legend.title = element_blank(),
+                       legend.text = element_text(size = 7),
+                       plot.title = element_text(size = 7))
+    }
+    
+    list_gg[[i]] <- gg
+    
+  }
+  
+  gg_all <- wrap_plots(list_gg) + plot_layout(ncol = 1)
+  gg_all
+}
+
+# Name signals based on correlations
+# sigNames <- c("Portfolio average\n(Especially Pharmaceutical, Technology, and Luxury Goods)",
+#               "Transportation and Industrial",
+#               "Housing & Urban Development (Inverse)",
+#               "Communications (Inverse)")
+# 
+# mat_X_in <- mat_pctDiff_in
+# plot_sigs_wHiLoad_items(mat_X_in, mat_S, mat_L, sigNames, load_threshold = 0.55, n_display_max = 4)
+sigNames <- c("Pharmaceutical",
+              "Financial and Physical Infrastructure",
+              "Housing & Urban Development",
+              "Communications")
+
+
+n_items <- ncol(mat_X_in)
+bag_of_colors <- randomcoloR::distinctColorPalette(k = 5 * n_items)
+color_vec_mv_eg <- sample(bag_of_colors, n_items)
+
+color_vec <- color_vec_mv_eg
+plot_sigs_wHiLoad_items(mat_X_in, mat_S, mat_Lrot, color_vec, sigNames, load_threshold = 0.65, n_display_max = 4)
+ggsave("Fig 3.tiff")
+
+```  
+<!-- # ```{r, fig.show = 'hold', fig.width=5, fig.height=3, fig.align='center', fig.cap="\\label{fig:corrXS_barchart_rot_test}Varimax rotated correlation of portfolio items with leading signals, financial data from subsequent period.", echo=F} -->
+<!-- # mat_X_in_test <- mat_pctDiff_eg_test -->
+<!-- # list_out <- get_S_and_corrXS(mat_X_in_test) -->
+<!-- # mat_S_test_all <- list_out[[1]] -->
+<!-- # cormat_XS_test <- list_out[[2]] -->
+<!-- # eig_values_test <- list_out[[3]] -->
+<!-- # mat_P_test <- list_out[[4]] -->
+<!-- # #---- -->
+<!-- #  -->
+<!-- # mat_L_test <- cormat_XS_test[, 1:n_signals] -->
+<!-- # mat_Lrot_test <- varimax(mat_L_test)[[1]] -->
+<!-- # mat_Lrot_test <- matrix(as.numeric(mat_Lrot_test), -->
+<!-- #                         attributes(mat_Lrot_test)$dim, -->
+<!-- #                         dimnames = attributes(mat_Lrot_test)$dimnames) -->
+<!-- # mat_R_test <- varimax(mat_L_test)[[2]] -->
+<!-- # mat_R_test <- matrix(as.numeric(mat_R_test), -->
+<!-- #                      attributes(mat_R_test)$dim, -->
+<!-- #                      dimnames = attributes(mat_R_test)$dimnames) -->
+<!-- #  -->
+<!-- # xAxis_title <- "Varimax Rotated Correlation (test data)" -->
+<!-- # plot_corrXS_barchart(mat_Lrot_test[, 1:4], group_info = NULL, xAxis_title, sigNames = NULL) -->
+<!-- ``` -->
+<!-- A calculation of varimax loadings over data from the subsequent period (`r test_start_date` to `r test_stop_date`), presented in Fig \ref{fig:corrXS_barchart_rot_test}, suggests that signal composition remains fairly stable from one period to the next, although signal order may change. In this case, the Financial and Physical Infrastructure Signal has changed places with the Pharmaceutical Signal. -->
+
+**Fig 3:** Signals (thick grey lines) plotted together with their most highly correlated assets.
+
+&nbsp;
+
+If the data $X$ is scaled to unit variance, then the orthogonal rotation matrix $B$ and retained eigenvalues $\tilde{\Gamma}$ can be recovered from the eigendecomposition of the inner product $L_{\circlearrowleft}'L_{\circlearrowleft}$.
+
+\begin{equation}
+\begin{split}
+L_{\circlearrowleft} {'} L_{\circlearrowleft} &= (\tilde{P} \tilde{\Gamma}^{1 \over 2} B){'} \tilde{P} \tilde{\Gamma}^{1 \over 2} B \\
+&= B {'} \tilde{\Gamma}^{1 \over 2} \tilde{P} {'} \tilde{P} \tilde{\Gamma}^{1 \over 2} B \\
+&= B {'} \tilde{\Gamma} B
+\end{split}
+\label{eq:BGammaFromLrot}
+\end{equation}
+
+Note the similarity to equation \ref{eq:LLinner}. Whereas the inner product of the unrotated loadings $L'L$ yields the signals covariance matrix $\Sigma_{SS}$, the inner product of the orthogonally rotated loadings yields the covariance matrix of the orthogonally rotated signals (call this $\Sigma_{SS}^{\circlearrowleft}$). To see this, consider that, by definition,
+
+\begin{equation}
+\begin{split}
+\Sigma_{SS}^{\circlearrowleft} &= \frac{1}{1 - n} (S B) ' S B \\
+&= \frac{1}{1 - n} B' S' S B \\
+&= \frac{1}{1 - n} B' (X \tilde{P})' X \tilde{P} B \\
+&= \frac{1}{1 - n} B' \tilde{P}' X' X \tilde{P} B \\
+&= B' \tilde{P} ' \Sigma_{XX} \tilde{P} B \\
+&= B' \tilde{P} ' P \Gamma P ' \tilde{P} B \\
+&= B' \tilde{\Gamma} B
+\end{split}
+\label{eq:covmatSrot}
+\end{equation}
+
+Therefore, $L_{\circlearrowleft} {'} L_{\circlearrowleft} = \Sigma_{SS}^{\circlearrowleft}$.
+<!-- Note that a rotation of $L$ implies a rotation of the signals, since -->
+<!-- \begin{equation} -->
+<!-- SB = XP -->
+<!-- \end{equation} -->
+
+Moreover, having derived $\tilde{\Gamma}$ and $B$ from the eigendecomposition of $L_{\circlearrowleft} ' L_{\circlearrowleft}$ via equation \ref{eq:BGammaFromLrot}, it is then possible to derive the retained leading eigenvectors of the data correlation matrix ($\tilde{P}$) as follows.
+
+\begin{equation}
+\begin{split}
+L_{\circlearrowleft} B {'} \tilde{\Gamma}^{-\frac{1}{2}} &= \\
+L B B {'} \tilde{\Gamma}^{-\frac{1}{2}} &= \\
+L \tilde{\Gamma}^{-\frac{1}{2}} &= \\
+\tilde{P} {\Gamma}^{\frac{1}{2}} {\Gamma}^{-\frac{1}{2}}
+&= \tilde{P}
+\end{split}
+\label{eq:deducePcrowd}
+\end{equation}
+
+When the data $X$ are scaled to unit variance, then, the orthogonal rotation matrix $B$, retained eigenvalues $\tilde{P}$, and retained eigenvectors $\tilde{P}$ can be calculated from the rotated loadings $L_{\circlearrowleft}$ alone, without any need for the original data $X$.
+
+## How many signals to retain?
+
+In practice, the number of signals that should be distilled from the original data set $X$ depends upon how much of the variance in $X$ the researcher wishes to capture or reflect in the signals, and how many signals are required to reach this subjectively determined threshold. The portion of the system's evolution reflected in any given signal ($c_i$) is defined as the signal's variance divided by the sum of all signal variances. Recalling from equation \ref{eq:covmat_SS} that a signal's variance is just the corresponding eigenvalue $\gamma_i$ extracted from $\Sigma_{XX}$, this is expressed
+
+\begin{equation}
+c_i = \frac{\gamma_i}{\sum_{j = 1}^n \gamma_j}
+\end{equation}
+
+The cumulative variance captured by a group of $k$ signals is then
+
+\begin{equation}
+\kappa = \sum_{i=1}^k c_i
+\label{eq:SO_ck}
+\end{equation}
+
+The individual and cumulative portions explained by each signal are plotted in Fig \ref{fig:varExplained_barchart}. Customarily, researchers like to retain signals such that at least 90% of the variance in the original data is explained. The horizontal dashed line in the plot marks this subjective threshold.
+
+```{r, fig.show = 'hold', fig.width=5, fig.height=2, fig.align='left', fig.cap="\\label{fig:varExplained_barchart}Plot of the individual and cumulative portions of variance explained by each signal.", echo=F}
+c_vec <- eig_values / sum(eig_values)
+ck_vec <- cumsum(c_vec)
+df_plot <- data.frame(Signal = paste("Signal", 1:length(eig_values)), Portion_explained = c_vec, Portion_explained_cumul = ck_vec)
+colnames(df_plot)[2:3] <- c("Individually", "Cumulatively")
+gathercols <- colnames(df_plot)[2:3]
+df_plot <- gather_(df_plot, "Portion explained", "Value", gathercols)
+df_plot$Signal <- factor(df_plot$Signal,
+                         levels = unique(df_plot$Signal),
+                         ordered = T)
+gg <- ggplot(df_plot, aes(x = Signal, y = Value, fill = `Portion explained`))
+gg <- gg + geom_bar(stat = "identity", color = "black", position = "dodge")
+gg <- gg + scale_fill_manual(values = c("wheat3", "paleturquoise"))
+gg <- gg + geom_hline(yintercept = 0.9, color = "coral", size = 1, linetype = "dashed")
+gg <- gg + theme(axis.text.y = element_text(size = 7),
+                 axis.text.x = element_text(size = 7, angle = 60, hjust = 1),
+                 axis.title = element_blank(),
+                 legend.title = element_text(size = 8),
+                 legend.text = element_text(size = 8))
+gg
+ggsave("Fig 4.tiff")
+#====================================================
+n_signals <- which(ck_vec > 0.9)[1]
+mat_S <- mat_S_all[, 1:n_signals]
+mat_L <- cormat_XS[, 1:n_signals]
+eig_values_sigs <- eig_values[1:n_signals]
+#====================================================
+
+```
+
+**Fig 4:** Plot of the individual and cumulative portions of variance explained by each signal.
+
+&nbsp;
+
+The plot shows that, for the financial data set, the leading `r n_signals` signals are sufficient to meet this criterion.
+
+## Approximating the data correlation matrix from the retained loadings
+
+Recall from equation \ref{eq:KfromLL} that the data correlation matrix can be calculated as the outer product of the full set of loadings with itself. If $L$ refers to the retained loadings only, the outer product of $L$ with itself similarly yields an _approximate_ data correlation matrix $\tilde{K}_{XX}$.
+
+\begin{equation}
+\begin{split}
+LL' &= \tilde{P} \tilde{\Gamma}^{1 \over 2} (\tilde{P} \tilde{\Gamma}^{1 \over 2})' \\
+&= \tilde{P} \tilde{\Gamma}^{1 \over 2} \tilde{\Gamma}^{1 \over 2} \tilde{P}' \\
+&= \tilde{K}_{XX}
+\end{split}
+\label{eq:cormat_from_Lrot}
+\end{equation}
+
+Even when just a handful of loadings are retained, $\tilde{K}_{XX}$ can approximate $K_{XX}$ quite closely. The difference between the financial data correlation matrix and the approximate correlation matrix calculated from 6 retained loadings via equation \ref{eq:cormat_from_Lrot} is shown in Fig \ref{fig:compareCorMats}. Note that the difference is remarkably small for most entries. The signals derived correlation matrix is approximate in the sense that it approximates the data correlation matrix; but it should not necessarily be considered inferior in terms of accuracy. To the extent that the original data are contaminated by noise, the signals derived correlation matrix may prove more accurate with respect to the "true process" that generates the data.
+
+```{r, fig.show = 'hold', fig.width=5, fig.height=3, fig.align='left', fig.cap="\\label{fig:compareCorMats}The data correlation matrix minus the reverse engineered correlation matrix, financial data."}
+cormat_XX <- cor(mat_pctDiff_eg_train)
+cormat_XX_derived <- mat_L %*% t(mat_L)
+mat_diff_cormats <- cormat_XX - cormat_XX_derived
+
+plot_covmat(mat_diff_cormats, fig_title = NULL, graph_on = F)
+ggsave("Fig 5.tiff")
+
+```
+
+**Fig 5:** The data correlation matrix minus the reverse engineered correlation matrix, financial data.
+
+&nbsp;
+
+
+## "Reverse engineering" the project correlation matrix from domain knowledge
+
+The preceding sections demonstrate that it is possible to deduce quite a lot of information about a given centered and scaled dataset $X$ from the rotated loadings $L_{\circlearrowleft}$ alone, without any need to look at the original data. Specifically, equations \ref{eq:BGammaFromLrot} and \ref{eq:deducePcrowd} imply that it is possible to deduce from $L_{\circlearrowleft}$ the retained eigenvalues and eigenvectors ($\tilde{\Gamma}$ and $\tilde{P}$), as well as the implicit orthogonal rotation matrix ($B$). Equation \ref{eq:cormat_from_Lrot}, meanwhile, demonstrates that an approximate data correlation matrix can be calculated as the outer product $L_{\circlearrowleft} L_{\circlearrowleft}'$.
+
+The question then naturally arises: Is it possible to deduce $L_{\circlearrowleft}$ when $X$ is not available?
+
+In the AR4D context, if the columns of $X$ are the unobserved (centered and scaled) expected net returns^[Or expected return on investment, or net present value, or some other measure of project expected net worth, as appropriate. It may also be prudent to assume that these unobserved time series are differenced or otherwise detrended. Keep in mind project net worth may be a function of impacts with a clear market value, such as an increase in smallholder incomes, and/or impacts requiring non-market valuation, such as environmental, educational, and public health outcomes.] to projects in a research institution's research portfolio, and if the institution's strategic objectives or policies may be considered analogous to a set of retained principal components describing 90% of the problem space that is of interest to the institution, then the correlations between institution policies and project expected net returns may be interpreted as the orthogonally rotated loadings $L_{\circlearrowleft}$ corresponding to $X$. An estimate of these policy-project correlations can then be elicited via a survey of domain experts at the institution and/or within its extended network of partners. And the outer product $L_{\circlearrowleft} L_{\circlearrowleft}'$ may then be interpreted as the approximate project correlation matrix.
+
+Importantly, the elicited policy-project correlations must be interpreted as _orthogonally rotated_ loadings ($L_{\circlearrowleft}$), as opposed to unrotated loadings ($L$), for two reasons: 1) The unrotated loadings are orthogonal (recall equation \ref{eq:LLinner}), whereas the policy-project correlations crowdsourced from domain experts will generally not be orthogonal. 2) As seen in the financial example, orthogonally rotated loadings present a clearer picture of which variables are associated with which principal components than do the unrotated loadings. Generally speaking, AR4D institution policies are likewise formulated so as to be unique and distinct from each other. It therefore makes sense to interpret policies as orthogonally rotated principal components that have been orthogonally rotated so as to maximize this distinctness. Note that the implicit orthogonal rotation ($B$) could be a varimax rotation, as in the financial example, but does not necessarily have to be so. Correlation matrix invariance requires only that $B$ be orthogonal (recall equation \ref{eq:cormatInvar}).
+
+If project risk (standard deviation) can be calculated beforehand during ex-ante impact assessment exercises, then it is straightforward to calculate a project covariance matrix as well. However, risk assessment is still not a standard part of ex-ante impact assessment models.^[Alston and Norton acknowledged in 1995 that the treatment of risk in impact assessment models was "rudimentary and in need of further refinement" [-@Alston1995]. Unfortunately, this remains true today.] If ex-ante risk assessments are not available, then they can be elicited in the survey of domain experts. Project risk might be crowdsourced, for example, by asking survey participants to estimate the maximum, minimum, and most probable impact of each given project. With these three inputs, it is then straightforward to compute standard deviation on the basis of an assumed project impact probability density.^[For example, the minimum and maximum could be interpreted as the bounds of the 95% confidence interval of a lognormal probability density, and the "most probable impact" could be interpreted as its mode. From this it is then straightforward to derive the standard deviation.]
+
+## "Reverse engineering" the policy covariance matrix from domain knowledge
+
+The orthogonally rotated loadings $L_{\circlearrowleft}$ may also be thought of as the (unrotated) loadings corresponding to the orthogonally rotated signals $SB$. In this interpretation, institution policies are analogous to the orthogonally rotated, retained principal components (as opposed to the unrotated retained principal components $S$). The orthogonally rotated signals covariance matrix $\Sigma_{SS}^{\circlearrowleft}$ (equation \ref{eq:covmatSrot}) may thus be interpreted as a policy covariance matrix.
+
+Mathematically speaking, then, the project correlation matrix reverse engineering problem is dual to the policy correlation matrix reverse engineering problem. With $L_{\circlearrowleft}$ in hand, it is therefore possible to calculate the policy covariance matrix as the inner product $L_{\circlearrowleft} ' L_{\circlearrowleft}$. (Recall from equation \ref{eq:BGammaFromLrot} that  $L_{\circlearrowleft} ' L_{\circlearrowleft} = \Sigma_{SS}^{\circlearrowleft}$.) Note that the diagonal elements of this matrix correspond to the implicit policy variances, which may be interpreted as a measure of policy risk.
+
+## When is it appropriate to "reverse engineer" correlation/covariance matrices?
+
+The "reverse engineering" approach described above makes sense only in contexts where a relative lack of good data is compensated by a relative abundance of good domain knowledge. As a rule of thumb, the appropriateness of this approach may be assessed by meditating upon the conceptual ratio $\nu$.
+
+$$
+\nu = \frac{\text{confidence in domain knowledge}}{\text{confidence in data}}
+$$
+As $\nu$ is higher, the reverse engineering approach makes more sense. As $\nu$ is lower, it becomes more appropriate to estimate the covariance matrix on the basis of data. For values of $\nu$ close to $1$, a mixture of the two approaches might be considered. By this measure, the financial context is an inappropriate setting for the method proposed here, as financial data is abundant and financial experts are generally proven wrong on a daily basis (otherwise there would be a lot more billionaires in the world). On the other hand, AR4D contexts are an appropriate setting, as data regarding the value of research projects generally do not exist, but this is compensated by an abundance of scientific expertise.
+<!--recursive, self-similar nature... Note, in passing, that the original data set $X$ may itself be considered a set of orthogonally rotated signals constructed from some higher dimensional dataset. This unobserved, higher dimensional dataset could likewise be considered a set of orthogonally rotated signals constructed from some still larget dataset, and so on, ad infinitum. Note that the eigenvalues of the system described by these nested datasets remain invariant under each successive step of dimensional reduction, while the eigenvectors change. In this sense, the eigenvalues of the original---or any---data covariance matrix are the "true" covariance matrix, while the eigenvectors may be considered an extraneous rotation of the true covariance matrix, not intrinsic to the construction of the signals, but rather applied extraneously, as an aid in their interpretation, or as a matter of contextualizing the abstract signals with respect to a particular set of concrete circumstances.  -->
+
+# An illustrative example
+<!-- AR4D risk adjusted portfolio optimization would come after Step 3 in the resource allocation workflow defined by Mills, either complementing or replacing the ranking of research proposals in order of priority that is slated to occur in Step 4. By this point in the resource allocation workflow, a list of research proposals would have been drawn up, and the expected proportionality parameters of each proposal assessed and quantified. Recall from the discussion in section 2 that a proposal's proportionality constant may be thought of as the inverse of its scalability. Risk, meanwhile, is just the uncertainty surrounding the expected proportionality parameter. -->
+In the example below, a hypothetical AR4D institution has the task of identifying synergies and tradeoffs in its project portfolio; and is also interested in quantifying any synergies and tradeoffs between its overarching policies. The institution's projects are listed in Table \ref{tab:exampLoadings}. The projects are loosely grouped into four categories to facilitate interpretation of the subsequent graphics, but there is no strict rule followed, and clearly some overlap, in the grouping.
+<!-- Project ROIs would have been calculated during ex-ante impact assessments prior to the exercise presented below. Project risk might have also been calculated during ex-ante impact assessment, although this is not likely since risk assessment is not a standard part of impact modeling.^[Alston and Norton acknowledged in 1995 that the treatment of risk in AR4D ex-ante impact assessment models was "rudimentary and in need of further refinement" [-@Alston1995]. Unfortunately, this remains true today.] -->
+```{r exampLoadings0, results = "markup", echo = F}
+# fig.show = 'hold', fig.width = 4, fig.height = 4, fig.align = "center", fig.cap = "\\label{fig:ExpPctRet_Examp}Hypothetical AR4D project expected returns and risk."}
+#---------------------------------------------
+prop_CSA <- c("Heat Tolerant\nBeans", "Coffee\nAgroforestry", "Digital\nAgriculture", "Low Emission\nSilvopastoral")
+econGrowth_CSA <- c(0.11, 0.38, 0.4, -0.35)
+econEquality_CSA <- c(0.7, 0.32, 0.71, 0.27)
+envSust_CSA <- c(0.6, 0.42, 0.6, 0.8)
+nutrition_CSA <- c(0.65, 0.06, 0.01, 0.04)
+#---------------------------------------------
+# prop_socialCap <- c("Micro Finance\nand Insurance", "Multi-stakeholder\nPlatforms", "Market Access")
+# econGrowth_socialCap <- c(0.2, 0.45, 0.34)
+# econEquality_socialCap <- c(0.87, 0.62, 0.79)
+# envSust_socialCap <- c(0.1, 0.1, 0)
+#---------------------------------------------
+prop_smallHolder <- c("Cassava for\nBio-ethanol", "Triple Purpose\nSweet Potato", "Dairy\nCooperative", "Multi-stakeholder\nPlatforms")
+econGrowth_smallHolder <- c(0.67, -0.31, 0.15, 0.4)
+econEquality_smallHolder <- c(0.6, 0.75, 0.83, 0.81)
+envSust_smallHolder <- c(0.32, 0.4, -0.52, 0.1)
+nutrition_smallHolder <- c(0, 0.76, 0.67, 0.11)
+#---------------------------------------------
+prop_highYcommod <- c("Mega Maize", "Hyper Rice", "Ultra Cow")#, "Uber Palm")
+econGrowth_highYcommod <- c(0.82, 0.86, 0.76)#, 0.88)
+econEquality_highYcommod <- c(-0.34, -0.42, -0.63)#, -0.58)
+envSust_highYcommod <- c(-0.6, -0.52, -0.67)#, -0.83)
+nutrition_highYcommod <- c(0.4, 0.45, 0.53)
+#---------------------------------------------
+df_CSA <- data.frame(Proposal = prop_CSA, `Economic Growth` = econGrowth_CSA, `Economic Equality` = econEquality_CSA, `Environmental Sustainability` = envSust_CSA, `Nutritional Security` = nutrition_CSA, Group = "Climate Smart\nAgriculture")
+
+# df_socialCap <- data.frame(Proposal = prop_socialCap, `Economic Growth` = econGrowth_socialCap, `Economic Equality` = econEquality_socialCap, `Environmental Sustainability` = envSust_socialCap, Group = "Social Capital")
+
+df_smallHolder <- data.frame(Proposal = prop_smallHolder, `Economic Growth` = econGrowth_smallHolder, `Economic Equality` = econEquality_smallHolder, `Environmental Sustainability` = envSust_smallHolder, `Nutritional Security` = nutrition_smallHolder, Group = "Smallholder\nResilience")
+
+df_highYcommod <- data.frame(Proposal = prop_highYcommod, `Economic Growth` = econGrowth_highYcommod, `Economic Equality` = econEquality_highYcommod, `Environmental Sustainability` = envSust_highYcommod, `Nutritional Security` = nutrition_highYcommod, Group = "High Value Yield\nEnhancement")
+
+list_df <- list(df_highYcommod, df_smallHolder, df_CSA)#, df_socialCap)
+
+df_Lrot <- as.data.frame(do.call(rbind, list_df))
+colnames(df_Lrot)[2:5] <- gsub("\\.", " ", colnames(df_Lrot)[2:(ncol(df_Lrot) - 1)])
+
+df_table <- df_Lrot[, c("Proposal", "Group")]
+colnames(df_table)[1] <- "Project"
+
+df_table$Project <- gsub("\n", " ", df_table$Project)
+df_table$Group <- gsub("\n", " ", df_table$Group)
+
+kable(df_table,
+      format = "pandoc",
+      caption = "Hypothetical list of AR4D projects\\label{tab:exampLoadings}") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+
+group_names <- as.character(unique(df_Lrot$Group))
+n_groups <- length(group_names)
+bag_of_colors <- randomcoloR::distinctColorPalette(k = 2 * n_groups)
+group_colors_arb <- sample(bag_of_colors, n_groups)
+# 
+# # Randomly assign an expected pct. return to each AR4D proposal
+# n_prop <- nrow(df_Lrot)
+# n_signals <- ncol(df_Lrot) - 2
+# # inv_scalability_ar4d <- exp(rnorm(n_prop))
+# # inv_scalability_ar4d <- round(inv_scalability_ar4d / sum(inv_scalability_ar4d), 3) * 100
+# #inv_scalability_ar4d <- runif(n_prop)
+# inv_scalability_ar4d <- 10^-2 * c(15.9, 12.7, 17.6, 8.8, 7.4 , 9.0, 10.7, 10.8, 7.8 , 6.8, 9.4) # per unit investment
+# #inv_scalability_ar4d <- 1 / scalability_ar4d 
+# #nab_decRet_ar4d <- 10^-2 * inv_scalability_ar4d
+# #inv_scalability_ar4d <- round(inv_scalability_ar4d / sum(inv_scalability_ar4d), 3) * 100
+# #inv_scalability_ar4d <- 10^-2 * c(15.9, 12.7, 17.6, 8.8, 7.4 , 9.0, 10.7, 10.8, 7.8 , 6.8, 9.4)
+# scalability_ar4d <- 1 / inv_scalability_ar4d
+# #sdX_vec <- 1 / 2 * c(abs(as.matrix(inv_scalability_ar4d) + 2 * as.matrix(rnorm(n_prop))))
+# #sdX_vec <- 1.61 * c(abs(as.matrix(inv_scalability_ar4d) * as.matrix(runif(n_prop))))
+# sdX_vec <- 10^-2 * c(21.2785349, 9.5972656, 18.4114015, 9.4742876, 2.7923296, 0.6912369, 5.9851785, 12.0813232, 7.0012194, 6.2880289, 7.1941543)
+# #sdX_vec <- 1 / 2 * c(12.868125, 12.490252, 11.344356, 11.007095, 4.783202, 10.734870, 9.144469, 8.444207, 5.876558, 7.155542, 12.647645)
+# df_pctRet <- data.frame(inv_scalability_ar4d, Item = df_Lrot$Proposal, Group = df_Lrot$Group)
+# names(inv_scalability_ar4d) <- df_Lrot$Proposal
+# # Plot expected returns for each AR4D proposal
+# group_colors <- group_colors_arb
+# #plot_returns_barchart(df_pctRet, group_colors)
+# list_graph_options <- list()
+# list_graph_options[["fig_title"]] <- "AR4D project expected return"
+# list_graph_options[["ylab"]] <- NULL
+# list_graph_options[["legend_position"]] <- "none"
+# list_graph_options[["axisTextX_off"]] <- T
+# gg_perRet <- plot_returns_barchart(df_pctRet, group_colors, list_graph_options, graph_on = F)
+# 
+# df_sd <- data.frame(sdX_vec, Item = df_Lrot$Proposal, Group = df_Lrot$Group)
+# list_graph_options[["fig_title"]] <- "Risk (standard deviation)"
+# list_graph_options[["legend_position"]] <- NULL
+# list_graph_options[["axisTextX_off"]] <- NULL
+# 
+# gg_perSd <- plot_returns_barchart(df_sd, group_colors, list_graph_options, graph_on = F)
+# 
+# gg_perRet / gg_perSd
+
+
+```
+
+The institution's strategic objectives or policies in this example are "Economic Growth", "Income Equality", "Environmental Sustainability", and "Nutritional Security", which roughly correspond to UN Sustainable Development Goals 8, 1, 13, and 3, respectively. policy-project correlations are elicited via a survey of domain experts and/or stakeholders. Literature may also be consulted.
+
+It should be clearly explained to survey participants that a positive project-signal correlation means the project contributes toward the policy (i.e. is a synergy), while a negative correlation means the project works against it (i.e. is a tradeoff); and a correlation of zero means that the project has no influence upon the given policy one way or the other. The language used in this survey should be familiar to participants. In most AR4D resource allocation settings, what I characterized in the financial example above as "signals" should probably be referred to as "policies", "strategic objectives", "criteria", or simply "goals".
+
+Survey participants should also be encouraged to keep in mind that no AR4D project can "be all things to all people". A new yield enhancing variety of a high value crop, for example, might contribute towards increased trade competitiveness and GDP growth, but at the cost of increased deforestation and use of chemical inputs that degrade the environment. Conversely, a climate smart or pro-poor AR4D proposal might increase long term environmental and socio-economic sustainability at the cost of reduced short-medium term growth and competitiveness. These tradeoffs require careful consideration.^[Participants might also be encouraged to beware of any received wisdom regarding tradeoffs and synergies. For example, it is customary in AR4D communities to assume that economic growth and economic equality are mutually exclusive goals [@Alston1995], whereas recent empirical research suggests a much more nuanced and synergistic relation [@berg2017inequality].] The results of the survey are summarized in Fig \ref{fig:loadsRotExamp}.
+
+```{r, fig.show = 'hold', fig.width = 6, fig.height = 4, fig.align = "center", fig.cap = "\\label{fig:loadsRotExamp}Hypothetical results of a survey eliciting policy-project correlations from experts and stakeholders."}
+df_x <- df_Lrot
+df_x$Group <- NULL
+prop_col <- df_x$Proposal
+df_x$Proposal <- NULL
+mat_Lrot <- as.matrix(df_x)
+rownames(mat_Lrot) <- prop_col
+list_groups <- list(prop_highYcommod, prop_smallHolder, prop_CSA)
+# n_groups <- length(list_groups)
+# bag_of_colors <- randomcoloR::distinctColorPalette(k = 5 * n_groups)
+# group_colors <- sample(bag_of_colors, n_groups)
+group_info <- list(list_groups, group_names, group_colors)
+
+sigNames <- c("GDP Growth", "Economic\nEquality", "Environmental\nSustainability", "Nutritional\nSecurity")
+n_signals <- length(sigNames)
+sigNames <- paste("Policy", 1:n_signals, "\n", sigNames)
+xAxis_title <- "Rotated Correlations"
+plot_corrXS_barchart(mat_Lrot, group_info, xAxis_title, sigNames)
+
+ggsave("Fig 6.tiff")
+
+# D_sdX <- diag(10^2 * sdX_vec)
+#D_sdX <- diag(1/sdX_vec)
+# mat_Lrot <- as.matrix(df_Lrot[, c(2:5)])
+# mat_Q <- mat_Lrot
+# eig_decomp_QQ <- eigen(t(mat_Q) %*% mat_Q)
+# eig_values_QQ <- eig_decomp_QQ$values
+# mat_G <- diag(eig_values_QQ)
+# covmat_SS <- mat_G
+# 
+# eig_vecs_QQ <- eig_decomp_QQ$vectors
+
+#--------------------------------------------------------
+# Get mat_P
+# mat_G_sqrt_inv <- diag(1 / sqrt(eig_values_QQ))
+# mat_B <- t(eig_vecs_QQ) # Orthogonal Rotation Matrix
+# mat_P <- mat_Q %*% t(mat_B) %*% mat_G_sqrt_inv
+
+
+```
+
+**Fig 6:** Hypothetical results of a survey eliciting policy-project correlations from experts and stakeholders.
+
+&nbsp;
+
+The survey exercise concludes. The resulting crowdsourced policy-project correlations are then interpreted as the orthogonally rotated loadings $L_{\circlearrowleft}$. An approximate project correlation matrix $\tilde{K}_{XX}$ is then reverse engineered from this domain knowledge as the outer product $L_{\circlearrowleft} L_{\circlearrowleft}'$ (see equation \ref{eq:cormat_from_Lrot} for details). Since this is a correlation matrix, the diagonal elements must equal $1$. However, as seen in the financial example (Fig \ref{fig:compareCorMats}), the diagonal elements of correlation matrices approximated from a retained set of loadings (whether crowd- or data-sourced) can diverge somewhat from $1$. In order to correct for this divergence, the approximate project correlation matrix deduced from the crowdsourced loadings is divided through by its diagonal elements.
+<!-- then extracted from this information via equation \ref{eq:crowdsource_G}... -->
+<!-- The expected values of the signal proportionality parameters, meanwhile, are calculated from the elicited information via equations \ref{eq:deducePcrowd} and \ref{eq:sigMu_from_Xmu2}. The signal proportionality parameters and risk (i.e. the diagonal elements of $\tilde{\Gamma}$) are presented in Fig \ref{fig:sigRetRisk}. This is the information needed to conduct risk adjusted optimization over the signals portfolio. Before proceeding with that task, however, it may be worthwhile, as a stimulus to stakeholder discussion, to first -->
+
+<!-- # ```{r, fig.show = 'hold', fig.width = 3, fig.height = 3, fig.align = "center", fig.cap = "\\label{fig:sigRetRisk}Expected AR4D signal proportionality parameters and risk derived from crowdsourced information."} -->
+
+<!-- # Covariance matrix -->
+<!-- D_sdX <- diag(10^2 * sdX_vec) -->
+<!-- #D_sdX <- diag(1/sdX_vec) -->
+<!-- mat_Q <- D_sdX %*% mat_Lrot -->
+<!-- eig_decomp_QQ <- eigen(t(mat_Q) %*% mat_Q) -->
+<!-- eig_values_QQ <- eig_decomp_QQ$values -->
+<!-- mat_G <- diag(eig_values_QQ) -->
+<!-- covmat_SS <- mat_G -->
+<!-- #-------------------------------------------------------- -->
+<!-- # Get mat_P -->
+<!-- mat_G_sqrt_inv <- diag(1 / sqrt(eig_values_QQ)) -->
+<!-- mat_B <- t(eig_decomp_QQ$vectors) # Orthogonal Rotation Matrix -->
+<!-- mat_P <- mat_Q %*% t(mat_B) %*% mat_G_sqrt_inv -->
+<!-- if(mean(mat_P[, 1]) < 0){mat_P <- -mat_P} -->
+<!-- mat_P_sigs <- mat_P[, 1:n_signals] -->
+<!-- #-------------------------------------------------------- -->
+<!-- # Expected returns vector -->
+<!-- inv_scalability_ar4d_sigs <- as.numeric(t(inv_scalability_ar4d) %*% mat_P_sigs) -->
+<!-- if(sum(inv_scalability_ar4d_sigs < 0) > 0){ -->
+<!--   inv_scalability_ar4d_sigs <- inv_scalability_ar4d_sigs - 1.12 * min(inv_scalability_ar4d_sigs) -->
+<!-- } -->
+<!-- # scalability_ar4d_sigs <- as.numeric(t(scalability_ar4d) %*% mat_P_sigs) -->
+<!-- # if(sum(scalability_ar4d_sigs < 0) > 0){ -->
+<!-- #   scalability_ar4d_sigs <- scalability_ar4d_sigs - 1.12 * min(scalability_ar4d_sigs) -->
+<!-- # } -->
+
+<!-- # fctr_P <- sum(nab_decRet_ar4d) / sum(nab_decRet_ar4d_sigs) -->
+<!-- # nab_decRet_ar4d_sigs <- nab_decRet_ar4d_sigs * fctr -->
+<!-- # scale_P <- 1 / as.numeric(nab_decRet_ar4d %*% mat_P_sigs %*% diag(1 / nab_decRet_ar4d_sigs)) -->
+<!-- #inv_scalability_ar4d_sigs <- 1 / scalability_ar4d_sigs -->
+<!-- scalability_ar4d_sigs <- 1 / inv_scalability_ar4d_sigs -->
+<!-- # scale_P <- 1 / as.numeric(scalability_ar4d %*% mat_P_sigs %*% diag(inv_scalability_ar4d_sigs)) -->
+<!-- scale_P <- 1 / as.numeric(inv_scalability_ar4d %*% mat_P_sigs %*% diag(scalability_ar4d_sigs)) -->
+<!-- scale_P <- diag(scale_P) -->
+<!-- #check -->
+<!-- #scalability_ar4d_sigs - scalability_ar4d %*% mat_P_sigs %*% scale_P -->
+<!-- #inv_scalability_ar4d_sigs - inv_scalability_ar4d %*% mat_P_sigs %*% scale_P -->
+<!-- names(inv_scalability_ar4d_sigs) <- sigNames -->
+<!-- #inv_scalability_ar4d_sigs <- 10^2 * nab_decRet_ar4d_sigs -->
+<!-- #-------------------------------------------------------- -->
+<!-- # Risk -->
+<!-- sdS_vec <- 10^-2 *as.numeric(sqrt(eig_values_QQ)) -->
+<!-- #-------------------------------------------------------- -->
+<!-- # Graph -->
+<!-- n_groups <- length(sigNames) -->
+<!-- bag_of_colors <- randomcoloR::distinctColorPalette(k = 2 * n_groups) -->
+<!-- sig_colors <- sample(bag_of_colors, n_groups) -->
+
+<!-- df_pctRet <- data.frame(inv_scalability_ar4d_sigs, Item = sigNames, Group = sigNames) -->
+<!-- list_graph_options <- list() -->
+<!-- list_graph_options[["fig_title"]] <- "AR4D Signal proportionality parameters" -->
+<!-- list_graph_options[["ylab"]] <- NULL -->
+<!-- list_graph_options[["legend_position"]] <- "none" -->
+<!-- list_graph_options[["axisTextX_off"]] <- T -->
+<!-- gg_perRet <- plot_returns_barchart(df_pctRet, sig_colors, list_graph_options, graph_on = F) -->
+<!-- df_sd <- data.frame(sdS_vec, Item = sigNames, Group = sigNames) -->
+<!-- list_graph_options[["fig_title"]] <- "Risk (standard deviation)" -->
+<!-- list_graph_options[["legend_position"]] <- "none" -->
+<!-- list_graph_options[["axisTextX_off"]] <- NULL -->
+<!-- gg_perSd <- plot_returns_barchart(df_sd, sig_colors, list_graph_options, graph_on = F) -->
+
+<!-- gg_perRet / gg_perSd -->
+<!-- ``` -->
+```{r, fig.show = 'hold', fig.width = 6, fig.height = 4, fig.align = "left", fig.cap = "\\label{fig:cormatProps}Approximate AR4D project correlation matrix calculated from the crowdsourced policy-project correlations."}
+
+#D_sdX <- diag(sdX_vec)
+cormat_XX_derived <- mat_Lrot %*% t(mat_Lrot)
+D_sdCorrect <- diag(1 / sqrt(diag(cormat_XX_derived)))
+cormat_XX_derived <- D_sdCorrect %*% cormat_XX_derived %*% D_sdCorrect
+colnames(cormat_XX_derived) <- row.names(mat_Lrot)
+fig_title <- "Reverse engineered approximate AR4D project correlation matrix"
+plot_covmat(cormat_XX_derived, fig_title, round_to = 2, graph_on = F)
+
+ggsave("Fig 7.tiff")
+
+```
+
+**Fig 7:** Approximate AR4D project correlation matrix calculated from the crowdsourced policy-project correlations.
+
+&nbsp;
+
+The approximate project correlation matrix, displayed in Fig \ref{fig:cormatProps}, can then be used to orient stakeholder discussions regarding tradeoffs and synergies between projects. Some of the matrix elements may serve to confirm expectations, while other elements may come as a surprise, or serve to fill in a gap where experts are hesitant to venture an estimate. It probably comes as no surprise to the hypothetical survey participants, for example, that the high yielding, high value AR4D projects (Hyper Rice, Mega Maize, and Ultra Cow) are strongly correlated with each other, or that they are negatively correlated with some of the climate smart projects (the Low Emission Silvopastoral proposal, in particular). On the other hand, few experts would be willing to venture an assessment of the synergy or tradeoff between the Cassava for Bio-ethanol and Coffee Agroforestry projects. The deduced covariance matrix effectively fills in such gaps with values that maximize consistency with the domain knowledge captured by the survey.
+
+The policy covariance matrix $\Sigma_{SS}^{\circlearrowleft}$, meanwhile, is reverse engineered from domain knowledge as the inner product $L_{\circlearrowleft} ' L_{\circlearrowleft}$ (see equations \ref{eq:BGammaFromLrot} and \ref{eq:covmatSrot} for details). This matrix, displayed in Fig \ref{fig:cormatSOs}, can likewise be useful in orienting discussion regarding tradeoffs and synergies between policies. For example, there is often much debate over whether or not, and by how much, economic (GDP) growth and economic equality policy aims offset each other. The crowdsourced policy covariance matrix in this example indicates only a small tradeoff (negative covariance) of $-0.11$ between these two policy aims. The research institution might also be concerned about the compatibility of its economic growth and environmental sustainability policies. The matrix suggests these concerns are well-founded, indicating a considerable tradeoff of $-1.21$ between the two policies. Or, the institution may simply wish to identify its largest policy synergy. The crowdsourced matrix indicates that the institution's largest synergy exists between its Environmental Sustainability and Economic Equality policies. This can then inform strategic discussions regarding the role, scale, design, and linkages of, say, pro-poor, agroecological initiatives, so as to best capitalize upon this synergy.
+
+In this way, the off diagonal elements of the reverse engineered policy covariance matrix equip the research institution with a guide by which to capitalize on synergies while mitigating tradeoffs. Note that the diagonal elements of the matrix also provide important information. These are the implicit policy variances, and may thus be interpreted as a measure of policy risk---that is to say, a measure of the uncertainty surrounding the expected impact under each policy. The matrix in this example indicates that Economic Equality is the institution's riskiest policy, while Nutritional Security is the least risky policy. Such information can aid the institution in identifying areas where risk mitigation measures may be necessary, and/or where contingency plans should be prepared in case projects do not unfold as expected.
+
+```{r, fig.show = 'hold', fig.width = 6, fig.height = 4, fig.align = "left", fig.cap = "\\label{fig:cormatSOs}Policy covariance matrix calculated from the crowdsourced policy-project correlations."}
+
+cormat_SS_derived <- t(mat_Lrot) %*% mat_Lrot
+#D_sdCorrect <- diag(1 / sqrt(diag(cormat_SS_derived)))
+#cormat_SS_derived <- D_sdCorrect %*% cormat_SS_derived %*% D_sdCorrect
+colnames(cormat_SS_derived) <- sigNames
+fig_title <- "Reverse engineered policy covariance matrix"
+plot_covmat(cormat_SS_derived, fig_title, round_to = 2, graph_on = F)
+
+ggsave("Fig 8.tiff")
+
+```
+
+**Fig 8:** Policy covariance matrix calculated from the crowdsourced policy-project correlations.
+
+&nbsp;
+
+# Discussion
+
+The reverse engineering approach proposed above offers a perspective on otherwise unquantifiable project and policy synergies and tradeoffs. The accuracy of this perspective depends on 1) how completely the chosen policies capture the evolution of projects within the problem space (in the precise sense of equation \ref{eq:SO_ck}); and 2) the accuracy of the domain knowledge whence poliy-project correlations are deduced. Fig \ref{fig:compareCorMats}, from the financial example, demonstrates that the crowdsourced project correlation matrix will closely match the (unobservable) data derived project correlation matrix insofar as these two conditions are fulfilled. It is thus important to apply this method in contexts where there is a high degree of confidence in domain knowledge compensating a general lack of good data (i.e. a high $\nu$ ratio). The method is open to criticism insofar as the domain knowledge is skewed by institutional inertia, politicized thinking, and other sources of subjective bias. However, the alternative method of data based estimation does not necessarily have a comparative advantage in this respect, as it is likewise subject to a host of different, but no less problematic, sources of bias and error.
+
+Regardless of accuracy, the proposed method may have value as a consensus building tool regarding synergies and tradeoffs about which expert opinions differ or are lacking altogether. The method fills in such gaps with the values that effectively maximize consistency with the expert knowledge captured by the survey. In this process, the method may confront experts and stakeholders with potentially surprising logical implications of what they (think they) know about the problem space, and about the evolution of projects and policies through that space, thereby stimulating policy debate and dialogue.
+
+The proposed method also provides a way to deduce the implicit retained eigenvalues and eigenvectors corresponding to the unobserved data, as well as the implicit orthogonal rotation matrix (see equations \ref{eq:BGammaFromLrot} and \ref{eq:deducePcrowd} for details). While this information is not needed in the deduction of the approximate project correlation matrix, nor in the deduction of the policy covariance matrix, it may nonetheless prove useful for other research portfolio planning purposes not contemplated in this article.
+
+## Potential application in plant breeding decision pipelines
+
+Applications of the method presented here are not limited to the assessment of policies and projects. Another potential area of application within the AR4D arena, for example, is in the assessment of plant trait and variety correlations.
+
+Plant breeders are typically tasked with the development of new varieties featuring a particular new trait---say, for example, resistance to a particular pest or disease---as well as numerous other traits such as fast maturation time, a particular taste, color, shape, nutritional content, and so on. In this process, a map of synergies and tradeoffs between traits and between varieties may be useful in guiding selection decisions.
+<!-- it may be of interest to identify and quantify potential covariances between traits and between varieties. -->
+
+In this setting, varieties play the role that projects do in the previous example, while traits are analogous to the set of orthogonally rotated, retained principal components describing 90% of the problem space. Correlations between varieties and traits are elicited through a survey of breeding experts. A hypothetical example of such a crowdsourcing exercise for beans is given in Fig \ref{fig:corrXS_tratVarty}. The approximate variety correlation matrix and trait covariance matrix are then reverse engineered from this information in Fig \ref{fig:cormatTraitVartys}.
+
+```{r, fig.show = 'hold', fig.width=6, fig.height=4, fig.align='left', fig.cap="\\label{fig:corrXS_tratVarty}Hypothetical example of crowdsourced, orthogonally rotated trait-variety correlations.", echo=F}
+#---------------------------------------------
+n_varieties <- 10
+df_Lrot <- data.frame(`Bean variety` = paste("Variety", c(1:n_varieties)),
+                      Palatability = rnorm(n_varieties),
+                      `Iron\ncontent` = runif(n_varieties),
+                      #`Vit. A content` = runif(n_varieties),
+                      `Protein\ncontent` = runif(n_varieties),
+                      `Fast\nmaturing` = rnorm(n_varieties),
+                      `Drought\nresistant` = rnorm(n_varieties))
+colnames(df_Lrot) <- gsub("\\.", " ", colnames(df_Lrot))
+
+fun <- function(x){
+  ind <- which(x > 1)
+  x[ind] <- runif(length(ind))
+  ind <- which(x < -1)
+  x[ind] <- -runif(length(ind))
+  return(x)
+}
+
+df_Lrot[, -1] <- as.data.frame(apply(df_Lrot[, -1], 2, fun))
+
+n_signals <- ncol(df_Lrot) - 1
+sigNames <- colnames(df_Lrot)[-1]
+sigNames <- paste("Trait", 1:n_signals, "\n", sigNames)
+xAxis_title <- "Rotated Correlations"
+group_info <- NULL
+mat_Lrot <- as.matrix(df_Lrot[, -1])
+row.names(mat_Lrot) <- df_Lrot$`Bean variety`
+plot_corrXS_barchart(mat_Lrot, group_info, xAxis_title, sigNames)
+
+ggsave("Fig 9.tiff")
+
+```
+
+```{r, fig.show = 'hold', fig.width = 5, fig.height = 3, fig.align = "left", fig.cap = "\\label{fig:cormatTraitVartys}(Left) Variety correlation matrix and (Right) trait covariance matrix reverse engineered from the hypothetical trait-variety correlations."}
+
+cormat_XX_derived <- mat_Lrot %*% t(mat_Lrot)
+D_adj <- diag(1 / sqrt(diag(cormat_XX_derived)))
+cormat_XX_derived <- D_adj %*% cormat_XX_derived %*% D_adj
+colnames(cormat_XX_derived) <- row.names(mat_Lrot)
+fig_title <- "Reverse engineered approximate variety\ncorrelation matrix"
+gg_covmat_varty <- plot_covmat(cormat_XX_derived, fig_title, round_to = 2, graph_on = F, legend_position = "none", num_size = 1.5)
+
+cormat_SS_derived <- t(mat_Lrot) %*% mat_Lrot
+# D_adj <- diag(1 / sqrt(diag(cormat_SS_derived)))
+# cormat_SS_derived <- D_adj %*% cormat_SS_derived %*% D_adj
+colnames(cormat_SS_derived) <- colnames(mat_Lrot)
+fig_title <- "Reverse engineered trait\ncovariance matrix"
+gg_covmat_trait <- plot_covmat(cormat_SS_derived, fig_title, round_to = 2, graph_on = F, legend_position = "none")
+
+list_gg <- list(gg_covmat_varty, gg_covmat_trait)
+wrap_plots(list_gg, ncol = 2)
+
+ggsave("Fig 10.tiff")
+
+
+```
+
+**Fig 9:** Hypothetical example of crowdsourced, orthogonally rotated trait-variety correlations.
+
+&nbsp;
+
+**Fig 10:** (Left) Variety correlation matrix and (Right) trait covariance matrix reverse engineered from the hypothetical trait-variety correlations.
+
+&nbsp;
+
+## Potential application in research portfolio risk minimization
+
+Some may be tempted to use the reverse engineered project covariance matrix in a portfolio risk minimization problem, so as to solve for the institution's risk minimizing resource allocation across projects. For example, if the expected logged portfolio utility is defined
+
+\begin{equation}
+E[\ln(U)] = E[\mathbf{X}] {'} \ln(\mathbf{w})
+\end{equation}
+
+Where $\mathbf{w}$ is the vector of institution budget shares invested in each project, then project portfolio variance or risk is, by definition,
+
+\begin{equation}
+Var[\ln(U)] = \ln(\mathbf{w}) {'} \Sigma_{XX} \ln(\mathbf{w})
+\end{equation}
+
+In the absence of data by which to calculate the project covariance matrix $\Sigma_{XX}$, an AR4D institution may try to substitute the reverse engineered covariance matrix $\tilde{\Sigma}_{XX}$,^[Here it is assumed that project standard deviations have been estimated or crowdsourced, such that the reverse engineered project correlation matrix can be transformed into a covariance matrix.] and then solve the problem
+
+\begin{equation}
+\min_{\mathbf{w}} \:\:\: \ln(\mathbf{w}) {'} \tilde{\Sigma}_{XX} \ln(\mathbf{w}) \:\:\: s.t. \:\:\: \mathbf{1} {'} \ln(\mathbf{w}) = \ln(U_C)
+\label{eq:optProb}
+\end{equation}
+
+Where $U_C$ is the institution's budget constraint, and $\mathbf{1}$ is a vector of ones. But note that the Lagrangian and first order conditions of this problem are then
+
+\begin{equation}
+\begin{split}
+\mathcal{L} &= \ln(\mathbf{w}) {'} \tilde{\Sigma}_{XX} \ln(\mathbf{w}) + \lambda (\mathbf{1} {'} \ln(\mathbf{w}) - \ln(U_C)) \\
+\nabla_{\ln(\mathbf{w})} \mathcal{L} &= 2 \tilde{\Sigma}_{XX} \ln(\mathbf{w}) + \lambda \mathbf{1} = \mathbf{0}
+\end{split}
+\end{equation}
+
+Where $\mathbf{0}$ is a vector of zeroes. Solving for the risk minimizing budget shares $\mathbf{w}^*$ thus involves inverting the covariance matrix as follows.
+
+\begin{equation}
+\ln(\mathbf{w}^*) = -\frac{\lambda}{2} \tilde{\Sigma}_{XX}^{-1} \mathbf{1}
+\end{equation}
+
+But the reverse engineered covariance matrix $\tilde{\Sigma}_{XX}$ has $n-m$ eigenvalues equal to zero (because it is calculated as an outer product), and so is not invertible. The constrained risk minimization problem is thus ill posed.
+
+On the other hand, the reverse engineered policy covariance matrix $\Sigma_{SS}^{\circlearrowleft}$ _is_ invertible, thereby opening up the possibility of solving for the risk minimizing "policy weights"---i.e. the institution resource shares allocated to each policy. This may refer to actual funds, or may be interpreted more loosely as an allocation of attention, time, enthusiasm, political will, etc., as appropriate. Such weights are often assigned in a highly subjective, ad hoc manner. The method pursued thus far suggests the following, more rigorous approach. First, define the expected logged policy portfolio utility function as follows.
+
+\begin{equation}
+E[\ln(U)] = E[\mathbf{S}] {'} \ln(\mathbf{w})
+\end{equation}
+
+Then the policy portfolio risk follows as
+
+\begin{equation}
+Var[\ln(U)] = \ln(\mathbf{w}) {'} \Sigma_{SS}^{\circlearrowleft} \ln(\mathbf{w})
+\end{equation}
+
+And the policy portfolio risk minimization problem can be formulated as
+
+\begin{equation}
+\min_{\mathbf{w}} \:\:\: \ln(\mathbf{w}) {'} \Sigma_{SS}^{\circlearrowleft} \ln(\mathbf{w}) \:\:\: s.t. \:\:\: \mathbf{1} {'} \ln(\mathbf{w}) = \ln(U_C)
+\label{eq:optProb2}
+\end{equation}
+
+Where, in this case, the $\mathbf{w}$ are the policy weights. The Lagrangian and first order conditions are then
+<!-- This is a nuanced quantity. Because the policy variances are scaled to unity in the correlation matrix $K_{SS}^{\circlearrowleft}$, it is less a reflection of portfolio risk than it is an indicator of portfolio net synergy, i.e., total synergy minus total tradeoffs, given an investment allocation $\mathbf{w}$. Since net synergy is something desireable, the problem becomes a constrained synergy maximization problem, as opposed to a constrained risk minimization problem. -->
+
+\begin{equation}
+\begin{split}
+\mathcal{L} &= \ln(\mathbf{w}) {'} \Sigma_{SS}^{\circlearrowleft} \ln(\mathbf{w}) + \lambda (\mathbf{1} {'} \ln(\mathbf{w}) - \ln(U_C)) \\
+\nabla_{\ln(\mathbf{w})} \mathcal{L} &= 2 \Sigma_{SS}^{\circlearrowleft} \ln(\mathbf{w}) + \lambda \mathbf{1} = \mathbf{0}
+\end{split}
+\end{equation}
+
+With second order condition
+
+\begin{equation}
+\begin{split}
+\ln(\mathbf{w}) {'} \nabla^2_{\ln(\mathbf{w})} \mathcal{L} \ln(\mathbf{w}) &> 0 \\
+2 \ln(\mathbf{w}) {'} \Sigma_{SS}^{\circlearrowleft} \ln(\mathbf{w}) &> 0 \\
+2 Var[\ln(U)] &> 0
+\end{split}
+\end{equation}
+
+Which is always fulfilled. Note, moreover, that $-\lambda$ reflects the institution's marginal value of money (or attention, or enthusiasm, or whatever terms the budget is measured in) to the institution, also referred to sometimes as the institution's budget shadow price.
+
+\begin{equation}
+\frac{\partial \mathcal{L}}{\partial \ln(U_C)} = -\lambda
+\end{equation}
+
+And note that dotting the first order conditions through by $\ln(\mathbf{w})$ yields the following expression for $\lambda$.
+
+\begin{equation}
+\begin{split}
+\ln(\mathbf{w}) ' \nabla_{\ln(\mathbf{w})} \mathcal{L} &= 2 Var[\ln(U)] + \lambda \ln(U_C) = 0 \\
+\rightarrow \:\: \lambda &= -2 \frac{Var[\ln(U)]}{\ln(U_C)}
+\end{split}
+\end{equation}
+
+The institution's budget shadow price is thus proportionate to the ratio of portfolio risk to cost.
+
+\begin{equation}
+\frac{\partial \mathcal{L}}{\partial \ln(U_C)} = 2 \frac{Var[\ln(U)]}{\ln(U_C)}
+\end{equation}
+
+The first order conditions are then solved for the risk minimizing policy weights $\mathbf{w}^*$ as follows.
+
+\begin{equation}
+\begin{split}
+\ln(\mathbf{w}^*) &= \frac{\lambda}{2} \Sigma_{SS}^{\circlearrowleft -1} \mathbf{1} \\
+\ln(\mathbf{w}^*) &= -\frac{Var[\ln(U)]}{\ln(U_C)} \Sigma_{SS}^{\circlearrowleft -1} \mathbf{1} \\
+\mathbf{w}^* &= \exp \left(-\frac{Var[\ln(U)]}{\ln(U_C)} \Sigma_{SS}^{\circlearrowleft -1} \mathbf{1} \right)
+\end{split}
+\end{equation}
+<!-- where -->
+<!-- \begin{equation} -->
+<!-- \left[ \begin{matrix} -\lambda_R \\ \lambda_B \end{matrix} \right] = -->
+<!-- 2 M^{-1} \left[ \begin{matrix} U_R \\ U_B \end{matrix} \right] \:;\:\:\: M = [\mathbf{x}, \mathbf{1}] {'} \Sigma_{SS}^{\circlearrowleft -1} [\mathbf{x}, \mathbf{1}] -->
+<!-- \end{equation} -->
+
+Where the ratio $\frac{Var[\ln(U)]}{\ln(U_C)}$ is exogenously set by the institution in accordance with its risk tolerance.
+
+The AR4D institution may also wish to experiment with a slightly different formulation of the resource allocation problem, replacing the policy covariance matrix with the policy correlation matrix (call this $K_{SS}^{\circlearrowleft}$). Because the policy variances are scaled to unity in the correlation matrix, the variance $\ln(\mathbf{w}) {'} K_{SS}^{\circlearrowleft} \ln(\mathbf{w})$ is less a reflection of portfolio risk than it is an indicator of portfolio net synergy, i.e., total synergy minus total tradeoffs, given a resource allocation $\mathbf{w}$. Since net synergy is something desireable, the problem becomes a budget constrained synergy maximization problem, as opposed to a budget constrained risk minimization problem. Formally, this can be expressed as follows.
+
+\begin{equation}
+\max_{\mathbf{w}} \:\:\: \ln(\mathbf{w}) {'} K_{SS}^{\circlearrowleft} \ln(\mathbf{w}) \:\:\: s.t. \:\:\: \mathbf{1} {'} \ln(\mathbf{w}) = \ln(U_C)
+\label{eq:optProb2}
+\end{equation}
+
+Note, finally, that these equations can also be applied to plant breeding, so as to find the risk minimizing (or synergy maximizing) allocation of program resources across a "portfolio" of plant traits.
+<!-- Solving for $\mathbf{w}^*$ requires not only the reverse engineered correlation matrix, but also an estimate of the expected policy returns $E[\mathbf{x}]$. In high $\nu$ contexts, the data required to arrive at such an estimate do not readily exist (for the same reasons that the data needed to compute a covariance matrix do not exist). However, domain expertise in such circumstances is typically sufficient to approximate $E[\mathbf{x}]$ through ex-ante impact assessment studies. -->
+
+# Conclusion
+
+For a long time now, research institutions have faced increasing donor pressure to "do more with less" [@Norton1992], "prove their relevance" [@braunschweig2004choosing], "show value for money" [@yet2016bayesian], and otherwise demonstrate "more efficient spending of resources" [@petsakos2018comparing].
+
+In response to this pressure, researchers have focused on the development of models for the ex-ante impact assessment of individual projects [@Alston1995; @Antle1999; @Antle2015; Mills, 1998; and @nelson2014modeling]. However, new decision support tools are still urgently required at the portfolio level to determine optimal resource allocations across strategic objectives. In the absence of such tools, resource allocation procedures have been repeatedly undercut by stakeholder politics, institutional inertia, and other forms of subjective bias. The Consultative Group on International Agricultural Research, in particular, is said to "have a long history of good intentions but limited success in developing appropriate approaches for priority setting" [@Birner2016]. And this, in turn, has contributed to an historic level of toxicity in AR4D donor-researcher relations [@Birner2016; @leeuwis2018reforming; @mccalla2014cgiar]. The toxicity is palpable across other disciplines as well [@Petsko2011; @Moriarty2008].
+
+The task of allocating limited resources across strategic objectives that are all, in one way or another, vitally important, will never be an easy one. Nonetheless, it stands to reason that the introduction of objective, transparent, and inexpensive resource allocation mechanisms can substantially ameliorate the current atmosphere of distrust. As a step in this direction, above I have presented a novel project and policy synergy/tradeoff reverse engineering method based on principal components analysis. The proposed method aids in identifying areas in the AR4D portfolio where research impacts capitalize upon and enhance, or, conversely, annul and offset, each other.
+
+The method can be applied to portfolios of projects or portfolios of policies. For policy portfolios, I showed how the reverse engineered synergy tradeoff matrix may be used in a constrained portfolio synergy maximization problem to solve for optimal policy weights---which can then, in turn, guide the optimal allocation of institution resources. I have also sketched out how the proposed method might be applied to the analogous problem of plant trait selection. The proposed method is not limited to these expository examples, nor even to the AR4D context, but rather applies to any portfolio level planning context where a relative lack of data is compensated by a relative abundance of domain expertise.
+<!-- stakeholder politics, institutional inertia, ad hoc procedures and criteria, and other subjective forces have repeatedly undercut any careful, objective rigor occurring in Steps 1-4 [@Birner2016; @mccalla2014cgiar]. This inconsistency, opacity, and subjectivity in resource allocation decisions has, in turn, aggravated scientists' already longstanding distrust of budget allocation mechanisms. It is only natural, under such circumstances, to see research programs growing increasingly entrenched in their respective silos, and relations between donors and research programs deteriorating to historic levels of toxicity [@Birner2016; @leeuwis2018reforming; @mccalla2014cgiar]. -->
+
+
+<!-- The method is suitable in any portfolio planning context with a high $\nu$ ratio. -->
+
+<!-- Budget planners in many disciplines are under increasing pressure to optimize investments across large portfolios of projects that are all, in one way or another, vitally important [@Collins2011; @Nowotny2006]. These allocation tasks are often gutwrenching for all involved due to their high vulnerability to ad hoc, arbitrary, and/or politically driven decision making. And this, in turn, has contributed to the increasingly toxic relationship between researchers and donors noted by Leeuwis et al. [-@leeuwis2018reforming], Petsko [-@Petsko2011], and Moriarity [-@Moriarty2008]. The consensus building potential of the tool presented here may serve to reduce, in some measure, the methodological premise for this toxicity in policy debates. -->
+
+<!-- The CGIAR is said to "have a long history of good intentions but limited success in developing appropriate approaches for priority setting" [@Birner2016]. In this paper, I have attempted to reduce, in some measure, the methodological premise for this "limited success" by adaptating financial risk-adjusted portfolio optimization to the AR4D context. -->
+
+<!-- "One of the geniuses" of the CG centers is said to be their ability to consistently attract "aid funding of long-term research" while keeping "aid professionals from setting research agendas" [@mccalla2014cgiar]. -->
+
+<!-- However, methodological limitations have  leave plenty of room for politics etc. to shape the decision... An historic effort begun in 2011 to restructure CGIAR financing around a "portfolio" model proved emblematic of this "limited success", when the results of an extensive priority setting exercise were rejected out of hand in favor of an ad hoc budget allocation. The end result thereby reinforced the very institutional inertia that the effort had intended to disrupt (Birner &amp; Byerlee, 2016). The aim of the present paper is to reduce the methodological basis for such failures as much as possible.   The methodological limitations of conventional priority setting are more to blame than any set of persons... Mill's missing fifth step... My aim is to improve methodological rigor and objectivity ...such that research conglomerates genuinely seeking to optimize resource allocation will have the tools required to achieve this. this is an issue faced across many fields [@physics, @medicine]   Scientists respond with ultimatums of their own, demanding a return to the days of "more stable funding" and "budget autonomy" [@leeuwis2018reforming]. -->
+
+<!-- * May not be exactly "accurate", but generates an optimal solution that is consistent with what we think we know about the domain. Moreover, it should kept in mind that data are not infallible sources of information. Data of the sort considered here, in particular, are inherently noisy. Under such circumstances, arguably, it may be preferible to build up the covariance matrix from crowdsourced domain knowledge, in the manner shown above, rather than calculate it from data. Hence, domain knowledge of the key dimensions of the problem space, and of how the various moving parts of the problem (i.e. the portfolio items) map onto these dimensions, is a sufficient---and, in noisy contexts, possibly superior---substitute for data. -->
+
+<!-- "long history of good intentions but limited success in developing appropriate approaches for priority setting". An historic effort begun in 2011 to restructure CGIAR financing around Core Research Programs (CRPs) was ad hoc, thereby reinforcing the very institutional inertia it was designed to disrupt [@Birner2016]. ReDonor attempts to establish criteria and methods for a merit-based allocation of ever-scarcer research funds are seen as invasive characterized as  -->
+<!-- "One of the geniuses" of such institutes is said to be their ability to consistently attract "aid funding of long-term research" while keeping "aid professionals from setting research agendas and hiring scientists" (McCalla, 2014). Donor attempts to establish criteria and methods for a merit-based allocation of ever-scarcer research funds are characterized as -->
+<!-- "development at the expense of research" (Birner &amp; Byerlee, 2016) or even the "Balkanization" of research (Petsko, 2011) . -->
+
+<!-- ## Separating signals from noise, identifying main assets contributing to market movements -->
+
+<!-- MV analysis is, in many ways, still a work in progress, with unresolved methodological issues severely limiting its usefulness even in its native financial context. In particular, covariance matrices estimated from price data tend to contain a lot of noise; and the optimal solutions then tend to diverge considerably from reality as a result of this [@michaud1989markowitz]. In my adaptation below, I propose a new approach to this problem by first dimensionally reducing the portfolio from several dozen assets to just a handful of "signals" constructed from the eigenvectors of the correlation matrix that can be meaningfully distinguished from noise. -->
+\pagebreak
+
+# References {-}
+
+<div id="refs"></div>
+
+\pagebreak
+
+<!-- # ```{r, fig.show = 'hold', fig.width=5, fig.height=3, fig.align='center', fig.cap="\\label{fig:corrXS_barchart}Correlation of portfolio items with leading signals."} -->
+<!-- #  -->
+<!-- # gg_corrXS_barchart -->
+<!-- #  -->
+<!-- # ``` -->
+<!-- #  -->
+
+<!-- # ```{r, fig.show = 'hold', fig.width=5, fig.height=3, fig.align='center', fig.cap="\\label{fig:corrXS_barchart_rot}Varimax rotated correlation of portfolio items with leading signals.", echo=F} -->
+
+<!-- gg_corrXS_barchart_rot -->
+
+
+<!-- ``` -->
+
+# Appendix: Securities appearing in the financial example {-}
+
+```{r, echo=FALSE}
+spy_sector_fullName <- c("Financial Select Sector SPDR Fund",
+                         "Communication Services Select Sector SPDR Fund",
+                         "Consumer Discretionary Select Sector SPDR Fund",
+                         "Consumer Staples Select Sector SPDR Fund",
+                         "Health Care Select Sector SPDR Fund",
+                         "Technology Select Sector SPDR Fund",
+                        
+                          "SPDR Dow Jones REIT ETF",
+                         "Utilities Select Sector SPDR Fund",
+                         "Industrial Select Sector SPDR Fund",
+                         "SPDR S&P Biotech ETF",
+                         "iShares Transportation Average ETF")
+
+spy_sector_detail_modified <- paste("U.S.", spy_sector_detail, "Sector")
+df_table <- data.frame(Name = spy_sector_fullName, Symbol = spy_sector_symbs, Tracks = spy_sector_detail_modified)
+
+kable(df_table) %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive")) # %>%
+#  as_image()
+#  save_kable("Appendix Table")
+
+
+```
+
