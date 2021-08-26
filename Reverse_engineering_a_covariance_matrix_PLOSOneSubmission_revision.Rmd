@@ -9,7 +9,7 @@ address:
   - code: CIAT
     address: Alliance Bioversity-CIAT, Km 17 Recta Cali-Palmira, Valle del Cauca, Colombia, CP 763537
 abstract: |
-  \singlespacing In research portfolio planning contexts, an estimate of research policy and project synergies/tradeoffs (i.e. covariances) is essential to the optimal leveraging of institution resources. The data by which to make such estimates generally do not exist. Research institutions may often draw on domain expertise to fill this gap, but it is not clear how such ad hoc information can be quantified and fed into an optimal resource allocation workflow. Drawing on principal components analysis, I propose a method for "reverse engineering" synergies/tradeoffs from domain expertise at both the policy and project level. I discuss extentions to other problems and detail how the method can be fed into a research portfolio optimization workflow. I also briefly discuss the relevance of the proposed method in the context of the currently toxic relations beteween research communities and the donors that fund them.
+  \singlespacing In research portfolio planning contexts, an estimate of research policy and project synergies/tradeoffs (i.e. covariances) is essential to the optimal leveraging of institution resources. The data by which to make such estimates generally do not exist. Research institutions may often draw on domain expertise to fill this gap, but it is not clear how such ad hoc information can be quantified and fed into an optimal resource allocation workflow. Drawing on principal components analysis, I propose a method for "reverse engineering" synergies/tradeoffs from domain expertise at both the policy and project level. I discuss extensions to other problems and detail how the method can be fed into a research portfolio optimization workflow. I also briefly discuss the relevance of the proposed method in the context of the currently toxic relations between research communities and the donors that fund them.
 # keywords: Tradeoffs and synergies, risk management, R&D portfolio optimization, agricultural research for development
 # journal: R&D Management
 bibliography: Reverse engineering synergies and tradeoffs.bib
@@ -709,7 +709,7 @@ Note, moreover, that the data correlation matrix $K_{XX}$ can be calculated as t
 \begin{equation}
 \begin{split}
 LL' &= D(\boldsymbol{\sigma}_X)^{-1} P \Gamma^{1 \over 2} (D(\boldsymbol{\sigma}_X)^{-1} P \Gamma^{1 \over 2})' \\
-&= D(\boldsymbol{\sigma}_X)^{-1} P \Gamma^{1 \over 2}) \Gamma^{1 \over 2} P' D(\boldsymbol{\sigma}_X)^{-1} \\
+&= D(\boldsymbol{\sigma}_X)^{-1} P \Gamma^{1 \over 2} \Gamma^{1 \over 2} P' D(\boldsymbol{\sigma}_X)^{-1} \\
 &= D(\boldsymbol{\sigma}_X)^{-1} P \Gamma P' D(\boldsymbol{\sigma}_X)^{-1} \\
 &= D(\boldsymbol{\sigma}_X)^{-1} \Sigma_{XX} D(\boldsymbol{\sigma}_X)^{-1} \\
 &= K_{XX}
