@@ -9,7 +9,7 @@ address:
   - code: CIAT
     address: Alliance Bioversity-CIAT, Km 17 Recta Cali-Palmira, Valle del Cauca, Colombia, CP 763537
 abstract: |
-  \singlespacing In research portfolio planning contexts, an estimate of research policy and project synergies/tradeoffs (i.e. covariances) is essential to the optimal leveraging of institution resources. The data by which to make such estimates generally do not exist. Research institutions may often draw on domain expertise to fill this gap, but it is not clear how such ad hoc information can be quantified and fed into an optimal resource allocation workflow. Drawing on principal components analysis, I propose a method for "reverse engineering" synergies/tradeoffs from domain expertise at both the policy and project level. I discuss extensions to other problems and detail how the method can be fed into a research portfolio optimization workflow. I also briefly discuss the relevance of the proposed method in the context of the currently toxic relations between research communities and the donors that fund them.
+  In research portfolio planning contexts, an estimate of research policy and project synergies/tradeoffs (i.e. covariances) is essential to the optimal leveraging of institution resources. The data by which to make such estimates generally do not exist. Research institutions may often draw on domain expertise to fill this gap, but it is not clear how such ad hoc information can be quantified and fed into an optimal resource allocation workflow. Drawing on principal components analysis, I propose a method for "reverse engineering" synergies/tradeoffs from domain expertise at both the policy and project level. I discuss extensions to other problems and detail how the method can be fed into a research portfolio optimization workflow. I also briefly discuss the relevance of the proposed method in the context of the currently toxic relations between research communities and the donors that fund them.
 # keywords: Tradeoffs and synergies, risk management, R&D portfolio optimization, agricultural research for development
 # journal: R&D Management
 bibliography: Reverse engineering synergies and tradeoffs.bib
@@ -17,12 +17,13 @@ bibliography: Reverse engineering synergies and tradeoffs.bib
 output: rticles::plos_article
 csl: plos.csl
 header-includes:
-  - \usepackage{setspace}\doublespacing
+  #- \usepackage{setspace}\doublespacing
   - \usepackage{float}
   #- \usepackage[nomarkers,tablesonly]{endfloat}
   #- \usepackage[printfigures]{figcaps}
   - \floatplacement{figure}{H}
   - \usepackage[nolists]{endfloat}
+  - \usepackage{caption}
   #linenumbers: true
 #numbersections: true
 # output:
@@ -59,8 +60,7 @@ library(kableExtra)
 <!-- All code and data used in this article are available from the author upon request. -->
   
 \pagebreak
-
-\doublespacing
+<!-- \doublespacing -->
 
 # Introduction
 
@@ -615,7 +615,7 @@ S = X \tilde{P}
 \label{eq:sigs_def}
 \end{equation}
 
-Where $\tilde{P}$ is a matrix containing the retained $m$ leading eigenvectors of the full set of eigenvectors $P$, which is taken from the eigendecomposition of the data covariance matrix $\Sigma_{XX}$ (equation \ref{eq:eigDecomp}).
+Where $\tilde{P}$ is a matrix containing the retained $m$ leading eigenvectors of the full set of eigenvectors $P$, which is taken from the eigendecomposition of the data covariance matrix $\Sigma_{XX}$ (Eq \ref{eq:eigDecomp}).
 
 \begin{equation}
 \Sigma_{XX} = P\Gamma P'
@@ -661,7 +661,7 @@ K_{XS} &= D(\boldsymbol{\sigma}_X)^{-1} \Sigma_{XS} D(\boldsymbol{\sigma}_S)^{-1
 \end{split}
 \end{equation}
 
-(Where the notation $D(\boldsymbol{\sigma}_X)$ stands for a diagonal matrix with the vector $\boldsymbol{\sigma}_X$ along the diagonal.) But the standard deviations of the signals $\boldsymbol{\sigma}_S$ are just the square roots of the retained eigenvalues (recall equation \ref{eq:covmat_SS}), so this reduces to
+(Where the notation $D(\boldsymbol{\sigma}_X)$ stands for a diagonal matrix with the vector $\boldsymbol{\sigma}_X$ along the diagonal.) But the standard deviations of the signals $\boldsymbol{\sigma}_S$ are just the square roots of the retained eigenvalues (recall Eq \ref{eq:covmat_SS}), so this reduces to
 
 \begin{equation}
 \begin{split}
@@ -691,7 +691,7 @@ L = K_{XS} = \tilde{P} \tilde{\Gamma}^{1 \over 2}
 \label{eq:defLretScal}
 \end{equation}
 
-Note that, in the latter case, the inner product of the loadings is equivalent to the signals covariance matrix $\Sigma_{SS}$ derived in equation \ref{eq:covmat_SS}.
+Note that, in the latter case, the inner product of the loadings is equivalent to the signals covariance matrix $\Sigma_{SS}$ derived in Eq \ref{eq:covmat_SS}.
 
 \begin{equation}
 \begin{split}
@@ -717,7 +717,7 @@ LL' &= D(\boldsymbol{\sigma}_X)^{-1} P \Gamma^{1 \over 2} (D(\boldsymbol{\sigma}
 \label{eq:KfromLL}
 \end{equation}
 
-(Where $L$, in this instance, refers to the full set of loadings, $L = D(\boldsymbol{\sigma}_X)^{-1} P \Gamma^{1 \over 2}$, as opposed to the set of retained loadings, as defined in equation \ref{eq:defLret}.)
+(Where $L$, in this instance, refers to the full set of loadings, $L = D(\boldsymbol{\sigma}_X)^{-1} P \Gamma^{1 \over 2}$, as opposed to the set of retained loadings, as defined in Eq \ref{eq:defLret}.)
 
 An example of loadings is given in Fig \ref{fig:corrXS_barchart}. In this case, the variables are the daily returns of `r ncol(mat_pctDiff_eg_train)` financial securities covering the period `r train_start_date` to `r train_stop_date`.^[Downloaded from yahoo finance using the R tidyquant package. The securities chosen for this example are exchange traded funds broadly representative of the U.S. economy. See S1 Table for details. The dataset is centered, but not scaled to unit variance.] The signals are presented in descending order of their corresponding eigenvalues, with Signal 1 representing the principal component with the highest eigenvalue. The eigenvalue reflects the degree to which the signal describes the overall evolution of the data. Here, only the first four signals of the financial data set are shown. The question of how many signals should be extracted from the noise is addressed at the end of the section.
 
@@ -872,22 +872,22 @@ ggsave("Fig 1.tiff")
 
 ```
 
-**Fig 1:** Correlation of variables (daily returns) with four leading signals extracted from the financial data.
+**Fig 1. Correlation of variables (daily returns) with four leading signals** extracted from the financial data.
 
 &nbsp;
 
 Concrete meaning can now be attributed to the otherwise abstract signals by examining the loadings---i.e. by examining how correlated the signals are with the variables. Signal 4, for example, appears to have something to do with price movements in Communications, and is negatively correlated with movements in the Real Estate sector. Signal 3, meanwhile, is positively correlated with Real Estate and Utilities, as well as Communications. Signal 3 might thus be loosely characterized as the "Housing and Urban Development" or "HUD" Signal, while Signal 4 might be called, rather convolutedly, the "Telecommunications Not Related to HUD" Signal. The interpretation of Signals 1 and 2 is still less straightforward, since they are both correlated with many variables.
 
-## Applying an orthogonal rotation to clarify loadings
+## Applying an orthonormal rotation to clarify loadings
 
-When the loadings are convoluted like this, it is useful to apply an orthogonal rotation to $L$ in order to clarify the picture. That is to say, instead of examining $L$, one examines $L_{\circlearrowleft}$.
+When the loadings are convoluted like this, it is useful to apply an orthnormal rotation to $L$ in order to clarify the picture. That is to say, instead of examining $L$, one examines $L_{\circlearrowleft}$.
 
 \begin{equation}
 L_{\circlearrowleft} = LB
 \label{eq:Lrot}
 \end{equation}
 
-Where $B$ is the orthogonal rotation matrix, such that $B'B = I$ and $BB' = I$. It is important that $B$ be orthogonal because the data correlation matrix $K_{XX}$ is defined up to an orthogonal rotation of the full set of loadings. In other words, orthogonal rotations of the loadings leave the data correlation matrix unaltered. To see this, recall that the data correlation matrix can be calculated as the outer product of the full set of loadings with itself (equation \ref{eq:KfromLL}). And then note that this result is invariant under post multiplication of $L$ by the orthogonal rotation matrix $B$.
+Where $B$ is the orthonormal rotation matrix, such that $B'B = I$ and $BB' = I$. It is important that $B$ be orthonormal because the data correlation matrix $K_{XX}$ is defined up to an orthonormal rotation of the full set of loadings. In other words, orthonormal rotations of the loadings leave the data correlation matrix unaltered. To see this, recall that the data correlation matrix can be calculated as the outer product of the full set of loadings with itself (Eq \ref{eq:KfromLL}). And then note that this result is invariant under post multiplication of $L$ by the orthonormal rotation matrix $B$.
 
 \begin{equation}
 \begin{split}
@@ -899,7 +899,7 @@ L_{\circlearrowleft} L_{\circlearrowleft}' &= LB (LB)' \\
 \label{eq:cormatInvar}
 \end{equation}
 
-In Fig \ref{fig:corrXS_barchart_rot} a special kind of orthogonal rotation, called a varimax rotation, is applied to $L$. Varimax rotations flesh out structure by maximizing sparseness in the rotated matrix.^[For more details on varimax rotations, see Abdi [-@abdi2003factor].] After applying this rotation, Signal 1 is now clearly representative of Biotechnology and Healthcare, and so might be called the "Pharmaceutical" Signal. Signal 2 loadings are also now more distinctly pronounced, especially Financials, Industrial, and Transportation. Signal 2 might thus be called the "Financial and Physical Infrastructure" Signal. The rotation has also cleared up the overlap between Signals 3 and 4. Signal 4 is now more exclusively descriptive of price movements in the Communications sector and can thus be relabeled, more succinctly, the "Communications" Signal. Likewise, Signal 3 is now more exclusively descriptive of movements in Real Estate and Utilities, with some description of movements in the Consumer Goods sector.^[Gopikrishnan, Rosenow, Plerou, and Stanley [-@gopikrishnan2001quantifying] pursued a similar line of inquiry when they looked at the components of the eigenvectors of a financial data correlation matrix. However, they did not explain that their findings are indicative of PC-asset correlations; nor did they apply an orthogonal rotation to clarify the interpretation.]
+In Fig \ref{fig:corrXS_barchart_rot} a special kind of orthonormal rotation, called a varimax rotation, is applied to $L$. Varimax rotations flesh out structure by maximizing sparseness in the rotated matrix.^[For more details on varimax rotations, see Abdi [-@abdi2003factor].] After applying this rotation, Signal 1 is now clearly representative of Biotechnology and Healthcare, and so might be called the "Pharmaceutical" Signal. Signal 2 loadings are also now more distinctly pronounced, especially Financials, Industrial, and Transportation. Signal 2 might thus be called the "Financial and Physical Infrastructure" Signal. The rotation has also cleared up the overlap between Signals 3 and 4. Signal 4 is now more exclusively descriptive of price movements in the Communications sector and can thus be relabeled, more succinctly, the "Communications" Signal. Likewise, Signal 3 is now more exclusively descriptive of movements in Real Estate and Utilities, with some description of movements in the Consumer Goods sector.^[Gopikrishnan, Rosenow, Plerou, and Stanley [-@gopikrishnan2001quantifying] pursued a similar line of inquiry when they looked at the components of the eigenvectors of a financial data correlation matrix. However, they did not explain that their findings are indicative of PC-asset correlations; nor did they apply an orthonormal rotation to clarify the interpretation.]
 
 ```{r, fig.show = 'hold', fig.width=5, fig.height=3, fig.align='left', fig.cap="\\label{fig:corrXS_barchart_rot}Varimax rotated correlation of variables with four leading signals.", echo=F}
 
@@ -919,7 +919,7 @@ ggsave("Fig 2.tiff")
 
 ```
 
-**Fig 2:** Varimax rotated correlation of variables with leading signals.
+**Fig 2. Varimax rotated correlation** of variables with leading signals.
 
 &nbsp;
 
@@ -1052,11 +1052,11 @@ ggsave("Fig 3.tiff")
 <!-- ``` -->
 <!-- A calculation of varimax loadings over data from the subsequent period (`r test_start_date` to `r test_stop_date`), presented in Fig \ref{fig:corrXS_barchart_rot_test}, suggests that signal composition remains fairly stable from one period to the next, although signal order may change. In this case, the Financial and Physical Infrastructure Signal has changed places with the Pharmaceutical Signal. -->
 
-**Fig 3:** Signals (thick grey lines) plotted together with their most highly correlated variables.
+**Fig 3. Signals (thick grey lines) plotted** together with their most highly correlated variables.
 
 &nbsp;
 
-If the data $X$ is scaled to unit variance, then the orthogonal rotation matrix $B$ and retained eigenvalues $\tilde{\Gamma}$ can be recovered from the eigendecomposition of the inner product $L_{\circlearrowleft}'L_{\circlearrowleft}$.
+If the data $X$ is scaled to unit variance, then the orthonormal rotation matrix $B$ and retained eigenvalues $\tilde{\Gamma}$ can be recovered from the eigendecomposition of the inner product $L_{\circlearrowleft}'L_{\circlearrowleft}$.
 
 \begin{equation}
 \begin{split}
@@ -1067,7 +1067,7 @@ L_{\circlearrowleft} {'} L_{\circlearrowleft} &= (\tilde{P} \tilde{\Gamma}^{1 \o
 \label{eq:BGammaFromLrot}
 \end{equation}
 
-Note the similarity to equation \ref{eq:LLinner}. Whereas the inner product of the unrotated loadings $L'L$ yields the signals covariance matrix $\Sigma_{SS}$, the inner product of the orthogonally rotated loadings yields the covariance matrix of the orthogonally rotated signals (call this $\Sigma_{SS}^{\circlearrowleft}$). To see this, consider that, by definition,
+Note the similarity to Eq \ref{eq:LLinner}. Whereas the inner product of the unrotated loadings $L'L$ yields the signals covariance matrix $\Sigma_{SS}$, the inner product of the orthonormally rotated loadings yields the covariance matrix of the orthonormally rotated signals (call this $\Sigma_{SS}^{\circlearrowleft}$). To see this, consider that, by definition,
 
 \begin{equation}
 \begin{split}
@@ -1088,7 +1088,7 @@ Therefore, $L_{\circlearrowleft} {'} L_{\circlearrowleft} = \Sigma_{SS}^{\circle
 <!-- SB = XP -->
 <!-- \end{equation} -->
 
-Moreover, having derived $\tilde{\Gamma}$ and $B$ from the eigendecomposition of $L_{\circlearrowleft} ' L_{\circlearrowleft}$ via equation \ref{eq:BGammaFromLrot}, it is then possible to derive the retained leading eigenvectors of the data correlation matrix ($\tilde{P}$) as follows.
+Moreover, having derived $\tilde{\Gamma}$ and $B$ from the eigendecomposition of $L_{\circlearrowleft} ' L_{\circlearrowleft}$ via Eq \ref{eq:BGammaFromLrot}, it is then possible to derive the retained leading eigenvectors of the data correlation matrix ($\tilde{P}$) as follows.
 
 \begin{equation}
 \begin{split}
@@ -1100,11 +1100,11 @@ L_{\circlearrowleft} B {'} \tilde{\Gamma}^{-\frac{1}{2}} &= L B B {'} \tilde{\Ga
 \label{eq:deducePcrowd}
 \end{equation}
 
-When the data $X$ are scaled to unit variance, then, the orthogonal rotation matrix $B$, retained eigenvalues $\tilde{\Gamma}$, and retained eigenvectors $\tilde{P}$ can be calculated from the rotated loadings $L_{\circlearrowleft}$ alone, without any need for the original data $X$.
+When the data $X$ are scaled to unit variance, then, the orthonormal rotation matrix $B$, retained eigenvalues $\tilde{\Gamma}$, and retained eigenvectors $\tilde{P}$ can be calculated from the rotated loadings $L_{\circlearrowleft}$ alone, without any need for the original data $X$.
 
 ## How many signals to retain?
 
-In practice, the number of signals that should be distilled from the original data set $X$ depends upon how much of the variance in $X$ the researcher wishes to capture or reflect in the signals, and how many signals are required to reach this subjectively determined threshold. The portion of the system's evolution reflected in any given signal (call this $k_i$) is defined as the signal's variance divided by the sum of all signal variances. Recalling from equation \ref{eq:covmat_SS} that a signal's variance is just the corresponding eigenvalue $\gamma_i$ extracted from $\Sigma_{XX}$, this is expressed
+In practice, the number of signals that should be distilled from the original data set $X$ depends upon how much of the variance in $X$ the researcher wishes to capture or reflect in the signals, and how many signals are required to reach this subjectively determined threshold. The portion of the system's evolution reflected in any given signal (call this $k_i$) is defined as the signal's variance divided by the sum of all signal variances. Recalling from Eq \ref{eq:covmat_SS} that a signal's variance is just the corresponding eigenvalue $\gamma_i$ extracted from $\Sigma_{XX}$, this is expressed
 
 \begin{equation}
 k_i = \frac{\gamma_i}{\sum_{j = 1}^n \gamma_j}
@@ -1151,7 +1151,7 @@ eig_values_sigs <- eig_values[1:n_signals]
 
 ```
 
-**Fig 4:** Plot of the individual and cumulative portions of variance explained by each signal in the financial dataset.
+**Fig 4. Plot of the individual and cumulative portions of variance** explained by each signal in the financial dataset.
 
 &nbsp;
 
@@ -1159,7 +1159,7 @@ The plot shows that, for the financial data set, the leading `r n_signals` signa
 
 ## Approximating the data correlation matrix from the retained loadings
 
-Recall from equation \ref{eq:KfromLL} that the data correlation matrix can be calculated as the outer product of the full set of loadings with itself. If $L$ refers to the retained loadings only, the outer product of $L$ with itself similarly yields an _approximate_ data correlation matrix $\tilde{K}_{XX}$.
+Recall from Eq \ref{eq:KfromLL} that the data correlation matrix can be calculated as the outer product of the full set of loadings with itself. If $L$ refers to the retained loadings only, the outer product of $L$ with itself similarly yields an _approximate_ data correlation matrix $\tilde{K}_{XX}$.
 
 \begin{equation}
 \begin{split}
@@ -1172,9 +1172,9 @@ LL' &= D(\boldsymbol{\sigma}_X)^{-1} \tilde{P} \tilde{\Gamma}^{1 \over 2} (\tild
 \label{eq:cormat_from_Lrot}
 \end{equation}
 
-Recall from equation \ref{eq:cormatInvar}, moreover, that this operation is invariant under orthogonal rotation of the loadings, such that the outer product of the orthogonally rotated retained loadings $L_{\circlearrowleft} L_{\circlearrowleft} '$ also gives the approximate correlation matrix $\tilde{K}_{XX}$.
+Recall from Eq \ref{eq:cormatInvar}, moreover, that this operation is invariant under orthonormal rotation of the loadings, such that the outer product of the orthonormally rotated retained loadings $L_{\circlearrowleft} L_{\circlearrowleft} '$ also gives the approximate correlation matrix $\tilde{K}_{XX}$.
 
-Even when just a handful of loadings are retained, $\tilde{K}_{XX}$ can approximate $K_{XX}$ quite closely. The difference between the financial data correlation matrix and the approximate correlation matrix calculated from 6 retained loadings via equation \ref{eq:cormat_from_Lrot} is shown in Fig \ref{fig:compareCorMats}. Note that the difference is remarkably small for most entries.
+Even when just a handful of loadings are retained, $\tilde{K}_{XX}$ can approximate $K_{XX}$ quite closely. The difference between the financial data correlation matrix and the approximate correlation matrix calculated from 6 retained loadings via Eq \ref{eq:cormat_from_Lrot} is shown in Fig \ref{fig:compareCorMats}. Note that the difference is remarkably small for most entries.
 
 The signals derived correlation matrix is approximate in the sense that it approximates the data correlation matrix; but it should not necessarily be considered inferior in terms of accuracy. To the extent that the original data are contaminated by noise, the approximate correlation matrix may prove more accurate with respect to the "true process" that generates the data.
 
@@ -1188,20 +1188,20 @@ ggsave("Fig 5.tiff")
 
 ```
 
-**Fig 5:** The financial data correlation matrix minus the approximate correlation matrix calculated as the outer product of the 6 leading loadings.
+**Fig 5. The financial data correlation matrix minus the approximate correlation matrix** calculated as the outer product of the 6 leading loadings.
 
 &nbsp;
 
 
 ## "Reverse engineering" the project correlation matrix from domain knowledge
 
-The preceding sections demonstrate that it is possible to deduce quite a lot of information about a given centered and scaled dataset $X$ from the rotated loadings $L_{\circlearrowleft}$ alone, without any need to look at the original data. Specifically, equations \ref{eq:BGammaFromLrot} and \ref{eq:deducePcrowd} imply that it is possible to deduce from $L_{\circlearrowleft}$ the retained eigenvalues and eigenvectors ($\tilde{\Gamma}$ and $\tilde{P}$), as well as the implicit orthogonal rotation matrix ($B$). Equation \ref{eq:cormat_from_Lrot}, meanwhile, demonstrates that an approximate data correlation matrix can be calculated as the outer product $L_{\circlearrowleft} L_{\circlearrowleft}'$.
+The preceding sections demonstrate that it is possible to deduce quite a lot of information about a given centered and scaled dataset $X$ from the rotated loadings $L_{\circlearrowleft}$ alone, without any need to look at the original data. Specifically, equations \ref{eq:BGammaFromLrot} and \ref{eq:deducePcrowd} imply that it is possible to deduce from $L_{\circlearrowleft}$ the retained eigenvalues and eigenvectors ($\tilde{\Gamma}$ and $\tilde{P}$), as well as the implicit orthonormal rotation matrix ($B$). Equation \ref{eq:cormat_from_Lrot}, meanwhile, demonstrates that an approximate data correlation matrix can be calculated as the outer product $L_{\circlearrowleft} L_{\circlearrowleft}'$.
 
 The question then naturally arises: Is it possible to deduce $L_{\circlearrowleft}$ when $X$ is not available?
 
-In the AR4D context, if the columns of $X$ are the unobserved (centered and scaled) expected net returns^[Or return on investment, or net present value, or some other measure of project expected net worth, as appropriate. It may also be prudent to assume that these unobserved time series are differenced or otherwise detrended. Keep in mind project net worth may be a function of impacts with a clear market value, such as an increase in smallholder incomes, and/or impacts requiring non-market valuation, such as environmental, educational, and public health outcomes.] to projects in a research institution's research portfolio, and if the institution's strategic objectives or policies may be considered analogous to a set of retained, leading, orthogonally rotated principal components ($SB$) describing 90% of the problem space that is of interest to the institution, then the correlations between institution policies and project expected net returns may be interpreted as the orthogonally rotated loadings $L_{\circlearrowleft}$ corresponding to $X$. An estimate of these policy-project correlations can then be elicited via a survey of domain experts at the institution and/or within its extended network of partners. And the outer product $L_{\circlearrowleft} L_{\circlearrowleft}'$ may then be interpreted as the approximate project correlation matrix $\tilde{K}_{XX}$.
+In the AR4D context, if the columns of $X$ are the unobserved (centered and scaled) expected net returns^[Or return on investment, or net present value, or some other measure of project expected net worth, as appropriate. It may also be prudent to assume that these unobserved time series are differenced or otherwise detrended. Keep in mind project net worth may be a function of impacts with a clear market value, such as an increase in smallholder incomes, and/or impacts requiring non-market valuation, such as environmental, educational, and public health outcomes.] to projects in a research institution's research portfolio, and if the institution's strategic objectives or policies may be considered analogous to a set of retained, leading, orthonormally rotated principal components ($SB$) describing 90% of the problem space that is of interest to the institution, then the correlations between institution policies and project expected net returns may be interpreted as the orthonormally rotated loadings $L_{\circlearrowleft}$ corresponding to $X$. An estimate of these policy-project correlations can then be elicited via a survey of domain experts at the institution and/or within its extended network of partners. And the outer product $L_{\circlearrowleft} L_{\circlearrowleft}'$ may then be interpreted as the approximate project correlation matrix $\tilde{K}_{XX}$.
 
-Importantly, the elicited policy-project correlations must be interpreted as _orthogonally rotated_ loadings ($L_{\circlearrowleft}$), as opposed to unrotated loadings ($L$), for two reasons: 1) The unrotated loadings are orthogonal (recall equation \ref{eq:LLinner}), whereas the policy-project correlations crowdsourced from domain experts will generally not be orthogonal. 2) As seen in the financial example, orthogonally rotated loadings present a clearer picture of which variables are associated with which principal components than do the unrotated loadings. Generally speaking, AR4D institution policies are likewise formulated so as to be unique and distinct from each other. It therefore makes sense to interpret policies as orthogonally rotated principal components rather than unrotated principal components. Note that the implicit orthogonal rotation ($B$) could be a varimax rotation, as in the financial example, but does not necessarily have to be so. Correlation matrix invariance requires only that $B$ be orthogonal (recall equation \ref{eq:cormatInvar}).
+Importantly, the elicited policy-project correlations must be interpreted as _orthonormally rotated_ loadings ($L_{\circlearrowleft}$), as opposed to unrotated loadings ($L$), for two reasons: 1) The unrotated loadings are orthogonal (recall Eq \ref{eq:LLinner}), whereas the policy-project correlations crowdsourced from domain experts will generally not be orthogonal. 2) As seen in the financial example, orthonormally rotated loadings present a clearer picture of which variables are associated with which principal components than do the unrotated loadings. Generally speaking, AR4D institution policies are likewise formulated so as to be unique and distinct from each other. It therefore makes sense to interpret policies as orthonormally rotated principal components rather than unrotated principal components. Note that the implicit orthonormal rotation ($B$) could be a varimax rotation, as in the financial example, but does not necessarily have to be so. Correlation matrix invariance requires only that $B$ be orthonormal (recall Eq \ref{eq:cormatInvar}).
 
 If project risk ($\boldsymbol{\sigma}_X$) can be calculated beforehand during ex-ante impact assessment exercises, then it is straightforward to calculate an approximate project covariance matrix $\tilde{\Sigma}_{XX}$ from the elicited approximate correlation matrix $\tilde{K}_{XX}$ as follows.
 
@@ -1213,7 +1213,7 @@ However, risk assessment is still not a standard part of ex-ante impact assessme
 
 ## "Reverse engineering" the policy covariance matrix from domain knowledge
 
-The interpretation of the orthogonally rotated signals $SB$ as institution policies (or, more precisely, policy expected net returns) implies that the orthogonally rotated signals covariance matrix $\Sigma_{SS}^{\circlearrowleft}$ may be interpreted as the policy covariance matrix. Recall from equations \ref{eq:BGammaFromLrot} and \ref{eq:covmatSrot} that this matrix can be calculated as the inner product $L_{\circlearrowleft} ' L_{\circlearrowleft}$.
+The interpretation of the orthonormally rotated signals $SB$ as institution policies (or, more precisely, policy expected net returns) implies that the orthonormally rotated signals covariance matrix $\Sigma_{SS}^{\circlearrowleft}$ may be interpreted as the policy covariance matrix. Recall from equations \ref{eq:BGammaFromLrot} and \ref{eq:covmatSrot} that this matrix can be calculated as the inner product $L_{\circlearrowleft} ' L_{\circlearrowleft}$.
 
 With a crowdsourced $L_{\circlearrowleft}$ in hand, then, it is possible to calculate both the approximate project correlation matrix and the the policy covariance matrix. Mathematically speaking, it can be said that the two calculations are dual to each other.
 
@@ -1234,8 +1234,7 @@ As $\nu$ is higher, the reverse engineering approach makes more sense. As $\nu$ 
 In the example below, a hypothetical AR4D institution has the task of identifying synergies and tradeoffs in its project portfolio; and is also interested in quantifying any synergies and tradeoffs between its overarching policies. The institution's projects are listed in Table 1. The projects are loosely grouped into four categories to facilitate interpretation of the subsequent graphics, but there is no strict rule followed, and clearly some overlap, in the grouping.
 <!--Use Table \ref{tab:exampLoadings} when table is turned on.-->
 <!-- Project ROIs would have been calculated during ex-ante impact assessments prior to the exercise presented below. Project risk might have also been calculated during ex-ante impact assessment, although this is not likely since risk assessment is not a standard part of impact modeling.^[Alston and Norton acknowledged in 1995 that the treatment of risk in AR4D ex-ante impact assessment models was "rudimentary and in need of further refinement" [-@Alston1995]. Unfortunately, this remains true today.] -->
-
-\singlespacing
+<!-- \singlespacing -->
 
 ```{r exampLoadings0, results = "markup", echo = F}
 # fig.show = 'hold', fig.width = 4, fig.height = 4, fig.align = "center", fig.cap = "\\label{fig:ExpPctRet_Examp}Hypothetical AR4D project expected returns and risk."}
@@ -1284,11 +1283,11 @@ df_table$Group <- gsub("\n", " ", df_table$Group)
 #==========================================================================
 #==========================================================================
 #==========================================================================
-# Have to turn off table to fit PLOS ONE submission guidelines. Otherwise, turn back on.
-# kable(df_table,
-#       format = "pandoc",
-#       caption = "Hypothetical list of AR4D projects\\label{tab:exampLoadings}") %>%
-#   kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+# Have to turn off table to fit PLOS ONE submission guidelines? Otherwise, turn back on.
+kable(df_table,
+      format = "pandoc",
+      caption = "**Hypothetical list of AR4D projects**\\label{tab:exampLoadings}") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
 #==========================================================================
 #==========================================================================
 #==========================================================================
@@ -1337,14 +1336,7 @@ group_colors_arb <- sample(bag_of_colors, n_groups)
 
 ```
 
-\doublespacing
-
-[Table 1 about here.]
-
-**Table 1:** Hypothetical list of AR4D projects
-
-&nbsp;
-
+<!-- \doublespacing -->
 The institution's strategic objectives or policies in this example are "Economic Growth", "Income Equality", "Environmental Sustainability", and "Nutritional Security", which roughly correspond to UN Sustainable Development Goals 8, 1, 13, and 3, respectively. Policy-project correlations are elicited via a survey of domain experts and/or stakeholders. Literature may also be consulted.
 
 It should be clearly explained to survey participants that a positive policy-project correlation means the project contributes toward the policy (i.e. is a synergy), while a negative correlation means the project works against it (i.e. is a tradeoff); and a correlation of zero means that the project has no influence upon the given policy one way or the other. The language used in this survey should be familiar to participants. In most AR4D resource allocation settings, what I characterized in the financial example above as "signals" should probably be referred to as "policies", "strategic objectives", "criteria", or simply "goals".
@@ -1392,11 +1384,11 @@ ggsave("Fig 6.tiff")
 
 ```
 
-**Fig 6:** Hypothetical results of a survey eliciting policy-project correlations from experts and stakeholders.
+**Fig 6. Hypothetical results of a survey** eliciting policy-project correlations from experts and stakeholders.
 
 &nbsp;
 
-The survey exercise concludes. The resulting crowdsourced policy-project correlations are then interpreted as the orthogonally rotated loadings $L_{\circlearrowleft}$. An approximate project correlation matrix $\tilde{K}_{XX}$ is then reverse engineered from this domain knowledge as the outer product $L_{\circlearrowleft} L_{\circlearrowleft}'$ (see equation \ref{eq:cormat_from_Lrot} for details). Since this is a correlation matrix, the diagonal elements must equal $1$. However, as seen in the financial example (Fig \ref{fig:compareCorMats}), the diagonal elements of correlation matrices approximated from a retained set of loadings (whether crowd- or data-sourced) can diverge somewhat from $1$. In order to correct for this divergence, the approximate project correlation matrix deduced from the crowdsourced loadings is divided through by its diagonal elements.
+The survey exercise concludes. The resulting crowdsourced policy-project correlations are then interpreted as the orthonormally rotated loadings $L_{\circlearrowleft}$. An approximate project correlation matrix $\tilde{K}_{XX}$ is then reverse engineered from this domain knowledge as the outer product $L_{\circlearrowleft} L_{\circlearrowleft}'$ (see Eq \ref{eq:cormat_from_Lrot} for details). Since this is a correlation matrix, the diagonal elements must equal $1$. However, as seen in the financial example (Fig \ref{fig:compareCorMats}), the diagonal elements of correlation matrices approximated from a retained set of loadings (whether crowd- or data-sourced) can diverge somewhat from $1$. In order to correct for this divergence, the approximate project correlation matrix deduced from the crowdsourced loadings is divided through by its diagonal elements.
 
 The approximate project correlation matrix, displayed in Fig \ref{fig:cormatProps}, can then be used to orient stakeholder discussions regarding tradeoffs and synergies between projects. Some of the matrix elements may serve to confirm expectations, while other elements may come as a surprise, or serve to fill in a gap where experts are hesitant to venture an estimate. It probably comes as no surprise to the hypothetical survey participants, for example, that the high yielding, high value AR4D projects (Hyper Rice, Mega Maize, and Ultra Cow) are strongly correlated with each other, or that they are negatively correlated with some of the climate smart projects (the Low Emission Silvopastoral proposal, in particular). On the other hand, few experts would be willing to venture an assessment of the synergy or tradeoff between the Cassava for Bio-ethanol and Coffee Agroforestry projects. The deduced covariance matrix effectively fills in such gaps with values that maximize consistency with the domain knowledge captured by the survey.
 <!-- then extracted from this information via equation \ref{eq:crowdsource_G}... -->
@@ -1481,7 +1473,7 @@ ggsave("Fig 7.tiff")
 
 ```
 
-**Fig 7:** Approximate AR4D project correlation matrix calculated from the crowdsourced policy-project correlations.
+**Fig 7. Approximate AR4D project correlation matrix** calculated from the crowdsourced policy-project correlations.
 
 &nbsp;
 
@@ -1502,17 +1494,17 @@ ggsave("Fig 8.tiff")
 
 ```
 
-**Fig 8:** Policy covariance matrix calculated from the crowdsourced policy-project correlations.
+**Fig 8. Policy covariance matrix** calculated from the crowdsourced policy-project correlations.
 
 &nbsp;
 
 # Discussion
 
-The reverse engineering approach proposed above offers a perspective on otherwise unquantifiable project and policy synergies and tradeoffs. The accuracy of this perspective depends on 1) how completely the policies capture or describe the evolution of projects within the problem space (in the precise sense of equation \ref{eq:SO_ck}); and 2) the accuracy of the domain knowledge whence poliy-project correlations are deduced. Fig \ref{fig:compareCorMats}, from the financial example, demonstrates that the crowdsourced project correlation matrix will closely match the (unobservable) data derived project correlation matrix insofar as these two conditions are fulfilled. It is thus important to apply this method in contexts where there is a high degree of confidence in domain knowledge compensating a general lack of good data (i.e. a high $\nu$ ratio). The method is open to criticism insofar as the domain knowledge is skewed by institutional inertia, politicized thinking, and other sources of subjective bias. However, the alternative method of data based estimation does not necessarily have a comparative advantage in this respect, as it is likewise subject to a host of different, but no less problematic, sources of bias and error.
+The reverse engineering approach proposed above offers a perspective on otherwise unquantifiable project and policy synergies and tradeoffs. The accuracy of this perspective depends on 1) how completely the policies capture or describe the evolution of projects within the problem space (in the precise sense of Eq \ref{eq:SO_ck}); and 2) the accuracy of the domain knowledge whence policy-project correlations are deduced. Fig \ref{fig:compareCorMats}, from the financial example, demonstrates that the crowdsourced project correlation matrix will closely match the (unobservable) data derived project correlation matrix insofar as these two conditions are fulfilled. It is thus important to apply this method in contexts where there is a high degree of confidence in domain knowledge compensating a general lack of good data (i.e. a high $\nu$ ratio). The method is open to criticism insofar as the domain knowledge is skewed by institutional inertia, politicized thinking, and other sources of subjective bias. However, the alternative method of data based estimation does not necessarily have a comparative advantage in this respect, as it is likewise subject to a host of different, but no less problematic, sources of bias and error.
 
 Regardless of accuracy, the proposed method may have value as a consensus building tool regarding synergies and tradeoffs about which expert opinions differ or are lacking altogether. The method fills in such gaps with the values that effectively maximize consistency with the expert knowledge captured by the survey. In this process, the method may confront experts and stakeholders with potentially surprising logical implications of what they (think they) know about the problem space, and about the evolution of projects and policies through that space, thereby stimulating policy debate and dialogue.
 
-The proposed method also provides a way to deduce the implicit retained eigenvalues and eigenvectors corresponding to the unobserved data, as well as the implicit orthogonal rotation matrix (recall equations \ref{eq:BGammaFromLrot} and \ref{eq:deducePcrowd} for details). While this information is not needed in the deduction of the approximate project correlation matrix, nor in the deduction of the policy covariance matrix, it may nonetheless prove useful for other research portfolio planning purposes not contemplated in this article.
+The proposed method also provides a way to deduce the implicit retained eigenvalues and eigenvectors corresponding to the unobserved data, as well as the implicit orthonormal rotation matrix (recall equations \ref{eq:BGammaFromLrot} and \ref{eq:deducePcrowd} for details). While this information is not needed in the deduction of the approximate project correlation matrix, nor in the deduction of the policy covariance matrix, it may nonetheless prove useful for other research portfolio planning purposes not contemplated in this article.
 
 ## Potential application in plant breeding decision pipelines
 
@@ -1521,9 +1513,9 @@ Applications of the method presented here are not limited to the assessment of p
 Plant breeders are typically tasked with the development of new varieties featuring a particular new trait---say, for example, resistance to a particular pest or disease---as well as numerous other traits such as fast maturation time, a particular taste, color, shape, nutritional content, and so on. In this process, a map of synergies and tradeoffs between traits and between varieties may be useful in guiding selection decisions.
 <!-- it may be of interest to identify and quantify potential covariances between traits and between varieties. -->
 
-In this setting, varieties play the role that projects do in the previous example, while traits are analogous to the set of orthogonally rotated, retained principal components describing 90% of the problem space. Correlations between varieties and traits are elicited through a survey of breeding experts. A hypothetical example of such a crowdsourcing exercise for beans is given in Fig \ref{fig:corrXS_tratVarty}. The approximate variety correlation matrix and trait covariance matrix are then reverse engineered from this information in Fig \ref{fig:cormatTraitVartys}.
+In this setting, varieties play the role that projects do in the previous example, while traits are analogous to the set of orthonormally rotated, retained principal components describing 90% of the problem space. Correlations between varieties and traits are elicited through a survey of breeding experts. A hypothetical example of such a crowdsourcing exercise for beans is given in Fig \ref{fig:corrXS_tratVarty}. The approximate variety correlation matrix and trait covariance matrix are then reverse engineered from this information in Fig \ref{fig:cormatTraitVartys}.
 
-```{r, fig.show = 'hold', fig.width=6, fig.height=4, fig.align='left', fig.cap="\\label{fig:corrXS_tratVarty}Hypothetical example of crowdsourced, orthogonally rotated trait-variety correlations.", echo=F}
+```{r, fig.show = 'hold', fig.width=6, fig.height=4, fig.align='left', fig.cap="\\label{fig:corrXS_tratVarty}Hypothetical example of crowdsourced, orthonormally rotated trait-variety correlations.", echo=F}
 #---------------------------------------------
 n_varieties <- 10
 df_Lrot <- data.frame(`Bean variety` = paste("Variety", c(1:n_varieties)),
@@ -1582,11 +1574,11 @@ ggsave("Fig 10.tiff")
 
 ```
 
-**Fig 9:** Hypothetical example of crowdsourced, orthogonally rotated trait-variety correlations.
+**Fig 9. Hypothetical example** of crowdsourced, orthonormally rotated trait-variety correlations.
 
 &nbsp;
 
-**Fig 10:** (Left) Approximate variety correlation matrix and (Right) trait covariance matrix reverse engineered from the hypothetical crowdsourced trait-variety correlations.
+**Fig 10. (Left) Approximate variety correlation matrix and (Right) trait covariance matrix** reverse engineered from the hypothetical crowdsourced trait-variety correlations.
 
 &nbsp;
 
@@ -1634,7 +1626,7 @@ On the other hand, the reverse engineered policy covariance matrix $\Sigma_{SS}^
 E[\ln(U)] = E[SB] {'} \ln(\mathbf{w})
 \end{equation}
 
-Where $E[SB]$ is the vector of column means of the orthogonally rotated principal components $SB$ (which in the AR4D context may be interpreted as the unobserved expected policy net returns).
+Where $E[SB]$ is the vector of column means of the orthonormally rotated principal components $SB$ (which in the AR4D context may be interpreted as the unobserved expected policy net returns).
 
 Then the policy portfolio risk follows as
 
@@ -1721,7 +1713,7 @@ Finally, an AR4D institution might also be interested in applying these equation
 
 For a long time now, research institutions have faced increasing donor pressure to "do more with less" [@Norton1992], "prove their relevance" [@braunschweig2004choosing], "show value for money" [@yet2016bayesian], and otherwise demonstrate "more efficient spending of resources" [@petsakos2018comparing].
 
-In response to this pressure, researchers have focused on the development of models for the ex-ante impact assessment of individual projects [@Alston1995; @Antle1999; @Antle2015; Mills, 1998; and @nelson2014modeling]. However, new decision support tools are still urgently required at the portfolio level to determine optimal resource allocations across strategic objectives. In the absence of such tools, resource allocation procedures have been repeatedly undercut by stakeholder politics, institutional inertia, and other forms of subjective bias. The Consultative Group on International Agricultural Research, in particular, is said to "have a long history of good intentions but limited success in developing appropriate approaches for priority setting" [@Birner2016]. And this, in turn, has contributed to an historic level of toxicity in AR4D donor-researcher relations [@Birner2016; @leeuwis2018reforming; @mccalla2014cgiar]. The toxicity is palpable across other disciplines as well [@Petsko2011; @Moriarty2008].
+In response to this pressure, researchers have focused on the development of models for the ex-ante impact assessment of individual projects [@Alston1995; @Antle1999; @Antle2015; Mills, 1998; and @nelson2014modeling]. However, new decision support tools are still urgently required at the portfolio level to determine optimal resource allocations across strategic objectives. In the absence of such tools, resource allocation procedures have been repeatedly undercut by stakeholder politics, institutional inertia, and other forms of subjective bias. The Consultative Group on International Agricultural Research, in particular, is said to "have a long history of good intentions but limited success in developing appropriate approaches for priority setting" [@Birner2016]. And this, in turn, has contributed to unprecedented levels of toxicity in AR4D donor-researcher relations [@Birner2016; @leeuwis2018reforming; @mccalla2014cgiar]. The toxicity is palpable across other disciplines as well [@Petsko2011; @Moriarty2008].
 
 The task of allocating limited resources across strategic objectives that are all, in one way or another, vitally important, will never be an easy one. Nonetheless, it stands to reason that the introduction of objective, transparent, and inexpensive resource allocation mechanisms can substantially ameliorate the current atmosphere of distrust. As a step in this direction, above I have presented a novel project and policy synergy/tradeoff reverse engineering method based on principal components analysis. The proposed method aids in identifying areas in the AR4D portfolio where research impacts capitalize upon and enhance, or, conversely, annul and offset, each other.
 
@@ -1750,12 +1742,6 @@ The method can be applied to portfolios of projects or portfolios of policies. F
 <!-- MV analysis is, in many ways, still a work in progress, with unresolved methodological issues severely limiting its usefulness even in its native financial context. In particular, covariance matrices estimated from price data tend to contain a lot of noise; and the optimal solutions then tend to diverge considerably from reality as a result of this [@michaud1989markowitz]. In my adaptation below, I propose a new approach to this problem by first dimensionally reducing the portfolio from several dozen assets to just a handful of "signals" constructed from the eigenvectors of the correlation matrix that can be meaningfully distinguished from noise. -->
 \pagebreak
 
-# References {-}
-
-<div id="refs"></div>
-
-\pagebreak
-
 <!-- # ```{r, fig.show = 'hold', fig.width=5, fig.height=3, fig.align='center', fig.cap="\\label{fig:corrXS_barchart}Correlation of portfolio items with leading signals."} -->
 <!-- #  -->
 <!-- # gg_corrXS_barchart -->
@@ -1772,11 +1758,7 @@ The method can be applied to portfolios of projects or portfolios of policies. F
 
 # Supporting information {-}
 
-[S1 Table about here.]
-
-**S1 Table:** Securities appearing in the financial example
-
-&nbsp;
+\captionsetup[table]{labelformat=empty}
 
 ```{r finSecs, results = "markup", echo = F}
 spy_sector_fullName <- c("Financial Select Sector SPDR Fund",
@@ -1791,13 +1773,17 @@ spy_sector_fullName <- c("Financial Select Sector SPDR Fund",
                          "SPDR S&P Biotech ETF",
                          "iShares Transportation Average ETF")
 
-spy_sector_detail_modified <- paste("U.S.", spy_sector_detail, "Sector")
+spy_sector_detail_modified <- c("Financials", "Communications", "Luxury goods", "Consumer goods", "Healthcare", "Technology", "Real estate", "Utilities", "Industrial", "Biotechnology", "Transportation")
+spy_sector_detail_modified <- paste("U.S.", spy_sector_detail_modified, "Sector")
 df_table <- data.frame(Name = spy_sector_fullName, Symbol = spy_sector_symbs, Tracks = spy_sector_detail_modified)
 #==========================================================================
 #==========================================================================
 #==========================================================================
-# Table turned off in accordance with PLOS ONE submission guidelines. Otherwise, turn it back on.
-# kable(df_table) %>% kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+# Table turned off in accordance with PLOS ONE submission guidelines? Otherwise, turn it back on.
+kable(df_table,
+      format = "pandoc",
+      caption = "**S1 Table. Securities appearing in the financial example**") %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
 
 # %>%
 #  as_image()
@@ -1808,3 +1794,8 @@ df_table <- data.frame(Name = spy_sector_fullName, Symbol = spy_sector_symbs, Tr
 
 ```
 
+
+\pagebreak
+
+# References {-}
+<!-- <div id="refs"></div> -->
