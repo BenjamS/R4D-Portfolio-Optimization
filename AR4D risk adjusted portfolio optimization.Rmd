@@ -181,6 +181,119 @@ Where $C$ is the portfolio budget, $\tilde{x}_i(\hat{t})$ is the maximum financi
 
 And $\alpha_i$ lies between $0$ and $1$, reflecting marginally diminishing returns to investment.
 
+[# Project kinematics and energy]
+
+The cost and return target constraints in the classic set up are static [and rudimentary], the quantity of real concern is dynamical...
+
+In the broadest terms, a project may be said to intervene in, or operate on, an existing net benefit stream $\Delta u/\Delta t$ with the aim of raising it to a higher value by the end of the project, such that
+
+\begin{equation}
+\frac{\Delta u}{\Delta t}\bigr_{t = T} > \frac{\Delta u}{\Delta t}\bigr_{t = 0}
+\end{equation}
+
+This implies an acceleration $\Delta^2 u / \Delta t^2$ which comes as a result of the skilled, concerted, applied efforts that comprise the project intervention. Letting $F$ stand for these applied efforts and $a$ for the acceleration, this axiomatic relation can be expressed $F \sim a$, or
+
+\begin{equation}
+F = \lambda a
+\label{eq:Newt2}
+\end{equation}
+
+Where $\lambda$ is a proportionality constant to be defined based on context.
+
+For the present purposes, it may be said that $F$ is constant over the life of the project, resulting in a similarly constant acceleration of the net benefit stream. This is illustrated in Figure \ref{fig:kinema}, where the shorthand $v = \Delta u/\Delta t$ has been introduced to reduce clutter.
+
+```{r, fig.show = "hold", fig.width = 3, fig.height=3, fig.align="center", fig.cap="\\label{fig:kinema}Generic example of an acceleration of a net benefit stream.", echo = FALSE}
+
+t <- seq(0, 1, length.out = 10)
+slope <- 1
+yint <- 1 / 3
+v <- slope * t + yint
+df <- data.frame(t, v)
+ymax <- max(v)
+
+gg <- ggplot(df, aes(x = t, y = v))
+gg <- gg + geom_line()
+gg <- gg + geom_segment(aes(x = 0, xend = 1, y = yint, yend = yint), linetype = 2)
+gg <- gg + geom_segment(aes(x = 0, xend = 1, y = ymax, yend = ymax), linetype = 2)
+gg <- gg + geom_segment(aes(x = 1, xend = 1, y = 0, yend = ymax), linetype = 1)
+gg <- gg + geom_segment(aes(x = 0, xend = 1.2, y = 0, yend = 0),
+                        arrow=arrow(length=unit(0.2,"cm")), linetype = 1)
+gg <- gg + geom_segment(aes(x = 0, xend = 0, y = 0, yend = 2),
+                        arrow=arrow(length=unit(0.2,"cm")), linetype = 1)
+gg <- gg + geom_ribbon(aes(ymin = yint, ymax = v), fill = "blue", alpha = .5)
+gg <- gg + geom_ribbon(aes(ymin = 0, ymax = yint), fill = "orange", alpha = .5)
+gg <- gg + annotate("text", x = 2 / 3, y = yint * 1.75,
+                    label = expression(Delta*italic(A)))
+gg <- gg + annotate("text", x = 2 / 3, y = yint * 0.5,
+                    label = expression(italic(A["0"])))
+gg <- gg + annotate("text", x = -0.06, y = yint,
+                    label = expression(italic(v["0"])))
+gg <- gg + annotate("text", x = -0.06, y = ymax,
+                    label = expression(italic(v["T"])))
+gg <- gg + annotate("text", x = 0, y = -0.07,
+                    label = "0")
+gg <- gg + annotate("text", x = 1, y = -0.07,
+                    label = expression(italic(T)))
+#gg <- gg + coord_cartesian(ylim = c(0, 2))
+# gg <- gg + labs(x = expression(Delta~t),
+#                 y = expression(Delta*u~"/"~Delta*t))
+gg <- gg + theme_bw()
+gg <- gg + theme(axis.text = element_blank(),
+                 axis.ticks = element_blank())
+gg
+
+
+```
+
+Note that the slope of the line in this plot is just the acceleration. That is,
+
+\begin{equation}
+\frac{\Delta v}{\Delta t} = \frac{\Delta^2 u}{\Delta t^2} = a
+\end{equation}
+
+Which can be rearranged as follows,
+
+\begin{equation}
+a \Delta t = v_T - v_0
+\end{equation}
+
+Note, moreover, that the cumulative net benefit over the life of the project ($\Delta u$) is the sum of the areas $A_0 + \Delta A$.
+
+\begin{equation}
+\begin{split}
+\Delta u &= v_0 \Delta t + \int_0^T v dt \\
+&= A_0 + \Delta A \\
+&= \frac{1}{2} (v_T + v_0) \Delta t
+\end{equation}
+
+And a third "kinematic" expression, soon to come in handy, can be obtained by multiplying the previous two as follows.
+
+\begin{equation}
+\begin{split}
+a \Delta t \Delta u &= \frac{1}{2} (v_T - v_0) (v_T + v_0) \Delta t \\
+a \Delta u &= \frac{1}{2} (v_T^2 - v_0^2)
+\end{split}
+\label{eq:kinema3}
+\end{equation}
+
+Now, consider that, for a given budget, the project aims to maximize the amount of skilled, concerted, applied effort ($F$) exerted by the project along the "displacement" $\Delta u$. That is to say, the aim is to maximize the quantity $F \Delta u$, subject to constraints (which will be addressed farther below). Let this quantity be denoted $\mathcal{E}$. By equation \ref{eq:Newt2}, $\mathcal{E}$ can be rewritten as follows.
+
+\begin{equation}
+\mathcal{E} = \lambda a \Delta u 
+\end{equation}
+
+But, by equation \ref{eq:kinema3}, this may again be rewritten
+
+\begin{equation}
+\mathcal{E} = \frac{\lambda}{2} (v_T^2 - v_0^2)
+\end{equation}
+
+Now, define $v$ such that $v_0 = 0$...
+
+
+
+
+
 # Risk-adjusted AR4D Portfolio optimization
 
 
@@ -200,10 +313,11 @@ And $\alpha_i$ lies between $0$ and $1$, reflecting marginally diminishing retur
 
 # Discussion
 
+* Can explore $\Delta u / \Delta l$ or $\Delta u / \Delta(investment)$ instead of $\Delta u / \Delta t$
+
 * The data by which to calculate the covariance matrix are non-existent. Elsewhere I have shown how the leading eigenvectors of the project covariance matrix effectively encode each project's contribution to distinct policy objectives (the principle component scores); and how these can be deduced from expert knowledge when data are not available [@]. The approximate covariance matrix is approximate in the sense... but insofar as it filters out noise, may actually be more accurate with respect to the true process that generates the data. Better to call it the filtered covariance matrix, then.  The eigenvectors of $K$ are just the eigenvectors of the covariance matrix premultiplied by a diagonal matrix of the inverse means $\mu_i$. ...This also precludes the problem of using too small an eigenvalue. ...It would not be possible to use this approch in the conventional approach as that way involves inverting the covariance matrix, which would no be possible since the filtered covariance matrix has $n - m$ eigenvalues equal to zero. 
 
-
-
+* If expected growth rates differ, then positive weights cannot be guaranteed. Likewise, time horizons can differ from project to project, but this may introduce negative budget allocations.
 
 
 
