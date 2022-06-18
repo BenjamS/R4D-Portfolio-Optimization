@@ -40,6 +40,16 @@ library(zoo)
 library(tidyquant)
 library(patchwork)
 library(kableExtra)
+
+label_size <- 2.5
+smallLabel_size <- 2
+title_size <- 8
+subtitle_size <- 7
+legendText_size <- 7
+axisText_size <- 6
+axisTitle_size <- 7
+facetTitle_size <- 7
+
 ```
 
 # Introduction
@@ -99,6 +109,7 @@ is...
 
 However, this ...numerous problems even in its native context...documented, for example, by ... [@]... In motivating context of the present article, there is also the issue of negative budget weights. Many authors have rejected the conventional approach in favor of "eigen-portfolios", i.e. budget allocations that are equal to one of the eigenvectors of the covariance matrix. Efforts to demonstrate that these eigenvectors are solutions to a portfolio optimization problem are somewhat strained, ultimately requiring that the return gradient be summarily/arbitrarily replaced by eigenvectors or a linear combination thereof [@Boyle].   ...Moreover, the conventional approach neglects the dynamic dimension of the problem. Here I present a dynamically explicit optimization model. I show that, when the model is dynamic, it makes sense to replace the cost and return constraints with a single "energy" constraint reflecting the finite effort available to elevate the net present value of a benefit stream to some desired level above its status quo value. The budget constraint is trivially enforced by including it in the formulation of energy. An energy constraint as opposed to a budget constraint and return target constraint. Keeping the dynamic part explicit has several benefits -- the optimal budget allocation is guaranteed to be positive... and the solution is rigorous, as opposed to arbitrarily insisting that the return gradient be ignored, and replaced by an eigenvector--which is tantamount to insisting that the return gradient is equal to the optimal budget allocation.
 
+In the conventional formulation of the risk-adjusted portfolio optimization problem, the return and cost constraints are static, ignoring the dynamic dimension of the problem.
 
 ## Modeling the evolution of project NPV as a geometric Brownian movement
 
@@ -116,6 +127,9 @@ Where $\hat{t}$ is the time of evaluation, $\tau = T - \hat{t}$, and $m_i$ is th
 
 Technically, $\Delta t$ is an instantaneous or infinitesimal time interval and hence $m_i$ is the expected instantaneous growth rate. In practice, it is acceptable to treat $\Delta t$ as a finitely small, but judicious, time step. The time step should be as small as possible while still ensuring that changes in $x_i$ occur in every time step. In the present context, it is reasonable to assume that random research and/or non-research related changes in project NPV occur at least once per quarter year. The judicious time step $\Delta t$ in this context is thus defined as a quarter year, and $m_i$ may be interpreted as the expected quarterly growth rate. In the case of program NPV, a monthly time step is probably justified.
 <!-- Research-related factors concern the expected effectiveness of the researched technology at experiment stations. Non-research related changes in project value occur as a result of changes in the political, socio-economic, and institutional enabling environments where the new technology is to be released. Such changes may include, for example, abrupt changes in government policies, commodity price swings, changes in seed systems and other value chain mechanisms, changes in the security environment, and so forth. -->
+
+In market or near market contexts where the principle of risk-neutral valuation may be invoked, $r$ is the risk-free rate of return. In the AR4D context... By definition, project NPV appreciates with time at the discount rate. Therefore the growth rates should be set to the discount rate $r$ ..., 
+<!-- If there are no good reasons for assigning a particular growth rate, then the $m_i$ should be set to a "natural" or fiat rate of appreciation, $r$. $r$ equal to the social discount rate, however the research institution and/or donor might define this. -->
 
 [## Project risk and synergies/tradeoffs]
 
@@ -156,14 +170,14 @@ E[X(T)]\bigr|_{t = \hat{t}} = \Sigma_i \mu_i
 The portfolio variance, it follows, can be expressed
 
 \begin{equation}
-Var[X(T)]\bigr|_{t = \hat{t}} = \boldsymbol{\mu}' K \boldsymbol{\mu} \end{equation}
+\sigma^2 = Var[X(T)]\bigr|_{t = \hat{t}} = \boldsymbol{\mu}' K \boldsymbol{\mu} \end{equation}
 
 Where $K$ is the cross coefficient of variation matrix, i.e. the matrix whose diagonal elements are the squared coefficients of variation $c_i^2$, and whose off-diagonal elements are the cross coefficients of variation $c_{ij}$. Note that $K$ is just the covariance matrix left and right multiplied by a diagonal matrix of the inverse project means, just as the correlation matrix is the covariance matrix left and right multiplied by a diagonal matrix of the inverse standard deviations. As such, $K$ provides insight into project NPV risks, trade offs, and synergies.
 
 
-[## Deducing the values of s (and m_i if not set = to r)]
+[## Deducing the value of s]
 
-The ex-ante impact assessments that calculate $x_i$ generally offer no basis on which to deduce a particular value for $m_i$. If there are no good reasons for assigning a particular growth rate, then the $m_i$ should be set to a "natural" or fiat rate of appreciation, $r$. In market or near market contexts where the principle of risk-neutral valuation may be invoked, $r$ is the risk-free rate of return. In far-from-market contexts such as AR4D, it seems reasonable to set $r$ equal to the social discount rate, however the research institution and/or donor might define this.
+to deduce a particular value for $s_i$.
 
 [## Modeling diminishing returns to investment]
 
@@ -181,9 +195,7 @@ Where $C$ is the portfolio budget, $\tilde{x}_i(\hat{t})$ is the maximum financi
 
 And $\alpha_i$ lies between $0$ and $1$, reflecting marginally diminishing returns to investment.
 
-[# Project kinematics and energy]
-
-The cost and return target constraints in the classic set up are static [and rudimentary], the quantity of real concern is dynamical...
+# Project "kinematics" and "vis viva"
 
 In the broadest terms, a project may be said to intervene in, or operate on, an existing net benefit stream $\Delta u/\Delta t$ with the aim of raising it to a higher value by the end of the project, such that
 
@@ -223,23 +235,24 @@ gg <- gg + geom_segment(aes(x = 0, xend = 0, y = 0, yend = 2),
 gg <- gg + geom_ribbon(aes(ymin = yint, ymax = v), fill = "blue", alpha = .5)
 gg <- gg + geom_ribbon(aes(ymin = 0, ymax = yint), fill = "orange", alpha = .5)
 gg <- gg + annotate("text", x = 2 / 3, y = yint * 1.75,
-                    label = expression(Delta*italic(A)))
+                    label = expression(italic(Delta*A)))
 gg <- gg + annotate("text", x = 2 / 3, y = yint * 0.5,
                     label = expression(italic(A["0"])))
 gg <- gg + annotate("text", x = -0.06, y = yint,
-                    label = expression(italic(v["0"])))
+                    label = expression(italic("v(0)")), size = label_size)
 gg <- gg + annotate("text", x = -0.06, y = ymax,
-                    label = expression(italic(v["T"])))
+                    label = expression(italic("v(T)")), size = label_size)
 gg <- gg + annotate("text", x = 0, y = -0.07,
-                    label = "0")
+                    label = "0", size = label_size)
 gg <- gg + annotate("text", x = 1, y = -0.07,
-                    label = expression(italic(T)))
+                    label = expression(italic(T)), size = label_size)
 #gg <- gg + coord_cartesian(ylim = c(0, 2))
 # gg <- gg + labs(x = expression(Delta~t),
 #                 y = expression(Delta*u~"/"~Delta*t))
 gg <- gg + theme_bw()
 gg <- gg + theme(axis.text = element_blank(),
-                 axis.ticks = element_blank())
+                 axis.ticks = element_blank(),
+                 axis.title = element_text(size = axisTitle_size))
 gg
 
 
@@ -254,29 +267,30 @@ Note that the slope of the line in this plot is just the acceleration. That is,
 Which can be rearranged as follows,
 
 \begin{equation}
-a \Delta t = v_T - v_0
+a \Delta t = v(T) - v(0)
 \end{equation}
 
 Note, moreover, that the cumulative net benefit over the life of the project ($\Delta u$) is the sum of the areas $A_0 + \Delta A$.
 
 \begin{equation}
 \begin{split}
-\Delta u &= v_0 \Delta t + \int_0^T v dt \\
+\Delta u &= v(0) \Delta t + \int_0^T v dt \\
 &= A_0 + \Delta A \\
-&= \frac{1}{2} (v_T + v_0) \Delta t
+&= \frac{1}{2} (v(T) + v(0)) \Delta t
 \end{equation}
 
 And a third "kinematic" expression, soon to come in handy, can be obtained by multiplying the previous two as follows.
 
 \begin{equation}
 \begin{split}
-a \Delta t \Delta u &= \frac{1}{2} (v_T - v_0) (v_T + v_0) \Delta t \\
-a \Delta u &= \frac{1}{2} (v_T^2 - v_0^2)
+a \Delta t \Delta u &= \frac{1}{2} (v(T) - v(0)) (v(T) + v(0)) \Delta t \\
+a \Delta u &= \frac{1}{2} (v(T)^2 - v(0)^2)
 \end{split}
 \label{eq:kinema3}
 \end{equation}
 
-Now, consider that, for a given budget, the project aims to maximize the amount of skilled, concerted, applied effort ($F$) exerted by the project along the "displacement" $\Delta u$. That is to say, the aim is to maximize the quantity $F \Delta u$, subject to constraints (which will be addressed farther below). Let this quantity be denoted $\mathcal{E}$. By equation \ref{eq:Newt2}, $\mathcal{E}$ can be rewritten as follows.
+Now, since the project has a limited budget, the amount of skilled, concerted, applied effort ($F$) it can exert along the net benefit displacement $\Delta u$ is also limited. That is, the quantity $F \Delta u$ is limited. Let this quantity be denoted $\mathcal{E}$. By equation \ref{eq:Newt2}, $\mathcal{E}$ can be rewritten as follows.
+<!-- Now, consider that, for a given budget, the project aims to maximize the amount of skilled, concerted, applied effort ($F$) exerted by the project along the "displacement" $\Delta u$. That is to say, the aim is to maximize the quantity $F \Delta u$, subject to constraints (which will be addressed farther below).-->
 
 \begin{equation}
 \mathcal{E} = \lambda a \Delta u 
@@ -285,33 +299,134 @@ Now, consider that, for a given budget, the project aims to maximize the amount 
 But, by equation \ref{eq:kinema3}, this may again be rewritten
 
 \begin{equation}
-\mathcal{E} = \frac{\lambda}{2} (v_T^2 - v_0^2)
+\mathcal{E} = \frac{\lambda}{2} (v(T)^2 - v(0)^2)
+\label{eq:Eraw}
 \end{equation}
 
-Now, define $v$ such that $v_0 = 0$...
+Finally, note that the same analysis can be reformulated in terms of project NPV---that is to say, in terms of the difference between the net benefit stream with the project intervention versus the net benefit stream without it (the counter-factual). Formally, this means $v$ is redefined
 
+\begin{equation}
+v = \frac{\Delta u}{\Delta t}\bigr_{*} - \frac{\Delta u}{\Delta t}
+\end{equation}
 
+(Where the "$*$" indicates the "with project intervention" scenario.)
 
+Then $v(0) = 0$, and so equation \ref{eq:Eraw} becomes
 
+\begin{equation}
+\mathcal{E} = \frac{\lambda}{2} v(T)^2
+\label{eq:Enpv}
+\end{equation}
+
+In physics, this is analogous to the expression for the kinetic energy of a moving object with mass $\lambda$, where the $u$ stands for a spatial dimension. To discourage practitioners from getting too cozy with this analogy, $\mathcal{E}$ is henceforth referred to using Gottfried Leibniz's more archaic, and now largely abandoned, term "vis viva" ("living force" in Latin).
+
+In the motivating context of the present article, the displacement $\Delta u_i$ corresponds to the $i^{th}$ expected project NPV at $t = \hat{t}$. More precisely,
+
+\begin{equation}
+\begin{split}
+\Delta u_i = \int_{\hat{t}}^T v_i dt &= u_i(\tau)|_{*} - u_i(\tau) \\
+&= E[x_i(T)]\bigr|_{t = \hat{t}}
+\end{split}
+\end{equation}
+
+Assuming $x_i(t)$ follows a gBm,
+
+\begin{equation}
+\Delta u_i = \mu_i = x_i(\hat{t}) e^{r \tau}
+\end{equation}
+
+The corresponding project net-benefit stream and vis viva thus work out to
+
+\begin{equation}
+\frac{\Delta u_i}{\Delta t} = -r x_i(\hat{t}) e^{r \tau}
+\end{equation}
+
+[Comment on how to interpret negative velocity]
+
+and
+
+\begin{equation}
+\begin{split}
+\mathcal{E}_i &= \frac{\lambda}{2} r^2 x_i(\hat{t})^2 e^{2r \tau} \\
+&= \frac{\lambda}{2} r e^{r \tau} \mu_i^2
+\end{split}
+\end{equation}
+
+Respectively. And the net-benefit stream and vis viva of an entire portfolio are
+
+\begin{equation}
+\frac{\Delta u_i}{\Delta t} = -r e^{r \tau} \mathbf{x}(\hat{t}) ' \mathbf{1}
+\end{equation}
+
+and
+
+\begin{equation}
+\begin{split}
+\mathcal{E} &= \frac{\lambda}{2} r^2 e^{2r \tau} \mathbf{x}(\hat{t}) ' \mathbf{x}(\hat{t}) \\
+&= \frac{\lambda}{2} r e^{r \tau} \boldsymbol{\mu} ' \boldsymbol{\mu}
+\end{split}
+\end{equation}
 
 # Risk-adjusted AR4D Portfolio optimization
 
+The risk adjusted portfolio optimization problem can now be formulated replacing the budget constraint with a vis viva constraint.
 
-## Portfolio _vis viva_
+\begin{equation}
+\min_{\mathbf{w}}{\sigma} \:\:\: s.t. \:\:\: \mathcal{E} = \overline{\mathcal{E}}
+\end{equation}
+
+The corresponding objective function or lagrangian is then 
+
+\begin{equation}
+\begin{split}
+\mathcal{L} &= \sigma + \lambda (\mathcal{E} - \overline{\mathcal{E}}) \\
+&= \sqrt{\boldsymbol{\mu} ' K \boldsymbol{\mu}} + \frac{\lambda}{2} r e^{r \tau} \boldsymbol{\mu} ' \boldsymbol{\mu} - \overline{\mathcal{E}})
+\end{split}
+\end{equation}
+
+This is a cost function to be minimized. Both terms in the equation are costs. The sign on the vis viva constraint is positive because it too, like risk, is a cost.
+
+Note that this is the marginal cost of a marginal increment in the vis viva above the budget $\overline{\mathcal{E}}$. That is,
+
+\begin{equation}
+\frac{\partial \mathcal{L}}{\partial (\mathcal{E} - \overline{\mathcal{E}})} = \lambda
+\end{equation}
+
+Alternatively, $\lambda$ can be thought of as the marginal benefit of the vis viva saved by spending less than the budget.
+
+The first order conditions with respect to $\boldsymbol{\mu}$ are
+
+\begin{equation}
+\nabla_{\mu} \mathcal{L} = \frac{e^{r \tau}}{\sigma} K \boldsymbol{\mu} + \lambda r^2 e^{r \tau} \boldsymbol{\mu} = \mathbf{0}
+\end{equation}
+
+The optimal project NPV vector $\boldsymbol{\mu}^*$ is thus given by any of the eigenvectors of $K$, with corresponding vis viva shadow price $\lambda$ given by the negative of the respective eigenvalues. Since the matrix $K$ is symmetric, then its leading eigenvector generally has, or can be modified to have, only positive entries [@noutsos2006perron]. [linear combination of eigenvectors also a solution?]
+
+Dotting the first order conditions through by $\boldsymbol{\mu}$ and rearranging gives a useful expression for $\lambda$.
+
+\begin{equation}
+\begin{split}
+\boldsymbol{\mu} ' \nabla_{\mu} \mathcal{L} = \sigma + \lambda r^2 \mathcal{E} &= \mathbf{0} \\
+\lambda &= - \frac{\sigma}{r^2 \mathcal{E}}
+\end{split}
+\end{equation}
 
 
+The project vis viva is proportional to the risk gradient.
 
-
-## Dynamic cost
-
-* Define expected portfolio return and risk, covariance
-* Dynamicness
-* SOC
 * Same as max E s.t. risk constraint
+[* Can also get these results using the Euler condition]
 
 ## SOC
 
+[# N-fund fund theorem ? --> dimensional reduction of problem to policy portfolio optimization?]
+
+
 # Discussion
+
+* Positive weights guaranteed
+
+* Connection with my PCA method of deducing eigenvectors
 
 * Can explore $\Delta u / \Delta l$ or $\Delta u / \Delta(investment)$ instead of $\Delta u / \Delta t$
 
