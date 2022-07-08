@@ -1,5 +1,5 @@
 ---
-title: Risk-adjusted optimization of agricultural research for development portfolios
+title: Multi-objective, risk-adjusted optimization of agricultural research for development portfolios
 author:
   - name: Benjamin Schiek
     email: b.schiek@cgiar.org
@@ -36,10 +36,11 @@ knitr::opts_chunk$set(echo = FALSE,
 #devtools::install_github("thomasp85/patchwork")
 library(plyr)
 library(tidyverse)
-library(zoo)
-library(tidyquant)
+# library(zoo)
+# library(tidyquant)
 library(patchwork)
 library(kableExtra)
+library(pracma)
 
 label_size <- 2.5
 smallLabel_size <- 2
@@ -49,6 +50,49 @@ legendText_size <- 7
 axisText_size <- 6
 axisTitle_size <- 7
 facetTitle_size <- 7
+
+#==============================================================
+# Define function to plot covariance/correlation matrices
+plot_covmat <- function(covmat, fig_title = "Covariance Matrix", round_to = 2, graph_on = T, legend_position = NULL, num_size = NULL){
+  covmat[upper.tri(covmat)] <- NA
+  df_plot <- covmat %>% tbl_df()
+  these_levels <- colnames(df_plot)
+  df_plot$ItemX <- colnames(df_plot)
+  gathercols <- colnames(df_plot)[-ncol(df_plot)]
+  df_plot <- df_plot %>% gather_("ItemY", "Value", gathercols)
+  df_plot$ItemX <- factor(df_plot$ItemX, levels = these_levels)
+  df_plot$ItemY <- factor(df_plot$ItemY, levels = these_levels)
+  
+  #midpoint <- min(covmat) + (max(covmat) - min(covmat)) / 2
+  midpoint <- 0
+  gg <- ggplot(df_plot, aes((ItemX), (ItemY)))
+  gg <- gg + geom_tile(aes(fill = Value))#, width = 4, height = 4)
+  if(!is.null(num_size)){
+    gg <- gg + geom_text(aes(label = round(Value, round_to)), size = num_size)
+  }else{
+    gg <- gg + geom_text(aes(label = round(Value, round_to)), size = 2.5)
+  }
+  if(!is.null(fig_title)){
+    gg <- gg + labs(title = fig_title)
+  }
+  gg <- gg + theme_bw()
+  gg <- gg + theme(axis.text.x = element_text(size = 7, angle = 60, hjust = 1),
+                   axis.text.y = element_text(size = 7),
+                   axis.title = element_blank(),
+                   legend.title = element_blank(),
+                   plot.title = element_text(face = "bold", size = 8))
+  if(!is.null(legend_position)){
+    gg <- gg + theme(legend.position = legend_position)
+  }
+  gg <- gg + scale_fill_gradient2(low = "magenta", mid = "khaki", high = "cyan", midpoint, na.value = "white")
+  if(graph_on){print(gg)}
+  return(gg)
+  
+}
+#===============================================================
+# End function definition
+#===============================================================
+
 
 ```
 
@@ -68,9 +112,9 @@ However, he went on to observe that these steps were insufficient. An as of yet 
 
 Mills identified this lacuna at a time when AR4D centers were just beginning to come under pressure from public and private donors to "do a lot more with a lot less" [@Alston1995]. Methodological work in response to this pressure focused on Steps 1-4. The development and refinement of ex-ante impact assessment models for the evaluation of individual research alternatives under different plausible future scenarios, in particular, is remarkable (see, for example, @Alston1995; @Antle1999; @Antle2015; Mills, 1998; and @nelson2014modeling). However, work has still not begun on Mills' missing fifth step.
 
-```{r, fig.show = 'hold', out.width="10cm", fig.cap="\\label{fig:mills_missing_step}The AR4D priority setting workflow, adapted from Mills (1998).", fig.align='center'}
-knitr::include_graphics("Mills_missing_step5.png")
-```
+<!-- # ```{r, fig.show = 'hold', out.width="10cm", fig.cap="\\label{fig:mills_missing_step}The AR4D priority setting workflow, adapted from Mills (1998).", fig.align='center'} -->
+<!-- knitr::include_graphics("Mills_missing_step5.png") -->
+<!-- ``` -->
 
 In hindsight, Mills' concern was well founded. Budgetary pressure on AR4D centers to "prove their relevance" [@Braunschweig2000], "show value for money" [@yet2016bayesian], and otherwise demonstrate "more efficient spending of resources" [@petsakos2018comparing] has only increased since the 1990s. Between Step 4 and the final allocation of funds, stakeholder politics, institutional inertia, ad hoc procedures and criteria, and other subjective forces have repeatedly undercut any careful, objective rigor occurring in Steps 1-4 [@Birner2016; @mccalla2014cgiar]. In 2011, for example...
 An historic effort begun in 2011 to restructure CGIAR financing around a "portfolio" model proved emblematic of this "limited success", when the results of an extensive priority setting exercise were rejected out of hand in favor of an ad hoc budget allocation. The end result thereby 
@@ -110,6 +154,19 @@ is...
 However, this ...numerous problems even in its native context...documented, for example, by ... [@]... In motivating context of the present article, there is also the issue of negative budget weights. Many authors have rejected the conventional approach in favor of "eigen-portfolios", i.e. budget allocations that are equal to one of the eigenvectors of the covariance matrix. Efforts to demonstrate that these eigenvectors are solutions to a portfolio optimization problem are somewhat strained, ultimately requiring that the return gradient be summarily/arbitrarily replaced by eigenvectors or a linear combination thereof [@Boyle].   ...Moreover, the conventional approach neglects the dynamic dimension of the problem. Here I present a dynamically explicit optimization model. I show that, when the model is dynamic, it makes sense to replace the cost and return constraints with a single "energy" constraint reflecting the finite effort available to elevate the net present value of a benefit stream to some desired level above its status quo value. The budget constraint is trivially enforced by including it in the formulation of energy. An energy constraint as opposed to a budget constraint and return target constraint. Keeping the dynamic part explicit has several benefits -- the optimal budget allocation is guaranteed to be positive... and the solution is rigorous, as opposed to arbitrarily insisting that the return gradient be ignored, and replaced by an eigenvector--which is tantamount to insisting that the return gradient is equal to the optimal budget allocation.
 
 In the conventional formulation of the risk-adjusted portfolio optimization problem, the return and cost constraints are static, ignoring the dynamic dimension of the problem.
+
+
+
+
+
+The Perron-Frobenius theorem guarantees that the leading eigenvector of a symmetric matrix with only  has strictly positive elements.
+
+Since the matrix $K$ is symmetric, then its leading eigenvector generally has, or can be modified to have, only positive entries [@noutsos2006perron].
+
+Tricks for modifying the covariance matrix so that it is effectively coerced into being an eventually positive matrix.
+
+Transformations of covmat [@carrasco2011optimal; ledoit2004well]
+
 
 ## Modeling the evolution of project NPV as a geometric Brownian movement
 
@@ -199,7 +256,7 @@ Where $C$ is the portfolio budget, $\tilde{x}_i(\hat{t})$ is the maximum financi
 
 And $\alpha_i$ lies between $0$ and $1$, reflecting marginally diminishing returns to investment.
 
-# Project "kinematics" and "vis viva"
+# Project kinematics and vis viva
 
 In the broadest terms, a project may be said to intervene in, or operate on, an existing net benefit stream $\Delta u/\Delta t$ with the aim of raising it to a higher value by the end of the project, such that
 
@@ -307,7 +364,7 @@ But, by equation \ref{eq:kinema3}, this may again be rewritten
 \label{eq:Eraw}
 \end{equation}
 
-Finally, note that the same analysis can be reformulated in terms of project NPV---that is to say, in terms of the difference between the net benefit stream with the project intervention versus the net benefit stream without it (the counter-factual). Formally, this means $v$ is redefined
+Finally, note that the same analysis can be reformulated in terms of project NPV---that is to say, in terms of the difference between the net benefit stream _with_ the project intervention versus the net benefit stream _without_ it (the counter-factual). Formally, this means $v$ is redefined
 
 \begin{equation}
 v = \frac{\Delta u}{\Delta t}\bigr_{*} - \frac{\Delta u}{\Delta t}
@@ -393,6 +450,8 @@ and
 
 The risk adjusted portfolio optimization problem can now be formulated replacing the budget constraint with a vis viva target. [No need for the budget constraint as this is trivially enforced through the parameter $C$.]
 
+[$n$ portfolio items]
+
 [Comment on nabla_mu vs. nabla_w]
 
 \begin{equation}
@@ -418,7 +477,14 @@ The first order conditions with respect to $\boldsymbol{\mu}$ are
 
 The optimal project NPV vector $\boldsymbol{\mu}^*$ is thus given by any of the eigenvectors of $K$, with corresponding vis viva shadow price $\lambda$ given by the respective eigenvalues.
 
-The project vis viva is proportional to the risk gradient.
+[The project vis viva is proportional to the risk gradient.]
+
+The optimal budget allocation is then
+
+\begin{equation}
+\mathbf{w}^* = C (D(\mathbf{k})^{-1} \boldsymbol{\mu}^* )^{\frac{1}{\boldsymbol{\alpha}}}
+\label{eq:wStar}
+\end{equation}
 
 ## The vis viva shadow price
 
@@ -437,6 +503,7 @@ Dotting the first order conditions through by $\boldsymbol{\mu}$ and rearranging
 \boldsymbol{\mu} ' \nabla_{\mu} \mathcal{L} = \sigma - \lambda r^2 \mathcal{E} &= \mathbf{0} \\
 \lambda &= \frac{\sigma}{r^2 \mathcal{E}}
 \end{split}
+\label{eq:lambDef}
 \end{equation}
 
 The vis viva shadow price is thus proportional to the investor's risk per unit vis viva.
@@ -488,9 +555,11 @@ Where $\Gamma_k$ is the diagonal matrix of eigenvalues of $K$ excluding the $k^{
 
 The trailing eigenvector of $K$ is thus the solution that minimizes the objective function $\mathcal{L}$. The leading eigenvector of $K$ is the solution that maximizes $\mathcal{L}$. The intermediate eigenvectors $(1 < k < n)$ represent saddle point solutions of $\mathcal{L}$ between these two extremes.
 
-### Dimensionally reduced covariance matrix
+Note that this is reflected in the corresponding eigenvalues. The leading eigenvalue---which corresponds to the risk maximizing solution---is the largest, indicating the highest risk for a given vis viva target $\overline{\mathcal{E}}$ (recall equation \ref{eq:lambDef}), while the remaining eigenvalues are successively smaller, indicating successively lower risk levels.
 
-The trailing eigenvectors of covariance matrices tend to represent noise in the data. This is problematic vis-a-vis the portfolio optimization method just presented above, since it implies that the optimal solution is essentially random. To avoid this problem, it is a good idea to work with a dimensionally reduced covariance matrix ($\tilde{\Sigma}$) rather than the covariance matrix itself ($\Sigma$). The dimensionally reduced covariance matrix is reconstructed from the $m < n$ leading eigenvectors of $\Sigma$ as follows.
+### Spectrally reduced covariance matrix
+
+The trailing eigenvectors of covariance matrices tend to represent noise in the data. This is problematic vis-a-vis the portfolio optimization method just presented above, since it implies that the optimal solution is essentially random. To avoid this problem, one can follow a "spectral cut-off" approach [@guo2018eigen; @carrasco2011optimal; see Schiek -@schiek2021reverse for an application in the AR4D context]. The "spectrally reduced" covariance matrix $\tilde{\Sigma}$ is reconstructed from the $m < n$ leading eigenvectors of $\Sigma$ as follows.
 
 \begin{equation}
 \tilde{\Sigma} = L L '
@@ -504,29 +573,560 @@ L = \tilde{U} \tilde{\Lambda}^{\frac{1}{2}}
 \end{equation}
 
 And $\tilde{U}$, $\tilde{\Gamma}$ refer to the matrix of $m$ retained, leading eigenvectors and the corresponding (diagonal) matrix of retained eigenvalues of $\Sigma$, respectively. The number of retained eigenvectors $m$ is a subjective choice, usually sufficient to account for at least $90\%$ of the variance.
+<!-- @carrasco2007linear -->
 
-By construction, then, the dimensionally reduced covariance matrix has just $m$ nonzero eigenvalues, with the remaining $n - m$ eigenvalues equal to zero. This removal of trailing eigenvectors has a signal strengthening effect (or, conversely, a noise attenuating effect), such that $\tilde{\Sigma}$ typically approximates $\Sigma$, but may also be considered more accurate than $\Sigma$ with respect to the "true process" that generates the underlying data. All of the eigenvectors of $\tilde{\Sigma}$ with nonzero eigenvalues encode meaningful information about the portfolio items and their interactions. The optimal solution $\boldsymbol{\mu}^*$ corresponding to the smallest nonzero eigenvalue of $\tilde{\Sigma}$ is thus likewise meaningful.
+By construction, then, the spectrally reduced covariance matrix has just $m$ nonzero eigenvalues, with the remaining $n - m$ eigenvalues equal to zero. This removal of trailing eigenvectors has a signal strengthening effect (or, conversely, a noise attenuating effect), such that $\tilde{\Sigma}$ typically approximates $\Sigma$, but may also be considered more accurate than $\Sigma$ with respect to the "true process" that generates the underlying data. All of the eigenvectors of $\tilde{\Sigma}$ with nonzero eigenvalues encode meaningful information about the portfolio items and their interactions. The optimal solution $\boldsymbol{\mu}^*$ corresponding to the smallest nonzero eigenvalue of $\tilde{\Sigma}$ is thus likewise meaningful.
 
 [Of course, the appearance of zero-valued eigenvalues makes the projected Hessian (equation \ref{eq:...}) semi-definite as opposed to definite. But this does not matter since this is by design, and the solutions with zero-valued eigenvalues are likewise ignored by design. In other words, the projected Hessian remains definite over the set of solutions that are of any interest to the investor.]
 
-## Policy portfolio optimization
+## A menu of solutions catering to a range of risk appetites
 
-<!-- ## Negative budget allocations -->
+The ($m^{th}$) trailing eigenvector of $K$ is the portfolio budget allocation that minimizes portfolio risk for a given vis viva target $\overline{\mathcal{E}}$. The other solutions are not necessarily sub-optimal, but rather correspond to higher investor risk tolerances. Here it is important to keep in mind that higher portfolio risk is not unambiguously bad, but rather a matter of ambition. Higher risk exposes the investor to an increased probability of both lower and higher portfolio return. Moreover, if the portfolio items follow a gBm, as assumed here, then returns are lognormally distributed; and so the risk is primarily upside. Moreover, let's not forget that AR4D institutions have a pro-poor mandate to redress market failures; and this can often mean taking on ambitious, higher risk portfolios.
 
-<!-- ## A menu of solutions tailored to different levels of risk tolerance -->
+## Multi-objective portfolio optimization
 
-* Only the risk maximizing solution has (a chance at) positive budget allocation.
+Generally speaking, the $m$ leading eigenvectors of a covariance (or correlation) matrix of a complex system encode information about collective movement within the system. In the financial context, for example, Gopikrishnan et al. [-@gopik2001quant] show that the eigenvectors of a covariance matrix of hundreds of stock price series reflect macro level movements at the industrial or sectorial level, such that each element in a given eigenvector may be interpreted as an indicator of a particular firm's contribution to or participation in movements in the respective industry. [The authors even suggest this method might be used to classify firms into industries.]
 
-* The eigenvectors of $\tilde{\Sigma}$ may be interpreted as policies [@apopkyshan, @schiek]. [* Orthonormal rotation] The inner product $L 'L$ is the policy covariance matrix.
+I later reconstructed this analysis, working with the loadings $L$ instead of the eigenvectors---because the loadings have a more straightforward interpretation as the correlation between an item and the collective movement associated with the eigenvector---and I observed that a varimax rotation of $L$ greatly clarifies the contributions of items to collective movements [-@schiek2021reverse]. I also extended the logic to AR4D correlation matrices, where the collective movements associated with each eigenvector may be interpreted as the guiding policies or strategic objectives of the research institution (and/or donor), such that the elements of the eigenvectors reflect each research project's contribution towards the respective policy.
+
+In relation to the portfolio optimization method presented above, this implies that each of the $m$ portfolio solutions $\boldsymbol{\mu}^*$ is tied to a specific strategic objective. Selection of any one of these solutions thus implies an exclusive focus on a particular strategic objective, and neglect of the rest. This is problematic since AR4D institutions and donors are generally interested in optimizing budget allocations across multiple strategic objectives at once. They want to pursue, for example, nutritional security, economic growth, and smallholder resilience, all at once, and not one at a time, in a piecemeal fashion. Indeed, such objectives usually go hand in hand, and cannot be pursued in isolation from each other.
+
+It follows that the optimal solution must be some linear combination of the portfolios $\boldsymbol{\mu}^*_k$
+
+Another step is required in the portfolio optimization workflow, then, whereby allocation across the portfolio solutions 
+
+They want an optimal balance of investments across solutions
+
+The policy covariance matrix is given by the inner product of $L$ with itself.
+
+  showed how it can be refined by a varimax rotation [of $L$]
+
+some multi-objective criteria have been prposed, but involve ad hoc assigning objective weights in a highly arbitrary manner.
+
+<!-- and I showed how this idea can be used to deduce an approximate covariance matrix when time series data are unavailable [-@schiek2021reverse].  -->
+
+## Ensuring positive budget allocations
+
+Generally speaking, the eigenvectors of $K$ may include negative values. This is problematic for AR4D portfolio optimization since it implies complex valued budget allocations (recall equation \ref{eq:wStar}).
+
+As mentioned in the introduction, some have devised clever ways to modify the covariance matrix in order to coerce its leading eigenvector to have strictly positive entries... but even then, this is just one eigenvector (which corresponds to the risk maximizing solution), whereas we have just seen there are good reasons for investing in a linear combination of the eigenvectors. A corrollary to the Perron-Frobenius...says that if the leading eigenvector contains strictly positive entries, then none of the other eigenvectors can have this. A linear combination of eigenvectors might happen to contain strictly positive entries, but there is no guarantee of this. Eigenvectros are defined up to scaling, and so there is some freedom in adding together scaled eigenvectors such that the result is positive, but then the scale factors introduce subjectivity and must be defended.
+
+Here I present an alternative approach. First, note that the expected project NPV (equation \ref{eq:ExT}) can be expressed
+
+\begin{equation}
+E[x_i(T)]\bigr|_{t = 0} = \mu_i = x_i(0) e^{\omega 2 \pi}
+\label{eq:ExTrad}
+\end{equation}
+
+That is to say, $\mu_i$ can be mapped to polar coordinates, with the time horizon set to $2 \pi$, and $\omega  =  r T / 2 \pi$. Over the range $0 \geq t \geq 2 \pi$, this is a log spiral (Fig. ).
+
+
+```{r, fig.show = "hold", fig.width = 6, fig.height=3, fig.align="center", fig.cap="\\label{fig:logSpiral}Log spiral in (left) polar and (right) complex coordinates over 0 \\geq \\theta \\geq 2 \\pi.", echo = FALSE}
+
+theta <- seq(0, 2 * pi, length.out = 50)
+r <- 0.01
+Tt <- 40
+omega <- r * Tt / (2 * pi)
+a <- 1
+
+x <- a * exp(omega * theta) * cos(theta)
+y <- a * exp(omega * theta) * sin(theta)
+df_plot <- data.frame(x, y)
+thisTheta <- pi / 3
+thisX <- a * exp(omega * thisTheta) * cos(thisTheta)
+thisY <- a * exp(omega * thisTheta) * sin(thisTheta)
+theta <- seq(0, thisTheta, length.out = 15)
+x <- 0.25 * cos(theta)
+y <- 0.25 * sin(theta)
+df_angle <- data.frame(x, y)
+
+gg <- ggplot()
+gg <- gg + geom_path(data = df_plot, aes(x, y, group = 1))
+gg <- gg + geom_point(data = data.frame(x = thisX, y = thisY),
+                      aes(x, y), size = 2)
+gg <- gg + geom_segment(aes(x = 0, xend = thisX, y = 0, yend = thisY))
+gg <- gg + geom_path(data = df_angle, aes(x, y, group = 1))
+gg <- gg + geom_hline(yintercept = 0)
+gg <- gg + geom_vline(xintercept = 0)
+                        # arrow=arrow(length=unit(0.2,"cm")), linetype = 1)
+gg <- gg + annotate(
+    geom = "text", x = thisX, y = thisY, 
+    label = expression(mu(theta)==x(theta)~e^{omega*(2~pi-theta)}), hjust = -0.1, vjust = -0.1, size = 3.5
+  )
+gg <- gg + annotate(
+    geom = "text", x = -0.1, y = 1.7, 
+    label = "y", size = 4
+  )
+gg <- gg + annotate(
+    geom = "text", x = 1.7, y = -0.1, 
+    label = "x", size = 4
+  )
+gg <- gg + annotate(
+    geom = "text", x = 0.15, y = 0.1, 
+    label = expression(theta), size = 3.5
+  )
+gg <- gg + coord_cartesian(ylim = c(-1.7, 1.7), xlim = c(-1.7, 1.7))
+gg <- gg + theme_bw()
+gg <- gg + theme(axis.title = element_blank(),
+                 axis.text = element_blank(),
+                 axis.ticks = element_blank(),
+                 panel.grid = element_blank())
+ggPolar <- gg
+
+
+
+
+gg <- ggplot()
+gg <- gg + geom_path(data = df_plot, aes(x, y, group = 1))
+gg <- gg + geom_point(data = data.frame(x = thisX, y = thisY),
+                      aes(x, y), size = 2)
+gg <- gg + geom_segment(aes(x = 0, xend = thisX, y = 0, yend = thisY))
+gg <- gg + geom_path(data = df_angle, aes(x, y, group = 1))
+gg <- gg + geom_hline(yintercept = 0)
+gg <- gg + geom_vline(xintercept = 0)
+                        # arrow=arrow(length=unit(0.2,"cm")), linetype = 1)
+gg <- gg + annotate(
+    geom = "text", x = thisX, y = thisY, 
+    label = expression(mu(theta)==x(theta)~e^{(omega+i)*(2~pi-theta)}), hjust = -0.1, vjust = -0.1, size = 3.5
+  )
+gg <- gg + annotate(
+    geom = "text", x = -0.1, y = 1.7, 
+    label = "iy", size = 4
+  )
+gg <- gg + annotate(
+    geom = "text", x = 1.7, y = -0.1, 
+    label = "x", size = 4
+  )
+gg <- gg + annotate(
+    geom = "text", x = 0.15, y = 0.1, 
+    label = expression(theta), size = 3.5
+  )
+gg <- gg + coord_cartesian(ylim = c(-1.7, 1.7), xlim = c(-1.7, 1.7))
+gg <- gg + theme_bw()
+gg <- gg + theme(axis.title = element_blank(),
+                 axis.text = element_blank(),
+                 axis.ticks = element_blank(),
+                 panel.grid = element_blank())
+ggComp <- gg
+
+
+ggPolar + ggComp + plot_layout(ncol = 2)
+
+```
+
+Secondly, note that this has an equivalent expression in the complex plane.
+
+\begin{equation}
+\mu_i = -x_i(0) e^{2 \pi (\omega + i)}
+\label{eq:ExTcomp}
+\end{equation}
+
+Where $i = \sqrt{-1}$. To recap, expected project NPV has been mapped from its original Cartesian form to a polar form, and then from polar form to complex form. In the motivating context of this article, the latter of these three forms is the most realistic---in the sense that it reflects the intangibility of the project investment except as a sunk cost (at $\theta = \pi$), and as realized project NPV (at $\theta = 2 \pi$). A better name for the complex plane in this context might thus be the "cyclically real" plane.
+
+Finally, consider the case where $\mu_i$ is negative. That is, say $\mu_i = -\zeta$ where $\zeta > 0$.
+
+\begin{equation}
+-\zeta = -x_i(0) e^{2 \pi (\omega + i)}
+\end{equation}
+
+By Euler's formula ($e^{(2 n - 1)i \pi} = -1 \:;\:\:\:n\in \mathbb{Z}$), this can be rewritten
+
+\begin{equation}
+e^{ i \pi} \zeta = -x_i(0) e^{2 \pi (\omega + i)}
+\end{equation}
+
+Dividing through by $e^{i \pi}$ then gives
+
+\begin{equation}
+\zeta = -x_i(0) e^{\omega 2 \pi + i}
+\end{equation}
+
+Which has the effect of rotating the endpoint of the log spiral in Fig ... clockwise by $\pi$. In polar form, this rotation may be expressed
+
+\begin{equation}
+\zeta = x_i(0) e^{\omega \pi}
+\end{equation}
+
+Which then maps back to the original form as
+
+\begin{equation}
+\zeta = x_i(0) e^{r \frac{T}{2}}
+\end{equation}
+
+Dividing a negative entry in an eigenvector by $-1$ in order to remove the negative sign may thus be interpreted as a period-halving rotation of the respective project's log-spiral timeline, which may in turn be expressed as a scaling of its original Cartesian form by $e^{-r T / 2}$.
+
+
+```{r exampLoadings0, results = "markup", echo = F}
+# fig.show = 'hold', fig.width = 4, fig.height = 4, fig.align = "center", fig.cap = "\\label{fig:ExpPctRet_Examp}Hypothetical AR4D project expected returns and risk."}
+#---------------------------------------------
+prop_CSA <- c("Heat Tolerant\nBeans", "Coffee\nAgroforestry", "Digital\nAgriculture", "Low Emission\nSilvopastoral")
+econGrowth_CSA <- c(0.11, 0.38, 0.4, -0.35)
+econEquality_CSA <- c(0.7, 0.32, 0.71, 0.27)
+envSust_CSA <- c(0.6, 0.42, 0.6, 0.8)
+nutrition_CSA <- c(0.65, 0.06, 0.01, 0.04)
+#---------------------------------------------
+# prop_socialCap <- c("Micro Finance\nand Insurance", "Multi-stakeholder\nPlatforms", "Market Access")
+# econGrowth_socialCap <- c(0.2, 0.45, 0.34)
+# econEquality_socialCap <- c(0.87, 0.62, 0.79)
+# envSust_socialCap <- c(0.1, 0.1, 0)
+#---------------------------------------------
+prop_smallHolder <- c("Cassava for\nBio-ethanol", "Triple Purpose\nSweet Potato", "Dairy\nCooperative", "Multi-stakeholder\nPlatforms")
+econGrowth_smallHolder <- c(0.67, -0.31, 0.15, 0.4)
+econEquality_smallHolder <- c(0.6, 0.75, 0.83, 0.81)
+envSust_smallHolder <- c(0.32, 0.4, -0.52, 0.1)
+nutrition_smallHolder <- c(0, 0.76, 0.67, 0.11)
+#---------------------------------------------
+prop_highYcommod <- c("Mega Maize", "Hyper Rice", "Ultra Cow")#, "Uber Palm")
+econGrowth_highYcommod <- c(0.82, 0.86, 0.76)#, 0.88)
+econEquality_highYcommod <- c(-0.34, -0.42, -0.63)#, -0.58)
+envSust_highYcommod <- c(-0.6, -0.52, -0.67)#, -0.83)
+nutrition_highYcommod <- c(0.4, 0.45, 0.53)
+#---------------------------------------------
+df_CSA <- data.frame(Proposal = prop_CSA, `Economic Growth` = econGrowth_CSA, `Economic Equality` = econEquality_CSA, `Environmental Sustainability` = envSust_CSA, `Nutritional Security` = nutrition_CSA, Group = "Climate Smart\nAgriculture")
+
+# df_socialCap <- data.frame(Proposal = prop_socialCap, `Economic Growth` = econGrowth_socialCap, `Economic Equality` = econEquality_socialCap, `Environmental Sustainability` = envSust_socialCap, Group = "Social Capital")
+
+df_smallHolder <- data.frame(Proposal = prop_smallHolder, `Economic Growth` = econGrowth_smallHolder, `Economic Equality` = econEquality_smallHolder, `Environmental Sustainability` = envSust_smallHolder, `Nutritional Security` = nutrition_smallHolder, Group = "Smallholder\nResilience")
+
+df_highYcommod <- data.frame(Proposal = prop_highYcommod, `Economic Growth` = econGrowth_highYcommod, `Economic Equality` = econEquality_highYcommod, `Environmental Sustainability` = envSust_highYcommod, `Nutritional Security` = nutrition_highYcommod, Group = "High Value Yield\nEnhancement")
+
+list_df <- list(df_highYcommod, df_smallHolder, df_CSA)#, df_socialCap)
+
+df_Lrot <- as.data.frame(do.call(rbind, list_df))
+colnames(df_Lrot)[2:5] <- gsub("\\.", " ", colnames(df_Lrot)[2:(ncol(df_Lrot) - 1)])
+
+df_table <- df_Lrot[, c("Proposal", "Group")]
+colnames(df_table)[1] <- "Project"
+
+df_table$Project <- gsub("\n", " ", df_table$Project)
+df_table$Group <- gsub("\n", " ", df_table$Group)
+#==========================================================================
+#==========================================================================
+#==========================================================================
+# Have to turn off table to fit PLOS ONE submission guidelines? Otherwise, turn back on.
+# kable(df_table,
+#       format = "pandoc",
+#       caption = "**Hypothetical list of AR4D projects**\\label{tab:exampLoadings}") %>%
+#   kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
+#==========================================================================
+#==========================================================================
+#==========================================================================
+group_names <- as.character(unique(df_Lrot$Group))
+n_groups <- length(group_names)
+bag_of_colors <- randomcoloR::distinctColorPalette(k = 2 * n_groups)
+group_colors_arb <- sample(bag_of_colors, n_groups)
+# 
+# # Randomly assign an expected pct. return to each AR4D proposal
+# n_prop <- nrow(df_Lrot)
+# n_signals <- ncol(df_Lrot) - 2
+# # inv_scalability_ar4d <- exp(rnorm(n_prop))
+# # inv_scalability_ar4d <- round(inv_scalability_ar4d / sum(inv_scalability_ar4d), 3) * 100
+# #inv_scalability_ar4d <- runif(n_prop)
+# inv_scalability_ar4d <- 10^-2 * c(15.9, 12.7, 17.6, 8.8, 7.4 , 9.0, 10.7, 10.8, 7.8 , 6.8, 9.4) # per unit investment
+# #inv_scalability_ar4d <- 1 / scalability_ar4d 
+# #nab_decRet_ar4d <- 10^-2 * inv_scalability_ar4d
+# #inv_scalability_ar4d <- round(inv_scalability_ar4d / sum(inv_scalability_ar4d), 3) * 100
+# #inv_scalability_ar4d <- 10^-2 * c(15.9, 12.7, 17.6, 8.8, 7.4 , 9.0, 10.7, 10.8, 7.8 , 6.8, 9.4)
+# scalability_ar4d <- 1 / inv_scalability_ar4d
+# #sdX_vec <- 1 / 2 * c(abs(as.matrix(inv_scalability_ar4d) + 2 * as.matrix(rnorm(n_prop))))
+# #sdX_vec <- 1.61 * c(abs(as.matrix(inv_scalability_ar4d) * as.matrix(runif(n_prop))))
+# sdX_vec <- 10^-2 * c(21.2785349, 9.5972656, 18.4114015, 9.4742876, 2.7923296, 0.6912369, 5.9851785, 12.0813232, 7.0012194, 6.2880289, 7.1941543)
+# #sdX_vec <- 1 / 2 * c(12.868125, 12.490252, 11.344356, 11.007095, 4.783202, 10.734870, 9.144469, 8.444207, 5.876558, 7.155542, 12.647645)
+# df_pctRet <- data.frame(inv_scalability_ar4d, Item = df_Lrot$Proposal, Group = df_Lrot$Group)
+# names(inv_scalability_ar4d) <- df_Lrot$Proposal
+# # Plot expected returns for each AR4D proposal
+# group_colors <- group_colors_arb
+# #plot_returns_barchart(df_pctRet, group_colors)
+# list_graph_options <- list()
+# list_graph_options[["fig_title"]] <- "AR4D project expected return"
+# list_graph_options[["ylab"]] <- NULL
+# list_graph_options[["legend_position"]] <- "none"
+# list_graph_options[["axisTextX_off"]] <- T
+# gg_perRet <- plot_returns_barchart(df_pctRet, group_colors, list_graph_options, graph_on = F)
+# 
+# df_sd <- data.frame(sdX_vec, Item = df_Lrot$Proposal, Group = df_Lrot$Group)
+# list_graph_options[["fig_title"]] <- "Risk (standard deviation)"
+# list_graph_options[["legend_position"]] <- NULL
+# list_graph_options[["axisTextX_off"]] <- NULL
+# 
+# gg_perSd <- plot_returns_barchart(df_sd, group_colors, list_graph_options, graph_on = F)
+# 
+# gg_perRet / gg_perSd
+#==============================================================
+#==============================================================
+#==============================================================
+#==============================================================
+df_x <- df_Lrot
+df_x$Group <- NULL
+prop_col <- df_x$Proposal
+df_x$Proposal <- NULL
+mat_Lrot <- as.matrix(df_x)
+rownames(mat_Lrot) <- prop_col
+list_groups <- list(prop_highYcommod, prop_smallHolder, prop_CSA)
+n_groups <- length(list_groups)
+bag_of_colors <- randomcoloR::distinctColorPalette(k = 5 * n_groups)
+group_colors <- sample(bag_of_colors, n_groups)
+group_info <- list(list_groups, group_names, group_colors)
+
+sigNames <- c("GDP Growth", "Economic\nEquality", "Environmental\nSustainability", "Nutritional\nSecurity")
+n_signals <- length(sigNames)
+sigNames <- paste("Policy", 1:n_signals, "\n", sigNames)
+# xAxis_title <- "Rotated Correlations"
+# plot_corrXS_barchart(mat_Lrot, group_info, xAxis_title, sigNames)
+# 
+# ggsave("Fig 6.tiff")
+
+
+
+
+
+# D_sdX <- diag(10^2 * sdX_vec)
+#D_sdX <- diag(1/sdX_vec)
+# mat_Lrot <- as.matrix(df_Lrot[, c(2:5)])
+# mat_Q <- mat_Lrot
+# eig_decomp_QQ <- eigen(t(mat_Q) %*% mat_Q)
+# eig_values_QQ <- eig_decomp_QQ$values
+# mat_G <- diag(eig_values_QQ)
+# covmat_SS <- mat_G
+# 
+# eig_vecs_QQ <- eig_decomp_QQ$vectors
+
+#--------------------------------------------------------
+# Get mat_P
+# mat_G_sqrt_inv <- diag(1 / sqrt(eig_values_QQ))
+# mat_B <- t(eig_vecs_QQ) # Orthogonal Rotation Matrix
+# mat_P <- mat_Q %*% t(mat_B) %*% mat_G_sqrt_inv
+
+# **Fig 6. Hypothetical results of a survey** eliciting policy-project correlations from experts and stakeholders.
+# 
+# &nbsp;
+
+#==============================================================
+#==============================================================
+#==============================================================
+#==============================================================
+#D_sdX <- diag(sdX_vec)
+cormat_XX_derived <- mat_Lrot %*% t(mat_Lrot)
+D_sdCorrect <- diag(1 / sqrt(diag(cormat_XX_derived)))
+cormat_XX_derived <- D_sdCorrect %*% cormat_XX_derived %*% D_sdCorrect
+colnames(cormat_XX_derived) <- row.names(mat_Lrot)
+# fig_title <- "Reverse engineered approximate AR4D project correlation matrix"
+# plot_covmat(cormat_XX_derived, fig_title, round_to = 2, graph_on = F)
+
+#cormat_XX_derived
+
+library(MASS)
+library(matrixcalc)
+library(covshrink)
+
+set.seed(30)
+int_p <- 3
+int_N <- 5
+vec_mu <- rnorm(int_p)
+mat_A <- matrix(runif(int_p^2) - 1, nrow = 3)
+mat_Sigma <- cov2cor(t(mat_A) %*% mat_A)
+X <- mvrnorm(int_N, vec_mu, mat_Sigma)
+
+cov_shrink(as.matrix(cormat_XX_derived), )
+
+
+
+
+
+eMatProj <- eigen(cormat_XX_derived)$vectors[, 1:n_signals]
+covmatSSderived <- t(mat_Lrot) %*% mat_Lrot
+eValp <- eigen(covmatSSderived)$values
+eVecp <- eigen(covmatSSderived)$vectors
+L <- mat_Lrot %*% (eVecp)
+Ptilde <- L %*% diag(1 / sqrt(eValp))
+#t(Ptilde) %*% (Ptilde)
+portWgts <- eVecp[, 1]
+xx <- Ptilde %*% portWgts
+xx <- xx - 1.1 * min(xx)
+scaleFctrs <- diag(1 / portWgts) %*% t(Ptilde) %*% xx
+Ptilde %*% diag(portWgts) %*% scaleFctrs
+xx <- Ptilde %*% diag(portWgts) %*% scaleFctrs
+k <- runif(nrow(Ptilde)) * 10
+a <- runif(nrow(Ptilde))
+r <- 0.001
+tau <- 40
+sol <- (xx / k)^(1 / a) * exp(-r * tau)
+C <- sum(sol)
+sol <- sol / C
+
+
+Ptilde %*% diag(eVecp[, 2])
+eMatProj %*% eMatPolicy[, 3]
+eMatProj %*% eMatPolicy[, 4]
+
+
+#eigen(covmatSSderived)$vectors
+#=============================================================
+# Experiment
+nc <- 3
+nr <- 4
+randvec <- rnorm(nr * nc)
+#randvec <- runif(nr * nc)
+Lrot <- matrix(randvec, nr, nc)
+Lrot <- Lrot / max(abs(Lrot))
+Mp <- round(t(Lrot) %*% (Lrot), 4)
+eVecp <- eigen(Mp)$vectors
+eValp <- eigen(Mp)$values
+L <- Lrot %*% (eVecp)
+L <- L / max(abs(L))
+Ptilde <- L %*% diag(1 / sqrt(eValp))
+t(Ptilde) %*% (Ptilde)
+wgts <- eVecp[, 1]
+Ptilde %*% wgts
+xx1 <- Ptilde %*% wgts
+xx2 <- xx1 - 1.1 * min(xx1)
+scaleFctrs <- xx2 / xx1
+diag(c(scaleFctrs)) %*% Ptilde %*% wgts
+
+y <- diag(1 / wgts) %*% t(Ptilde) %*% xx2
+
+
+
+
+diag(wgts) %*% y
+
+
+# slackfn <- function(scaleFctrs){
+#   
+#   slack <- Ptilde %*% diag(c(scaleFctrs)) %*% wgts - sol
+#   
+# }
+# nleqslv::nleqslv()
+
+Ptilde %*% diag(c(scaleFctrs)) %*% scaleFctrs
+
+#xx <- xx / sum(xx)
+#Q <- Ptilde %*% diag(wgts)
+scaleFctrs <- diag(1 / wgts) %*% t(Ptilde) %*% xx
+#scaleFctrs <- diag(1 / wgts^2) %*% t(Q) %*% xx
+xx <- Ptilde %*% diag(wgts) %*% scaleFctrs
+
+diag(1 / wgts^2) %*% t(Ptilde) %*% xx
+
+xx
+xx <- xx - 1.1 * min(xx)
+#xx <- xx / sum(xx)
+#Q <- Ptilde %*% diag(wgts)
+scaleFctrs <- diag(1 / wgts) %*% t(Ptilde) %*% xx
+#scaleFctrs <- diag(1 / wgts^2) %*% t(Q) %*% xx
+xx <- Ptilde %*% diag(wgts) %*% scaleFctrs
+xx
+
+
+k <- runif(nr) * 10
+a <- runif(nr)
+
+r <- 0.001
+tau <- 40
+sol <- (xx / k)^(1 / a) * exp(-r * tau)
+C <- sum(sol)
+sol <- sol / C
+sol
+sum(sol)
+
+
+
+
+
+
+
+
+
+Q <- Ptilde %*% eVecp
+Q
+Q <- Ptilde %*% eVecp %*% rep(1, nc)
+Q
+
+#Q <- Ptilde %*% diag(eVecp[, 3])
+
+xmin <- min(Q)
+ind <- which(Q == xmin)
+icol <- ceiling(ind / nr)
+irow <- ind %% nr
+Qd <- Q[irow, ] - xmin
+Qd[icol] <- 10^6
+iColAdj <- which(Qd == min(Qd))
+xadj <- Q[irow, iColAdj]
+fctr <- -xadj / xmin
+Q[, iColAdj] + Q[, icol] * fctr
+
+Q %*% rep(1, nc)
+
+
+Qd <- (Q) - xmin
+indAdj <- which(Qd == min(Qd))
+indCol <- ceiling(indAdj / nr)
+xadj <- Q[indAdj]
+fctr <- xadj / xmin
+#Q[, indCol] <- Q[, indCol] * fctr
+Q <- Ptilde %*% diag(eVecp[, 1])
+Q[, indCol] * fctr + Q[, 2]
+
+adjust <- rep(NA, nc)
+adjust[indCol] <- xmin
+
+sum(Lrot)
+Lrot %*% rep(1, nc)
+Lrot %*% eVecp[, 1]
+Ptilde %*% eVecp[, 1]
+
+wgts <- 1 / eValp #rep(min(Ptilde), nc)
+Ptilde %*% diag(eVecp[, 1]) %*% wgts
+
+Ptilde %*% eVecp[, 2]
+Ptilde %*% eVecp[, 3]
+Ptilde[, 1]
+
+M <- Lrot %*% t(Lrot)
+P <- eigen(M)$vectors
+eVal <- eigen(M)$values
+eValp
+
+t(null(M)) %*% (null(M))
+(null(M)) %*% t(null(M))
+
+
+
+mat_Lrot <- varimax(mat_L)[[1]]
+mat_Lrot <- matrix(as.numeric(mat_Lrot),
+                   attributes(mat_Lrot)$dim,
+                   dimnames = attributes(mat_Lrot)$dimnames)
+mat_R <- varimax(mat_L)[[2]]
+mat_R <- matrix(as.numeric(mat_R),
+                attributes(mat_R)$dim,
+                dimnames = attributes(mat_R)$dimnames)
+
+#=============================================================
+
+# ggsave("Fig 7.tiff")
+
+# ```{r, fig.show = 'hold', fig.width = 6, fig.height = 4, fig.align = "left", fig.cap = "\\label{fig:cormatProps}Approximate AR4D project correlation matrix calculated from the crowdsourced policy-project correlations."}
+
+
+# **Fig 7. Approximate AR4D project correlation matrix** calculated from the crowdsourced policy-project correlations.
+# 
+# &nbsp;
+
+
+```
+
+
+
+
+
+
+
+
+
 
 * Can think about the risk minimizing optimal allocation across these portfolios (the optimal portfolio is a linear combination of the solutions). (Together with scaling of eigenvectors) This allows for creation of a solution with strictly positive allocations.
 
-Since the matrix $K$ is symmetric, then its leading eigenvector generally has, or can be modified to have, only positive entries [@noutsos2006perron].
 
-The interpretation is nuanced. Minimizing cost is also in some sense minimizing return. Different levels of return corresponding to different levels of risk tolerance
-As mentioned earlier, the vis viva reflects both portfolio cost and portfolio return. It is conceivable, then, that some investors may be interested in the intermediate portfolio solutions...or even the risk maximizing solution... The investor should choose the solution with the eigenvalue that best matches their level of risk tolerance. [corresponding to each solution indicates the risk per unit vis viva.]  [no need to have separate cost and return functions. Cost is return. (Sure?)]
-
-<!-- Elsewhere I have shown how an orthonormal rotation can be applied to clarify each portfolio item's contribution to each policy.  -->
 
 From equation \ref{eq:LL} it is evident that $\tilde{\Sigma}$ is defined up to an orthonormal rotation of $L$. That is,
 
@@ -552,9 +1152,12 @@ Such a matrix is the result of the process...mentioned above...used to deduce co
 
 
 
-## Policy portfolio optimization
 
 # Discussion
+
+* Negative weights problem. Different approaches: linear combination of portfolios; scaling of eigenvectors; shrinkage estimate; lastly, figure out a practical interpretation of negative weights (and/or get comfortable with complex weights).
+
+* Might also formulate as a synergy max problem (using correlation matrix)
 
 * In physics one might also apply the naive budget constraint approach---can only move so far in the three spatial dimensions.---it was only through empirical observation that physicists realized that a much less intuitive constraint was the one they should pay attention to, that of energy, one which practitioners still puzzle over to this day.---In finance, the naive approach has been pretty useless, led mostly to frustration. Leibniz did not reason that the quantity $v^2$ was conserved, but rather arrived at this conclusion through empirical observation...even today the rationale is not clear---ask your local physicist what energy is. In a parallel manner, portfolio managers sense that the eigenvectors of the covariance matrix are the proper solutions to the portfolio optimization problem, and have moved ahead with this idea even though the rationale for doing so is not clear.
 
