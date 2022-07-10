@@ -1,5 +1,5 @@
 ---
-title: Multi-objective, risk-adjusted optimization of agricultural research for development portfolios
+title: Risk-adjusted, multi-objective optimization of agricultural research for development portfolios
 author:
   - name: Benjamin Schiek
     email: b.schiek@cgiar.org
@@ -9,7 +9,7 @@ address:
   - code: Alliance Bioversity-CIAT
     address: Alliance of Bioversity International and CIAT, Km 17 Recta Cali-Palmira, Valle del Cauca, Colombia, CP 763537
 abstract: |
-  For several decades, efforts to improve quantitative foresight and decision support in agricultural research for development have focused on the development of models to assess the potential impacts of individual research projects (or programs) under a range of future climate and socioeconomic scenarios. However, if the ultimate aim of such exercises is to determine an optimal allocation of research funds across the projects under assessment, then a portfolio level tool is also required. That is, a tool is required that can take account of the potential risks and rewards of each project individually, as well as the synergies and tradeoffs (covariances) between projects, and output the risk-minimizing project budget allocation for a given portfolio return target and budget. Here I develop such a tool. 
+  For several decades, efforts to improve quantitative foresight and decision support in agricultural research for development have focused on the development of models to assess the potential impacts of individual research projects (or programs) under a range of future climate and socioeconomic scenarios. However, if the ultimate aim of such exercises is to determine an optimal allocation of research funds across the projects under assessment, then a portfolio level tool is also required in order to translate a set of research impact assessments into a set of optimal budget allocations. Here I present a novel    This tool should take account of the potential risks each project individually, as well as the synergies and tradeoffs (covariances) between projects, and output the risk-minimizing project budget allocation for a given portfolio return target and budget. Here I develop such a tool. 
 keywords: 
   - keyword1
   - keyword2
@@ -98,7 +98,45 @@ plot_covmat <- function(covmat, fig_title = "Covariance Matrix", round_to = 2, g
 
 # Introduction
 
-...
+For several decades, efforts to improve quantitative foresight and decision support in agricultural research for development (AR4D) have focused on the development of models to assess the potential impacts of individual research projects or programs under a range of future climate and socioeconomic scenarios. However, if the ultimate aim of such exercises is to determine an optimal allocation of research funds across the projects under assessment, then a portfolio level tool is also required in order to translate research impact assessments into optimal budget allocations.
+
+Mills clearly identified and articulated the need for such a tool long ago [-@Mills1998], and yet work in this direction has not yet begun. Instead of portfolio optimization, AR4D institutions hold "priority setting" exercises, whereby research programs are ranked in order of importance based on their respective impact assessments. These rankings are then translated into research budget allocations in a highly subjective and ad hoc manner.
+
+The priority setting process takes little or no account of the risk associated with individual research programs, much less of the synergies and tradeoffs (i.e. correlations) that may arise between programs. Research portfolios based on this approach are thus generally unbalanced and hence quite risky relative to a properly balanced portfolio. Conversely put, by neglecting research correlations, the priority setting method misses out on an opportunity to hedge research portfolio risk by balancing positive and negative correlations against each other.
+
+[In addition to exposing the investor to higher-than-necessary levels of risk, the ps approach leaves a great deal up to subjective...vulnerable to political pressures...bad blood. led to frustrations...]
+
+A key challenge hindering work in this direction is the lack of data by which to calculate research correlations. In a previous article, I redress this problem by developing a method to deduce research correlation matrices based solely on expert opinion [-@schiek2021reverse]. Here I build upon that work to devise an AR4D portfolio optimization workflow.
+<!-- solves for the risk-minimizing (i.e. optimally hedged) research budget allocation, subject to a portfolio impact constraint. -->
+
+The proposed workflow is partly inspired by the portfolio optimization method originally devised in the financial context [markowitz, merton], but differs from that convention in several key respects. Firstly, in the financial context, expected returns scale linearly with investment. In the AR4D context, returns exhibit marginally diminishing returns to investment. Program NPV is defined to capture this reality.  Program NPV does not scale linearly with investment.  The budget constraint can be arbitrarily enforced 
+
+The most radical departure... the financial problem is usually formulated as a risk minimization problem subject to a budget constraint and a return target constraint. Here I propose an alternative set up wherein the budget and return constraints are replaced by a single "energy" constraint, which I call the "vis viva".
+
+
+
+
+
+
+Here I redress this gap by developing a portfolio optimization method that solves for the risk minimizing budget allocation [subject to a vis viva constraint]. More specifically, the method outputs a menu of optimal budget allocations corresponding to a range of investor risk tolerances. I show how each of the optimal budget allocations on this menu may be interpreted as a research portfolio optimally focused on a particular policy or strategic objective.
+
+Since most donors and/or research directors are interested in optimizing across multiple strategic objectives, I introduce a subsequent step to optimize the budget allocation across these optimally focused portfolios. The resulting multi-objective optimal budget allocation is thus a linear combination of the optimally focused portfolios determined in the first step. I also present a novel technique to ensure that budget allocations are positive.
+
+Finally, I present a hypothetical use case to better illustrate the sequence of steps in the portfolio optimization workflow.
+
+The development of this method rests upon a novel ... * gBm
+
+* vis viva
+
+
+While AR4D is the motivating context for the present work, the method can be used in any portfolio optimization workflow.
+
+Finally, I present a hypothetical use case in the AR4D context.
+
+I begin with a literature review focusing on the motivation behind the present work and on the relevant analogous work in the financial context.
+
+
+* Ensuring positive budget allocations
 
 ## Mills' missing fifth step
 
@@ -110,13 +148,16 @@ However, he went on to observe that these steps were insufficient. An as of yet 
 
 >fifth step, the development of guidelines for translating priorities into planning and resource allocation decisions, is necessary to establish direct links with planning and resource allocation activities [@Mills1998].
 
-Mills identified this lacuna at a time when AR4D centers were just beginning to come under pressure from public and private donors to "do a lot more with a lot less" [@Alston1995]. Methodological work in response to this pressure focused on Steps 1-4. The development and refinement of ex-ante impact assessment models for the evaluation of individual research alternatives under different plausible future scenarios, in particular, is remarkable (see, for example, @Alston1995; @Antle1999; @Antle2015; Mills, 1998; and @nelson2014modeling). However, work has still not begun on Mills' missing fifth step.
+Mills identified this lacuna at a time when AR4D centers were just beginning to come under pressure from public and private donors to "do a lot more with a lot less" [@Alston1995]. Methodological work in response to this pressure focused on Steps 1-4. In hindsight, Mills' concern was well founded. Budgetary pressure on AR4D centers to "prove their relevance" [@Braunschweig2000], "show value for money" [@yet2016bayesian], and otherwise demonstrate "more efficient spending of resources" [@petsakos2018comparing] has only increased.
+<!-- The development and refinement of ex-ante impact assessment models for the evaluation of individual research alternatives under different plausible future scenarios, in particular, is remarkable (see, for example, @Alston1995; @Antle1999; @Antle2015; Mills, 1998; and @nelson2014modeling). However, work has still not begun on Mills' missing fifth step. -->
 
-<!-- # ```{r, fig.show = 'hold', out.width="10cm", fig.cap="\\label{fig:mills_missing_step}The AR4D priority setting workflow, adapted from Mills (1998).", fig.align='center'} -->
-<!-- knitr::include_graphics("Mills_missing_step5.png") -->
-<!-- ``` -->
+```{r, fig.show = 'hold', out.width="10cm", fig.cap="\\label{fig:mills_missing_step}The AR4D priority setting workflow, adapted from Mills (1998).", fig.align='center'}
 
-In hindsight, Mills' concern was well founded. Budgetary pressure on AR4D centers to "prove their relevance" [@Braunschweig2000], "show value for money" [@yet2016bayesian], and otherwise demonstrate "more efficient spending of resources" [@petsakos2018comparing] has only increased since the 1990s. Between Step 4 and the final allocation of funds, stakeholder politics, institutional inertia, ad hoc procedures and criteria, and other subjective forces have repeatedly undercut any careful, objective rigor occurring in Steps 1-4 [@Birner2016; @mccalla2014cgiar]. In 2011, for example...
+knitr::include_graphics("Mills_missing_step5.png")
+
+```
+
+Between Step 4 and the final allocation of funds, stakeholder politics, institutional inertia, ad hoc procedures and criteria, and other subjective forces have repeatedly undercut any careful, objective rigor occurring in Steps 1-4 [@Birner2016; @mccalla2014cgiar]. In 2011, for example...
 An historic effort begun in 2011 to restructure CGIAR financing around a "portfolio" model proved emblematic of this "limited success", when the results of an extensive priority setting exercise were rejected out of hand in favor of an ad hoc budget allocation. The end result thereby 
 
 This inconsistency, opacity, and subjectivity in resource allocation decisions has, in turn, aggravated scientists' already longstanding distrust of budget allocation mechanisms. It is only natural, under such circumstances, to see research programs growing increasingly entrenched in their respective silos, and relations between donors and research programs deteriorating to historic levels of toxicity [@Birner2016; @leeuwis2018reforming; @mccalla2014cgiar].
@@ -618,8 +659,7 @@ E[x_i(T)]\bigr|_{t = 0} = \mu_i = x_i(0) e^{\omega 2 \pi}
 \label{eq:ExTrad}
 \end{equation}
 
-That is to say, $\mu_i$ can be mapped to polar coordinates, with the time horizon set to $2 \pi$, and $\omega  =  r T / 2 \pi$. Over the range $0 \geq t \geq 2 \pi$, this is a log spiral (Fig. ).
-
+That is to say, $\mu_i$ can be mapped to polar coordinates, with the time horizon set to $2 \pi$, and $\omega  =  r T / 2 \pi$. Over the range $0 \geq \theta \geq 2 \pi$, $\mu_i$ traces out one cycle of a log spiral (Fig. ).
 
 ```{r, fig.show = "hold", fig.width = 6, fig.height=3, fig.align="center", fig.cap="\\label{fig:logSpiral}Log spiral in (left) polar and (right) complex coordinates over 0 \\geq \\theta \\geq 2 \\pi.", echo = FALSE}
 
@@ -651,15 +691,15 @@ gg <- gg + geom_vline(xintercept = 0)
                         # arrow=arrow(length=unit(0.2,"cm")), linetype = 1)
 gg <- gg + annotate(
     geom = "text", x = thisX, y = thisY, 
-    label = expression(mu(theta)==x(theta)~e^{omega*(2~pi-theta)}), hjust = -0.1, vjust = -0.1, size = 3.5
+    label = expression(italic(mu(theta)==x(0)~e^{omega*theta})), hjust = -0.1, vjust = -0.1, size = 3.5
   )
 gg <- gg + annotate(
     geom = "text", x = -0.1, y = 1.7, 
-    label = "y", size = 4
+    label = expression(italic(y)), size = 4
   )
 gg <- gg + annotate(
     geom = "text", x = 1.7, y = -0.1, 
-    label = "x", size = 4
+    label = expression(italic(x)), size = 4
   )
 gg <- gg + annotate(
     geom = "text", x = 0.15, y = 0.1, 
@@ -687,15 +727,15 @@ gg <- gg + geom_vline(xintercept = 0)
                         # arrow=arrow(length=unit(0.2,"cm")), linetype = 1)
 gg <- gg + annotate(
     geom = "text", x = thisX, y = thisY, 
-    label = expression(mu(theta)==x(theta)~e^{(omega+i)*(2~pi-theta)}), hjust = -0.1, vjust = -0.1, size = 3.5
+    label = expression(mu==x(0)~e^{(omega+i)*theta}), hjust = -0.1, vjust = -0.1, size = 3.5
   )
 gg <- gg + annotate(
     geom = "text", x = -0.1, y = 1.7, 
-    label = "iy", size = 4
+    label = expression(italic(iy)), size = 4
   )
 gg <- gg + annotate(
     geom = "text", x = 1.7, y = -0.1, 
-    label = "x", size = 4
+    label = expression(italic(x)), size = 4
   )
 gg <- gg + annotate(
     geom = "text", x = 0.15, y = 0.1, 
@@ -754,7 +794,6 @@ Which then maps back to the original form as
 \end{equation}
 
 Dividing a negative entry in an eigenvector by $-1$ in order to remove the negative sign may thus be interpreted as a period-halving rotation of the respective project's log-spiral timeline, which may in turn be expressed as a scaling of its original Cartesian form by $e^{-r T / 2}$.
-
 
 ```{r exampLoadings0, results = "markup", echo = F}
 # fig.show = 'hold', fig.width = 4, fig.height = 4, fig.align = "center", fig.cap = "\\label{fig:ExpPctRet_Examp}Hypothetical AR4D project expected returns and risk."}
@@ -1153,11 +1192,11 @@ Such a matrix is the result of the process...mentioned above...used to deduce co
 
 
 
-# Discussion
+# Discussion and conclusion
 
-* Negative weights problem. Different approaches: linear combination of portfolios; scaling of eigenvectors; shrinkage estimate; lastly, figure out a practical interpretation of negative weights (and/or get comfortable with complex weights).
+The task of ... all of which are in one way or another vitally important, will never be an easy one. ...Here I have attempted to reduce the methodological basis for this limited success by introducing a portfolio optimization workflow.... not limited to the AR4D...but applicable to any multi-objective portfolio optimization workflow.
 
-* Might also formulate as a synergy max problem (using correlation matrix)
+Above I have presented a novel portfolio optimization method which... offers a menu of budget allocations depending upon risk tolerance... multiple strategic objectives or policies ... novelty comes from the novel inclusion of the vis viva constraint....parallel development in physics...positive budget allocations.
 
 * In physics one might also apply the naive budget constraint approach---can only move so far in the three spatial dimensions.---it was only through empirical observation that physicists realized that a much less intuitive constraint was the one they should pay attention to, that of energy, one which practitioners still puzzle over to this day.---In finance, the naive approach has been pretty useless, led mostly to frustration. Leibniz did not reason that the quantity $v^2$ was conserved, but rather arrived at this conclusion through empirical observation...even today the rationale is not clear---ask your local physicist what energy is. In a parallel manner, portfolio managers sense that the eigenvectors of the covariance matrix are the proper solutions to the portfolio optimization problem, and have moved ahead with this idea even though the rationale for doing so is not clear.
 
@@ -1171,7 +1210,21 @@ Such a matrix is the result of the process...mentioned above...used to deduce co
 \nabla \sigma = \lambda \ddot{\boldsymbol{\mu}}
 \end{equation}
 
-* Positive weights guaranteed
+* Might also formulate as a synergy max problem (using correlation matrix)
+
+
+
+
+
+
+
+
+
+
+
+
+* Negative weights problem. Different approaches: linear combination of portfolios; scaling of eigenvectors; shrinkage estimate; lastly, figure out a practical interpretation of negative weights (and/or get comfortable with complex weights).
+
 
 * No problem if not invertible
 
