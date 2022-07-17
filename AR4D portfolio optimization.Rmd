@@ -102,14 +102,28 @@ For several decades, efforts to improve quantitative foresight and decision supp
 
 Mills clearly identified and articulated the need for such a tool long ago [-@Mills1998], and yet work in this direction has not yet begun. Instead of portfolio optimization, AR4D institutions hold "priority setting" exercises, whereby research programs are ranked in order of importance based on their respective impact assessments. These rankings are then translated into research budget allocations in a highly subjective and ad hoc manner.
 
-The priority setting process takes little or no account of the risk associated with individual research programs, much less of the synergies and tradeoffs (i.e. correlations) that may arise between programs. Research portfolios based on this approach are thus generally unbalanced and hence quite risky relative to a properly balanced portfolio. Conversely put, by neglecting research correlations, the priority setting method misses out on an opportunity to hedge research portfolio risk by balancing positive and negative correlations against each other.
+The priority setting process takes little or no account of the risk associated with individual research programs, much less of the synergies and tradeoffs (i.e. correlations) that may arise between programs. Research portfolios based on this approach are thus unbalanced and hence quite risky relative to a properly balanced portfolio. Stated conversely, by neglecting research correlations, the priority setting method misses out on an opportunity to hedge research portfolio risk by balancing positive and negative correlations against each other.
 
 [In addition to exposing the investor to higher-than-necessary levels of risk, the ps approach leaves a great deal up to subjective...vulnerable to political pressures...bad blood. led to frustrations...]
 
 A key challenge hindering work in this direction is the lack of data by which to calculate research correlations. In a previous article, I redress this problem by developing a method to deduce research correlation matrices based solely on expert opinion [-@schiek2021reverse]. Here I build upon that work to devise an AR4D portfolio optimization workflow.
 <!-- solves for the risk-minimizing (i.e. optimally hedged) research budget allocation, subject to a portfolio impact constraint. -->
 
-The proposed workflow is partly inspired by the portfolio optimization method originally devised in the financial context [markowitz, merton], but differs from that convention in several key respects. Firstly, in the financial context, expected returns scale linearly with investment. In the AR4D context, returns exhibit marginally diminishing returns to investment. Program NPV is defined to capture this reality.  Program NPV does not scale linearly with investment.  The budget constraint can be arbitrarily enforced 
+The proposed workflow is partly inspired by the portfolio optimization method originally devised in the financial context [markowitz, merton], but differs from that convention in several key respects. Firstly, in the financial context expected returns scale linearly with investment, whereas in the AR4D context returns are marginally diminishing with respect to investment. Program NPV must therefore be defined to capture this reality.
+
+Secondly, in the financial context, negative budget allocations are permissible, since they may be interpreted as short selling. In the AR4D context, on the other hand, a negative budget allocation has no clear interpretation. A valid AR4D portfolio optimization method must therefore guarantee strictly positive values in the optimal budget allocation. In practice, investors in the financial context also typically prefer portfolios with strictly long positions, and have devised various tricks for ensuring positive allocations. Here I present a novel method.
+
+
+
+multi-solution
+
+multi-objective
+
+
+
+
+
+The budget constraint can be arbitrarily enforced 
 
 The most radical departure... the financial problem is usually formulated as a risk minimization problem subject to a budget constraint and a return target constraint. Here I propose an alternative set up wherein the budget and return constraints are replaced by a single "energy" constraint, which I call the "vis viva".
 
@@ -213,7 +227,9 @@ Transformations of covmat [@carrasco2011optimal; ledoit2004well]
 
 Ex-ante impact assessment and scenario analysis are designed to quantify research project impacts at a specific point in time, usually in terms of net present value (NPV), based on assumptions about the future trajectory of numerous random processes, both research and non-research related. (To facilitate the process, assumptions regarding non-research random processes, particularly future climate and socioeconomic processes, have been conveniently packaged in a set Representative Carbon Pathways (RCPs) and Shared Socioeconomic Pathways (SSPs) [@].)
 
-Because it is a function of numerous random processes, project NPV is itself a stochastic variable. The first step in portfolio analysis is to select a reasonable model of the stochastic evolution of project NPV between now (the time of the funding decision) and the funding time horizon. In other contexts, this choice is often aided by the availability of time series data. In the AR4D context, project NPV time series generally do not exist; and so the choice must be made based on certain assumed characteristics of the unobserved data. What is the size distribution of changes in the stochastic variable? Assuming that percentage changes in project NPV over a judiciously small time step are normally distributed, the stochastic process is accurately modeled by a geometric Brownian movement; and the expected value of the $i^{th}$ project's NPV ($x_i$) at some future time $T$ is
+Program level NPV...
+
+Because it is a function of numerous random processes, project NPV, and hence program NPV, is itself a stochastic variable. The first step in portfolio analysis is to select a reasonable model of the stochastic evolution of project NPV between now (the time of the funding decision) and the funding time horizon. In other contexts, this choice is often aided by the availability of time series data. In the AR4D context, project NPV time series generally do not exist; and so the choice must be made based on certain assumed characteristics of the unobserved data. What is the size distribution of changes in the stochastic variable? Assuming that percentage changes in project NPV over a judiciously small time step are normally distributed, the stochastic process is accurately modeled by a geometric Brownian movement; and the expected value of the $i^{th}$ project's NPV ($x_i$) at some future time $T$ is
 <!-- This selection must be made on the basis of both realism and expedience. Periods of a few substantial changes interspersed by relatively longer periods of many small changes. Geometric Brownian motion expedient and versatile  -->
 
 \begin{equation}
@@ -268,9 +284,9 @@ E[X(T)]\bigr|_{t = \hat{t}} = \Sigma_i \mu_i
 The portfolio variance, it follows, can be expressed
 
 \begin{equation}
-\sigma^2 = Var[X(T)]\bigr|_{t = \hat{t}} = \boldsymbol{\mu}' K \boldsymbol{\mu} \end{equation}
+\sigma^2 = Var[X(T)]\bigr|_{t = \hat{t}} = \boldsymbol{\mu}' G \boldsymbol{\mu} \end{equation}
 
-Where $K$ is the cross coefficient of variation matrix, i.e. the matrix whose diagonal elements are the squared coefficients of variation $c_i^2$, and whose off-diagonal elements are the cross coefficients of variation $c_{ij}$. Note that $K$ is just the covariance matrix left and right multiplied by a diagonal matrix of the inverse project means, just as the correlation matrix is the covariance matrix left and right multiplied by a diagonal matrix of the inverse standard deviations. As such, $K$ provides insight into project NPV risks, trade offs, and synergies.
+Where $G$ is the cross coefficient of variation matrix, i.e. the matrix whose diagonal elements are the squared coefficients of variation $c_i^2$, and whose off-diagonal elements are the cross coefficients of variation $c_{ij}$. Note that $K$ is just the covariance matrix left and right multiplied by a diagonal matrix of the inverse project means, just as the correlation matrix is the covariance matrix left and right multiplied by a diagonal matrix of the inverse standard deviations. As such, $K$ provides insight into project NPV risks, trade offs, and synergies.
 
 
 ## Deducing the value of variances and covariances
@@ -283,10 +299,11 @@ to deduce a particular value for $s_i$.
 
 ## Modeling diminishing returns to investment
 
-Generally speaking, project NPV scales with investment. That is to say, beyond a certain minimum level of funding required to generate, release, and support the diffusion and uptake of the project's research product(s) on a pilot level, further increments in project investment have the effect of broadening the scope of impact---i.e. extending the size and number of populations (markets) where the research product is released and has an impact. For reasons well known to economists, this scaling is not linear, but rather marginally diminishing. Project NPV ($x_i(\hat{t})$) may thus be expressed as a marginally diminishing function of the funding allocation $w_i$, as follows.
+Generally speaking, project NPV scales with investment. That is to say, beyond a certain minimum level of funding required to generate, release, and support the diffusion and uptake of the project's research product(s) on a pilot level, further increments in project investment have the effect of broadening the scope of impact---i.e. extending the size and number of populations or markets where the research product is released and has an impact. For reasons well known to economists, this scaling is not linear, but rather marginally diminishing. Project NPV ($x_i(\hat{t})$) may thus be expressed as a marginally diminishing function of the funding allocation $w_i$, as follows.
 
 \begin{equation}
-x_i(\hat{t}) = \tilde{x}_i(\hat{t}) \left(\frac{w_i}{C} \right)^{\alpha_i} 
+x_i(\hat{t}) = \tilde{x}_i(\hat{t}) \left(\frac{w_i}{C} \right)^{\alpha_i}
+\label{eq:npvFnW}
 \end{equation}
 
 Where $C$ is the portfolio budget, $\tilde{x}_i(\hat{t})$ is the maximum financially feasible NPV---i.e., the NPV if the entire budget were invested in the project (the case where $w_i = C$)---and the exponent $\alpha_i$ is the elasticity of project NPV with respect to funding. That is,
@@ -296,6 +313,23 @@ Where $C$ is the portfolio budget, $\tilde{x}_i(\hat{t})$ is the maximum financi
 \end{equation}
 
 And $\alpha_i$ lies between $0$ and $1$, reflecting marginally diminishing returns to investment.
+
+...
+
+This may be rearranged into an instructive expression...
+
+\begin{equation}
+\frac{\mu_i(\hat{t})}{\tilde{x}_i(\hat{t})} =  \left(\frac{w_i}{C} \right)^{\alpha_i} e^{r \tau}
+\end{equation}
+
+...the expected program value as a fraction of its full (fiscally feasible) potential value...pctg of potentiality realized
+
+or
+
+\begin{equation}
+\frac{x_i(\hat{t})}{\tilde{x}_i(\hat{t})} =  \left(\frac{w_i}{C} \right)^{\alpha_i}
+\end{equation}
+
 
 # Project kinematics and vis viva
 
@@ -314,7 +348,7 @@ F = \lambda a
 
 Where $\lambda$ is a proportionality constant to be defined based on context.
 
-For the present purposes, it may be said that $F$ is constant over the life of the project, resulting in a similarly constant acceleration of the net benefit stream. This is illustrated in Figure \ref{fig:kinema}, where the shorthand $v = \Delta u/\Delta t$ has been introduced to reduce clutter.
+For sufficiently small time intervals $\Delta t$, it may be said that $F$ is effectively constant, resulting in a similarly constant acceleration of the net benefit stream. This is illustrated in Figure \ref{fig:kinema}, where the shorthand $v = \Delta u/\Delta t$ has been introduced to reduce clutter.
 
 ```{r, fig.show = "hold", fig.width = 3, fig.height=3, fig.align="center", fig.cap="\\label{fig:kinema}Generic example of an acceleration of a net benefit stream.", echo = FALSE}
 
@@ -341,9 +375,9 @@ gg <- gg + annotate("text", x = 2 / 3, y = yint * 1.75,
 gg <- gg + annotate("text", x = 2 / 3, y = yint * 0.5,
                     label = expression(italic(A["0"])))
 gg <- gg + annotate("text", x = -0.06, y = yint,
-                    label = expression(italic("v(0)")), size = label_size)
+                    label = expression(italic("v(t)")), size = label_size)
 gg <- gg + annotate("text", x = -0.06, y = ymax,
-                    label = expression(italic("v(T)")), size = label_size)
+                    label = expression(italic("v(t + "*Delta*t*")")), size = label_size)
 gg <- gg + annotate("text", x = 0, y = -0.07,
                     label = "0", size = label_size)
 gg <- gg + annotate("text", x = 1, y = -0.07,
@@ -391,8 +425,9 @@ a \Delta u &= \frac{1}{2} (v(T)^2 - v(0)^2)
 \label{eq:kinema3}
 \end{equation}
 
-Now, since the project has a limited budget, the amount of skilled, concerted, applied effort ($F$) it can exert along the net benefit displacement $\Delta u$ is also limited. That is, the quantity $F \Delta u$ is limited. Let this quantity be denoted $\mathcal{E}$. By equation \ref{eq:Newt2}, $\mathcal{E}$ can be rewritten as follows.
-<!-- Now, consider that, for a given budget, the project aims to maximize the amount of skilled, concerted, applied effort ($F$) exerted by the project along the "displacement" $\Delta u$. That is to say, the aim is to maximize the quantity $F \Delta u$, subject to constraints (which will be addressed farther below).-->
+<!-- Now, since the project has a limited budget, the amount of skilled, concerted, applied effort ($F$) it can exert along the net benefit displacement $\Delta u$ is also limited. That is, the quantity $F \Delta u$ is limited. Let this quantity be denoted $\mathcal{E}$. By equation \ref{eq:Newt2}, $\mathcal{E}$ can be rewritten as follows. -->
+Now, consider that, for a given budget, the project aims to maximize the amount of skilled, concerted, applied effort ($F$) exerted by the project along the "displacement" $\Delta u$. That is to say, the aim is to maximize the quantity $F \Delta u$, (subject to constraints which will be addressed farther below). By equation \ref{eq:Newt2}, $\mathcal{E}$ can be rewritten as follows.
+<!-- maximize bang for buck -->
 
 \begin{equation}
 \mathcal{E} = \lambda a \Delta u 
@@ -420,7 +455,7 @@ Then $v(0) = 0$, and so equation \ref{eq:Eraw} becomes
 \label{eq:Enpv}
 \end{equation}
 
-In physics, this is analogous to the expression for the kinetic energy of a moving object with mass $\lambda$, where the $u$ stands for a spatial dimension. To discourage practitioners from getting too cozy with this analogy, $\mathcal{E}$ is henceforth referred to using Gottfried Leibniz's more archaic, and now largely abandoned, term "vis viva" ("living force" in Latin).
+In physics, this is analogous to the expression for the kinetic energy of a moving object with mass $\lambda$, where the $u$ stands for a spatial dimension. To discourage practitioners from getting too cozy with this analogy, $\mathcal{E}$ is henceforth referred to using Gottfried Leibniz's more archaic, and now largely abandoned, term "vis viva" (which means "living force" in Latin).
 
 In the motivating context of the present article, the displacement $\Delta u_i$ corresponds to the $i^{th}$ expected project NPV at $t = \hat{t}$. More precisely,
 
@@ -434,39 +469,96 @@ In the motivating context of the present article, the displacement $\Delta u_i$ 
 Assuming $x_i(t)$ follows a gBm,
 
 \begin{equation}
-\Delta u_i = \mu_i = x_i(\hat{t}) e^{r \tau}
+\Delta u_i |_{t = \hat{t}} = \mu_i(\hat{t}) = x_i(\hat{t}) e^{r \tau} \bigr|_{t = \hat{t}}
 \end{equation}
 
-The corresponding project net-benefit stream and vis viva thus work out to
+The corresponding velocity thus works out to
 
 \begin{equation}
-\frac{\Delta u_i}{\Delta t} = -r x_i(\hat{t}) e^{r \tau}
+\frac{\Delta u_i}{\Delta t} \bigr|_{t = \hat{t}} = -r x_i(\hat{t}) e^{r \tau}
 \end{equation}
 
-[Comment on how to interpret negative velocity -- backwards looking?]
-
-and
+With starting and finishing values of
 
 \begin{equation}
-\begin{split}
-\mathcal{E}_i &= \frac{\lambda}{2} r^2 x_i(\hat{t})^2 e^{2r \tau} \\
-&= \frac{\lambda}{2} r e^{r \tau} \mu_i^2
-\end{split}
-\end{equation}
-
-Respectively. And the net-benefit stream and vis viva of an entire portfolio are
-
-\begin{equation}
-\frac{\Delta u}{\Delta t} = -r e^{r \tau} \mathbf{x}(\hat{t}) ' \mathbf{1}
+\frac{\Delta u_i}{\Delta t} \bigr|_{t = 0} = -r x_i(0) e^{r \tau}
 \end{equation}
 
 and
 
 \begin{equation}
+\frac{\Delta u_i}{\Delta t} \bigr|_{t = T} = -r x_i(T)
+\end{equation}
+
+The velocity is negative because time progression in the definition of $\mu_i$ is expressed not in terms of the number of time steps transpired, but rather in terms of the number of time steps that have yet to transpire until the time horizon $T$. Nonetheless, the velocity is monotonically increasing in time (Figure \ref{fig:kinema2}).
+
+```{r, fig.show = "hold", fig.width = 3, fig.height=3, fig.align="center", fig.cap="\\label{fig:kinema2}Acceleration of a net benefit stream.", echo = FALSE}
+
+t <- seq(0, 1, length.out = 10)
+slope <- 1
+yint <- -4 / 3
+v <- slope * t + yint
+df <- data.frame(t, v)
+ymax <- max(v)
+ymin <- min(v)
+
+gg <- ggplot(df, aes(x = t, y = v))
+gg <- gg + geom_line()
+gg <- gg + geom_segment(aes(x = 0, xend = 1, y = ymax, yend = ymax), linetype = 1)
+# gg <- gg + geom_segment(aes(x = 0, xend = 1, y = ymax, yend = ymax), linetype = 2)
+gg <- gg + geom_segment(aes(x = 1, xend = 1, y = ymax, yend = 0), linetype = 2)
+gg <- gg + geom_segment(aes(x = 0, xend = 1.2, y = 0, yend = 0),
+                        arrow=arrow(length=unit(0.2,"cm")), linetype = 1)
+gg <- gg + geom_segment(aes(x = 0, xend = 0, y = 0, yend = -2),
+                        arrow=arrow(length=unit(0.2,"cm")), linetype = 1)
+gg <- gg + geom_ribbon(aes(ymin = v, ymax = ymax), fill = "blue", alpha = .5)
+# gg <- gg + geom_ribbon(aes(ymin = 0, ymax = yint), fill = "orange", alpha = .5)
+gg <- gg + annotate("text", x = 1 / 3, y = yint * 0.5,
+                    label = expression(italic(Delta*A)))
+# gg <- gg + annotate("text", x = 2 / 3, y = yint * 0.5,
+#                     label = expression(italic(A["0"])))
+gg <- gg + annotate("text", x = -0.06, y = yint,
+                    label = expression(italic("v(t)")), size = label_size)
+gg <- gg + annotate("text", x = -0.06, y = ymax,
+                    label = expression(italic("v(t + "*Delta*t*")")), size = label_size)
+gg <- gg + annotate("text", x = 0, y = 0.07,
+                    label = "t", size = label_size)
+gg <- gg + annotate("text", x = 1, y = 0.07,
+                    label = expression(italic("t + "*Delta*t)), size = label_size)
+#gg <- gg + coord_cartesian(ylim = c(0, 2))
+# gg <- gg + labs(x = expression(Delta~t),
+#                 y = expression(Delta*u~"/"~Delta*t))
+gg <- gg + theme_bw()
+gg <- gg + theme(axis.text = element_blank(),
+                 axis.ticks = element_blank(),
+                 axis.title = element_text(size = axisTitle_size))
+gg
+
+
+```
+
+The vis viva, meanwhile, works out to
+
+\begin{equation}
 \begin{split}
-\mathcal{E} &= \frac{\lambda}{2} r^2 e^{2r \tau} \mathbf{x}(\hat{t}) ' \mathbf{x}(\hat{t}) \\
-&= \frac{\lambda}{2} r e^{r \tau} \boldsymbol{\mu} ' \boldsymbol{\mu}
+\mathcal{E}_i(\hat{t}) &= \frac{\lambda}{2} r^2 x_i(\hat{t})^2 e^{2r \tau} \\
+&= \frac{\lambda}{2} r e^{r \tau} \mu_i(\hat{t})^2
 \end{split}
+\end{equation}
+
+The velocity and vis viva of an entire portfolio may be expressed
+
+\begin{equation}
+\begin{split}
+v_p = \sqrt{\Sigma_i \left( \frac{\Delta u_i}{\Delta t}} \right)^2 &= r \sqrt{ \Sigma_i \mu_i^2} \\
+&= r \sqrt{\boldsymbol{\mu} ' \boldsymbol{\mu}} \\
+\end{split}
+\end{equation}
+
+and
+
+\begin{equation}
+\mathcal{E} = \frac{v_p^2}{2} = \frac{r^2}{2} \boldsymbol{\mu} ' \boldsymbol{\mu}
 \end{equation}
 
 <!-- Note, finally, that the vis viva per unit project expenditure may be expressed -->
@@ -487,13 +579,170 @@ and
 <!-- \end{split} -->
 <!-- \end{equation} -->
 
-# Risk-adjusted AR4D portfolio optimization replacing cost and return constraints with a vis viva constraint
+## Program value is cyclically real
+<!-- [Modeling the program investment cycle in the complex plane] -->
 
-The risk adjusted portfolio optimization problem can now be formulated replacing the budget constraint with a vis viva target. [No need for the budget constraint as this is trivially enforced through the parameter $C$.]
+Between the disbursement of funds and the realization of project impacts, project value exists in an intangible form of "potential value". It is value that is in the process of being transformed from one concrete form into another, i.e., from a tangible monetary form into tangible program impacts in the target populations and environments. During this transformation, it is incorrect to say that the program's value is zero, even though the tangible monetary form of the investment has vanished, or is in the process of vanishing. On the other hand, it is not altogether correct to say that the program's value is equal to its NPV, since this form of program value has yet to materialize in any demonstrable, tangible sense.
+<!-- Everyone understands that program value in the process of transformation does not refer to a tangible value. However, b -->
+
+It is possible to model this reality directly in the complex plane as follows. First, note that project NPV at $t = 0$ may be expressed
+
+\begin{equation}
+\mu_i(0) = x_i(0) e^{(\omega + i) 2 \pi} \;\;;\;\;\; \omega = r \frac{T}{2 \pi}
+\end{equation}
+
+Where $i = \sqrt{-1}$. (Recall that $e^{2n i \pi} = 1$ for any integer $n$.) This may then be extended to all angles $\theta \in (0, 2 \pi)$ as follows
+
+\begin{equation}
+\mu_i(\theta; T, r) = x_i(\theta) e^{(\omega + i) (2 \pi - \theta)}
+\end{equation}
+
+In this formulation, program value $\mu_i(\theta; T, r)$ is real-valued at the start of the funding cycle ($\theta = 0$), midway through ($\theta = \pi$), and at the end of the cycle ($\theta = 2 \pi$); and is complex-valued elsewhere. Real program values thus correspond to the points in the funding cycle when the investment has a tangible form---particularly at the beginning, when the funds are disbursed, and at the end, when the investment has been productively consumed and transformed into program impacts. Complex values lying off the real number line, meanwhile, correspond to points in the funding cycle when the investment has no demonstrable or tangible form, i.e. when it is in the process of being transformed from its original monetary form into the planned program impacts. The negative real value occurring halfway through the cycle, at $\theta = \pi$, may be interpreted as the investment when it is demonstrable as a sunk cost.
+
+Note that if $\mu_i(\theta; T, r)$ is a positive real number at the start of the funding cycle ($\theta = 0$), then it must also be a positive real number at the end of the funding cycle ($\theta = 2 \pi$). Likewise, if program value is a negative real number at the start of a funding cycle, then it must also be negative at the end of the funding cycle. Funding cycles that begin and end on a positive real value may be called "normal funding cycles". Cycles that begin and end on a negative value may thus be said to be out of phase with the normal funding cycle by a rotation of $\pi$.
+
+It follows that negative program values at $\theta = 0$ may be turned positive by extending or shortening the time horizon by $\pi$. That is, starting with an out of phase program value at $\theta = 0$,
+
+\begin{equation}
+\begin{split}
+\mu_i(0; r, T) &= -x_i(0) e^{(\omega + i) 2 \pi} \\
+&= x_i(0) e^{(\omega + i) 2 \pi + i \pi}
+\end{split}
+\end{equation}
+
+The time horizon can be extended by $T / 2$ (i.e., $\pi$) in order to bring the funding cycle into phase, as follows.
+
+\begin{equation}
+\begin{split}
+\mu_i(0; r, 3 / 2 T) &= -x_i(0) e^{(\omega + i) 3 \pi} \\
+&= x_i(0) e^{(\omega + i) 3 \pi + i \pi} \\
+&= x_i(0) e^{3 \omega \pi + 4 i \pi} \\
+&= x_i(0) e^{3 \omega \pi}
+\end{split}
+\end{equation}
+
+[Extending the time horizon in this way has the effect of a clockwise $\pi$ rotation of $\mu_i(0; r , T)$.] Alternatively, the program value may be made positive by shortening the time horizon by $T / 2$, [which corresponds to a counter-clockwise $\pi$ rotation in the complex plane.]
+
+\begin{equation}
+\begin{split}
+\mu_i(0; r, T / 2 ) &= -x_i(0) e^{(\omega + i) \pi} \\
+&= x_i(0) e^{(\omega + i) \pi + i \pi} \\
+&= x_i(0) e^{ \omega \pi + 2 i \pi} \\
+&= x_i(0) e^{ \omega \pi}
+\end{split}
+\end{equation}
+
+More generally, a negative program value can be brought into phase by extending or shortening the time horizon by $(2n - 1) T / 2$, where $n$ is a positive integer. [In some decision making situations, it might make sense to consider n < 0, which extends the time horizon backwards---corresponding perhaps to funding of a process already in mid course.]
+
+<!-- Recalling equation \ref{eq:npvFnW}, the previous equation can be rearranged as follows. -->
+
+<!-- \begin{equation} -->
+<!-- \frac{\mu_i(\theta)}{\tilde{x}_i(\theta)} = \left(\frac{w_i}{C} \right)^{\alpha_i} e^{(\omega + i) (2 \pi - \theta)} -->
+<!-- \end{equation} -->
+
+<!-- log spiral Fig \ref{...} ... -->
+<!-- does not change much, such that $x_i(\theta) \approx x_i(0)$, then this  -->
+
+<!-- # ```{r, fig.show = "hold", fig.width = 6, fig.height=3, fig.align="center", fig.cap="\\label{fig:logSpiral}Log spiral in (left) polar and (right) complex coordinates over 0 \\geq \\theta \\geq 2 \\pi.", echo = FALSE} -->
+
+<!-- theta <- seq(0, 2 * pi, length.out = 50) -->
+<!-- r <- 0.01 -->
+<!-- Tt <- 40 -->
+<!-- omega <- r * Tt / (2 * pi) -->
+<!-- a <- 1 -->
+
+<!-- x <- a * exp(omega * theta) * cos(theta) -->
+<!-- y <- a * exp(omega * theta) * sin(theta) -->
+<!-- df_plot <- data.frame(x, y) -->
+<!-- thisTheta <- pi / 3 -->
+<!-- thisX <- a * exp(omega * thisTheta) * cos(thisTheta) -->
+<!-- thisY <- a * exp(omega * thisTheta) * sin(thisTheta) -->
+<!-- theta <- seq(0, thisTheta, length.out = 15) -->
+<!-- x <- 0.25 * cos(theta) -->
+<!-- y <- 0.25 * sin(theta) -->
+<!-- df_angle <- data.frame(x, y) -->
+
+<!-- gg <- ggplot() -->
+<!-- gg <- gg + geom_path(data = df_plot, aes(x, y, group = 1)) -->
+<!-- gg <- gg + geom_point(data = data.frame(x = thisX, y = thisY), -->
+<!--                       aes(x, y), size = 2) -->
+<!-- gg <- gg + geom_segment(aes(x = 0, xend = thisX, y = 0, yend = thisY)) -->
+<!-- gg <- gg + geom_path(data = df_angle, aes(x, y, group = 1)) -->
+<!-- gg <- gg + geom_hline(yintercept = 0) -->
+<!-- gg <- gg + geom_vline(xintercept = 0) -->
+<!--                         # arrow=arrow(length=unit(0.2,"cm")), linetype = 1) -->
+<!-- gg <- gg + annotate( -->
+<!--     geom = "text", x = thisX, y = thisY,  -->
+<!--     label = expression(italic(mu(theta)==x(0)~e^{omega*theta})), hjust = -0.1, vjust = -0.1, size = 3.5 -->
+<!--   ) -->
+<!-- gg <- gg + annotate( -->
+<!--     geom = "text", x = -0.1, y = 1.7,  -->
+<!--     label = expression(italic(y)), size = 4 -->
+<!--   ) -->
+<!-- gg <- gg + annotate( -->
+<!--     geom = "text", x = 1.7, y = -0.1,  -->
+<!--     label = expression(italic(x)), size = 4 -->
+<!--   ) -->
+<!-- gg <- gg + annotate( -->
+<!--     geom = "text", x = 0.15, y = 0.1,  -->
+<!--     label = expression(theta), size = 3.5 -->
+<!--   ) -->
+<!-- gg <- gg + coord_cartesian(ylim = c(-1.7, 1.7), xlim = c(-1.7, 1.7)) -->
+<!-- gg <- gg + theme_bw() -->
+<!-- gg <- gg + theme(axis.title = element_blank(), -->
+<!--                  axis.text = element_blank(), -->
+<!--                  axis.ticks = element_blank(), -->
+<!--                  panel.grid = element_blank()) -->
+<!-- ggPolar <- gg -->
+
+
+
+
+<!-- gg <- ggplot() -->
+<!-- gg <- gg + geom_path(data = df_plot, aes(x, y, group = 1)) -->
+<!-- gg <- gg + geom_point(data = data.frame(x = thisX, y = thisY), -->
+<!--                       aes(x, y), size = 2) -->
+<!-- gg <- gg + geom_segment(aes(x = 0, xend = thisX, y = 0, yend = thisY)) -->
+<!-- gg <- gg + geom_path(data = df_angle, aes(x, y, group = 1)) -->
+<!-- gg <- gg + geom_hline(yintercept = 0) -->
+<!-- gg <- gg + geom_vline(xintercept = 0) -->
+<!--                         # arrow=arrow(length=unit(0.2,"cm")), linetype = 1) -->
+<!-- gg <- gg + annotate( -->
+<!--     geom = "text", x = thisX, y = thisY,  -->
+<!--     label = expression(mu==x(0)~e^{(omega+i)*theta}), hjust = -0.1, vjust = -0.1, size = 3.5 -->
+<!--   ) -->
+<!-- gg <- gg + annotate( -->
+<!--     geom = "text", x = -0.1, y = 1.7,  -->
+<!--     label = expression(italic(iy)), size = 4 -->
+<!--   ) -->
+<!-- gg <- gg + annotate( -->
+<!--     geom = "text", x = 1.7, y = -0.1,  -->
+<!--     label = expression(italic(x)), size = 4 -->
+<!--   ) -->
+<!-- gg <- gg + annotate( -->
+<!--     geom = "text", x = 0.15, y = 0.1,  -->
+<!--     label = expression(theta), size = 3.5 -->
+<!--   ) -->
+<!-- gg <- gg + coord_cartesian(ylim = c(-1.7, 1.7), xlim = c(-1.7, 1.7)) -->
+<!-- gg <- gg + theme_bw() -->
+<!-- gg <- gg + theme(axis.title = element_blank(), -->
+<!--                  axis.text = element_blank(), -->
+<!--                  axis.ticks = element_blank(), -->
+<!--                  panel.grid = element_blank()) -->
+<!-- ggComp <- gg -->
+
+<!-- ggPolar + ggComp + plot_layout(ncol = 2) -->
+
+<!-- ``` -->
+
+# A novel formulation of the risk-adjusted AR4D portfolio optimization problem [replacing cost and return constraints with a vis viva constraint]
+
+Based on the groundwork laid above, the risk adjusted portfolio optimization problem can now be formulated as follows.
 
 [$n$ portfolio items]
 
 [Comment on nabla_mu vs. nabla_w]
+Because $\mu_i(w_i)$ is monotonically increasing in $w_i$, the 
 
 \begin{equation}
 \min_{\mathbf{w}}{\sigma} \:\:\: s.t. \:\:\: \mathcal{E} = \overline{\mathcal{E}}
@@ -504,26 +753,35 @@ The corresponding objective function or lagrangian is then
 \begin{equation}
 \begin{split}
 \mathcal{L} &= \sigma + \lambda (\mathcal{E} - \overline{\mathcal{E}}) \\
-&= \sqrt{\boldsymbol{\mu} ' K \boldsymbol{\mu}} - \frac{\lambda}{2} r e^{r \tau} \boldsymbol{\mu} ' \boldsymbol{\mu} - \overline{\mathcal{E}})
+&= \sqrt{\boldsymbol{\mu} ' G \boldsymbol{\mu}} - \frac{\lambda}{2} r^2 \boldsymbol{\mu} ' \boldsymbol{\mu} - \overline{\mathcal{E}})
 \end{split}
 \end{equation}
 
 This is a cost function to be minimized. The sign on the vis viva constraint is negative because it is a benefit mitigating the portfolio "risk cost" $\sigma$. [The problem could just as well be formulated in terms of vis viva maximization subject to a risk cost.]
 
 The first order conditions with respect to $\boldsymbol{\mu}$ are
+<!-- [The project vis viva is proportional to the risk gradient.] -->
 
 \begin{equation}
-\nabla_{\mu} \mathcal{L} = \frac{e^{r \tau}}{\sigma} K \boldsymbol{\mu} + \lambda r^2 e^{r \tau} \boldsymbol{\mu} = \mathbf{0}
+\nabla_{\mu} \mathcal{L} = \frac{1}{\sigma} G \boldsymbol{\mu} - \lambda r^2 \boldsymbol{\mu} = \mathbf{0}
 \end{equation}
 
-The optimal project NPV vector $\boldsymbol{\mu}^*$ is thus given by any of the eigenvectors of $K$, with corresponding vis viva shadow price $\lambda$ given by the respective eigenvalues.
-
-[The project vis viva is proportional to the risk gradient.]
-
-The optimal budget allocation is then
+The optimal program NPV vector $\boldsymbol{\mu}^*$ is thus given by any of the eigenvectors of $G$ scaled by $1 / \sigma$, with corresponding vis viva shadow price $\lambda$ given by the respective eigenvalues, scaled by $r^2$. Letting $Q \Gamma Q'$ represent the spectral decomposition of $G$, with $\mathbf{q}_j$ and $\gamma_j$ standing for the $j^{th}$ column of $Q$ and its corresponding eigenvalue in $\Gamma$, the $j^{th}$ solution can be written
 
 \begin{equation}
-\mathbf{w}^* = C (D(\mathbf{k})^{-1} \boldsymbol{\mu}^* )^{\frac{1}{\boldsymbol{\alpha}}}
+\boldsymbol{\mu}_j^* = \frac{1}{\sigma} \mathbf{q}_j
+\end{equation}
+
+with corresponding $\lambda_j$
+
+\begin{equation}
+\lambda_j = r^2 \gamma_j
+\end{equation}
+
+The $j^{th}$ budget allocation satisfying the first order conditions is then
+
+\begin{equation}
+\mathbf{w}_j^* = C (D(\tilde{\mathbf{x}})^{-1} \mathbf{q}_j)^{\frac{1}{\boldsymbol{\alpha}}}
 \label{eq:wStar}
 \end{equation}
 
@@ -598,7 +856,7 @@ The trailing eigenvector of $K$ is thus the solution that minimizes the objectiv
 
 Note that this is reflected in the corresponding eigenvalues. The leading eigenvalue---which corresponds to the risk maximizing solution---is the largest, indicating the highest risk for a given vis viva target $\overline{\mathcal{E}}$ (recall equation \ref{eq:lambDef}), while the remaining eigenvalues are successively smaller, indicating successively lower risk levels.
 
-### Spectrally reduced covariance matrix
+## Spectrally reduced covariance matrix
 
 The trailing eigenvectors of covariance matrices tend to represent noise in the data. This is problematic vis-a-vis the portfolio optimization method just presented above, since it implies that the optimal solution is essentially random. To avoid this problem, one can follow a "spectral cut-off" approach [@guo2018eigen; @carrasco2011optimal; see Schiek -@schiek2021reverse for an application in the AR4D context]. The "spectrally reduced" covariance matrix $\tilde{\Sigma}$ is reconstructed from the $m < n$ leading eigenvectors of $\Sigma$ as follows.
 
@@ -620,17 +878,54 @@ By construction, then, the spectrally reduced covariance matrix has just $m$ non
 
 [Of course, the appearance of zero-valued eigenvalues makes the projected Hessian (equation \ref{eq:...}) semi-definite as opposed to definite. But this does not matter since this is by design, and the solutions with zero-valued eigenvalues are likewise ignored by design. In other words, the projected Hessian remains definite over the set of solutions that are of any interest to the investor.]
 
+## Deducing the program correlation matrix in minimum data contexts
+
+...the resulting correlation matrix is then a spectrally reduced matrix. ...to get a covariance matrix, have to also crowdsource the program standard deviations...
+
+\begin{equation}
+\begin{split}
+Q &= D(\mathbf{c}) P \\
+&= D(\boldsymbol{\mu})^{-1} D(\boldsymbol{\sigma})^{-1} P
+\end{split}
+\end{equation}
+
 ## A menu of solutions catering to a range of risk appetites
 
 The ($m^{th}$) trailing eigenvector of $K$ is the portfolio budget allocation that minimizes portfolio risk for a given vis viva target $\overline{\mathcal{E}}$. The other solutions are not necessarily sub-optimal, but rather correspond to higher investor risk tolerances. Here it is important to keep in mind that higher portfolio risk is not unambiguously bad, but rather a matter of ambition. Higher risk exposes the investor to an increased probability of both lower and higher portfolio return. Moreover, if the portfolio items follow a gBm, as assumed here, then returns are lognormally distributed; and so the risk is primarily upside. Moreover, let's not forget that AR4D institutions have a pro-poor mandate to redress market failures; and this can often mean taking on ambitious, higher risk portfolios.
 
-## Multi-objective portfolio optimization
+# Multi-objective portfolio optimization
+
+## Eigenvectors as strategic objectives
 
 Generally speaking, the $m$ leading eigenvectors of a covariance (or correlation) matrix of a complex system encode information about collective movement within the system. In the financial context, for example, Gopikrishnan et al. [-@gopik2001quant] show that the eigenvectors of a covariance matrix of hundreds of stock price series reflect macro level movements at the industrial or sectorial level, such that each element in a given eigenvector may be interpreted as an indicator of a particular firm's contribution to or participation in movements in the respective industry. [The authors even suggest this method might be used to classify firms into industries.]
 
 I later reconstructed this analysis, working with the loadings $L$ instead of the eigenvectors---because the loadings have a more straightforward interpretation as the correlation between an item and the collective movement associated with the eigenvector---and I observed that a varimax rotation of $L$ greatly clarifies the contributions of items to collective movements [-@schiek2021reverse]. I also extended the logic to AR4D correlation matrices, where the collective movements associated with each eigenvector may be interpreted as the guiding policies or strategic objectives of the research institution (and/or donor), such that the elements of the eigenvectors reflect each research project's contribution towards the respective policy.
 
-In relation to the portfolio optimization method presented above, this implies that each of the $m$ portfolio solutions $\boldsymbol{\mu}^*$ is tied to a specific strategic objective. Selection of any one of these solutions thus implies an exclusive focus on a particular strategic objective, and neglect of the rest. This is problematic since AR4D institutions and donors are generally interested in optimizing budget allocations across multiple strategic objectives at once. They want to pursue, for example, nutritional security, economic growth, and smallholder resilience, all at once, and not one at a time, in a piecemeal fashion. Indeed, such objectives usually go hand in hand, and cannot be pursued in isolation from each other.
+## Policy portfolio optimization
+
+In relation to the portfolio optimization method presented above, this implies that each of the $m$ program portfolio solutions $\boldsymbol{\mu}^*$ is tied to a specific strategic objective. Selection of any one of these solutions thus implies an exclusive focus on a particular strategic objective, and neglect of the rest. This may suit institutions that like to focus on a specific theme each funding cycle. However, it is problematic for AR4D institutions and donors that prefer to optimize budget allocations across multiple strategic objectives at once. [They want to pursue, for example, nutritional security, economic growth, and smallholder resilience, all at once, and not one at a time, in a piecemeal fashion. Moreover, such objectives usually go hand in hand, and cannot be pursued in isolation from each other.]
+
+The policy optimization problem is formulated in the same way as the program level problem, except that the budget weights are assigned at the policy level, which are then distributed among individual programs according to the program level solution above (equation ref...).
+
+\begin{equation}
+\min_{\mathbf{w}_j} \sigma_p \:\:\:\:s.t.\:\:\:\mathcal{E}_p = \overline{\mathcal{E}_p}
+\end{equation}
+
+The policy vis viva $\mathcal{E}_p$ is
+
+\begin{equation}
+\mathcal{E}_p = \frac{1}{2} v_p^2
+\end{equation}
+
+Where the portfolio velocity $v_p$ is
+
+\begin{equation}
+v_p = r \sqrt{\Sigma_i \mu_{ij}^{*2}}
+\end{equation}
+
+
+
+
 
 It follows that the optimal solution must be some linear combination of the portfolios $\boldsymbol{\mu}^*_k$
 
@@ -646,154 +941,72 @@ some multi-objective criteria have been prposed, but involve ad hoc assigning ob
 
 <!-- and I showed how this idea can be used to deduce an approximate covariance matrix when time series data are unavailable [-@schiek2021reverse].  -->
 
-## Ensuring positive budget allocations
+## The meaning of negative budget allocations [and ensuring positive budget allocations]
+[Negative budget weights are pi rotations]
 
-Generally speaking, the eigenvectors of $K$ may include negative values. This is problematic for AR4D portfolio optimization since it implies complex valued budget allocations (recall equation \ref{eq:wStar}).
+<!-- Generally speaking, the eigenvectors of $K$ may include negative values. This is problematic for AR4D portfolio optimization since it implies complex valued budget allocations (recall equation \ref{eq:wStar}). -->
 
-As mentioned in the introduction, some have devised clever ways to modify the covariance matrix in order to coerce its leading eigenvector to have strictly positive entries... but even then, this is just one eigenvector (which corresponds to the risk maximizing solution), whereas we have just seen there are good reasons for investing in a linear combination of the eigenvectors. A corrollary to the Perron-Frobenius...says that if the leading eigenvector contains strictly positive entries, then none of the other eigenvectors can have this. A linear combination of eigenvectors might happen to contain strictly positive entries, but there is no guarantee of this. Eigenvectros are defined up to scaling, and so there is some freedom in adding together scaled eigenvectors such that the result is positive, but then the scale factors introduce subjectivity and must be defended.
+<!-- * A better name for the complex numbers, at least in the present context, would be the "cyclically real" numbers. -->
 
-Here I present an alternative approach. First, note that the expected project NPV (equation \ref{eq:ExT}) can be expressed
-
-\begin{equation}
-E[x_i(T)]\bigr|_{t = 0} = \mu_i = x_i(0) e^{\omega 2 \pi}
-\label{eq:ExTrad}
-\end{equation}
-
-That is to say, $\mu_i$ can be mapped to polar coordinates, with the time horizon set to $2 \pi$, and $\omega  =  r T / 2 \pi$. Over the range $0 \geq \theta \geq 2 \pi$, $\mu_i$ traces out one cycle of a log spiral (Fig. ).
-
-```{r, fig.show = "hold", fig.width = 6, fig.height=3, fig.align="center", fig.cap="\\label{fig:logSpiral}Log spiral in (left) polar and (right) complex coordinates over 0 \\geq \\theta \\geq 2 \\pi.", echo = FALSE}
-
-theta <- seq(0, 2 * pi, length.out = 50)
-r <- 0.01
-Tt <- 40
-omega <- r * Tt / (2 * pi)
-a <- 1
-
-x <- a * exp(omega * theta) * cos(theta)
-y <- a * exp(omega * theta) * sin(theta)
-df_plot <- data.frame(x, y)
-thisTheta <- pi / 3
-thisX <- a * exp(omega * thisTheta) * cos(thisTheta)
-thisY <- a * exp(omega * thisTheta) * sin(thisTheta)
-theta <- seq(0, thisTheta, length.out = 15)
-x <- 0.25 * cos(theta)
-y <- 0.25 * sin(theta)
-df_angle <- data.frame(x, y)
-
-gg <- ggplot()
-gg <- gg + geom_path(data = df_plot, aes(x, y, group = 1))
-gg <- gg + geom_point(data = data.frame(x = thisX, y = thisY),
-                      aes(x, y), size = 2)
-gg <- gg + geom_segment(aes(x = 0, xend = thisX, y = 0, yend = thisY))
-gg <- gg + geom_path(data = df_angle, aes(x, y, group = 1))
-gg <- gg + geom_hline(yintercept = 0)
-gg <- gg + geom_vline(xintercept = 0)
-                        # arrow=arrow(length=unit(0.2,"cm")), linetype = 1)
-gg <- gg + annotate(
-    geom = "text", x = thisX, y = thisY, 
-    label = expression(italic(mu(theta)==x(0)~e^{omega*theta})), hjust = -0.1, vjust = -0.1, size = 3.5
-  )
-gg <- gg + annotate(
-    geom = "text", x = -0.1, y = 1.7, 
-    label = expression(italic(y)), size = 4
-  )
-gg <- gg + annotate(
-    geom = "text", x = 1.7, y = -0.1, 
-    label = expression(italic(x)), size = 4
-  )
-gg <- gg + annotate(
-    geom = "text", x = 0.15, y = 0.1, 
-    label = expression(theta), size = 3.5
-  )
-gg <- gg + coord_cartesian(ylim = c(-1.7, 1.7), xlim = c(-1.7, 1.7))
-gg <- gg + theme_bw()
-gg <- gg + theme(axis.title = element_blank(),
-                 axis.text = element_blank(),
-                 axis.ticks = element_blank(),
-                 panel.grid = element_blank())
-ggPolar <- gg
+<!-- * This could also be portrayed in polar coordinates, but the representation on the complex plane is actually more realistic...since it captures the intangibility of the investment except when funds are initially disbursed at ... and then as a sunk cost at ... and finally as the realized impact at  ... -->
 
 
+<!-- As mentioned in the introduction, some have devised clever ways to modify the covariance matrix in order to coerce its leading eigenvector to have strictly positive entries... but even then, this is just one eigenvector (which corresponds to the risk maximizing solution), whereas we have just seen there are good reasons for investing in a linear combination of the eigenvectors. A corrollary to the Perron-Frobenius...says that if the leading eigenvector contains strictly positive entries, then none of the other eigenvectors can have this. A linear combination of eigenvectors might happen to contain strictly positive entries, but there is no guarantee of this. Eigenvectros are defined up to scaling, and so there is some freedom in adding together scaled eigenvectors such that the result is positive, but then the scale factors introduce subjectivity and must be defended. -->
+
+<!-- Here I present an alternative approach. First, note that the expected project NPV (equation \ref{eq:ExT}) can be expressed -->
+
+<!-- \begin{equation} -->
+<!-- E[x_i(T)]\bigr|_{t = 0} = \mu_i = x_i(0) e^{\omega 2 \pi} -->
+<!-- \label{eq:ExTrad} -->
+<!-- \end{equation} -->
+
+<!-- That is to say, $\mu_i$ can be mapped to polar coordinates, with the time horizon set to $2 \pi$, and $\omega  =  r T / 2 \pi$. Over the range $0 \geq \theta \geq 2 \pi$, $\mu_i$ traces out one cycle of a log spiral (Fig. ). -->
 
 
-gg <- ggplot()
-gg <- gg + geom_path(data = df_plot, aes(x, y, group = 1))
-gg <- gg + geom_point(data = data.frame(x = thisX, y = thisY),
-                      aes(x, y), size = 2)
-gg <- gg + geom_segment(aes(x = 0, xend = thisX, y = 0, yend = thisY))
-gg <- gg + geom_path(data = df_angle, aes(x, y, group = 1))
-gg <- gg + geom_hline(yintercept = 0)
-gg <- gg + geom_vline(xintercept = 0)
-                        # arrow=arrow(length=unit(0.2,"cm")), linetype = 1)
-gg <- gg + annotate(
-    geom = "text", x = thisX, y = thisY, 
-    label = expression(mu==x(0)~e^{(omega+i)*theta}), hjust = -0.1, vjust = -0.1, size = 3.5
-  )
-gg <- gg + annotate(
-    geom = "text", x = -0.1, y = 1.7, 
-    label = expression(italic(iy)), size = 4
-  )
-gg <- gg + annotate(
-    geom = "text", x = 1.7, y = -0.1, 
-    label = expression(italic(x)), size = 4
-  )
-gg <- gg + annotate(
-    geom = "text", x = 0.15, y = 0.1, 
-    label = expression(theta), size = 3.5
-  )
-gg <- gg + coord_cartesian(ylim = c(-1.7, 1.7), xlim = c(-1.7, 1.7))
-gg <- gg + theme_bw()
-gg <- gg + theme(axis.title = element_blank(),
-                 axis.text = element_blank(),
-                 axis.ticks = element_blank(),
-                 panel.grid = element_blank())
-ggComp <- gg
+<!-- Secondly, note that this has an equivalent expression in the complex plane. -->
+
+<!-- \begin{equation} -->
+<!-- \mu_i = -x_i(0) e^{2 \pi (\omega + i)} -->
+<!-- \label{eq:ExTcomp} -->
+<!-- \end{equation} -->
+
+<!-- Where $i = \sqrt{-1}$. To recap, expected project NPV has been mapped from its original Cartesian form to a polar form, and then from polar form to complex form. In the motivating context of this article, the latter of these three forms is the most realistic---in the sense that it reflects the intangibility of the project investment except as a sunk cost (at $\theta = \pi$), and as realized project NPV (at $\theta = 2 \pi$). A better name for the complex plane in this context might thus be the "cyclically real" plane. -->
+
+<!-- Finally, consider the case where $\mu_i$ is negative. That is, say $\mu_i = -\zeta$ where $\zeta > 0$. -->
+
+<!-- \begin{equation} -->
+<!-- -\zeta = -x_i(0) e^{2 \pi (\omega + i)} -->
+<!-- \end{equation} -->
+
+<!-- By Euler's formula ($e^{(2 n - 1)i \pi} = -1 \:;\:\:\:n\in \mathbb{Z}$), this can be rewritten -->
+
+<!-- \begin{equation} -->
+<!-- e^{ i \pi} \zeta = -x_i(0) e^{2 \pi (\omega + i)} -->
+<!-- \end{equation} -->
+
+<!-- Dividing through by $e^{i \pi}$ then gives -->
+
+<!-- \begin{equation} -->
+<!-- \zeta = -x_i(0) e^{\omega 2 \pi + i} -->
+<!-- \end{equation} -->
+
+<!-- Which has the effect of rotating the endpoint of the log spiral in Fig ... clockwise by $\pi$. In polar form, this rotation may be expressed -->
+
+<!-- \begin{equation} -->
+<!-- \zeta = x_i(0) e^{\omega \pi} -->
+<!-- \end{equation} -->
+
+<!-- Which then maps back to the original form as -->
+
+<!-- \begin{equation} -->
+<!-- \zeta = x_i(0) e^{r \frac{T}{2}} -->
+<!-- \end{equation} -->
+
+<!-- Dividing a negative entry in an eigenvector by $-1$ in order to remove the negative sign may thus be interpreted as a period-halving rotation of the respective project's log-spiral timeline, which may in turn be expressed as a scaling of its original Cartesian form by $e^{-r T / 2}$. -->
+
+# Hypothetical example
 
 
-ggPolar + ggComp + plot_layout(ncol = 2)
-
-```
-
-Secondly, note that this has an equivalent expression in the complex plane.
-
-\begin{equation}
-\mu_i = -x_i(0) e^{2 \pi (\omega + i)}
-\label{eq:ExTcomp}
-\end{equation}
-
-Where $i = \sqrt{-1}$. To recap, expected project NPV has been mapped from its original Cartesian form to a polar form, and then from polar form to complex form. In the motivating context of this article, the latter of these three forms is the most realistic---in the sense that it reflects the intangibility of the project investment except as a sunk cost (at $\theta = \pi$), and as realized project NPV (at $\theta = 2 \pi$). A better name for the complex plane in this context might thus be the "cyclically real" plane.
-
-Finally, consider the case where $\mu_i$ is negative. That is, say $\mu_i = -\zeta$ where $\zeta > 0$.
-
-\begin{equation}
--\zeta = -x_i(0) e^{2 \pi (\omega + i)}
-\end{equation}
-
-By Euler's formula ($e^{(2 n - 1)i \pi} = -1 \:;\:\:\:n\in \mathbb{Z}$), this can be rewritten
-
-\begin{equation}
-e^{ i \pi} \zeta = -x_i(0) e^{2 \pi (\omega + i)}
-\end{equation}
-
-Dividing through by $e^{i \pi}$ then gives
-
-\begin{equation}
-\zeta = -x_i(0) e^{\omega 2 \pi + i}
-\end{equation}
-
-Which has the effect of rotating the endpoint of the log spiral in Fig ... clockwise by $\pi$. In polar form, this rotation may be expressed
-
-\begin{equation}
-\zeta = x_i(0) e^{\omega \pi}
-\end{equation}
-
-Which then maps back to the original form as
-
-\begin{equation}
-\zeta = x_i(0) e^{r \frac{T}{2}}
-\end{equation}
-
-Dividing a negative entry in an eigenvector by $-1$ in order to remove the negative sign may thus be interpreted as a period-halving rotation of the respective project's log-spiral timeline, which may in turn be expressed as a scaling of its original Cartesian form by $e^{-r T / 2}$.
 
 ```{r exampLoadings0, results = "markup", echo = F}
 # fig.show = 'hold', fig.width = 4, fig.height = 4, fig.align = "center", fig.cap = "\\label{fig:ExpPctRet_Examp}Hypothetical AR4D project expected returns and risk."}
@@ -839,7 +1052,9 @@ colnames(df_table)[1] <- "Project"
 
 df_table$Project <- gsub("\n", " ", df_table$Project)
 df_table$Group <- gsub("\n", " ", df_table$Group)
-#==========================================================================
+#===============================================================
+#sigSq = \mu_i^2 (e^{s_i^2 \tau} - 1)
+cvVec <- runif(nrow(df_table))
 #==========================================================================
 #==========================================================================
 # Have to turn off table to fit PLOS ONE submission guidelines? Otherwise, turn back on.
@@ -954,56 +1169,54 @@ colnames(cormat_XX_derived) <- row.names(mat_Lrot)
 
 #cormat_XX_derived
 
-library(MASS)
-library(matrixcalc)
-library(covshrink)
-
-set.seed(30)
-int_p <- 3
-int_N <- 5
-vec_mu <- rnorm(int_p)
-mat_A <- matrix(runif(int_p^2) - 1, nrow = 3)
-mat_Sigma <- cov2cor(t(mat_A) %*% mat_A)
-X <- mvrnorm(int_N, vec_mu, mat_Sigma)
-
-cov_shrink(as.matrix(cormat_XX_derived), )
-
-
-
-
-
-eMatProj <- eigen(cormat_XX_derived)$vectors[, 1:n_signals]
+#eMatProj <- eigen(cormat_XX_derived)$vectors[, 1:n_signals]
 covmatSSderived <- t(mat_Lrot) %*% mat_Lrot
 eValp <- eigen(covmatSSderived)$values
 eVecp <- eigen(covmatSSderived)$vectors
 L <- mat_Lrot %*% (eVecp)
 Ptilde <- L %*% diag(1 / sqrt(eValp))
-#t(Ptilde) %*% (Ptilde)
-portWgts <- eVecp[, 1]
-xx <- Ptilde %*% portWgts
-xx <- xx - 1.1 * min(xx)
-scaleFctrs <- diag(1 / portWgts) %*% t(Ptilde) %*% xx
-Ptilde %*% diag(portWgts) %*% scaleFctrs
-xx <- Ptilde %*% diag(portWgts) %*% scaleFctrs
-k <- runif(nrow(Ptilde)) * 10
-a <- runif(nrow(Ptilde))
-r <- 0.001
-tau <- 40
-sol <- (xx / k)^(1 / a) * exp(-r * tau)
-C <- sum(sol)
-sol <- sol / C
+#----------------------
+yrs <- 5
+tStep <- 12 #T step per year
+Tt <- yrs * tStep
+rYrly_discrete <- 0.08 #0.035
+r_discrete <- (1 + rYrly_discrete)^(1 / tStep) - 1
+# Convert discrete discount rate to continuous discount rate
+r <- round(log(1 + r_discrete), 3)
+alpha <- c(0.6, 0.65, 0.6, 0.75, 0.65, 0.6, 0.65, 0.8, 0.7, 0.75, 0.8)
+xTilde <- 100 * runif(nrow(Ptilde)) #exp(rnorm(nr))
+#----------------------
+ind <- which(Ptilde < 0)
+Ptilde[ind] <- - exp(- r * Tt / 2) * Ptilde[ind]
+mat_woCstar <- (diag(cvVec) %*% Ptilde / xTilde)^(1 / alpha)
+#mat_woCstar <- mat_woCstar %*% diag(1 / colSums(mat_woCstar))
+#colSums(mat_woCstar)
+round(mat_woCstar, 3)
+matWgts <- eVecp[, 1]
+ind <- which(matWgts < 0)
+matWgts[ind] <- - exp(- r * Tt / 2) * matWgts[ind]
+woCstar <- mat_woCstar %*% matWgts
+sum(woCstar)
+#----------------------
+matWgts <- diag(eVecp[, 1])
+PtildeStar <- Ptilde %*% matWgts
+PtildeStar <- PtildeStar %*% matrix(1, ncol(PtildeStar), 1)
+ind <- which(PtildeStar < 0)
+PtildeStar[ind] <- - exp(- r * Tt / 2) * PtildeStar[ind]
+#----------------------
+woCstar <- (PtildeStar / xTilde)^(1 / alpha)
+woCstar <- woCstar / sum(woCstar)
+#colSums(matWoCstar)
+round(woCstar, 3)
+sum(woCstar)
 
 
-Ptilde %*% diag(eVecp[, 2])
-eMatProj %*% eMatPolicy[, 3]
-eMatProj %*% eMatPolicy[, 4]
 
 
-#eigen(covmatSSderived)$vectors
 #=============================================================
 # Experiment
 nc <- 3
-nr <- 4
+nr <- 10
 randvec <- rnorm(nr * nc)
 #randvec <- runif(nr * nc)
 Lrot <- matrix(randvec, nr, nc)
@@ -1012,61 +1225,35 @@ Mp <- round(t(Lrot) %*% (Lrot), 4)
 eVecp <- eigen(Mp)$vectors
 eValp <- eigen(Mp)$values
 L <- Lrot %*% (eVecp)
-L <- L / max(abs(L))
 Ptilde <- L %*% diag(1 / sqrt(eValp))
-t(Ptilde) %*% (Ptilde)
-wgts <- eVecp[, 1]
-Ptilde %*% wgts
-xx1 <- Ptilde %*% wgts
-xx2 <- xx1 - 1.1 * min(xx1)
-scaleFctrs <- xx2 / xx1
-diag(c(scaleFctrs)) %*% Ptilde %*% wgts
-
-y <- diag(1 / wgts) %*% t(Ptilde) %*% xx2
-
-
-
-
-diag(wgts) %*% y
-
-
-# slackfn <- function(scaleFctrs){
-#   
-#   slack <- Ptilde %*% diag(c(scaleFctrs)) %*% wgts - sol
-#   
-# }
-# nleqslv::nleqslv()
-
-Ptilde %*% diag(c(scaleFctrs)) %*% scaleFctrs
-
-#xx <- xx / sum(xx)
-#Q <- Ptilde %*% diag(wgts)
-scaleFctrs <- diag(1 / wgts) %*% t(Ptilde) %*% xx
-#scaleFctrs <- diag(1 / wgts^2) %*% t(Q) %*% xx
-xx <- Ptilde %*% diag(wgts) %*% scaleFctrs
-
-diag(1 / wgts^2) %*% t(Ptilde) %*% xx
-
-xx
-xx <- xx - 1.1 * min(xx)
-#xx <- xx / sum(xx)
-#Q <- Ptilde %*% diag(wgts)
-scaleFctrs <- diag(1 / wgts) %*% t(Ptilde) %*% xx
-#scaleFctrs <- diag(1 / wgts^2) %*% t(Q) %*% xx
-xx <- Ptilde %*% diag(wgts) %*% scaleFctrs
-xx
-
-
-k <- runif(nr) * 10
-a <- runif(nr)
-
-r <- 0.001
-tau <- 40
-sol <- (xx / k)^(1 / a) * exp(-r * tau)
-C <- sum(sol)
-sol <- sol / C
-sol
-sum(sol)
+#----------------------
+yrs <- 5
+tStep <- 12 #T step per year
+Tt <- yrs * tStep
+rYrly_discrete <- 0.08 #0.035
+r_discrete <- (1 + rYrly_discrete)^(1 / tStep) - 1
+# Convert discrete discount rate to continuous discount rate
+r <- round(log(1 + r_discrete), 3)
+alpha <- runif(nr)
+xTilde <- 100 * runif(nr) #exp(rnorm(nr))
+#----------------------
+# ind <- which(Ptilde < 0)
+# Ptilde[ind] <- - exp(- r * Tt / 2) * Ptilde[ind]
+# woCstar <- (Ptilde / xTilde)^(1 / alpha)
+# woCstar <- woCstar %*% diag(1 / colSums(woCstar))
+# #colSums(woCstar)
+# round(woCstar, 2)
+#----------------------
+matWgts <- diag(eVecp[, 1])
+PtildeStar <- Ptilde %*% matWgts
+PtildeStar <- PtildeStar %*% matrix(1, nc, 1)
+ind <- which(PtildeStar < 0)
+PtildeStar[ind] <- - exp(- r * Tt / 2) * PtildeStar[ind]
+#----------------------
+woCstar <- (PtildeStar / xTilde)^(1 / alpha)
+woCstar <- woCstar / sum(woCstar)
+#colSums(matWoCstar)
+round(woCstar, 2)
 
 
 
@@ -1076,58 +1263,9 @@ sum(sol)
 
 
 
-Q <- Ptilde %*% eVecp
-Q
-Q <- Ptilde %*% eVecp %*% rep(1, nc)
-Q
-
-#Q <- Ptilde %*% diag(eVecp[, 3])
-
-xmin <- min(Q)
-ind <- which(Q == xmin)
-icol <- ceiling(ind / nr)
-irow <- ind %% nr
-Qd <- Q[irow, ] - xmin
-Qd[icol] <- 10^6
-iColAdj <- which(Qd == min(Qd))
-xadj <- Q[irow, iColAdj]
-fctr <- -xadj / xmin
-Q[, iColAdj] + Q[, icol] * fctr
-
-Q %*% rep(1, nc)
 
 
-Qd <- (Q) - xmin
-indAdj <- which(Qd == min(Qd))
-indCol <- ceiling(indAdj / nr)
-xadj <- Q[indAdj]
-fctr <- xadj / xmin
-#Q[, indCol] <- Q[, indCol] * fctr
-Q <- Ptilde %*% diag(eVecp[, 1])
-Q[, indCol] * fctr + Q[, 2]
 
-adjust <- rep(NA, nc)
-adjust[indCol] <- xmin
-
-sum(Lrot)
-Lrot %*% rep(1, nc)
-Lrot %*% eVecp[, 1]
-Ptilde %*% eVecp[, 1]
-
-wgts <- 1 / eValp #rep(min(Ptilde), nc)
-Ptilde %*% diag(eVecp[, 1]) %*% wgts
-
-Ptilde %*% eVecp[, 2]
-Ptilde %*% eVecp[, 3]
-Ptilde[, 1]
-
-M <- Lrot %*% t(Lrot)
-P <- eigen(M)$vectors
-eVal <- eigen(M)$values
-eValp
-
-t(null(M)) %*% (null(M))
-(null(M)) %*% t(null(M))
 
 
 
@@ -1161,7 +1299,7 @@ mat_R <- matrix(as.numeric(mat_R),
 
 
 
-
+* Can consider variable time horizons; have to determine one of them as the reference point.
 
 * Can think about the risk minimizing optimal allocation across these portfolios (the optimal portfolio is a linear combination of the solutions). (Together with scaling of eigenvectors) This allows for creation of a solution with strictly positive allocations.
 
