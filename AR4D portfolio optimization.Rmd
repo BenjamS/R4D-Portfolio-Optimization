@@ -785,6 +785,8 @@ The $j^{th}$ budget allocation satisfying the first order conditions is then
 \label{eq:wStar}
 \end{equation}
 
+The budget constraint is arbitrarily enforced because eigenvectors are defined up to scaling.
+
 ## The vis viva shadow price
 
 Note that $\lambda$ is the marginal benefit of a marginal increment in vis viva above the target $\overline{\mathcal{E}}$. That is,
