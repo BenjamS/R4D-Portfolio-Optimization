@@ -227,9 +227,7 @@ Transformations of covmat [@carrasco2011optimal; ledoit2004well]
 
 Ex-ante impact assessment and scenario analysis are designed to quantify research project impacts at a specific point in time, usually in terms of net present value (NPV), based on assumptions about the future trajectory of numerous random processes, both research and non-research related. (To facilitate the process, assumptions regarding non-research random processes, particularly future climate and socioeconomic processes, have been conveniently packaged in a set Representative Carbon Pathways (RCPs) and Shared Socioeconomic Pathways (SSPs) [@].)
 
-Program level NPV...
-
-Because it is a function of numerous random processes, project NPV, and hence program NPV, is itself a stochastic variable. The first step in portfolio analysis is to select a reasonable model of the stochastic evolution of project NPV between now (the time of the funding decision) and the funding time horizon. In other contexts, this choice is often aided by the availability of time series data. In the AR4D context, project NPV time series generally do not exist; and so the choice must be made based on certain assumed characteristics of the unobserved data. What is the size distribution of changes in the stochastic variable? Assuming that percentage changes in project NPV over a judiciously small time step are normally distributed, the stochastic process is accurately modeled by a geometric Brownian movement; and the expected value of the $i^{th}$ project's NPV ($x_i$) at some future time $T$ is
+Because it is a function of numerous random processes, project NPV is itself a stochastic variable. The first step in portfolio analysis is to select a reasonable model of the stochastic evolution of project NPV between now (the time of the funding decision) and the project time horizon. In other contexts, this choice is often aided by the availability of time series data. In the AR4D context, project NPV time series generally do not exist; and so the choice must be made based on certain assumed characteristics of the unobserved data. What is the size distribution of changes in the stochastic variable? Assuming that percentage changes in project NPV over a judiciously small time step are normally distributed, the stochastic process is accurately modeled by a geometric Brownian movement; and the expected value of the $i^{th}$ project's NPV ($x_i$) at some future time $T$ is
 <!-- This selection must be made on the basis of both realism and expedience. Periods of a few substantial changes interspersed by relatively longer periods of many small changes. Geometric Brownian motion expedient and versatile  -->
 
 \begin{equation}
@@ -239,11 +237,13 @@ E[x_i(T)]\bigr|_{t = \hat{t}} = x_i(\hat{t}) e^{m_i \tau}
 
 Where $\hat{t}$ is the time of evaluation, $\tau = T - \hat{t}$, and $m_i$ is the expected growth rate; that is to say $m_i = E[\Delta x_i/x_i(\hat{t})]; \:\:\: \Delta x_i = x_i(\hat{t} + \Delta t) - x_i(\hat{t})$.
 
-Technically, $\Delta t$ is an instantaneous or infinitesimal time interval and hence $m_i$ is the expected instantaneous growth rate. In practice, it is acceptable to treat $\Delta t$ as a finitely small, but judicious, time step. The time step should be as small as possible while still ensuring that changes in $x_i$ occur in every time step. In the present context, it is reasonable to assume that random research and/or non-research related changes in project NPV occur at least once per quarter year. The judicious time step $\Delta t$ in this context is thus defined as a quarter year, and $m_i$ may be interpreted as the expected quarterly growth rate. In the case of program NPV, a monthly time step is probably justified.
-<!-- Research-related factors concern the expected effectiveness of the researched technology at experiment stations. Non-research related changes in project value occur as a result of changes in the political, socio-economic, and institutional enabling environments where the new technology is to be released. Such changes may include, for example, abrupt changes in government policies, commodity price swings, changes in seed systems and other value chain mechanisms, changes in the security environment, and so forth. -->
+Technically, $\Delta t$ is an instantaneous or infinitesimal time interval and hence $m_i$ is the expected instantaneous growth rate. In practice, it is acceptable to treat $\Delta t$ as a finitely small, but judicious, time step. The time step should be as small as possible while still ensuring that changes in $x_i$ occur in every time step. In the present context, it is reasonable to assume that random research and/or non-research related changes in project NPV occur at least once per quarter year. The time step $\Delta t$ at the project level may thus be judiciously defined as a quarter year, and $m_i$ may be interpreted as the expected quarterly growth rate.
 
-In market or near market contexts where the principle of risk-neutral valuation may be invoked, $r$ is the risk-free rate of return. In the AR4D context... By definition, project NPV appreciates at the discount rate. Therefore the growth rates should be set to the discount rate $r$ ..., A project growth rate different from $r$ implies an assumption that the project $NPV$ is incorrectly calculated. 
-<!-- If there are no good reasons for assigning a particular growth rate, then the $m_i$ should be set to a "natural" or fiat rate of appreciation, $r$. $r$ equal to the social discount rate, however the research institution and/or donor might define this. -->
+By definition, project NPV appreciates over time at the discount rate $r$. Therefore, the growth rates $m_i$ should be set equal to $r$. A project growth rate different from $r$ implies that the project $NPV$ is incorrectly calculated.
+
+In many AR4D fund allocation decisions, the focus is on programs rather than projects. A program generally consists of several projects and complementary activities in different stages of implementation. At the program level, a monthly time step is probably justified, with $m_i$ thus representing the expected monthly growth rate.
+...focus here is on program level...which simplifies things...can be extended to project portfolios
+<!-- Research-related factors concern the expected effectiveness of the researched technology at experiment stations. Non-research related changes in project value occur as a result of changes in the political, socio-economic, and institutional enabling environments where the new technology is to be released. Such changes may include, for example, abrupt changes in government policies, commodity price swings, changes in seed systems and other value chain mechanisms, changes in the security environment, and so forth. -->
 
 [## Project risk and synergies/tradeoffs]
 
@@ -289,12 +289,68 @@ The portfolio variance, it follows, can be expressed
 Where $G$ is the cross coefficient of variation matrix, i.e. the matrix whose diagonal elements are the squared coefficients of variation $c_i^2$, and whose off-diagonal elements are the cross coefficients of variation $c_{ij}$. Note that $K$ is just the covariance matrix left and right multiplied by a diagonal matrix of the inverse project means, just as the correlation matrix is the covariance matrix left and right multiplied by a diagonal matrix of the inverse standard deviations. As such, $K$ provides insight into project NPV risks, trade offs, and synergies.
 
 
-## Deducing the value of variances and covariances
+## Deducing variances and covariances
+<!-- ## Deducing the program correlation matrix in minimum data contexts -->
+
 
 to deduce a particular value for $s_i$.
 
 <!-- ...the data required to estimate $\Sigma$ generally do not exist in the motivating context of the present article. However, the leading eigenvalues $\tilde{\Lambda}$ can be deduced from expert opinion using a method I have described elsewhere [@schiek2021reverse]. The leading eigenvectors of the corresponding correlation matrix can also be deduced using this method, whence the leading eigenvectors $\tilde{U}$ are readily derived if estimates of project risk ($s_i$) are available.  -->
 <!-- ...how much load on... -->
+
+...the resulting correlation matrix is then a spectrally reduced matrix. ...to get a covariance matrix, have to also crowdsource the program standard deviations...
+
+\begin{equation}
+\begin{split}
+Q &= D(\mathbf{c}) P \\
+&= D(\boldsymbol{\mu})^{-1} D(\boldsymbol{\sigma})^{-1} P
+\end{split}
+\end{equation}
+
+
+<!-- While it is true that research managers (and/or stakeholders and/or the foresight economists conducting the project appraisal) generally do not have an intuitive grasp of the project NPV volatility parameter itself, they do generally have some idea of the uncertainty surrounding project NPV estimates, such that they can be asked to quantify minimum and maximum bounds on project NPV, in addition to the NPV estimation itself. For example, they can say that NPV is $x(\hat{t})$, but that it might be six times that amount, or half that amount. (Or they may give the same information in terms of magnitude, which is then easily transformed into percentage terms.) -->
+
+<!-- These upper and lower percentage errors may then be interpreted as the upper and lower bounds on the $95\%$ confidence interval about the expected percentage change in project NPV between the start and end of the project. Another phrase for "percentage change" is "arithmetic return" (call this $R$), which may then be converted to a log return ($y$) by the formula $y = \ln(R + 1)$. Assuming $x(t)$ follows a gBm, then the upper and lower log returns, $\overline{y}$ and $\underline{y}$, may be expressed as follows. -->
+
+<!-- \begin{equation} -->
+<!-- \begin{split} -->
+<!-- \overline{y} &= \mu + z \sigma \\ -->
+<!-- \underline{y} &= \mu - z \sigma -->
+<!-- \end{split} -->
+<!-- \end{equation} -->
+
+<!-- Where $z = 1.96$ is the standard score corresponding to the $95\%$ confidence interval of a normally distributed random variable, and -->
+
+<!-- \begin{equation} -->
+<!-- \begin{split} -->
+<!-- \mu &= \left(m - \frac{s^2}{2} \right) \tau \\ -->
+<!-- \sigma &= s^2 \tau -->
+<!-- \end{split} -->
+<!-- \end{equation} -->
+
+<!-- This system of equations may then be solved for both the project volatility parameter $s$ and mean growth rate $m$ in terms of the upper and lower log returns, the project time horizon $T$, and the standard score $z$, as follows. -->
+
+<!-- \begin{equation} -->
+<!-- \begin{split} -->
+<!-- s &= \frac{1}{2 \sqrt{\tau} z} (\overline{y} - \underline{y}) \\ -->
+<!-- m &= \frac{1}{2 \tau} \left( \overline{y} + \underline{y} + \frac{(\overline{y} - \underline{y} )^2}{4 z^2} \right) -->
+<!-- \end{split} -->
+<!-- \end{equation} -->
+<!-- <!-- yMax <- 1.1 --> -->
+<!-- <!-- yMin <- -0.6 --> -->
+<!-- <!-- # Define confidence interval of interest, usually 95% --> -->
+<!-- <!-- zBound <- 2#1.96 --> -->
+<!-- <!-- # Back out s and m --> -->
+<!-- <!-- s <- (yMax - yMin) / (2 * zBound * sqrt(tauN)) --> -->
+<!-- <!-- mu <- (yMax + yMin) / 2 --> -->
+<!-- <!-- m <- (mu / tauN + s^2 / 2) --> -->
+<!-- <!-- m <- 1 / (2 * tauN) * (yMax + yMin + (yMax - yMin)^2 / (4 * zBound^2)) --> -->
+
+<!-- The coefficient of variation $\frac{s}{m \sqrt{\tau}}$ is a handy, normalized measure of project NPV volatility over time. One should not be surprised to see high coefficients of variation in the AR4D context. Because AR4D projects are usually deep in the money, a low coefficient of variation may indicate that ROV will not differ significantly from NPV, and that there is thus no point in calculating ROV. -->
+
+<!-- Note also that, in the process of deducing $s$ and $m$, the expected project NPV log return $\mu$ is calculated, and that the expected project NPV at future times may be calculated by equation \ref{eq:ExT}. These calculations may serve as further checks on the plausibility of parameter values, project NPV estimates, and project NPV upper and lower bounds. -->
+
+<!-- The standard score $z$ can of course be adjusted to match the practitioner's idea of a suitable confidence interval defined by the bounds $\overline{y}$ and $\underline{y}$. Note that the system of equations above can still be solved for $m$ and $s$ in the absence of an estimate for one of the bounds $\overline{y}$ or $\underline{y}$, if an estimate for the expected log return $\mu$ can be obtained. -->
 
 
 ## Modeling diminishing returns to investment
@@ -735,9 +791,9 @@ More generally, a negative program value can be brought into phase by extending 
 
 <!-- ``` -->
 
-# A novel formulation of the risk-adjusted AR4D portfolio optimization problem [replacing cost and return constraints with a vis viva constraint]
+# Portfolio risk minimization subject to a vis viva constraint
 
-Based on the groundwork laid above, the risk adjusted portfolio optimization problem can now be formulated as follows.
+The portfolio risk minimization problem, subject to a vis viva target, can be formulated as follows.
 
 [$n$ portfolio items]
 
@@ -880,17 +936,6 @@ By construction, then, the spectrally reduced covariance matrix has just $m$ non
 
 [Of course, the appearance of zero-valued eigenvalues makes the projected Hessian (equation \ref{eq:...}) semi-definite as opposed to definite. But this does not matter since this is by design, and the solutions with zero-valued eigenvalues are likewise ignored by design. In other words, the projected Hessian remains definite over the set of solutions that are of any interest to the investor.]
 
-## Deducing the program correlation matrix in minimum data contexts
-
-...the resulting correlation matrix is then a spectrally reduced matrix. ...to get a covariance matrix, have to also crowdsource the program standard deviations...
-
-\begin{equation}
-\begin{split}
-Q &= D(\mathbf{c}) P \\
-&= D(\boldsymbol{\mu})^{-1} D(\boldsymbol{\sigma})^{-1} P
-\end{split}
-\end{equation}
-
 ## A menu of solutions catering to a range of risk appetites
 
 The ($m^{th}$) trailing eigenvector of $K$ is the portfolio budget allocation that minimizes portfolio risk for a given vis viva target $\overline{\mathcal{E}}$. The other solutions are not necessarily sub-optimal, but rather correspond to higher investor risk tolerances. Here it is important to keep in mind that higher portfolio risk is not unambiguously bad, but rather a matter of ambition. Higher risk exposes the investor to an increased probability of both lower and higher portfolio return. Moreover, if the portfolio items follow a gBm, as assumed here, then returns are lognormally distributed; and so the risk is primarily upside. Moreover, let's not forget that AR4D institutions have a pro-poor mandate to redress market failures; and this can often mean taking on ambitious, higher risk portfolios.
@@ -1008,7 +1053,30 @@ some multi-objective criteria have been prposed, but involve ad hoc assigning ob
 
 # Hypothetical example
 
+To illustrate the portfolio optimization workflow presented above, here I walk through a step-by-step example of how the method might be applied in an AR4D fund allocation decision.
 
+In this hypothetical example, a donor wants to know the optimal distribution of limited funds over a five year funding cycle across a portfolio of eight AR4D programs. The programs might be defined in terms of major commodity categories (cereals, roots & tubers, legumes, livestock, fruit & vegetables, fish, etc.); or they might be organized around thematic areas (climate smart agriculture, smallholder resilience, digital agriculture, etc.); or they might be some combination thereof. The donor wants to maximize impact for a given risk tolerance ...such that risk is minimized for a given impact target (as represented by the vis viva). As explained in section ..., there are $m$ possible budget allocations that solve the problem, corresponding to the $m$ leading eigenvectors of the program cross coefficient of variation matrix $G$. Each of these 
+
+...may want to focus on a specific strategic objective for the funding cycle.
+
+...multi-objective... 
+
+<!-- [so as to minimize risk while maximizing impact across three strategic objectives.] The eight programs are listed vertically in Fig ..., while the three strategic objectives appear across the top of the figure. As usual in the AR4D context, there are no program NPV time series data by which to calculate variances and covariances  The bars in Fig ... represent each program's correlation with each strategic objective, elicited from a survey of experts and stakeholders. -->
+
+<!--  each of the form -->
+
+<!-- \begin{equation} -->
+<!-- \mathbf{w}_j^* = C (D(\tilde{\mathbf{x}})^{-1} \mathbf{p}_j e^{-rT})^{\frac{1}{\boldsymbol{\alpha}}} \:\:;\:\:\: j \in (1, 2,..., m) -->
+<!-- \end{equation} -->
+
+
+
+where $m$ is the number of leading eigenvectors sufficient to explain $90\%$ of the variation in the program NPV. of the cross coefficient of variation matrix $G$.  corresponding to   set of possible budget allocations that solve the portfolio optimization problem are the eigenvectors of the cross coefficient of variation matrix $G$
+
+Following the method explained in section ..., these correlations are interpreted as the leading, orthonormally rotated loadings $L_{\circlearrowleft}$ explaining $90\%$ of variation in the program NPV time series. The spectrally reduced correlation matrix can be calculated as the outer product $\tilde{K} = L_{\circlearrowleft} L_{\circlearrowleft}'$. The leading eigenvectors of this matrix $\tilde{P}$ 
+
+
+The strategic objective covariance matrix can be calculated as the inner product $\Sigma_{SS}^{\circlearrowleft} = L_{\circlearrowleft} ' L_{\circlearrowleft}$. This, in turn, has the eigendecompsition $\Sigma_{SS}^{\circlearrowleft} = B \tilde{\Gamma} B'$, where $B$ is the orthonormal rotation matrix. The eigenvectors of $\tilde{K}$ can then be  can thus be deduced from the elicited information $L_{\circlearrowleft}$.
 
 ```{r exampLoadings0, results = "markup", echo = F}
 # fig.show = 'hold', fig.width = 4, fig.height = 4, fig.align = "center", fig.cap = "\\label{fig:ExpPctRet_Examp}Hypothetical AR4D project expected returns and risk."}
