@@ -238,7 +238,7 @@ Transformations of covmat [@carrasco2011optimal; ledoit2004well]
 
 Ex-ante impact assessment and scenario analysis are designed to quantify research project impacts at a specific point in time, usually in terms of net present value (NPV), based on assumptions about the future trajectory of numerous random processes, both research and non-research related. (To facilitate the process, assumptions regarding non-research random processes, particularly future climate and socioeconomic processes, have been conveniently packaged in a set Representative Carbon Pathways (RCPs) and Shared Socioeconomic Pathways (SSPs) [@].)
 
-Because it is a function of numerous random processes, project NPV is itself a stochastic variable. The first step in portfolio analysis is to select a reasonable model of the stochastic evolution of project NPV between now (the time of the funding decision) and the project time horizon. In other contexts, this choice is often aided by the availability of time series data. In the AR4D context, project NPV time series generally do not exist; and so the choice must be made based on certain assumed characteristics of the unobserved data. What is the size distribution of changes in the stochastic variable? Assuming that percentage changes in project NPV over a judiciously small time step are normally distributed, the stochastic process is accurately modeled by a geometric Brownian movement; and the expected value of the $i^{th}$ project's NPV ($x_i$) at some future time $T$ is
+Because it is a function of numerous random processes, project NPV is itself a stochastic variable. The first step in portfolio analysis is to select a reasonable model of the stochastic evolution of project NPV between now (the time of the funding decision) and the end of the funding cycle. In other contexts, this choice is often aided by the availability of time series data. In the AR4D context, project NPV time series generally do not exist; and so the choice must be made based on certain assumed characteristics of the unobserved data. In particular, one must assume a certain size distribution of changes in the stochastic variable. Assuming that percentage changes in project NPV over a judiciously small time step are normally distributed, the stochastic process is accurately modeled by a geometric Brownian movement; and the expected value of the $i^{th}$ project's NPV ($x_i$) at some future time $T$ is
 <!-- This selection must be made on the basis of both realism and expedience. Periods of a few substantial changes interspersed by relatively longer periods of many small changes. Geometric Brownian motion expedient and versatile  -->
 
 \begin{equation}
@@ -297,7 +297,7 @@ The portfolio variance, it follows, can be expressed
 \begin{equation}
 \sigma^2 = Var[X(T)]\bigr|_{t = \hat{t}} = \boldsymbol{\mu}' G \boldsymbol{\mu} \end{equation}
 
-Where $G$ is the cross coefficient of variation matrix, i.e. the matrix whose diagonal elements are the squared coefficients of variation $c_i^2$, and whose off-diagonal elements are the cross coefficients of variation $c_{ij}$. Note that $K$ is just the covariance matrix left and right multiplied by a diagonal matrix of the inverse project means, just as the correlation matrix is the covariance matrix left and right multiplied by a diagonal matrix of the inverse standard deviations. As such, $K$ provides insight into project NPV risks, trade offs, and synergies.
+Where $G$ is the cross coefficient of variation matrix, i.e. the matrix whose diagonal elements are the squared coefficients of variation $c_i^2$, and whose off-diagonal elements are the cross coefficients of variation $c_{ij}$. Note that $G$ is just the covariance matrix left and right multiplied by a diagonal matrix of the inverse project means, just as the correlation matrix is the covariance matrix left and right multiplied by a diagonal matrix of the inverse standard deviations. As such, $G$ provides insight into project NPV risks, trade offs, and synergies.
 
 
 ## Deducing variances and covariances
@@ -400,7 +400,7 @@ or
 
 # Project kinematics and vis viva
 
-In the broadest terms, a project may be said to intervene in, or operate on, an existing net benefit stream $\Delta u/\Delta t$ with the aim of raising it to a higher value by the end of the project, such that
+In the broadest terms, a project may be said to intervene in, or operate upon, an existing net benefit stream $\Delta u/\Delta t$ with the aim of raising it to a higher value by the end of the project, such that
 
 \begin{equation}
 \frac{\Delta u}{\Delta t}\bigr_{t = T} > \frac{\Delta u}{\Delta t}\bigr_{t = 0}
@@ -802,86 +802,77 @@ More generally, a negative program value can be brought into phase by extending 
 
 <!-- ``` -->
 
-# Portfolio risk minimization subject to a vis viva constraint
+# Vis viva maximization subject to a risk tolerance constraint
 
-The portfolio risk minimization problem, subject to a vis viva target, can be formulated as follows.
-
-[$n$ portfolio items]
-
-[Comment on nabla_mu vs. nabla_w]
-Because $\mu_i(w_i)$ is monotonically increasing in $w_i$, the 
+The portfolio optimization problem may now be formulated in terms of vis viva maximization subject to risk tolerance.
 
 \begin{equation}
-\min_{\mathbf{w}}{\sigma} \:\:\: s.t. \:\:\: \mathcal{E} = \overline{\mathcal{E}}
+\max_{\mathbf{w}}{\mathcal{E}} \:\:\: s.t. \:\:\: \sigma = \overline{\sigma}
 \end{equation}
+
+Because $\mu_i(w_i)$ is monotonically increasing in $w_i$, the control variables $\mathbf{w}$ may be swapped for $\boldsymbol{\mu}$
+<!-- without loss of generality -->
+<!-- [$n$ portfolio items] -->
 
 The corresponding objective function or lagrangian is then 
 
 \begin{equation}
 \begin{split}
-\mathcal{L} &= \sigma + \lambda (\mathcal{E} - \overline{\mathcal{E}}) \\
-&= \sqrt{\boldsymbol{\mu} ' G \boldsymbol{\mu}} - \frac{\lambda}{2} r^2 \boldsymbol{\mu} ' \boldsymbol{\mu} - \overline{\mathcal{E}})
+\mathcal{L} &= \mathcal{E} + \lambda (\sigma - \overline{\sigma}) \\
+&= \frac{r^2}{2} \boldsymbol{\mu} ' \boldsymbol{\mu} - \lambda (\sqrt{\boldsymbol{\mu} ' G \boldsymbol{\mu}} - \overline{\sigma})
 \end{split}
 \end{equation}
-
-This is a cost function to be minimized. The sign on the vis viva constraint is negative because it is a benefit mitigating the portfolio "risk cost" $\sigma$. [The problem could just as well be formulated in terms of vis viva maximization subject to a risk cost.]
+<!-- This is a cost function to be minimized. The sign on the vis viva constraint is negative because it is a benefit mitigating the portfolio "risk cost" $\sigma$. [The problem could just as well be formulated in terms of vis viva maximization subject to a risk cost.] -->
 
 The first order conditions with respect to $\boldsymbol{\mu}$ are
 <!-- [The project vis viva is proportional to the risk gradient.] -->
 
 \begin{equation}
-\nabla_{\mu} \mathcal{L} = \frac{1}{\sigma} G \boldsymbol{\mu} - \lambda r^2 \boldsymbol{\mu} = \mathbf{0}
+\nabla_{\mu} \mathcal{L} = r^2 \boldsymbol{\mu} - \frac{\lambda}{\sigma} G \boldsymbol{\mu} = \mathbf{0}
 \end{equation}
 
-The optimal program NPV vector $\boldsymbol{\mu}^*$ is thus given by any of the eigenvectors of $G$ scaled by $1 / \sigma$, with corresponding vis viva shadow price $\lambda$ given by the respective eigenvalues, scaled by $r^2$. Letting $Q \Gamma Q'$ represent the spectral decomposition of $G$, with $\mathbf{q}_j$ and $\gamma_j$ standing for the $j^{th}$ column of $Q$ and its corresponding eigenvalue in $\Gamma$, the $j^{th}$ solution can be written
+Where $\mathbf{0}$ is a vector of zeros. This can then be rearranged as follows.
 
 \begin{equation}
-\boldsymbol{\mu}_j^* = \frac{1}{\sigma} \mathbf{q}_j
+G \boldsymbol{\mu} - \frac{r^2 \sigma}{\lambda} \boldsymbol{\mu} = \mathbf{0}
 \end{equation}
 
-with corresponding $\lambda_j$
+The NPV vector $\boldsymbol{\mu}^*$ satisfying the first order conditions is thus given by any of the eigenvectors of $G$, with corresponding risk shadow price given in terms of the respective eigenvalue. More specifically, letting $\mathbf{q}_j$ and $\gamma_j$ stand for the $j^{th}$ eigenvector and eigenvalue of $G$, respectively, then the $j^{th}$ solution $\boldsymbol{\mu}_j^*$ can be written
+<!-- $\frac{r^2 \sigma}{\gamma_j}$ $\lambda$ given by the inverse of the respective eigenvalues, scaled by $r^2$.]  -->
 
 \begin{equation}
-\lambda_j = r^2 \gamma_j
+\boldsymbol{\mu}_j^* = \mathbf{q}_j
 \end{equation}
 
-The $j^{th}$ budget allocation satisfying the first order conditions is then
+With corresponding risk shadow price $\lambda_j$.
+
+\begin{equation}
+\lambda_j = \frac{r^2 \sigma}{\gamma_j}
+\end{equation}
+
+By equation \ref{}, the solutions $\boldsymbol{\mu}_j^*$ can then be solved for the optimal budget allocations as follows.
+<!-- The solutions $\boldsymbol{\mu}_j^*$ represent the portfolio vis viva maximizing impact targets subject to a particular risk constraint. By equation \ref{}, they can then be solved for the optimal budget allocation as follows. -->
 
 \begin{equation}
 \mathbf{w}_j^* = C (D(\tilde{\mathbf{x}})^{-1} \mathbf{q}_j)^{\frac{1}{\boldsymbol{\alpha}}}
 \label{eq:wStar}
 \end{equation}
 
-The budget constraint is arbitrarily enforced because eigenvectors are defined up to scaling.
-
-## The vis viva shadow price
-
-Note that $\lambda$ is the marginal benefit of a marginal increment in vis viva above the target $\overline{\mathcal{E}}$. That is,
+Because eigenvectors are defined up to scaling, the budget constraint may be arbitrarily enforced. That is to say, the optimal allocation may be rewritten
 
 \begin{equation}
-\frac{\partial \mathcal{L}}{\partial (\mathcal{E} - \overline{\mathcal{E}})} = -\lambda
+\mathbf{w}_j^* = \frac{C}{\sigma} (D(\tilde{\mathbf{x}})^{-1} \beta_j \mathbf{q}_j)^{\frac{1}{\boldsymbol{\alpha}}}
+\label{eq:wStar}
 \end{equation}
 
-Alternatively, $\lambda$ can be thought of as the marginal cost of a marginal decrease in vis viva below the target $\overline{\mathcal{E}}$.
-
-Dotting the first order conditions through by $\boldsymbol{\mu}$ and rearranging gives a useful expression for $\lambda$.
-
-\begin{equation}
-\begin{split}
-\boldsymbol{\mu} ' \nabla_{\mu} \mathcal{L} = \sigma - \lambda r^2 \mathcal{E} &= \mathbf{0} \\
-\lambda &= \frac{\sigma}{r^2 \mathcal{E}}
-\end{split}
-\label{eq:lambDef}
-\end{equation}
-
-The vis viva shadow price is thus proportional to the investor's risk per unit vis viva.
+Where $\beta_j$ is an arbitrary scaling constant, which may be chosen such that $\Sigma_i w_i = C$.
 
 ## Second order condition
 
-The second order condition guaranteeing that the solution $\boldsymbol{\mu^*}$ is a minimizer of $\mathcal{L}$ is
+The second order condition guaranteeing that the solution is a maximizer of $\mathcal{L}$ is
 
 \begin{equation}
-\mathbf{q} ' H \mathbf{q} > 0 \:|\: \mathbf{q} ' \nabla \mathcal{E} = 0
+\mathbf{a} ' H \mathbf{a} < 0 \:|\: \mathbf{a} ' \nabla \mathcal{E} = 0
 \end{equation}
 
 Where $H$ is the Hessian of $\mathcal{L}$ evaluated at the solution $\boldsymbol{\mu}^*$,
@@ -890,36 +881,36 @@ Where $H$ is the Hessian of $\mathcal{L}$ evaluated at the solution $\boldsymbol
 H = \nabla_{\boldsymbol{\mu}}^2 \mathcal{L}|_{\boldsymbol{\mu}^*}
 \end{equation}
 
-And $q$ is any nonzero, real valued vector in the null space of the constraint gradient $\nabla \mathcal{E}$.
+And $a$ is any nonzero, real valued vector in the null space of the constraint gradient evaluated at the solution, i.e. $\nabla_{\boldsymbol{\mu}} \sigma |_{\boldsymbol{\mu} = \boldsymbol{\mu}^*}$.
 
-To resolve this condition, note that $\mathbf{q}$ can be rewritten in terms of an arbitrary, nonzero, real valued vector $\mathbf{y}$ multiplied by a basis $Z$ whose columns are in the null space of $\nabla \mathcal{E}$.
-
-\begin{equation}
-Z \mathbf{y} = \mathbf{q} \:|\: \nabla \mathcal{E} ' Z = \mathbf{0}
-\end{equation}
-
-Since $\nabla_{\boldsymbol{\mu}} \mathcal{E}$ is any eigenvector of $K$, say the $k^{th}$ eigenvector, then the other eigenvectors constitute a valid basis $Z$. Letting the notation $P_k$ stand for the eigenvector matrix $P$ excluding the $k^{th}$ column, then $Z = P_k$. The second order condition for a minimum can thus be rewritten
+To resolve this condition into a more instructive form, note that $\mathbf{a}$ can be rewritten in terms of any arbitrary, nonzero, real valued vector $\mathbf{y}$ multiplied by a basis $Z$ whose columns are in the null space of $\nabla_{\boldsymbol{\mu}} \sigma |_{\boldsymbol{\mu} = \boldsymbol{\mu}^*}$.
 
 \begin{equation}
-\mathbf{y} ' H_k \mathbf{y} &> 0
+Z \mathbf{y} = \mathbf{a} \:|\: \nabla_{\boldsymbol{\mu}} \sigma |_{\boldsymbol{\mu} = \boldsymbol{\mu}^*} ' Z = \mathbf{0}
 \end{equation}
 
-Where $H_k$ is the projected Hessian of $\mathcal{L}$ evaluated at the $k^{th}$ solution $\boldsymbol{\mu}^* = \mathbf{p}_k$.
+Since $\nabla_{\boldsymbol{\mu}} \sigma |_{\boldsymbol{\mu} = \boldsymbol{\mu}^*}$ is any eigenvector of $G$, say the $j^{th}$ eigenvector, then the other eigenvectors constitute a valid basis $Z$. Letting the notation $Q_j$ stand for the eigenvectors of $G$ excluding the $j^{th}$ column, then $Z = Q_j$. The second order condition can thus be rewritten
 
 \begin{equation}
-H_k = P_k ' \nabla_{\boldsymbol{\mu}}^2 \mathcal{L}|_{\boldsymbol{\mu}^* = \mathbf{p}_k} P_k
+\mathbf{y} ' H_j \mathbf{y} &> 0
 \end{equation}
 
-The second order condition is thus fulfilled if and only if $H_k$ is positive definite. This is easy to determine since $H_k$ is a diagonal matrix.
+Where $H_j$ is the projected Hessian of $\mathcal{L}$ evaluated at the $j^{th}$ solution $\boldsymbol{\mu}_j^*$.
+
+\begin{equation}
+H_j = Q_j ' \nabla_{\boldsymbol{\mu}}^2 \mathcal{L}|_{\boldsymbol{\mu}^ = \boldsymbol{\mu}} Q_j
+\end{equation}
+
+The second order condition is thus fulfilled if and only if $H_j$ is positive definite. This is easy to determine since $H_j$ is a diagonal matrix.
 
 \begin{equation}
 \begin{split}
-H_k &= P_k ' K P_k - \gamma_k P_k ' I P_k \\
-&= \Gamma_k - \gamma_k I
+H_j &= r^2 Q_j ' I Q_j - Q_j ' G Q_j \\
+&= \Gamma_j - \gamma_j I
 \end{split}
 \end{equation}
 
-Where $\Gamma_k$ is the diagonal matrix of eigenvalues of $K$ excluding the $k^{th}$ eigenvalue ($\gamma_k$). Since $K$ is positive definite, it is straightforward to see that $H_n$ is positive definite (i.e., the case where \boldsymbol{\mu}^* equals the trailing eigenvector of $K$). By the same token, $H_1$ is negative definite (i.e., the case where $\boldsymbol{\mu}^*$ equals the leading eigenvector of $K$), and the matrices $H_{1 < k < n}$ are indefinite.
+Where $\Gamma_j$ is the diagonal matrix of eigenvalues of $G$ excluding the $j^{th}$ eigenvalue. Since $G$ is positive definite, it is straightforward to see that $H_n$ is positive definite (i.e., the case where \boldsymbol{\mu}^* equals the trailing eigenvector of $K$). By the same token, $H_1$ is negative definite (i.e., the case where $\boldsymbol{\mu}^*$ equals the leading eigenvector of $K$), and the matrices $H_{1 < k < n}$ are indefinite.
 
 The trailing eigenvector of $K$ is thus the solution that minimizes the objective function $\mathcal{L}$. The leading eigenvector of $K$ is the solution that maximizes $\mathcal{L}$. The intermediate eigenvectors $(1 < k < n)$ represent saddle point solutions of $\mathcal{L}$ between these two extremes.
 
@@ -948,6 +939,30 @@ By construction, then, the spectrally reduced covariance matrix has just $m$ non
 [Of course, the appearance of zero-valued eigenvalues makes the projected Hessian (equation \ref{eq:...}) semi-definite as opposed to definite. But this does not matter since this is by design, and the solutions with zero-valued eigenvalues are likewise ignored by design. In other words, the projected Hessian remains definite over the set of solutions that are of any interest to the investor.]
 
 ## A menu of solutions catering to a range of risk appetites
+
+The risk shadow price $\lambda$ is the marginal cost of a marginal increment in risk above the tolerance threshold $\overline{\sigma}$. Formally,
+
+\begin{equation}
+\frac{\partial \mathcal{L}}{\partial (\mathcal{E} - \overline{\mathcal{E}})} = -\lambda
+\end{equation}
+
+Alternatively, $\lambda$ can be thought of as the marginal cost of a marginal decrease in vis viva below the target $\overline{\mathcal{E}}$.
+
+Dotting the first order conditions through by $\boldsymbol{\mu}$ and rearranging gives a useful expression for $\lambda$.
+
+\begin{equation}
+\begin{split}
+\boldsymbol{\mu} ' \nabla_{\mu} \mathcal{L} = \sigma - \lambda r^2 \mathcal{E} &= \mathbf{0} \\
+\lambda &= \frac{\sigma}{r^2 \mathcal{E}}
+\end{split}
+\label{eq:lambDef}
+\end{equation}
+
+The vis viva shadow price is thus proportional to the investor's risk per unit vis viva.
+
+
+
+
 
 The ($m^{th}$) trailing eigenvector of $K$ is the portfolio budget allocation that minimizes portfolio risk for a given vis viva target $\overline{\mathcal{E}}$. The other solutions are not necessarily sub-optimal, but rather correspond to higher investor risk tolerances. Here it is important to keep in mind that higher portfolio risk is not unambiguously bad, but rather a matter of ambition. Higher risk exposes the investor to an increased probability of both lower and higher portfolio return. Moreover, if the portfolio items follow a gBm, as assumed here, then returns are lognormally distributed; and so the risk is primarily upside. Moreover, let's not forget that AR4D institutions have a pro-poor mandate to redress market failures; and this can often mean taking on ambitious, higher risk portfolios.
 
