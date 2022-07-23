@@ -108,7 +108,7 @@ The priority setting process takes little or no account of the risk associated w
 
 A key challenge hindering work in this direction is the lack of data by which to calculate research correlations. In a previous article, I redress this problem by developing a method to deduce research correlation matrices based solely on expert opinion [-@schiek2021reverse]. Here I build upon that work to devise an AR4D risk-adjusted, multi-objective portfolio optimization workflow.
 
-The proposed method solves for the impact maximizing budget allocation subject to a risk constraint calculated using the deduced correlation matrix. A budget constraint is not explicitly included, but can be arbitrarily enforced, post solution. The method rests on two novel methodological propositions. Firstly, I define impact in terms of a quantity analogous to kinetic energy in physics, which I label the "vis viva". This effectively results in a quadratic definition of impact, which in turn results in a correspondence between optimal budget allocations and the eigenvectors of the research covariance matrix.
+The proposed method solves for the impact maximizing budget allocation subject to a risk constraint calculated using the deduced correlation matrix. A budget constraint is not explicitly included, but can be arbitrarily enforced, post solution. The method rests on two novel methodological propositions. Firstly, I define impact in terms of a quantity analogous to kinetic energy in physics, which I label the "vis viva". This effectively results in a quadratic definition of program impact, which in turn results in a correspondence between optimal budget allocations and the eigenvectors of the research covariance matrix.
 
 Secondly, I model the project funding cycle in terms of rotations in the complex plane. While this may seem outlandish at first, I argue that it is more realistic than the conventional notion of project value as something which is always positive. It also provides a meaningful framework by which to interpret the negative values that often turn up in the optimal budget allocation, and by which to transform them into positive values.
 <!-- solves for the risk-minimizing (i.e. optimally hedged) research budget allocation, subject to a portfolio impact constraint. -->
@@ -381,22 +381,24 @@ Where $C$ is the portfolio budget, $\tilde{x}_i(\hat{t})$ is the maximum financi
 
 And $\alpha_i$ lies between $0$ and $1$, reflecting marginally diminishing returns to investment.
 
-...
+[not the only marginally diminishing fn form, may also want to experiment with $\tilde{x}_i e^{-C/w_i}$---which includes an area of marginally increasing returns before they turn decreasing]
 
-This may be rearranged into an instructive expression...
-
-\begin{equation}
-\frac{\mu_i(\hat{t})}{\tilde{x}_i(\hat{t})} =  \left(\frac{w_i}{C} \right)^{\alpha_i} e^{r \tau}
-\end{equation}
-
-...the expected program value as a fraction of its full (fiscally feasible) potential value...pctg of potentiality realized
-
-or
+Substituting this into equation \ref{}, program NPV can now be rewritten as a function of funding level.
 
 \begin{equation}
-\frac{x_i(\hat{t})}{\tilde{x}_i(\hat{t})} =  \left(\frac{w_i}{C} \right)^{\alpha_i}
+\mu_i(\hat{t}) = \tilde{x}_i(\hat{t}) \left( \frac{w_i}{C} \right)^{\alpha_i} e^{r T}
+\label{eq:muFnw}
 \end{equation}
-
+<!-- ... -->
+<!-- This may be rearranged into an instructive expression... -->
+<!-- \begin{equation} -->
+<!-- \frac{\mu_i(\hat{t})}{\tilde{x}_i(\hat{t})} =  \left(\frac{w_i}{C} \right)^{\alpha_i} e^{r \tau} -->
+<!-- \end{equation} -->
+<!-- ...the expected program value as a fraction of its full (fiscally feasible) potential value...pctg of potentiality realized -->
+<!-- or -->
+<!-- \begin{equation} -->
+<!-- \frac{x_i(\hat{t})}{\tilde{x}_i(\hat{t})} =  \left(\frac{w_i}{C} \right)^{\alpha_i} -->
+<!-- \end{equation} -->
 
 # Project kinematics and vis viva
 
@@ -804,15 +806,18 @@ More generally, a negative program value can be brought into phase by extending 
 
 # Vis viva maximization subject to a risk tolerance constraint
 
-The portfolio optimization problem may now be formulated in terms of vis viva maximization subject to risk tolerance.
+The portfolio optimization problem may now be formulated in terms of vis viva maximization subject to a risk tolerance threshold.
 
 \begin{equation}
 \max_{\mathbf{w}}{\mathcal{E}} \:\:\: s.t. \:\:\: \sigma = \overline{\sigma}
 \end{equation}
 
-Because $\mu_i(w_i)$ is monotonically increasing in $w_i$, the control variables $\mathbf{w}$ may be swapped for $\boldsymbol{\mu}$
-<!-- without loss of generality -->
-<!-- [$n$ portfolio items] -->
+<!-- Because $\mu_i(w_i)$ is monotonically increasing in $w_i$ -->
+With a negligible loss of generality, the control variables $\mathbf{w}$ may be swapped for $\boldsymbol{\mu}$.
+
+\begin{equation}
+\max_{\boldsymbol{\mu}}{\mathcal{E}} \:\:\: s.t. \:\:\: \sigma = \overline{\sigma}
+\end{equation}
 
 The corresponding objective function or lagrangian is then 
 
@@ -823,6 +828,14 @@ The corresponding objective function or lagrangian is then
 \end{split}
 \end{equation}
 <!-- This is a cost function to be minimized. The sign on the vis viva constraint is negative because it is a benefit mitigating the portfolio "risk cost" $\sigma$. [The problem could just as well be formulated in terms of vis viva maximization subject to a risk cost.] -->
+
+The lagrangian multiplier $\lambda$ may be interpreted as the risk shadow price, that is to say, the marginal cost of a marginal increment in risk above the tolerance threshold $\overline{\sigma}$. Formally,
+
+\begin{equation}
+\frac{\partial \mathcal{L}}{\partial (\sigma - \overline{\sigma})} = \lambda
+\end{equation}
+
+Alternatively, $\lambda$ can be thought of as the marginal benefit of a marginal decrease in risk below the tolerance threshold $\overline{\sigma}$.
 
 The first order conditions with respect to $\boldsymbol{\mu}$ are
 <!-- [The project vis viva is proportional to the risk gradient.] -->
@@ -847,10 +860,37 @@ The NPV vector $\boldsymbol{\mu}^*$ satisfying the first order conditions is thu
 With corresponding risk shadow price $\lambda_j$.
 
 \begin{equation}
-\lambda_j = \frac{r^2 \sigma}{\gamma_j}
+\lambda_j = r^2 \frac{\sigma_j}{\gamma_j}
 \end{equation}
 
-By equation \ref{}, the solutions $\boldsymbol{\mu}_j^*$ can then be solved for the optimal budget allocations as follows.
+Where $\sigma_j$ is the portfolio risk corresponding to the $j^{th}$ solution.
+
+Note, in passing, that dotting the first order conditions through by $\boldsymbol{\mu}_j^*$ and solving for $\lambda_j$ results in an instructive expression for the risk shadow price.
+
+\begin{equation}
+\begin{split}
+\boldsymbol{\mu}_j^* ' \nabla_{\mu} \mathcal{L} &= 2 r^2 \mathcal{E}_j - \lambda_j \sigma_j = 0 \\
+&\Rightarrow \lambda_j = 2 r^2 \frac{\mathcal{E}_j}{\sigma_j}
+\end{split}
+\end{equation}
+
+The risk shadow price may thus be thought of as a "return to risk ratio". More specifically, $\lambda_j$ is proportional to the ratio of the portfolio vis viva---a measure of expected portfolio impact---to the portfolio risk.
+
+Note, moreover, that setting this expression equal to the previous one results in an instructive expression for the eigenvalues.
+
+\begin{equation}
+\begin{split}
+2 r^2 \frac{\mathcal{E}_j}{\sigma_j} &= r^2 \frac{\sigma_j}{\gamma_j} \\
+\Rightarrow \gamma_j &= \frac{\sigma_j^2}{2 \mathcal{E}_j}
+\end{split}
+\label{eq:gammaRisk}
+\end{equation}
+
+(Where $\mathcal{E}_j$ is the expected portfolio impact associated with the $j^{th}$ solution.)
+
+The $j^th$ eigenvalue of $G$ thus reflects the portfolio risk (squared) per unit expected impact for that solution. In this way, $\lambda_j$ and $\gamma_j$ are effectively indicators of the risk involved in choosing one solution over another.
+
+By equation \ref{eq:muFnw}, the solutions $\boldsymbol{\mu}_j^*$ can then be solved for the optimal budget allocations as follows.
 <!-- The solutions $\boldsymbol{\mu}_j^*$ represent the portfolio vis viva maximizing impact targets subject to a particular risk constraint. By equation \ref{}, they can then be solved for the optimal budget allocation as follows. -->
 
 \begin{equation}
@@ -873,9 +913,10 @@ The second order condition guaranteeing that the solution is a maximizer of $\ma
 
 \begin{equation}
 \mathbf{a} ' H \mathbf{a} < 0 \:|\: \mathbf{a} ' \nabla \mathcal{E} = 0
+\label{eq:soc}
 \end{equation}
 
-Where $H$ is the Hessian of $\mathcal{L}$ evaluated at the solution $\boldsymbol{\mu}^*$,
+Where $H$ is the Hessian of $\mathcal{L}$ evaluated at the solution $\boldsymbol{\mu}^*$, that is,
 
 \begin{equation}
 H = \nabla_{\boldsymbol{\mu}}^2 \mathcal{L}|_{\boldsymbol{\mu}^*}
@@ -883,7 +924,9 @@ H = \nabla_{\boldsymbol{\mu}}^2 \mathcal{L}|_{\boldsymbol{\mu}^*}
 
 And $a$ is any nonzero, real valued vector in the null space of the constraint gradient evaluated at the solution, i.e. $\nabla_{\boldsymbol{\mu}} \sigma |_{\boldsymbol{\mu} = \boldsymbol{\mu}^*}$.
 
-To resolve this condition into a more instructive form, note that $\mathbf{a}$ can be rewritten in terms of any arbitrary, nonzero, real valued vector $\mathbf{y}$ multiplied by a basis $Z$ whose columns are in the null space of $\nabla_{\boldsymbol{\mu}} \sigma |_{\boldsymbol{\mu} = \boldsymbol{\mu}^*}$.
+In other words, the second order condition is fulfilled if and only if $H$ is negative definite.
+
+To resolve this condition into a more intelligible form, note that $\mathbf{a}$ can be rewritten in terms of any arbitrary, nonzero, real valued vector $\mathbf{y}$ multiplied by a basis $Z$ whose columns are in the null space of $\nabla_{\boldsymbol{\mu}} \sigma |_{\boldsymbol{\mu} = \boldsymbol{\mu}^*}$.
 
 \begin{equation}
 Z \mathbf{y} = \mathbf{a} \:|\: \nabla_{\boldsymbol{\mu}} \sigma |_{\boldsymbol{\mu} = \boldsymbol{\mu}^*} ' Z = \mathbf{0}
@@ -895,30 +938,63 @@ Since $\nabla_{\boldsymbol{\mu}} \sigma |_{\boldsymbol{\mu} = \boldsymbol{\mu}^*
 \mathbf{y} ' H_j \mathbf{y} &> 0
 \end{equation}
 
-Where $H_j$ is the projected Hessian of $\mathcal{L}$ evaluated at the $j^{th}$ solution $\boldsymbol{\mu}_j^*$.
+Where $H_j$ is the "projected" Hessian of $\mathcal{L}$ evaluated at the $j^{th}$ solution $\boldsymbol{\mu}_j^*$.
 
 \begin{equation}
 H_j = Q_j ' \nabla_{\boldsymbol{\mu}}^2 \mathcal{L}|_{\boldsymbol{\mu}^ = \boldsymbol{\mu}} Q_j
 \end{equation}
 
-The second order condition is thus fulfilled if and only if $H_j$ is positive definite. This is easy to determine since $H_j$ is a diagonal matrix.
+The second order condition is thus fulfilled if and only if $H_j$ is negative definite. This is easy to determine since $H_j$ is a diagonal matrix.
 
 \begin{equation}
 \begin{split}
-H_j &= r^2 Q_j ' I Q_j - Q_j ' G Q_j \\
-&= \Gamma_j - \gamma_j I
+H_j &= Q_j ' (r^2 \boldsymbol{\mu}_j^* - \frac{\lambda_j}{\sigma} G \boldsymbol{\mu}_j^*) Q_j \\
+&= Q_j ' (r^2 \mathbf{q}_j - \frac{r^2}{\gamma_j} G \mathbf{q}_j) Q_j \\
+&= r^2 (I - \frac{1}{\gamma_j} \Gamma_j)
 \end{split}
 \end{equation}
 
-Where $\Gamma_j$ is the diagonal matrix of eigenvalues of $G$ excluding the $j^{th}$ eigenvalue. Since $G$ is positive definite, it is straightforward to see that $H_n$ is positive definite (i.e., the case where \boldsymbol{\mu}^* equals the trailing eigenvector of $K$). By the same token, $H_1$ is negative definite (i.e., the case where $\boldsymbol{\mu}^*$ equals the leading eigenvector of $K$), and the matrices $H_{1 < k < n}$ are indefinite.
+Where $\Gamma_j$ is the diagonal matrix of eigenvalues of $G$ excluding the $j^{th}$ eigenvalue. Since $G$ is positive definite, its eigenvalues are positive. And since $\gamma_1 > \gamma_2 > ... > \gamma_n$ for a portfolio of $n$ items, it is straightforward to see that $H_1$ is negative definite, $H_n$ is positive definite, and the matrices $H_{1 < k < n}$ are indefinite.
+<!-- (i.e., the case where $\boldsymbol{\mu}^*$ equals the leading eigenvector of $K$) -->
+<!-- (i.e., the case where \boldsymbol{\mu}^* equals the trailing eigenvector of $G$) -->
 
-The trailing eigenvector of $K$ is thus the solution that minimizes the objective function $\mathcal{L}$. The leading eigenvector of $K$ is the solution that maximizes $\mathcal{L}$. The intermediate eigenvectors $(1 < k < n)$ represent saddle point solutions of $\mathcal{L}$ between these two extremes.
+The leading eigenvector $\mathbf{q}_1$ is thus the solution that satisfies the second order condition (equation \ref{eq:soc}), and thus maximizes $\mathcal{L}$. By the same token, the trailing eigenvector of $\mathbf{q}_n$ is the solution that minimizes $\mathcal{L}$, and the intermediate eigenvectors $(1 < k < n)$ represent saddle point solutions of $\mathcal{L}$ between these two extremes.
 
-Note that this is reflected in the corresponding eigenvalues. The leading eigenvalue---which corresponds to the risk maximizing solution---is the largest, indicating the highest risk for a given vis viva target $\overline{\mathcal{E}}$ (recall equation \ref{eq:lambDef}), while the remaining eigenvalues are successively smaller, indicating successively lower risk levels.
+## A menu of solutions catering to a range of risk appetites
 
-## Spectrally reduced covariance matrix
+The optimal solution ($\boldsymbol{\mu}_1^*$) is optimal in the sense that it maximizes expected portfolio impact subject to a risk constraint. However, the optimal solution also corresponds to the highest eigenvalue ($\gamma_1$), and is thus also the riskiest solution (recall equation \ref{eq:gammaRisk}). The other candidate solutions ($\boldsymbol{\mu}_1^*, \boldsymbol{\mu}_2^*,\dots, \boldsymbol{\mu}_n^*$) correspond to lower expected impacts, but also successively decreasing eigenvalues ($\gamma_2, \gamma_3, \dots, \gamma_n$), and hence successively decreasing risk levels.
 
-The trailing eigenvectors of covariance matrices tend to represent noise in the data. This is problematic vis-a-vis the portfolio optimization method just presented above, since it implies that the optimal solution is essentially random. To avoid this problem, one can follow a "spectral cut-off" approach [@guo2018eigen; @carrasco2011optimal; see Schiek -@schiek2021reverse for an application in the AR4D context]. The "spectrally reduced" covariance matrix $\tilde{\Sigma}$ is reconstructed from the $m < n$ leading eigenvectors of $\Sigma$ as follows.
+AR4D donors and institutions are thus presented not with a single optimal solution, but a menu of solutions corresponding to a range of risk tolerances. Typically, AR4D donors are guided by a pro-poor mandate which requires them to incline towards ambitious, and hence risky, research portfolios. Nonetheless, if the risk to return ratio implied by the leading solution's eigenvalue $\gamma_1$ seems too high, the donor may select one of the less risky alternatives on the menu. It should be kept in mind, moreover, that higher portfolio risk is not unambiguously bad, as it exposes the investor to an increased probability of both lower and higher portfolio return.
+<!-- The leading eigenvector of $G$ is the portfolio budget allocation that maximizes portfolio impact subject to a risk constraint. $\overline{\mathcal{E}}$. The other solutions are not necessarily sub-optimal, but rather correspond to lower investor risk tolerances. Here it is important to keep in mind that higher portfolio risk is not unambiguously bad, but rather a matter of ambition. Higher risk exposes the investor to an increased probability of both lower and higher portfolio return. Moreover, if the portfolio items follow a gBm, as assumed here, then returns are lognormally distributed; and so the risk is primarily upside. Moreover, let's not forget that AR4D institutions have a pro-poor mandate to redress market failures; and this can often mean taking on ambitious, higher risk portfolios. -->
+<!-- Note that this is reflected in the corresponding eigenvalues. The leading eigenvalue---which corresponds to the risk maximizing solution---is the largest, indicating the highest risk for a given vis viva target $\overline{\mathcal{E}}$ (recall equation \ref{eq:lambDef}), while the remaining eigenvalues are successively smaller, indicating successively lower risk levels. -->
+
+## Keeping only meaningful solutions
+<!-- ## Spectrally reduced covariance matrix -->
+
+The trailing eigenvectors of a covariance matrix tend to represent noise in the data. The budget allocations associated with these eigenvectors are thus effectively random, and should be discarded from the menu of eligible solutions. To ensure that solutions are meaningful, only the leading $m$ eigenvectors required to explain a high fraction of total portfolio variance should be retained.
+
+The percentage of portfolio variance explained by any given eigenvector $q_j$ (call this $k_j$) is the corresponding eigenvalue $\gamma_j$ divided by the sum of all the eigenvalues (See Abdi [-@] for details).
+<!-- associated principle component's variance divided by the sum of all principle component variances. Recalling from Eq \ref{eq:covmat_SS} that a signal's variance is just the corresponding eigenvalue $\gamma_i$ extracted from $\Sigma_{XX}$, this is expressed -->
+
+\begin{equation}
+k_j = \frac{\gamma_j}{\sum_{k = 1}^n \gamma_k}
+\end{equation}
+
+The cumulative variance captured by a group of $m < n$ leading eigenvectors is then
+
+\begin{equation}
+c_m = \sum_{j=1}^m k_j
+\end{equation}
+
+Such that $c_n = 1$.
+
+The exact value of the integer $m$ is somewhat subjective. A rule of thumb followed in practice is to retain the $m$ leading eigenvectors required to explain at least $90\%$ of the portfolio variance (i.e., such that $c_m \geq 0.9$).
+
+Discarding the trailing eigenvectors of $G$ to eliminate noise is tantamount to following the "spectral cut-off" approach found in the financial context [@guo2018eigen; @carrasco2011optimal].
+
+
+In the  whereby the covariance matrix is reconstructed from the $m < n$ leading eigenvectors of $\Sigma$ as follows.
+<!-- $\tilde{\Sigma}$ -->
 
 \begin{equation}
 \tilde{\Sigma} = L L '
@@ -931,42 +1007,68 @@ Where
 L = \tilde{U} \tilde{\Lambda}^{\frac{1}{2}}
 \end{equation}
 
-And $\tilde{U}$, $\tilde{\Gamma}$ refer to the matrix of $m$ retained, leading eigenvectors and the corresponding (diagonal) matrix of retained eigenvalues of $\Sigma$, respectively. The number of retained eigenvectors $m$ is a subjective choice, usually sufficient to account for at least $90\%$ of the variance.
+And $\tilde{U}$, $\tilde{\Gamma}$ refer to the matrix of $m$ retained, leading eigenvectors and the corresponding (diagonal) matrix of retained eigenvalues of $\Sigma$, respectively. (See Schiek [-@schiek2021reverse] for an application in the AR4D context.)
+<!-- The number of retained eigenvectors $m$ is a subjective choice, usually sufficient to account for at least $90\%$ of the variance. -->
 <!-- @carrasco2007linear -->
 
-By construction, then, the spectrally reduced covariance matrix has just $m$ nonzero eigenvalues, with the remaining $n - m$ eigenvalues equal to zero. This removal of trailing eigenvectors has a signal strengthening effect (or, conversely, a noise attenuating effect), such that $\tilde{\Sigma}$ typically approximates $\Sigma$, but may also be considered more accurate than $\Sigma$ with respect to the "true process" that generates the underlying data. All of the eigenvectors of $\tilde{\Sigma}$ with nonzero eigenvalues encode meaningful information about the portfolio items and their interactions. The optimal solution $\boldsymbol{\mu}^*$ corresponding to the smallest nonzero eigenvalue of $\tilde{\Sigma}$ is thus likewise meaningful.
+By construction, then, the spectrally reduced covariance matrix has just $m$ nonzero eigenvalues, with the remaining $n - m$ eigenvalues equal to zero. This removal of trailing eigenvectors has a signal strengthening effect (or, conversely, a noise attenuating effect), such that $\tilde{\Sigma}$ typically approximates $\Sigma$, but may also be considered more accurate than $\Sigma$ with respect to the "true process" that generates the underlying data, to the extent that the data are contaminated by noise. All of the eigenvectors of $\tilde{\Sigma}$ with nonzero eigenvalues encode meaningful information about the portfolio items and their interactions. The optimal solution $\boldsymbol{\mu}^*$ corresponding to the smallest nonzero eigenvalue of $\tilde{\Sigma}$ is thus likewise meaningful.
+
+
+
+
+
+The individual and cumulative portions of variance explained by each signal in the financial dataset are plotted in Fig \ref{fig:varExplained_barchart}. Customarily, researchers like to retain signals such that at least 90% of the variance in the original data is explained. The horizontal dashed line in the plot marks this subjective threshold.
+
+<!-- # ```{r, fig.show = 'hold', fig.width=5, fig.height=2, fig.align='left', fig.cap="\\label{fig:varExplained_barchart}Plot of the individual and cumulative portions of variance explained by each signal in the financial dataset.", echo=F} -->
+<!-- c_vec <- eig_values / sum(eig_values) -->
+<!-- ck_vec <- cumsum(c_vec) -->
+<!-- df_plot <- data.frame(Signal = paste("Signal", 1:length(eig_values)), Portion_explained = c_vec, Portion_explained_cumul = ck_vec) -->
+<!-- colnames(df_plot)[2:3] <- c("Individually", "Cumulatively") -->
+<!-- gathercols <- colnames(df_plot)[2:3] -->
+<!-- df_plot <- gather_(df_plot, "Portion explained", "Value", gathercols) -->
+<!-- df_plot$Signal <- factor(df_plot$Signal, -->
+<!--                          levels = unique(df_plot$Signal), -->
+<!--                          ordered = T) -->
+<!-- gg <- ggplot(df_plot, aes(x = Signal, y = Value, fill = `Portion explained`)) -->
+<!-- gg <- gg + geom_bar(stat = "identity", color = "black", position = "dodge") -->
+<!-- gg <- gg + scale_fill_manual(values = c("wheat3", "paleturquoise")) -->
+<!-- gg <- gg + geom_hline(yintercept = 0.9, color = "coral", size = 1, linetype = "dashed") -->
+<!-- gg <- gg + theme(axis.text.y = element_text(size = 7), -->
+<!--                  axis.text.x = element_text(size = 7, angle = 60, hjust = 1), -->
+<!--                  axis.title = element_blank(), -->
+<!--                  legend.title = element_text(size = 8), -->
+<!--                  legend.text = element_text(size = 8)) -->
+<!-- gg -->
+<!-- ggsave("Fig 4.tiff") -->
+<!-- #==================================================== -->
+<!-- n_signals <- which(ck_vec > 0.9)[1] -->
+<!-- mat_S <- mat_S_all[, 1:n_signals] -->
+<!-- mat_L <- cormat_XS[, 1:n_signals] -->
+<!-- eig_values_sigs <- eig_values[1:n_signals] -->
+<!-- #==================================================== -->
+<!-- ``` -->
+
+<!-- **Fig 4. Plot of the individual and cumulative portions of variance** explained by each signal in the financial dataset. -->
+
+<!-- &nbsp; -->
+
+<!-- The plot shows that, for the financial data set, the leading `r n_signals` signals are sufficient to meet this criterion. -->
+
+
+
+
+
+
+
+
+
+
+
+
+# Multi-objective portfolio optimization
 
 [Of course, the appearance of zero-valued eigenvalues makes the projected Hessian (equation \ref{eq:...}) semi-definite as opposed to definite. But this does not matter since this is by design, and the solutions with zero-valued eigenvalues are likewise ignored by design. In other words, the projected Hessian remains definite over the set of solutions that are of any interest to the investor.]
 
-## A menu of solutions catering to a range of risk appetites
-
-The risk shadow price $\lambda$ is the marginal cost of a marginal increment in risk above the tolerance threshold $\overline{\sigma}$. Formally,
-
-\begin{equation}
-\frac{\partial \mathcal{L}}{\partial (\mathcal{E} - \overline{\mathcal{E}})} = -\lambda
-\end{equation}
-
-Alternatively, $\lambda$ can be thought of as the marginal cost of a marginal decrease in vis viva below the target $\overline{\mathcal{E}}$.
-
-Dotting the first order conditions through by $\boldsymbol{\mu}$ and rearranging gives a useful expression for $\lambda$.
-
-\begin{equation}
-\begin{split}
-\boldsymbol{\mu} ' \nabla_{\mu} \mathcal{L} = \sigma - \lambda r^2 \mathcal{E} &= \mathbf{0} \\
-\lambda &= \frac{\sigma}{r^2 \mathcal{E}}
-\end{split}
-\label{eq:lambDef}
-\end{equation}
-
-The vis viva shadow price is thus proportional to the investor's risk per unit vis viva.
-
-
-
-
-
-The ($m^{th}$) trailing eigenvector of $K$ is the portfolio budget allocation that minimizes portfolio risk for a given vis viva target $\overline{\mathcal{E}}$. The other solutions are not necessarily sub-optimal, but rather correspond to higher investor risk tolerances. Here it is important to keep in mind that higher portfolio risk is not unambiguously bad, but rather a matter of ambition. Higher risk exposes the investor to an increased probability of both lower and higher portfolio return. Moreover, if the portfolio items follow a gBm, as assumed here, then returns are lognormally distributed; and so the risk is primarily upside. Moreover, let's not forget that AR4D institutions have a pro-poor mandate to redress market failures; and this can often mean taking on ambitious, higher risk portfolios.
-
-# Multi-objective portfolio optimization
 
 ## Eigenvectors as strategic objectives
 
