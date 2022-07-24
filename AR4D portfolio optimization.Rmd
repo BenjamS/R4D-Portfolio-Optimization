@@ -234,171 +234,222 @@ Tricks for modifying the covariance matrix so that it is effectively coerced int
 Transformations of covmat [@carrasco2011optimal; ledoit2004well]
 
 
-## Modeling the evolution of project NPV as a geometric Brownian movement
+# Modeling the evolution of program NPV as a geometric Brownian movement
 
 Ex-ante impact assessment and scenario analysis are designed to quantify research project impacts at a specific point in time, usually in terms of net present value (NPV), based on assumptions about the future trajectory of numerous random processes, both research and non-research related. (To facilitate the process, assumptions regarding non-research random processes, particularly future climate and socioeconomic processes, have been conveniently packaged in a set Representative Carbon Pathways (RCPs) and Shared Socioeconomic Pathways (SSPs) [@].)
 
-Because it is a function of numerous random processes, project NPV is itself a stochastic variable. The first step in portfolio analysis is to select a reasonable model of the stochastic evolution of project NPV between now (the time of the funding decision) and the end of the funding cycle. In other contexts, this choice is often aided by the availability of time series data. In the AR4D context, project NPV time series generally do not exist; and so the choice must be made based on certain assumed characteristics of the unobserved data. In particular, one must assume a certain size distribution of changes in the stochastic variable. Assuming that percentage changes in project NPV over a judiciously small time step are normally distributed, the stochastic process is accurately modeled by a geometric Brownian movement; and the expected value of the $i^{th}$ project's NPV ($x_i$) at some future time $T$ is
-<!-- This selection must be made on the basis of both realism and expedience. Periods of a few substantial changes interspersed by relatively longer periods of many small changes. Geometric Brownian motion expedient and versatile  -->
+Because it is a function of numerous random processes, project NPV is itself a stochastic variable. The first step in portfolio analysis is to select a reasonable model of the stochastic evolution of project NPV between now (the time of the funding decision) and the end of the funding cycle. In other contexts, this choice is often aided by the availability of time series data. In the AR4D context, project NPV time series generally do not exist; and so the choice must be made based on certain assumed characteristics of the unobserved data. In particular, one must assume a certain size distribution of changes in the stochastic variable. That is to say, one must assume a distribution for the change in program NPV $\Delta x$ with respect to a judiciously small increment in time $\Delta t$. If the change $\Delta x / \Delta t$ over a judiciously small time step is normally distributed, then the stochastic process is accurately modeled by a geometric Brownian movement, defined as follows.
 
 \begin{equation}
-E[x_i(T)]\bigr|_{t = \hat{t}} = x_i(\hat{t}) e^{m_i \tau}
+\begin{split}
+\Delta x &= x(t + \Delta t) - x(t) \\
+&= x(t) m \Delta t + x(t) s \epsilon \sqrt{\Delta t}
+\end{split}
+\label{eq:gbmEq}
+\end{equation}
+
+Where $\epsilon$ is a normally distributed random variable with mean $0$ and variance $1$, such that
+
+\begin{equation}
+\begin{split}
+m \Delta t &= E \left[\frac{\Delta x(T)}{x(T)} \right] \\
+s^2 \Delta t &= Var \left[\frac{\Delta x(T)}{x(T)} \right]
+\end{split}
+\end{equation}
+<!-- and $m_k$ is the expected growth rate; that is to say $m_k = E[\Delta x_k/x_k(\hat{t})]; \:\:\: \Delta x_k = x_k(\hat{t} + \Delta t) - x_k(\hat{t})$ -->
+
+(For a reference, see Hull [@].)
+
+Technically, $\Delta t$ is an instantaneous or infinitesimal time interval and hence $m$ is the expected instantaneous growth rate. In practice, it is acceptable to treat $\Delta t$ as a finitely small, but judicious, time step. The time step should be as small as possible while still ensuring that changes in $x$ occur in every time step. In the present context, it is reasonable to assume that random research and/or non-research related changes in program NPV occur at least once per month. The time step $\Delta t$ at the project level may thus be judiciously defined as a month, and $m$ may be interpreted as the expected monthly growth rate.
+<!-- This selection must be made on the basis of both realism and expedience. Periods of a few substantial changes interspersed by relatively longer periods of many small changes. Geometric Brownian motion expedient and versatile  -->
+
+By definition, program NPV appreciates over time at the monthly discount rate $r$. Therefore, the growth rate $m$ should be set equal to $r$. A program growth rate different from $r$ implies that the program $NPV$ is inaccurately calculated.
+
+## Expected value, variance, and covariance of program NPVs
+
+Given the assumption that program NPV follows a geometric Brownian movement, and assuming that program NPVs are accurately calculated, the expected value of the $k^{th}$ program NPV at the end of the funding cycle ($x_k(T)$) is
+
+\begin{equation}
+E[x_k(T)]\bigr|_{t = \hat{t}} = x_k(\hat{t}) e^{r \tau}
 \label{eq:ExTraw}
 \end{equation}
 
-Where $\hat{t}$ is the time of evaluation, $\tau = T - \hat{t}$, and $m_i$ is the expected growth rate; that is to say $m_i = E[\Delta x_i/x_i(\hat{t})]; \:\:\: \Delta x_i = x_i(\hat{t} + \Delta t) - x_i(\hat{t})$.
-
-Technically, $\Delta t$ is an instantaneous or infinitesimal time interval and hence $m_i$ is the expected instantaneous growth rate. In practice, it is acceptable to treat $\Delta t$ as a finitely small, but judicious, time step. The time step should be as small as possible while still ensuring that changes in $x_i$ occur in every time step. In the present context, it is reasonable to assume that random research and/or non-research related changes in project NPV occur at least once per quarter year. The time step $\Delta t$ at the project level may thus be judiciously defined as a quarter year, and $m_i$ may be interpreted as the expected quarterly growth rate.
-
-By definition, project NPV appreciates over time at the discount rate $r$. Therefore, the growth rates $m_i$ should be set equal to $r$. A project growth rate different from $r$ implies that the project $NPV$ is incorrectly calculated.
-
-In many AR4D fund allocation decisions, the focus is on programs rather than projects. A program generally consists of several projects and complementary activities in different stages of implementation. At the program level, a monthly time step is probably justified, with $m_i$ thus representing the expected monthly growth rate.
-...focus here is on program level...which simplifies things...can be extended to project portfolios
+Where $\hat{t}$ is the time of evaluation, $\tau = T - \hat{t}$.
+<!-- In many AR4D fund allocation decisions, the focus is on programs rather than projects. A program generally consists of several projects and complementary activities in different stages of implementation. At the program level, a monthly time step is probably justified, with $m_k$ thus representing the expected monthly growth rate. -->
+<!-- ...focus here is on program level...which simplifies things...can be extended to project portfolios -->
 <!-- Research-related factors concern the expected effectiveness of the researched technology at experiment stations. Non-research related changes in project value occur as a result of changes in the political, socio-economic, and institutional enabling environments where the new technology is to be released. Such changes may include, for example, abrupt changes in government policies, commodity price swings, changes in seed systems and other value chain mechanisms, changes in the security environment, and so forth. -->
 
-[## Project risk and synergies/tradeoffs]
-
-The variance of $x_i(T)$, given the assumption of gBm, is 
+The variance of $x_k(T)$ is
 
 \begin{equation}
-Var[x_i(T)]\bigr|_{t = \hat{t}} = \mu_i^2 (e^{s_i^2 \tau} - 1)
+Var[x_k(T)]\bigr|_{t = \hat{t}} = \mu_k^2 (e^{s_k^2 \tau} - 1)
 \label{eq:xVarRaw}
 \end{equation}
 
-Where $s_i = \sqrt{Var[\Delta x_i / x_i(\hat{t})]}$, and the shorthand $\mu_i = E[x_i(T)]\bigr|_{t = \hat{t}}$ has been introduced. This may be interpreted as a measure of the project risk. Note that this equation can be rearranged into an expression for the coefficient of variation $c_i$, as follows.
+<!-- $s_k = \sqrt{Var[\Delta x_k / x_k(\hat{t})]}$ -->
+Where the shorthand $\mu_k = E[x_k(T)]\bigr|_{t = \hat{t}}$ has been introduced. This may be interpreted as a measure of the project risk. Note that this equation can be rearranged into an expression for the coefficient of variation $c_k$, as follows.
 
 \begin{equation}
-c_i = \frac{\sigma_i}{|\mu_i|} = \mu_i \sqrt{e^{s_i^2 \tau} - 1}
+c_k = \frac{\sigma_k}{|\mu_k|} = \mu_k \sqrt{e^{s_k^2 \tau} - 1}
 \end{equation}
 
-Where the shorthand $\sigma_i = \sqrt{Var[x_i(T)]\bigr|_{t = \hat{t}}}$ has been introduced. The covariance between two project NPVs $x_i$ and $x_j$, meanwhile, is
+Where the shorthand $\sigma_k = \sqrt{Var[x_k(T)]\bigr|_{t = \hat{t}}}$ has been introduced. The covariance between two project NPVs $x_k$ and $x_j$, meanwhile, is
 
 \begin{equation}
-Cov[x_i(T), x_j(T)]\bigr|_{t = \hat{t}} = \mu_i \mu_j (e^s_{ij} \tau} - 1)
+Cov[x_k(T), x_j(T)]\bigr|_{t = \hat{t}} = \mu_k \mu_j (e^s_{kj} \tau} - 1)
 \label{eq:xCovRaw}
 \end{equation}
 
-Where the shorthand $s_{ij} = Cov[\Delta x_i/x_i(\hat{t}), \Delta x_j/x_j(\hat{t})]$ has been introduced. Note that this may be rearranged into a natural extension of the coefficient of variation $c_{ij}$, as follows.
+Where the shorthand $s_{kj} = Cov[\Delta x_k/x_k(\hat{t}), \Delta x_j/x_j(\hat{t})]$ has been introduced. Note that this may be rearranged into a natural extension of the coefficient of variation $c_{kj}$, as follows.
 
 \begin{equation}
-c_{ij} = \sqrt{\frac{\sigma_{ij}}{\mu_i \mu_j}} = \sqrt{e^{\rho_{i, j} s_i s_j \tau} - 1}
+c_{kj} = \sqrt{\frac{\sigma_{kj}}{\mu_k \mu_j}} = \sqrt{e^{\rho_{i, j} s_k s_j \tau} - 1}
 \end{equation}
 
 This is a "cross coefficient of variation", analogous to the correlation coefficient in the following sense: Whereas the correlation coefficient is the covariance normalized by the product of the respective standard deviations, the cross coefficient of variation is the covariance normalized by the product of the respective means.
 
-Expected portfolio NPV $E[X(T)]\bigr|_{t = \hat{t}}$ is then just the sum of the individual expected project NPVs.
+<!-- $E[X(T)]\bigr|_{t = \hat{t}}$ -->
+Expected portfolio NPV $\mu(\hat{t})$  is then just the sum of the individual expected project NPVs.
 
 \begin{equation}
-E[X(T)]\bigr|_{t = \hat{t}} = \Sigma_i \mu_i
+\mu(\hat{t}) = \Sigma_k \mu_k(\hat{t})
 \end{equation}
 
 The portfolio variance, it follows, can be expressed
 
+<!-- = Var[X(T)]\bigr|_{t = \hat{t}} -->
 \begin{equation}
-\sigma^2 = Var[X(T)]\bigr|_{t = \hat{t}} = \boldsymbol{\mu}' G \boldsymbol{\mu} \end{equation}
+\sigma(\hat{t})^2 = \boldsymbol{\mu}' G \boldsymbol{\mu} \end{equation}
 
-Where $G$ is the cross coefficient of variation matrix, i.e. the matrix whose diagonal elements are the squared coefficients of variation $c_i^2$, and whose off-diagonal elements are the cross coefficients of variation $c_{ij}$. Note that $G$ is just the covariance matrix left and right multiplied by a diagonal matrix of the inverse project means, just as the correlation matrix is the covariance matrix left and right multiplied by a diagonal matrix of the inverse standard deviations. As such, $G$ provides insight into project NPV risks, trade offs, and synergies.
-
-
-## Deducing variances and covariances
-<!-- ## Deducing the program correlation matrix in minimum data contexts -->
-
-
-to deduce a particular value for $s_i$.
-
-<!-- ...the data required to estimate $\Sigma$ generally do not exist in the motivating context of the present article. However, the leading eigenvalues $\tilde{\Lambda}$ can be deduced from expert opinion using a method I have described elsewhere [@schiek2021reverse]. The leading eigenvectors of the corresponding correlation matrix can also be deduced using this method, whence the leading eigenvectors $\tilde{U}$ are readily derived if estimates of project risk ($s_i$) are available.  -->
-<!-- ...how much load on... -->
-
-...the resulting correlation matrix is then a spectrally reduced matrix. ...to get a covariance matrix, have to also crowdsource the program standard deviations...
+Where $G$ is the "cross coefficient of variation matrix", i.e. the matrix whose diagonal elements are the squared coefficients of variation $c_k^2$, and whose off-diagonal elements are the cross coefficients of variation $c_{kj}$. Note that $G$ is just the covariance matrix left and right multiplied by a diagonal matrix of the inverse project means.
 
 \begin{equation}
-\begin{split}
-Q &= D(\mathbf{c}) P \\
-&= D(\boldsymbol{\mu})^{-1} D(\boldsymbol{\sigma})^{-1} P
-\end{split}
+G = D(\boldsymbol{\mu})^{-1} \Sigma D(\boldsymbol{\mu})^{-1}
 \end{equation}
 
+(Where the notation $D(\mathbf{y})$ means, for any vector $\mathbf{y}$, a diagonal matrix whose diagonal elements are the elements of the vector $\mathbf{y}$.)
 
-<!-- While it is true that research managers (and/or stakeholders and/or the foresight economists conducting the project appraisal) generally do not have an intuitive grasp of the project NPV volatility parameter itself, they do generally have some idea of the uncertainty surrounding project NPV estimates, such that they can be asked to quantify minimum and maximum bounds on project NPV, in addition to the NPV estimation itself. For example, they can say that NPV is $x(\hat{t})$, but that it might be six times that amount, or half that amount. (Or they may give the same information in terms of magnitude, which is then easily transformed into percentage terms.) -->
+Alternatively, $G$ can be expressed in terms of the correlation matrix ($K$).
 
-<!-- These upper and lower percentage errors may then be interpreted as the upper and lower bounds on the $95\%$ confidence interval about the expected percentage change in project NPV between the start and end of the project. Another phrase for "percentage change" is "arithmetic return" (call this $R$), which may then be converted to a log return ($y$) by the formula $y = \ln(R + 1)$. Assuming $x(t)$ follows a gBm, then the upper and lower log returns, $\overline{y}$ and $\underline{y}$, may be expressed as follows. -->
+\begin{equation}
+G = D(\mathbf{c}) K D(\mathbf{c})
+\end{equation}
 
-<!-- \begin{equation} -->
-<!-- \begin{split} -->
-<!-- \overline{y} &= \mu + z \sigma \\ -->
-<!-- \underline{y} &= \mu - z \sigma -->
-<!-- \end{split} -->
-<!-- \end{equation} -->
+It follows that $G$ has the same eigenvalues as $K$ and $\Sigma$; and that the eigenvectors of $G$ are just the eigenvectors of $K$ premultiplied by $D(\mathbf{c})$. That is to say, if the eigendecompositions of $G$ and $K$ are denoted, respectively,
 
-<!-- Where $z = 1.96$ is the standard score corresponding to the $95\%$ confidence interval of a normally distributed random variable, and -->
+\begin{equation}
+G = Q \Gamma Q'
+\end{equation}
 
-<!-- \begin{equation} -->
-<!-- \begin{split} -->
-<!-- \mu &= \left(m - \frac{s^2}{2} \right) \tau \\ -->
-<!-- \sigma &= s^2 \tau -->
-<!-- \end{split} -->
-<!-- \end{equation} -->
+and
 
-<!-- This system of equations may then be solved for both the project volatility parameter $s$ and mean growth rate $m$ in terms of the upper and lower log returns, the project time horizon $T$, and the standard score $z$, as follows. -->
+\begin{equation}
+K = P \Gamma P'
+\end{equation}
 
-<!-- \begin{equation} -->
-<!-- \begin{split} -->
-<!-- s &= \frac{1}{2 \sqrt{\tau} z} (\overline{y} - \underline{y}) \\ -->
-<!-- m &= \frac{1}{2 \tau} \left( \overline{y} + \underline{y} + \frac{(\overline{y} - \underline{y} )^2}{4 z^2} \right) -->
-<!-- \end{split} -->
-<!-- \end{equation} -->
-<!-- <!-- yMax <- 1.1 --> -->
-<!-- <!-- yMin <- -0.6 --> -->
-<!-- <!-- # Define confidence interval of interest, usually 95% --> -->
-<!-- <!-- zBound <- 2#1.96 --> -->
-<!-- <!-- # Back out s and m --> -->
-<!-- <!-- s <- (yMax - yMin) / (2 * zBound * sqrt(tauN)) --> -->
-<!-- <!-- mu <- (yMax + yMin) / 2 --> -->
-<!-- <!-- m <- (mu / tauN + s^2 / 2) --> -->
-<!-- <!-- m <- 1 / (2 * tauN) * (yMax + yMin + (yMax - yMin)^2 / (4 * zBound^2)) --> -->
+Then the eigenvectors of $G$ and $K$ are related as follows.
 
-<!-- The coefficient of variation $\frac{s}{m \sqrt{\tau}}$ is a handy, normalized measure of project NPV volatility over time. One should not be surprised to see high coefficients of variation in the AR4D context. Because AR4D projects are usually deep in the money, a low coefficient of variation may indicate that ROV will not differ significantly from NPV, and that there is thus no point in calculating ROV. -->
-
-<!-- Note also that, in the process of deducing $s$ and $m$, the expected project NPV log return $\mu$ is calculated, and that the expected project NPV at future times may be calculated by equation \ref{eq:ExT}. These calculations may serve as further checks on the plausibility of parameter values, project NPV estimates, and project NPV upper and lower bounds. -->
-
-<!-- The standard score $z$ can of course be adjusted to match the practitioner's idea of a suitable confidence interval defined by the bounds $\overline{y}$ and $\underline{y}$. Note that the system of equations above can still be solved for $m$ and $s$ in the absence of an estimate for one of the bounds $\overline{y}$ or $\underline{y}$, if an estimate for the expected log return $\mu$ can be obtained. -->
-
+\begin{equation}
+Q = D(\mathbf{c}) P
+\end{equation}
 
 ## Modeling diminishing returns to investment
 
-Generally speaking, project NPV scales with investment. That is to say, beyond a certain minimum level of funding required to generate, release, and support the diffusion and uptake of the project's research product(s) on a pilot level, further increments in project investment have the effect of broadening the scope of impact---i.e. extending the size and number of populations or markets where the research product is released and has an impact. For reasons well known to economists, this scaling is not linear, but rather marginally diminishing. Project NPV ($x_i(\hat{t})$) may thus be expressed as a marginally diminishing function of the funding allocation $w_i$, as follows.
+Generally speaking, project NPV scales with investment. That is to say, beyond a certain minimum level of funding required to generate, release, and support the diffusion and uptake of the project's research product(s) on a pilot level, further increments in project investment have the effect of broadening the scope of impact---i.e. extending the size and number of populations or markets where the research product is released and has an impact. For reasons well known to economists, this scaling is not linear, but rather marginally diminishing. Project NPV ($x_k(\hat{t})$) may thus be expressed as a marginally diminishing function of the funding allocation $w_k$, as follows.
 
 \begin{equation}
-x_i(\hat{t}) = \tilde{x}_i(\hat{t}) \left(\frac{w_i}{C} \right)^{\alpha_i}
+x_k(\hat{t}) = \tilde{x}_k(\hat{t}) \left(\frac{w_k}{C} \right)^{\alpha_k}
 \label{eq:npvFnW}
 \end{equation}
 
-Where $C$ is the portfolio budget, $\tilde{x}_i(\hat{t})$ is the maximum financially feasible NPV---i.e., the NPV if the entire budget were invested in the project (the case where $w_i = C$)---and the exponent $\alpha_i$ is the elasticity of project NPV with respect to funding. That is,
+Where $C$ is the portfolio budget, $\tilde{x}_k(\hat{t})$ is the maximum financially feasible NPV---i.e., the NPV if the entire budget were invested in the project (the case where $w_k = C$)---and the exponent $\alpha_k$ is the elasticity of project NPV with respect to funding. That is,
 
 \begin{equation}
-\frac{\partial \ln(x_i)}{\partial \ln(w_i)} = \alpha_i
+\frac{\partial \ln(x_k)}{\partial \ln(w_k)} = \alpha_k
 \end{equation}
 
-And $\alpha_i$ lies between $0$ and $1$, reflecting marginally diminishing returns to investment.
+And $\alpha_k$ lies between $0$ and $1$, reflecting marginally diminishing returns to investment.
 
-[not the only marginally diminishing fn form, may also want to experiment with $\tilde{x}_i e^{-C/w_i}$---which includes an area of marginally increasing returns before they turn decreasing]
+[not the only marginally diminishing fn form, may also want to experiment with $\tilde{x}_k e^{-C/w_k}$---which includes an area of marginally increasing returns before they turn decreasing]
 
-Substituting this into equation \ref{}, program NPV can now be rewritten as a function of funding level.
+Substituting this into equation \ref{eq:ExTraw}, program NPV can now be rewritten as a function of funding level.
 
 \begin{equation}
-\mu_i(\hat{t}) = \tilde{x}_i(\hat{t}) \left( \frac{w_i}{C} \right)^{\alpha_i} e^{r T}
+\mu_k(\hat{t}) = \tilde{x}_k(\hat{t}) \left( \frac{w_k}{C} \right)^{\alpha_k} e^{r T}
 \label{eq:muFnw}
 \end{equation}
 <!-- ... -->
 <!-- This may be rearranged into an instructive expression... -->
 <!-- \begin{equation} -->
-<!-- \frac{\mu_i(\hat{t})}{\tilde{x}_i(\hat{t})} =  \left(\frac{w_i}{C} \right)^{\alpha_i} e^{r \tau} -->
+<!-- \frac{\mu_k(\hat{t})}{\tilde{x}_k(\hat{t})} =  \left(\frac{w_k}{C} \right)^{\alpha_k} e^{r \tau} -->
 <!-- \end{equation} -->
 <!-- ...the expected program value as a fraction of its full (fiscally feasible) potential value...pctg of potentiality realized -->
 <!-- or -->
 <!-- \begin{equation} -->
-<!-- \frac{x_i(\hat{t})}{\tilde{x}_i(\hat{t})} =  \left(\frac{w_i}{C} \right)^{\alpha_i} -->
+<!-- \frac{x_k(\hat{t})}{\tilde{x}_k(\hat{t})} =  \left(\frac{w_k}{C} \right)^{\alpha_k} -->
 <!-- \end{equation} -->
+
+## Deducing program NPV variances and covariances \label{sec:volEst}
+<!-- ## Deducing the program correlation matrix in minimum data contexts -->
+
+It is all very well to theorize and deduce formal expressions, but how are these things to be estimated in practice? In the financial context, means, variances, and covariances can be estimated from time series data in a straightforward manner. As mentioned earlier, however, no analogous data exists in the AR4D context.
+
+Program NPV ($\tilde{x}_k(\hat{t})$) can be estimated at the start of the funding cycle based on ex-ante impact assessment. But program NPV variance ($\sigma_k^2$) is less straightforward, and covariances between programs ($\sigma_{kj}$) even less so.
+
+Elsewhere I develop a crowdsourcing method to estimate the AR4D correlation matrix based on principal components analysis [-@]. To convert these correlations into covariances, the program variances are required. More specifically, the standard deviation of percentage changes in NPV, $s_k$, is required.
+
+While it may be difficult to develop an intuitive grasp of the value of $s_k$, research managers (and/or stakeholders and/or the foresight economists conducting the program appraisal) generally have some idea of the uncertainty surrounding NPV estimates, such that they can be asked to quantify minimum and maximum bounds on the NPV. For example, they can say that NPV is $\tilde{x}(\hat{t})$, but that it might be six times that amount, or half that amount. (Or they may give the same information in terms of magnitude, which is then easily transformed into percentage terms.)
+
+These upper and lower percentage errors may then be interpreted as the upper and lower bounds on the $95\%$ confidence interval about the expected percentage change in project NPV between the start and end of the project. Another phrase for "percentage change" is "arithmetic return" (call this $\mathscr{R}_k$), which may then be converted to a log return ($\ell_k = \ln(x_k(T) / x_k(\hat{t}))$) by the formula $\ell_k = \ln(\mathscr{R}_k + 1)$. Now, since $\tilde{x}_k(t)$ is assumed to follow a geometric Brownian motion, the log return may also be expressed
+
+\begin{equation}
+\ell_k = \left(r - \frac{s_k^2}{2} \right) + s_k \epsilon \sqrt{\tau}
+\end{equation}
+
+With mean and variance
+
+\begin{equation}
+\begin{split}
+E[\ell] \bigr|_{t = \hat{t}} &= \left(r - \frac{s_k^2}{2} \right) \tau \\
+Var[\ell] \bigr|_{t = \hat{t}} &= s_k^2 \tau
+\end{split}
+\end{equation}
+
+The upper and lower bounds on the log return, $\bar{\ell}$ and $\underline{\ell}$, may thus be expressed as follows.
+
+\begin{equation}
+\begin{split}
+\bar{\ell} &= E[\ell] \bigr|_{t = \hat{t}} + z \sqrt{Var[\ell] \bigr|_{t = \hat{t}}} \\
+\underline{\ell} &= E[\ell] \bigr|_{t = \hat{t}} - z \sqrt{Var[\ell] \bigr|_{t = \hat{t}}}
+\end{split}
+\end{equation}
+
+Where $z = 1.96$ is the standard score corresponding to the $95\%$ confidence interval of a normally distributed random variable. The standard score $z$ can of course be adjusted to match the practitioner's idea of a suitable confidence interval defined by the bounds $\bar{\ell}$ and $\underline{\ell}$.
+
+This system of equations can then be rearranged into three expressions for the volatility parameter $s_k$ in terms of known parameters (i.e. in terms of the upper and lower log returns $\bar{\ell}, \underline{\ell}$, the discount rate $r$, the project time horizon $T$, and the standard score $z$).
+
+\begin{equation}
+\begin{split}
+s_k &= \frac{z \pm \sqrt{z^2 - 1 / 2 (\bar{\ell} - r \tau)}}{ \sqrt{\tau}} \\
+&= \frac{-z \pm \sqrt{z^2 - 1 / 2 (\underline{\ell} - r \tau)}}{ \sqrt{\tau}} \\
+&= \sqrt{ r - \frac{\bar{\ell} + \underline{\ell}}{2 \tau}}
+\end{split}
+\end{equation}
+
+Once $s_k$ has been deduced in this way for each program, it is then straightforward to compute the variances $\boldsymbol{\sigma}$ and coefficients of variation $\mathbf{c}$. With these in hand,[together with the crowdsourced correlation matrix $\tilde{K}$,] the deduced covariance matrix and cross coefficient of variation matrix follow as
+
+\begin{equation}
+\tilde{\Sigma} = D(\boldsymbol{\sigma}) \tilde{K} D(\boldsymbol{\sigma})
+\end{equation}
+
+And
+
+\begin{equation}
+\tilde{G} = D(\mathbf{c}) \tilde{K} D(\mathbf{c})
+\end{equation}
+
+Respectively.
+<!-- Finally, note that, in the process of deducing $s_k$, the expected log return and variance may also be calculated.  and that the expected project NPV at future times may be calculated by equation \ref{eq:ExT}. These calculations may serve as further checks on the plausibility of parameter values, project NPV estimates, and project NPV upper and lower bounds. -->
 
 # Project kinematics and vis viva
 
@@ -526,40 +577,40 @@ Then $v(0) = 0$, and so equation \ref{eq:Eraw} becomes
 
 In physics, this is analogous to the expression for the kinetic energy of a moving object with mass $\lambda$, where the $u$ stands for a spatial dimension. To discourage practitioners from getting too cozy with this analogy, $\mathcal{E}$ is henceforth referred to using Gottfried Leibniz's more archaic, and now largely abandoned, term "vis viva" (which means "living force" in Latin).
 
-In the motivating context of the present article, the displacement $\Delta u_i$ corresponds to the $i^{th}$ expected project NPV at $t = \hat{t}$. More precisely,
+In the motivating context of the present article, the displacement $\Delta u_k$ corresponds to the $k^{th}$ expected project NPV at $t = \hat{t}$. More precisely,
 
 \begin{equation}
 \begin{split}
-\Delta u_i = \int_{\hat{t}}^T v_i dt &= u_i(\tau)|_{*} - u_i(\tau) \\
-&= E[x_i(T)]\bigr|_{t = \hat{t}}
+\Delta u_k = \int_{\hat{t}}^T v_k dt &= u_k(\tau)|_{*} - u_k(\tau) \\
+&= E[x_k(T)]\bigr|_{t = \hat{t}}
 \end{split}
 \end{equation}
 
-Assuming $x_i(t)$ follows a gBm,
+Assuming $x_k(t)$ follows a gBm,
 
 \begin{equation}
-\Delta u_i |_{t = \hat{t}} = \mu_i(\hat{t}) = x_i(\hat{t}) e^{r \tau} \bigr|_{t = \hat{t}}
+\Delta u_k |_{t = \hat{t}} = \mu_k(\hat{t}) = x_k(\hat{t}) e^{r \tau} \bigr|_{t = \hat{t}}
 \end{equation}
 
 The corresponding velocity thus works out to
 
 \begin{equation}
-\frac{\Delta u_i}{\Delta t} \bigr|_{t = \hat{t}} = -r x_i(\hat{t}) e^{r \tau}
+\frac{\Delta u_k}{\Delta t} \bigr|_{t = \hat{t}} = -r x_k(\hat{t}) e^{r \tau}
 \end{equation}
 
 With starting and finishing values of
 
 \begin{equation}
-\frac{\Delta u_i}{\Delta t} \bigr|_{t = 0} = -r x_i(0) e^{r \tau}
+\frac{\Delta u_k}{\Delta t} \bigr|_{t = 0} = -r x_k(0) e^{r \tau}
 \end{equation}
 
 and
 
 \begin{equation}
-\frac{\Delta u_i}{\Delta t} \bigr|_{t = T} = -r x_i(T)
+\frac{\Delta u_k}{\Delta t} \bigr|_{t = T} = -r x_k(T)
 \end{equation}
 
-The velocity is negative because time progression in the definition of $\mu_i$ is expressed not in terms of the number of time steps transpired, but rather in terms of the number of time steps that have yet to transpire until the time horizon $T$. Nonetheless, the velocity is monotonically increasing in time (Figure \ref{fig:kinema2}).
+The velocity is negative because time progression in the definition of $\mu_k$ is expressed not in terms of the number of time steps transpired, but rather in terms of the number of time steps that have yet to transpire until the time horizon $T$. Nonetheless, the velocity is monotonically increasing in time (Figure \ref{fig:kinema2}).
 
 ```{r, fig.show = "hold", fig.width = 3, fig.height=3, fig.align="center", fig.cap="\\label{fig:kinema2}Acceleration of a net benefit stream.", echo = FALSE}
 
@@ -610,8 +661,8 @@ The vis viva, meanwhile, works out to
 
 \begin{equation}
 \begin{split}
-\mathcal{E}_i(\hat{t}) &= \frac{\lambda}{2} r^2 x_i(\hat{t})^2 e^{2r \tau} \\
-&= \frac{\lambda}{2} r e^{r \tau} \mu_i(\hat{t})^2
+\mathcal{E}_k(\hat{t}) &= \frac{\lambda}{2} r^2 x_k(\hat{t})^2 e^{2r \tau} \\
+&= \frac{\lambda}{2} r e^{r \tau} \mu_k(\hat{t})^2
 \end{split}
 \end{equation}
 
@@ -619,7 +670,7 @@ The velocity and vis viva of an entire portfolio may be expressed
 
 \begin{equation}
 \begin{split}
-v_p = \sqrt{\Sigma_i \left( \frac{\Delta u_i}{\Delta t}} \right)^2 &= r \sqrt{ \Sigma_i \mu_i^2} \\
+v_p = \sqrt{\Sigma_k \left( \frac{\Delta u_k}{\Delta t}} \right)^2 &= r \sqrt{ \Sigma_k \mu_k^2} \\
 &= r \sqrt{\boldsymbol{\mu} ' \boldsymbol{\mu}} \\
 \end{split}
 \end{equation}
@@ -634,8 +685,8 @@ and
 
 <!-- \begin{equation} -->
 <!-- \begin{split} -->
-<!-- \frac{\mathcal{E}_i}{w_i} &= r^2 x_i(\hat{t})^2 e^{2r \tau} \\ -->
-<!-- &= r^2 k_i^2 \left( \frac{w_i}{C} \right)^{2 (\alpha_i - 1)} e^{2r \tau} -->
+<!-- \frac{\mathcal{E}_k}{w_k} &= r^2 x_k(\hat{t})^2 e^{2r \tau} \\ -->
+<!-- &= r^2 k_k^2 \left( \frac{w_k}{C} \right)^{2 (\alpha_k - 1)} e^{2r \tau} -->
 <!-- \end{split} -->
 <!-- \end{equation} -->
 
@@ -643,12 +694,12 @@ and
 
 <!-- \begin{equation} -->
 <!-- \begin{split} -->
-<!-- \mathbf{\mathcal{E}} ' \mathbf{w}^{-1} &= r^2 x_i(\hat{t})^2 e^{2r \tau} \\ -->
-<!-- &= r^2 k_i^2 \left( \frac{w_i^{\alpha_i - 1}}{C} \right)^2 e^{2r \tau} -->
+<!-- \mathbf{\mathcal{E}} ' \mathbf{w}^{-1} &= r^2 x_k(\hat{t})^2 e^{2r \tau} \\ -->
+<!-- &= r^2 k_k^2 \left( \frac{w_k^{\alpha_k - 1}}{C} \right)^2 e^{2r \tau} -->
 <!-- \end{split} -->
 <!-- \end{equation} -->
 
-## Program value is cyclically real
+# Program value is cyclically real
 <!-- [Modeling the program investment cycle in the complex plane] -->
 
 Between the disbursement of funds and the realization of project impacts, project value exists in an intangible form of "potential value". It is value that is in the process of being transformed from one concrete form into another, i.e., from a tangible monetary form into tangible program impacts in the target populations and environments. During this transformation, it is incorrect to say that the program's value is zero, even though the tangible monetary form of the investment has vanished, or is in the process of vanishing. On the other hand, it is not altogether correct to say that the program's value is equal to its NPV, since this form of program value has yet to materialize in any demonstrable, tangible sense.
@@ -657,25 +708,25 @@ Between the disbursement of funds and the realization of project impacts, projec
 It is possible to model this reality directly in the complex plane as follows. First, note that project NPV at $t = 0$ may be expressed
 
 \begin{equation}
-\mu_i(0) = x_i(0) e^{(\omega + i) 2 \pi} \;\;;\;\;\; \omega = r \frac{T}{2 \pi}
+\mu_k(0) = x_k(0) e^{(\omega + i) 2 \pi} \;\;;\;\;\; \omega = r \frac{T}{2 \pi}
 \end{equation}
 
 Where $i = \sqrt{-1}$. (Recall that $e^{2n i \pi} = 1$ for any integer $n$.) This may then be extended to all angles $\theta \in (0, 2 \pi)$ as follows
 
 \begin{equation}
-\mu_i(\theta; T, r) = x_i(\theta) e^{(\omega + i) (2 \pi - \theta)}
+\mu_k(\theta; T, r) = x_k(\theta) e^{(\omega + i) (2 \pi - \theta)}
 \end{equation}
 
-In this formulation, program value $\mu_i(\theta; T, r)$ is real-valued at the start of the funding cycle ($\theta = 0$), midway through ($\theta = \pi$), and at the end of the cycle ($\theta = 2 \pi$); and is complex-valued elsewhere. Real program values thus correspond to the points in the funding cycle when the investment has a tangible form---particularly at the beginning, when the funds are disbursed, and at the end, when the investment has been productively consumed and transformed into program impacts. Complex values lying off the real number line, meanwhile, correspond to points in the funding cycle when the investment has no demonstrable or tangible form, i.e. when it is in the process of being transformed from its original monetary form into the planned program impacts. The negative real value occurring halfway through the cycle, at $\theta = \pi$, may be interpreted as the investment when it is demonstrable as a sunk cost.
+In this formulation, program value $\mu_k(\theta; T, r)$ is real-valued at the start of the funding cycle ($\theta = 0$), midway through ($\theta = \pi$), and at the end of the cycle ($\theta = 2 \pi$); and is complex-valued elsewhere. Real program values thus correspond to the points in the funding cycle when the investment has a tangible form---particularly at the beginning, when the funds are disbursed, and at the end, when the investment has been productively consumed and transformed into program impacts. Complex values lying off the real number line, meanwhile, correspond to points in the funding cycle when the investment has no demonstrable or tangible form, i.e. when it is in the process of being transformed from its original monetary form into the planned program impacts. The negative real value occurring halfway through the cycle, at $\theta = \pi$, may be interpreted as the investment when it is demonstrable as a sunk cost.
 
-Note that if $\mu_i(\theta; T, r)$ is a positive real number at the start of the funding cycle ($\theta = 0$), then it must also be a positive real number at the end of the funding cycle ($\theta = 2 \pi$). Likewise, if program value is a negative real number at the start of a funding cycle, then it must also be negative at the end of the funding cycle. Funding cycles that begin and end on a positive real value may be called "normal funding cycles". Cycles that begin and end on a negative value may thus be said to be out of phase with the normal funding cycle by a rotation of $\pi$.
+Note that if $\mu_k(\theta; T, r)$ is a positive real number at the start of the funding cycle ($\theta = 0$), then it must also be a positive real number at the end of the funding cycle ($\theta = 2 \pi$). Likewise, if program value is a negative real number at the start of a funding cycle, then it must also be negative at the end of the funding cycle. Funding cycles that begin and end on a positive real value may be called "normal funding cycles". Cycles that begin and end on a negative value may thus be said to be out of phase with the normal funding cycle by a rotation of $\pi$.
 
 It follows that negative program values at $\theta = 0$ may be turned positive by extending or shortening the time horizon by $\pi$. That is, starting with an out of phase program value at $\theta = 0$,
 
 \begin{equation}
 \begin{split}
-\mu_i(0; r, T) &= -x_i(0) e^{(\omega + i) 2 \pi} \\
-&= x_i(0) e^{(\omega + i) 2 \pi + i \pi}
+\mu_k(0; r, T) &= -x_k(0) e^{(\omega + i) 2 \pi} \\
+&= x_k(0) e^{(\omega + i) 2 \pi + i \pi}
 \end{split}
 \end{equation}
 
@@ -683,43 +734,38 @@ The time horizon can be extended by $T / 2$ (i.e., $\pi$) in order to bring the 
 
 \begin{equation}
 \begin{split}
-\mu_i(0; r, 3 / 2 T) &= -x_i(0) e^{(\omega + i) 3 \pi} \\
-&= x_i(0) e^{(\omega + i) 3 \pi + i \pi} \\
-&= x_i(0) e^{3 \omega \pi + 4 i \pi} \\
-&= x_i(0) e^{3 \omega \pi}
+\mu_k(0; r, 3 / 2 T) &= -x_k(0) e^{(\omega + i) 3 \pi} \\
+&= x_k(0) e^{(\omega + i) 3 \pi + i \pi} \\
+&= x_k(0) e^{3 \omega \pi + 4 i \pi} \\
+&= x_k(0) e^{3 \omega \pi}
 \end{split}
 \end{equation}
 
-[Extending the time horizon in this way has the effect of a clockwise $\pi$ rotation of $\mu_i(0; r , T)$.] Alternatively, the program value may be made positive by shortening the time horizon by $T / 2$, [which corresponds to a counter-clockwise $\pi$ rotation in the complex plane.]
+[Extending the time horizon in this way has the effect of a clockwise $\pi$ rotation of $\mu_k(0; r , T)$.] Alternatively, the program value may be made positive by shortening the time horizon by $T / 2$, [which corresponds to a counter-clockwise $\pi$ rotation in the complex plane.]
 
 \begin{equation}
 \begin{split}
-\mu_i(0; r, T / 2 ) &= -x_i(0) e^{(\omega + i) \pi} \\
-&= x_i(0) e^{(\omega + i) \pi + i \pi} \\
-&= x_i(0) e^{ \omega \pi + 2 i \pi} \\
-&= x_i(0) e^{ \omega \pi}
+\mu_k(0; r, T / 2 ) &= -x_k(0) e^{(\omega + i) \pi} \\
+&= x_k(0) e^{(\omega + i) \pi + i \pi} \\
+&= x_k(0) e^{ \omega \pi + 2 i \pi} \\
+&= x_k(0) e^{ \omega \pi}
 \end{split}
 \end{equation}
 
 More generally, a negative program value can be brought into phase by extending or shortening the time horizon by $(2n - 1) T / 2$, where $n$ is a positive integer. [In some decision making situations, it might make sense to consider n < 0, which extends the time horizon backwards---corresponding perhaps to funding of a process already in mid course.]
 
 <!-- Recalling equation \ref{eq:npvFnW}, the previous equation can be rearranged as follows. -->
-
 <!-- \begin{equation} -->
-<!-- \frac{\mu_i(\theta)}{\tilde{x}_i(\theta)} = \left(\frac{w_i}{C} \right)^{\alpha_i} e^{(\omega + i) (2 \pi - \theta)} -->
+<!-- \frac{\mu_k(\theta)}{\tilde{x}_k(\theta)} = \left(\frac{w_k}{C} \right)^{\alpha_k} e^{(\omega + i) (2 \pi - \theta)} -->
 <!-- \end{equation} -->
-
 <!-- log spiral Fig \ref{...} ... -->
-<!-- does not change much, such that $x_i(\theta) \approx x_i(0)$, then this  -->
-
+<!-- does not change much, such that $x_k(\theta) \approx x_k(0)$, then this  -->
 <!-- # ```{r, fig.show = "hold", fig.width = 6, fig.height=3, fig.align="center", fig.cap="\\label{fig:logSpiral}Log spiral in (left) polar and (right) complex coordinates over 0 \\geq \\theta \\geq 2 \\pi.", echo = FALSE} -->
-
 <!-- theta <- seq(0, 2 * pi, length.out = 50) -->
 <!-- r <- 0.01 -->
 <!-- Tt <- 40 -->
 <!-- omega <- r * Tt / (2 * pi) -->
 <!-- a <- 1 -->
-
 <!-- x <- a * exp(omega * theta) * cos(theta) -->
 <!-- y <- a * exp(omega * theta) * sin(theta) -->
 <!-- df_plot <- data.frame(x, y) -->
@@ -763,10 +809,6 @@ More generally, a negative program value can be brought into phase by extending 
 <!--                  axis.ticks = element_blank(), -->
 <!--                  panel.grid = element_blank()) -->
 <!-- ggPolar <- gg -->
-
-
-
-
 <!-- gg <- ggplot() -->
 <!-- gg <- gg + geom_path(data = df_plot, aes(x, y, group = 1)) -->
 <!-- gg <- gg + geom_point(data = data.frame(x = thisX, y = thisY), -->
@@ -799,12 +841,12 @@ More generally, a negative program value can be brought into phase by extending 
 <!--                  axis.ticks = element_blank(), -->
 <!--                  panel.grid = element_blank()) -->
 <!-- ggComp <- gg -->
-
 <!-- ggPolar + ggComp + plot_layout(ncol = 2) -->
-
 <!-- ``` -->
 
 # Vis viva maximization subject to a risk tolerance constraint
+
+## First order conditions
 
 The portfolio optimization problem may now be formulated in terms of vis viva maximization subject to a risk tolerance threshold.
 
@@ -812,8 +854,8 @@ The portfolio optimization problem may now be formulated in terms of vis viva ma
 \max_{\mathbf{w}}{\mathcal{E}} \:\:\: s.t. \:\:\: \sigma = \overline{\sigma}
 \end{equation}
 
-<!-- Because $\mu_i(w_i)$ is monotonically increasing in $w_i$ -->
-With a negligible loss of generality, the control variables $\mathbf{w}$ may be swapped for $\boldsymbol{\mu}$.
+<!-- Because $\mu_k(w_k)$ is monotonically increasing in $w_k$ -->
+With negligible loss of generality, the control variables $\mathbf{w}$ may be swapped for $\boldsymbol{\mu}$.
 
 \begin{equation}
 \max_{\boldsymbol{\mu}}{\mathcal{E}} \:\:\: s.t. \:\:\: \sigma = \overline{\sigma}
@@ -905,7 +947,7 @@ Because eigenvectors are defined up to scaling, the budget constraint may be arb
 \label{eq:wStar}
 \end{equation}
 
-Where $\beta_j$ is an arbitrary scaling constant, which may be chosen such that $\Sigma_i w_i = C$.
+Where $\beta_j$ is an arbitrary scaling constant, which may be chosen such that $\Sigma_k w_k = C$.
 
 ## Second order condition
 
@@ -962,9 +1004,9 @@ The leading eigenvector $\mathbf{q}_1$ is thus the solution that satisfies the s
 
 ## A menu of solutions catering to a range of risk appetites
 
-The optimal solution ($\boldsymbol{\mu}_1^*$) is optimal in the sense that it maximizes expected portfolio impact subject to a risk constraint. However, the optimal solution also corresponds to the highest eigenvalue ($\gamma_1$), and is thus also the riskiest solution (recall equation \ref{eq:gammaRisk}). The other candidate solutions ($\boldsymbol{\mu}_1^*, \boldsymbol{\mu}_2^*,\dots, \boldsymbol{\mu}_n^*$) correspond to lower expected impacts, but also successively decreasing eigenvalues ($\gamma_2, \gamma_3, \dots, \gamma_n$), and hence successively decreasing risk levels.
+The "optimal" solution ($\boldsymbol{\mu}_1^*$) is optimal in the sense that it maximizes expected portfolio impact subject to a risk constraint. However, this is the solution that also corresponds to the highest eigenvalue ($\gamma_1$), and is hence also the riskiest solution (recall equation \ref{eq:gammaRisk}). The other candidate solutions ($\boldsymbol{\mu}_1^*, \boldsymbol{\mu}_2^*,\dots, \boldsymbol{\mu}_n^*$) may correspond to lower expected impacts, but also successively decreasing eigenvalues ($\gamma_2, \gamma_3, \dots, \gamma_n$), and hence successively decreasing risk levels.
 
-AR4D donors and institutions are thus presented not with a single optimal solution, but a menu of solutions corresponding to a range of risk tolerances. Typically, AR4D donors are guided by a pro-poor mandate which requires them to incline towards ambitious, and hence risky, research portfolios. Nonetheless, if the risk to return ratio implied by the leading solution's eigenvalue $\gamma_1$ seems too high, the donor may select one of the less risky alternatives on the menu. It should be kept in mind, moreover, that higher portfolio risk is not unambiguously bad, as it exposes the investor to an increased probability of both lower and higher portfolio return.
+AR4D donors and institutions are thus presented not with a single optimal solution, but an optimal menu of solutions corresponding to a range of risk tolerances. Typically, AR4D donors are guided by a pro-poor mandate which requires them to operate in the gaps left by market failures, and hence to incline towards ambitious research portfolios. Ambition implies risk, which in turn implies that AR4D donors should endeavor to select from among the riskier solutions on the optimal menu. It should be kept in mind, moreover, that higher portfolio risk is not unambiguously bad, as it exposes the investor to an increased probability of both lower and higher portfolio return.
 <!-- The leading eigenvector of $G$ is the portfolio budget allocation that maximizes portfolio impact subject to a risk constraint. $\overline{\mathcal{E}}$. The other solutions are not necessarily sub-optimal, but rather correspond to lower investor risk tolerances. Here it is important to keep in mind that higher portfolio risk is not unambiguously bad, but rather a matter of ambition. Higher risk exposes the investor to an increased probability of both lower and higher portfolio return. Moreover, if the portfolio items follow a gBm, as assumed here, then returns are lognormally distributed; and so the risk is primarily upside. Moreover, let's not forget that AR4D institutions have a pro-poor mandate to redress market failures; and this can often mean taking on ambitious, higher risk portfolios. -->
 <!-- Note that this is reflected in the corresponding eigenvalues. The leading eigenvalue---which corresponds to the risk maximizing solution---is the largest, indicating the highest risk for a given vis viva target $\overline{\mathcal{E}}$ (recall equation \ref{eq:lambDef}), while the remaining eigenvalues are successively smaller, indicating successively lower risk levels. -->
 
@@ -974,7 +1016,7 @@ AR4D donors and institutions are thus presented not with a single optimal soluti
 The trailing eigenvectors of a covariance matrix tend to represent noise in the data. The budget allocations associated with these eigenvectors are thus effectively random, and should be discarded from the menu of eligible solutions. To ensure that solutions are meaningful, only the leading $m$ eigenvectors required to explain a high fraction of total portfolio variance should be retained.
 
 The percentage of portfolio variance explained by any given eigenvector $q_j$ (call this $k_j$) is the corresponding eigenvalue $\gamma_j$ divided by the sum of all the eigenvalues (See Abdi [-@] for details).
-<!-- associated principle component's variance divided by the sum of all principle component variances. Recalling from Eq \ref{eq:covmat_SS} that a signal's variance is just the corresponding eigenvalue $\gamma_i$ extracted from $\Sigma_{XX}$, this is expressed -->
+<!-- associated principle component's variance divided by the sum of all principle component variances. Recalling from Eq \ref{eq:covmat_SS} that a signal's variance is just the corresponding eigenvalue $\gamma_k$ extracted from $\Sigma_{XX}$, this is expressed -->
 
 \begin{equation}
 k_j = \frac{\gamma_j}{\sum_{k = 1}^n \gamma_k}
@@ -988,36 +1030,64 @@ c_m = \sum_{j=1}^m k_j
 
 Such that $c_n = 1$.
 
-The exact value of the integer $m$ is somewhat subjective. A rule of thumb followed in practice is to retain the $m$ leading eigenvectors required to explain at least $90\%$ of the portfolio variance (i.e., such that $c_m \geq 0.9$).
+The exact value of the integer $m$ is somewhat subjective. A rule of thumb often followed in practice is to retain the $m$ leading eigenvectors required to explain at least $90\%$ of the portfolio variance (i.e., such that $c_m \geq 0.9$). This is tantamount to the "spectral cut-off" method used in the financial context [@guo2018eigen; @carrasco2011optimal].
 
-Discarding the trailing eigenvectors of $G$ to eliminate noise is tantamount to following the "spectral cut-off" approach found in the financial context [@guo2018eigen; @carrasco2011optimal].
+## Multi-objective portfolio optimization
+
+[### AR4D correlation matrix eigenvectors encode AR4D policies]
+
+Generally speaking, each of the $m$ leading eigenvectors of a covariance matrix of a complex system of variables encode information about a specific aspect of the system. In the financial context, Gopikrishnan et al. [-@gopik2001quant] show that the each of the leading eigenvectors of a covariance matrix of hundreds of stock price series is associated with movements in a particular industry or sector. And each element in an eigenvector reflects a particular stock's contribution to, or participation in, movements in the respective sector.
+<!-- [The authors even suggest this method might be used to classify firms into industries.] -->
+
+In technical language, this is because empirical collective movements (for e.g., sectorial movements) tend to align with the principal components of the system. Eigenvectors reflect the participation of individual variables (for e.g., stocks) in a particular collective movement because they are very nearly the covariances of variables ($X$) with principal components ($S$). The exact covariances of variables with principal components ($\Sigma_{X, S}$) is given by
+
+\begin{equation}
+\Sigma_{X, S} = P \Gamma
+\end{equation}
+
+Correlations between variables and principal components ($K_{X, S}$), it follows, are given by 
+
+\begin{equation}
+K_{X, S} = \tilde{P} \tilde{\Gamma}^{\frac{1}{2}}
+\end{equation}
+
+(See Schiek [-@schiek2021reverse] and/or Abdi [-@] for details.)
+
+Elsewhere, I extend the logic of Gopikrishnan et al.'s analysis to AR4D correlation matrices, such that the collective movements associated with each eigenvector may be interpreted as the AR4D institution's (and/or donor's) strategic objectives or policies [-@schiek2021reverse]. The elements of the eigenvectors, it follows, may be interpreted as reflecting each research project's (or program's) contribution towards the respective policy.
+
+[
+-this is automatic anyway since the correlation matrix is deduced from $m$ loadings
+The variable-PC correlations $K_{X, S}$ are sometimes referred to as the "loadings"
+-loadings
+-varimax rotation
+-policy covariance matrix]
+
+In the context of the portfolio optimization method presented above, this implies that each solution on the optimal menu is associated with a particular strategic objective.
 
 
-In the  whereby the covariance matrix is reconstructed from the $m < n$ leading eigenvectors of $\Sigma$ as follows.
+
+<!-- I reconstructed the analysis, working with the loadings $L$ instead of the eigenvectors -->
+<!-- ---because the loadings have a more straightforward interpretation as the correlation between an item and the collective movement associated with the eigenvector--- -->
+<!-- and I observed that a varimax rotation of $L$ greatly clarifies the contributions of items to collective movements [-@schiek2021reverse]. I also  -->
+<!-- the correlation matrix is reconstructed from the $m < n$ leading eigenvectors of $\Sigma$ as follows. -->
 <!-- $\tilde{\Sigma}$ -->
 
-\begin{equation}
-\tilde{\Sigma} = L L '
-\label{eq:LL}
-\end{equation}
+<!-- \begin{equation} -->
+<!-- \tilde{\Sigma} = L L ' -->
+<!-- \label{eq:LL} -->
+<!-- \end{equation} -->
 
-Where
+<!-- Where -->
 
-\begin{equation}
-L = \tilde{U} \tilde{\Lambda}^{\frac{1}{2}}
-\end{equation}
+<!-- \begin{equation} -->
+<!-- L = \tilde{P} \tilde{\Gamma}^{\frac{1}{2}} -->
+<!-- \end{equation} -->
 
-And $\tilde{U}$, $\tilde{\Gamma}$ refer to the matrix of $m$ retained, leading eigenvectors and the corresponding (diagonal) matrix of retained eigenvalues of $\Sigma$, respectively. (See Schiek [-@schiek2021reverse] for an application in the AR4D context.)
-<!-- The number of retained eigenvectors $m$ is a subjective choice, usually sufficient to account for at least $90\%$ of the variance. -->
-<!-- @carrasco2007linear -->
+<!-- And $\tilde{U}$, $\tilde{\Gamma}$ refer to the matrix of $m$ retained, leading eigenvectors and the corresponding (diagonal) matrix of retained eigenvalues of $\Sigma$, respectively. (See Schiek [-@schiek2021reverse] for an application in the AR4D context.) -->
 
-By construction, then, the spectrally reduced covariance matrix has just $m$ nonzero eigenvalues, with the remaining $n - m$ eigenvalues equal to zero. This removal of trailing eigenvectors has a signal strengthening effect (or, conversely, a noise attenuating effect), such that $\tilde{\Sigma}$ typically approximates $\Sigma$, but may also be considered more accurate than $\Sigma$ with respect to the "true process" that generates the underlying data, to the extent that the data are contaminated by noise. All of the eigenvectors of $\tilde{\Sigma}$ with nonzero eigenvalues encode meaningful information about the portfolio items and their interactions. The optimal solution $\boldsymbol{\mu}^*$ corresponding to the smallest nonzero eigenvalue of $\tilde{\Sigma}$ is thus likewise meaningful.
+<!-- By construction, then, the spectrally reduced covariance matrix has just $m$ nonzero eigenvalues, with the remaining $n - m$ eigenvalues equal to zero. This removal of trailing eigenvectors has a signal strengthening effect (or, conversely, a noise attenuating effect), such that $\tilde{\Sigma}$ typically approximates $\Sigma$, but may also be considered more accurate than $\Sigma$ with respect to the "true process" that generates the underlying data, to the extent that the data are contaminated by noise. All of the eigenvectors of $\tilde{\Sigma}$ with nonzero eigenvalues encode meaningful information about the portfolio items and their interactions. The optimal solution $\boldsymbol{\mu}^*$ corresponding to the smallest nonzero eigenvalue of $\tilde{\Sigma}$ is thus likewise meaningful. -->
 
-
-
-
-
-The individual and cumulative portions of variance explained by each signal in the financial dataset are plotted in Fig \ref{fig:varExplained_barchart}. Customarily, researchers like to retain signals such that at least 90% of the variance in the original data is explained. The horizontal dashed line in the plot marks this subjective threshold.
+<!-- The individual and cumulative portions of variance explained by each signal in the financial dataset are plotted in Fig \ref{fig:varExplained_barchart}. Customarily, researchers like to retain signals such that at least 90% of the variance in the original data is explained. The horizontal dashed line in the plot marks this subjective threshold. -->
 
 <!-- # ```{r, fig.show = 'hold', fig.width=5, fig.height=2, fig.align='left', fig.cap="\\label{fig:varExplained_barchart}Plot of the individual and cumulative portions of variance explained by each signal in the financial dataset.", echo=F} -->
 <!-- c_vec <- eig_values / sum(eig_values) -->
@@ -1054,29 +1124,12 @@ The individual and cumulative portions of variance explained by each signal in t
 
 <!-- The plot shows that, for the financial data set, the leading `r n_signals` signals are sufficient to meet this criterion. -->
 
+<!-- [Of course, the appearance of zero-valued eigenvalues makes the projected Hessian (equation \ref{eq:...}) semi-definite as opposed to definite. But this does not matter since this is by design, and the solutions with zero-valued eigenvalues are likewise ignored by design. In other words, the projected Hessian remains definite over the set of solutions that are of any interest to the investor.] -->
 
 
 
 
-
-
-
-
-
-
-
-# Multi-objective portfolio optimization
-
-[Of course, the appearance of zero-valued eigenvalues makes the projected Hessian (equation \ref{eq:...}) semi-definite as opposed to definite. But this does not matter since this is by design, and the solutions with zero-valued eigenvalues are likewise ignored by design. In other words, the projected Hessian remains definite over the set of solutions that are of any interest to the investor.]
-
-
-## Eigenvectors as strategic objectives
-
-Generally speaking, the $m$ leading eigenvectors of a covariance (or correlation) matrix of a complex system encode information about collective movement within the system. In the financial context, for example, Gopikrishnan et al. [-@gopik2001quant] show that the eigenvectors of a covariance matrix of hundreds of stock price series reflect macro level movements at the industrial or sectorial level, such that each element in a given eigenvector may be interpreted as an indicator of a particular firm's contribution to or participation in movements in the respective industry. [The authors even suggest this method might be used to classify firms into industries.]
-
-I later reconstructed this analysis, working with the loadings $L$ instead of the eigenvectors---because the loadings have a more straightforward interpretation as the correlation between an item and the collective movement associated with the eigenvector---and I observed that a varimax rotation of $L$ greatly clarifies the contributions of items to collective movements [-@schiek2021reverse]. I also extended the logic to AR4D correlation matrices, where the collective movements associated with each eigenvector may be interpreted as the guiding policies or strategic objectives of the research institution (and/or donor), such that the elements of the eigenvectors reflect each research project's contribution towards the respective policy.
-
-## Policy portfolio optimization
+<!-- ## Policy portfolio optimization -->
 
 In relation to the portfolio optimization method presented above, this implies that each of the $m$ program portfolio solutions $\boldsymbol{\mu}^*$ is tied to a specific strategic objective. Selection of any one of these solutions thus implies an exclusive focus on a particular strategic objective, and neglect of the rest. This may suit institutions that like to focus on a specific theme each funding cycle. However, it is problematic for AR4D institutions and donors that prefer to optimize budget allocations across multiple strategic objectives at once. [They want to pursue, for example, nutritional security, economic growth, and smallholder resilience, all at once, and not one at a time, in a piecemeal fashion. Moreover, such objectives usually go hand in hand, and cannot be pursued in isolation from each other.]
 
@@ -1095,7 +1148,7 @@ The policy vis viva $\mathcal{E}_p$ is
 Where the portfolio velocity $v_p$ is
 
 \begin{equation}
-v_p = r \sqrt{\Sigma_i \mu_{ij}^{*2}}
+v_p = r \sqrt{\Sigma_k \mu_{kj}^{*2}}
 \end{equation}
 
 
@@ -1116,8 +1169,7 @@ some multi-objective criteria have been prposed, but involve ad hoc assigning ob
 
 <!-- and I showed how this idea can be used to deduce an approximate covariance matrix when time series data are unavailable [-@schiek2021reverse].  -->
 
-## The meaning of negative budget allocations [and ensuring positive budget allocations]
-[Negative budget weights are pi rotations]
+## Dealing with negative budget allocations
 
 <!-- Generally speaking, the eigenvectors of $K$ may include negative values. This is problematic for AR4D portfolio optimization since it implies complex valued budget allocations (recall equation \ref{eq:wStar}). -->
 
@@ -1131,50 +1183,50 @@ some multi-objective criteria have been prposed, but involve ad hoc assigning ob
 <!-- Here I present an alternative approach. First, note that the expected project NPV (equation \ref{eq:ExT}) can be expressed -->
 
 <!-- \begin{equation} -->
-<!-- E[x_i(T)]\bigr|_{t = 0} = \mu_i = x_i(0) e^{\omega 2 \pi} -->
+<!-- E[x_k(T)]\bigr|_{t = 0} = \mu_k = x_k(0) e^{\omega 2 \pi} -->
 <!-- \label{eq:ExTrad} -->
 <!-- \end{equation} -->
 
-<!-- That is to say, $\mu_i$ can be mapped to polar coordinates, with the time horizon set to $2 \pi$, and $\omega  =  r T / 2 \pi$. Over the range $0 \geq \theta \geq 2 \pi$, $\mu_i$ traces out one cycle of a log spiral (Fig. ). -->
+<!-- That is to say, $\mu_k$ can be mapped to polar coordinates, with the time horizon set to $2 \pi$, and $\omega  =  r T / 2 \pi$. Over the range $0 \geq \theta \geq 2 \pi$, $\mu_k$ traces out one cycle of a log spiral (Fig. ). -->
 
 
 <!-- Secondly, note that this has an equivalent expression in the complex plane. -->
 
 <!-- \begin{equation} -->
-<!-- \mu_i = -x_i(0) e^{2 \pi (\omega + i)} -->
+<!-- \mu_k = -x_k(0) e^{2 \pi (\omega + i)} -->
 <!-- \label{eq:ExTcomp} -->
 <!-- \end{equation} -->
 
 <!-- Where $i = \sqrt{-1}$. To recap, expected project NPV has been mapped from its original Cartesian form to a polar form, and then from polar form to complex form. In the motivating context of this article, the latter of these three forms is the most realistic---in the sense that it reflects the intangibility of the project investment except as a sunk cost (at $\theta = \pi$), and as realized project NPV (at $\theta = 2 \pi$). A better name for the complex plane in this context might thus be the "cyclically real" plane. -->
 
-<!-- Finally, consider the case where $\mu_i$ is negative. That is, say $\mu_i = -\zeta$ where $\zeta > 0$. -->
+<!-- Finally, consider the case where $\mu_k$ is negative. That is, say $\mu_k = -\zeta$ where $\zeta > 0$. -->
 
 <!-- \begin{equation} -->
-<!-- -\zeta = -x_i(0) e^{2 \pi (\omega + i)} -->
+<!-- -\zeta = -x_k(0) e^{2 \pi (\omega + i)} -->
 <!-- \end{equation} -->
 
 <!-- By Euler's formula ($e^{(2 n - 1)i \pi} = -1 \:;\:\:\:n\in \mathbb{Z}$), this can be rewritten -->
 
 <!-- \begin{equation} -->
-<!-- e^{ i \pi} \zeta = -x_i(0) e^{2 \pi (\omega + i)} -->
+<!-- e^{ i \pi} \zeta = -x_k(0) e^{2 \pi (\omega + i)} -->
 <!-- \end{equation} -->
 
 <!-- Dividing through by $e^{i \pi}$ then gives -->
 
 <!-- \begin{equation} -->
-<!-- \zeta = -x_i(0) e^{\omega 2 \pi + i} -->
+<!-- \zeta = -x_k(0) e^{\omega 2 \pi + i} -->
 <!-- \end{equation} -->
 
 <!-- Which has the effect of rotating the endpoint of the log spiral in Fig ... clockwise by $\pi$. In polar form, this rotation may be expressed -->
 
 <!-- \begin{equation} -->
-<!-- \zeta = x_i(0) e^{\omega \pi} -->
+<!-- \zeta = x_k(0) e^{\omega \pi} -->
 <!-- \end{equation} -->
 
 <!-- Which then maps back to the original form as -->
 
 <!-- \begin{equation} -->
-<!-- \zeta = x_i(0) e^{r \frac{T}{2}} -->
+<!-- \zeta = x_k(0) e^{r \frac{T}{2}} -->
 <!-- \end{equation} -->
 
 <!-- Dividing a negative entry in an eigenvector by $-1$ in order to remove the negative sign may thus be interpreted as a period-halving rotation of the respective project's log-spiral timeline, which may in turn be expressed as a scaling of its original Cartesian form by $e^{-r T / 2}$. -->
@@ -1184,6 +1236,10 @@ some multi-objective criteria have been prposed, but involve ad hoc assigning ob
 To illustrate the portfolio optimization workflow presented above, here I walk through a step-by-step example of how the method might be applied in an AR4D fund allocation decision.
 
 In this hypothetical example, a donor wants to know the optimal distribution of limited funds over a five year funding cycle across a portfolio of eight AR4D programs. The programs might be defined in terms of major commodity categories (cereals, roots & tubers, legumes, livestock, fruit & vegetables, fish, etc.); or they might be organized around thematic areas (climate smart agriculture, smallholder resilience, digital agriculture, etc.); or they might be some combination thereof. The donor wants to maximize impact for a given risk tolerance ...such that risk is minimized for a given impact target (as represented by the vis viva). As explained in section ..., there are $m$ possible budget allocations that solve the problem, corresponding to the $m$ leading eigenvectors of the program cross coefficient of variation matrix $G$. Each of these 
+
+$\tilde{K}$ -> $\tilde{G}$
+
+the exected program NPVs and their corresponding variances are estimated following the method described in section \ref{sec:volEst}
 
 ...may want to focus on a specific strategic objective for the funding cycle.
 
@@ -1251,7 +1307,7 @@ colnames(df_table)[1] <- "Project"
 df_table$Project <- gsub("\n", " ", df_table$Project)
 df_table$Group <- gsub("\n", " ", df_table$Group)
 #===============================================================
-#sigSq = \mu_i^2 (e^{s_i^2 \tau} - 1)
+#sigSq = \mu_k^2 (e^{s_k^2 \tau} - 1)
 cvVec <- runif(nrow(df_table))
 #==========================================================================
 #==========================================================================
@@ -1318,13 +1374,13 @@ list_groups <- list(prop_highYcommod, prop_smallHolder, prop_CSA)
 n_groups <- length(list_groups)
 bag_of_colors <- randomcoloR::distinctColorPalette(k = 5 * n_groups)
 group_colors <- sample(bag_of_colors, n_groups)
-group_info <- list(list_groups, group_names, group_colors)
+group_knfo <- list(list_groups, group_names, group_colors)
 
 sigNames <- c("GDP Growth", "Economic\nEquality", "Environmental\nSustainability", "Nutritional\nSecurity")
 n_signals <- length(sigNames)
 sigNames <- paste("Policy", 1:n_signals, "\n", sigNames)
 # xAxis_title <- "Rotated Correlations"
-# plot_corrXS_barchart(mat_Lrot, group_info, xAxis_title, sigNames)
+# plot_corrXS_barchart(mat_Lrot, group_knfo, xAxis_title, sigNames)
 # 
 # ggsave("Fig 6.tiff")
 
@@ -1345,9 +1401,9 @@ sigNames <- paste("Policy", 1:n_signals, "\n", sigNames)
 
 #--------------------------------------------------------
 # Get mat_P
-# mat_G_sqrt_inv <- diag(1 / sqrt(eig_values_QQ))
+# mat_G_sqrt_knv <- diag(1 / sqrt(eig_values_QQ))
 # mat_B <- t(eig_vecs_QQ) # Orthogonal Rotation Matrix
-# mat_P <- mat_Q %*% t(mat_B) %*% mat_G_sqrt_inv
+# mat_P <- mat_Q %*% t(mat_B) %*% mat_G_sqrt_knv
 
 # **Fig 6. Hypothetical results of a survey** eliciting policy-project correlations from experts and stakeholders.
 # 
@@ -1570,7 +1626,7 @@ Above I have presented a novel portfolio optimization method which... offers a m
 
 * "Imaginary" (cyclic) interest rate -- log spiral
 
-* The data by which to calculate the covariance matrix are non-existent. Elsewhere I have shown how the leading eigenvectors of the project covariance matrix effectively encode each project's contribution to distinct policy objectives (the principle component scores); and how these can be deduced from expert knowledge when data are not available [@]. The approximate covariance matrix is approximate in the sense... but insofar as it filters out noise, may actually be more accurate with respect to the true process that generates the data. Better to call it the filtered covariance matrix, then.  The eigenvectors of $K$ are just the eigenvectors of the covariance matrix premultiplied by a diagonal matrix of the inverse means $\mu_i$. ...This also precludes the problem of using too small an eigenvalue. ...It would not be possible to use this approch in the conventional approach as that way involves inverting the covariance matrix, which would no be possible since the filtered covariance matrix has $n - m$ eigenvalues equal to zero. 
+* The data by which to calculate the covariance matrix are non-existent. Elsewhere I have shown how the leading eigenvectors of the project covariance matrix effectively encode each project's contribution to distinct policy objectives (the principle component scores); and how these can be deduced from expert knowledge when data are not available [@]. The approximate covariance matrix is approximate in the sense... but insofar as it filters out noise, may actually be more accurate with respect to the true process that generates the data. Better to call it the filtered covariance matrix, then.  The eigenvectors of $K$ are just the eigenvectors of the covariance matrix premultiplied by a diagonal matrix of the inverse means $\mu_k$. ...This also precludes the problem of using too small an eigenvalue. ...It would not be possible to use this approch in the conventional approach as that way involves inverting the covariance matrix, which would no be possible since the filtered covariance matrix has $n - m$ eigenvalues equal to zero. 
 
 * If expected growth rates differ, then positive weights cannot be guaranteed. Likewise, time horizons can differ from project to project, but this may introduce negative budget allocations.
 
@@ -1717,22 +1773,22 @@ An example application of MV Analysis is presented below using daily financial d
 The expected returns $\boldsymbol{\mu}$ are calculated from the data as
 
 $$
-\mu_i = \frac{p_{iT} - p_{i1}}{p_{i1}}
+\mu_k = \frac{p_{iT} - p_{i1}}{p_{i1}}
 $$
-where $\mathbf{p}_i$ is the $i^{th}$ asset's price time series, and $T$ is the length of the time series. These period returns are presented in the bottom panel of Figure \ref{fig:hReturns}.
+where $\mathbf{p}_k$ is the $k^{th}$ asset's price time series, and $T$ is the length of the time series. These period returns are presented in the bottom panel of Figure \ref{fig:hReturns}.
 
 The covariance matrix $\Sigma$ is calculated from the data as
 
 $$
   \Sigma=\frac{1}{1 - n} X'X \:\:; \:\:\:\:\:\:X_{it} = r_{it}-\bar{r} \:, \:\:\:\:\: \bar{r} = \frac{1}{T}\sum_{t=1}^Tr_{it}
 $$
-where $n$ is the number of assets, and $r_{it}$ is the $i^{th}$ asset's daily return, calculated
+where $n$ is the number of assets, and $r_{it}$ is the $k^{th}$ asset's daily return, calculated
 $$
   r_{it} = \frac{p_{it} - p_{it-1}}{p_{it-1}}
 $$
   for any given day $t$ in the series. As a practical matter, note that the period returns can also be calculated from the daily returns as follows.
 $$
-  \mu_i = \prod_{t = 2}^T (1 + r_{it}) - 1
+  \mu_k = \prod_{t = 2}^T (1 + r_{it}) - 1
 $$
   Application of MV Analysis to this data yields the optimal frontier and budget shares displayed in Figure \ref{fig:mvConv}.
 
@@ -1834,13 +1890,13 @@ bag_of_colors <- randomcoloR::distinctColorPalette(k = 5 * n_groups)
 group_colors <- sample(bag_of_colors, n_groups)
 #--------------------------------------------------------------
 # Define function to order data by group
-group_fn <- function(group_info){
-  list_groups <- group_info[[1]]
-  group_names <- group_info[[2]]
-  group_colors <- group_info[[3]]
+group_fn <- function(group_knfo){
+  list_groups <- group_knfo[[1]]
+  group_names <- group_knfo[[2]]
+  group_colors <- group_knfo[[3]]
   varNames_ordered <- do.call(c, list_groups)
   n_groups <- length(group_names)
-  n_items <- length(varNames_ordered)
+  n_ktems <- length(varNames_ordered)
   if(is.na(group_colors)){
     bag_of_colors <- randomcoloR::distinctColorPalette(k = 5 * n_groups)
     group_colors <- sample(bag_of_colors, n_groups)
@@ -1848,8 +1904,8 @@ group_fn <- function(group_info){
   }
   #if(reverse_order){group_colors <- rev(group_colors)}
   #varNames_ordered <- colnames(mat_pctDiff)
-  group_vec <- rep(NA, n_items)
-  group_color_vec <- rep(NA, n_items)
+  group_vec <- rep(NA, n_ktems)
+  group_color_vec <- rep(NA, n_ktems)
   for(i in 1:n_groups){
     this_group_vec <- list_groups[[i]]
     this_group_name <- group_names[i]
@@ -1865,8 +1921,8 @@ group_fn <- function(group_info){
   return(out_list)
 }
 #--------------------------------------------------------------
-group_info <- list(list_groups, group_names, group_colors)
-outlist <- group_fn(group_info)
+group_knfo <- list(list_groups, group_names, group_colors)
+outlist <- group_fn(group_knfo)
 cols_ordered_by_group <- outlist[[1]]
 group_color_vec <- outlist[[2]]
 group_vec_ordered <- outlist[[3]]
@@ -1935,7 +1991,7 @@ sd_ret_mo <- apply(mat_pctDiff_mo, 2, sd)
 # mu_pctRet / mu_pctRet_check
 #----------------------------------------------
 # Compare histograms of daily, weekly, and monthly returns
-# df_plot <- data.frame(ts_id = names(mu_ret_dy), mu_ret_dy, mu_ret_wk, mu_ret_mo)
+# df_plot <- data.frame(ts_kd = names(mu_ret_dy), mu_ret_dy, mu_ret_wk, mu_ret_mo)
 # colnames(df_plot)[-1] <- c("Mean Daily Return", "Mean Weekly Return", "Mean Monthly Return")
 # gathercols <- colnames(df_plot)[-1]
 # df_plot <- df_plot %>% gather_("Return Type", "Value", gathercols)
@@ -2147,24 +2203,24 @@ plot_returns_barchart <- function(df_pctRet, group_colors, list_graph_options, g
 # }
 #=======================================================================
 # Define function to order data frames by group for period returns barchart and daily returns box and whiskers plots
-get_hist_dfs_ready <- function(mat_ts_in, group_info){
+get_hist_dfs_ready <- function(mat_ts_kn, group_knfo){
   #------------------------------------------------------------
   # Group the vars according to provided group info
-  #varNames_ordered <- do.call(c, group_info[[1]])
-  outlist <- group_fn(group_info)
+  #varNames_ordered <- do.call(c, group_knfo[[1]])
+  outlist <- group_fn(group_knfo)
   cols_ordered_by_group <- outlist[[1]]
   group_color_vec <- outlist[[2]]
   group_vec_ordered <- outlist[[3]]
   ind_ordered_cols <- outlist[[4]]
   df_match_group <- data.frame(Item = cols_ordered_by_group, Group = group_vec_ordered)
-  mat_ts_ordered <- mat_ts_in[, cols_ordered_by_group]
+  mat_ts_ordered <- mat_ts_kn[, cols_ordered_by_group]
   #------------------------------------------------------------
   # Get date info
   from_date <- row.names(mat_ts_ordered)[1]
   to_date <- row.names(mat_ts_ordered)[nrow(mat_ts_ordered)]
   from_date <- gsub("-", "/", from_date)
   to_date <- gsub("-", "/", to_date)
-  date_interval <- paste(from_date, to_date, sep = " - ")
+  date_knterval <- paste(from_date, to_date, sep = " - ")
   #------------------------------------------------------------
   # Get returns barchart df organized by group
   nab_pctRet <- 100 * (mat_ts_ordered[nrow(mat_ts_ordered), ] - mat_ts_ordered[1, ]) / mat_ts_ordered[1, ]
@@ -2187,7 +2243,7 @@ get_hist_dfs_ready <- function(mat_ts_in, group_info){
   # df_pctDiff$Item <- factor(df_pctDiff$Item, levels = cols_ordered_by_group)
   # df_pctDiff$Group <- factor(df_pctDiff$Group)
   #------------------------------------------------------------
-  out_list <- list(df_pctRet, date_interval)
+  out_list <- list(df_pctRet, date_knterval)
   return(out_list)
 }
 
@@ -2229,8 +2285,8 @@ plot_covmat <- function(covmat, fig_title = "Covariance Matrix", graph_on = T){
 # group_names
 demonstration_group <- c("US Sectors")
 ind_group <- which(group_names %in% demonstration_group)
-these_items <- do.call(c, list_groups[ind_group])
-ind_keep <- which(colnames(mat_ts) %in% these_items)
+these_ktems <- do.call(c, list_groups[ind_group])
+ind_keep <- which(colnames(mat_ts) %in% these_ktems)
 mat_ts_eg <- mat_ts[, ind_keep]
 #-----------------------------------------------------------------------
 # For a good illustrative example of portfolio optimization, select a financial period over which the returns in the portfolio are as varied as possible yet with the minimum return being >= 2%. This can be achieved by adjusting "buffer". Also'd be nice to have all signal period returns > 0, but this does not seem possible in this data set.
@@ -2299,16 +2355,16 @@ test_stop_date <- row.names(mat_pctDiff_eg_test)[nrow(mat_pctDiff_eg_test)]
 ```{r, fig.show = "hold", fig.width = 5, fig.height=5, fig.align='left', fig.cap="\\label{fig:mvConv}Optimal portfolio returns frontier and budget shares, financial data.", echo = FALSE}
 #=======================================================================
 # Define portfolio optimization function
-optimize_portfolio <- function(M_inv, covmat_inv, covmat, mat_nab, targ_vec,
-                               backtest_info = NULL){
+optimize_portfolio <- function(M_knv, covmat_knv, covmat, mat_nab, targ_vec,
+                               backtest_knfo = NULL){
   #print(M)
-  lambdas <- -2 * M_inv %*% targ_vec
+  lambdas <- -2 * M_knv %*% targ_vec
   # Return shadow price
   l_R <- lambdas[1]
   # Budget shadow price
   l_C <- lambdas[2]
   # Optimal budget shares
-  wStar <- -1 / 2 * covmat_inv %*% mat_nab %*% lambdas
+  wStar <- -1 / 2 * covmat_knv %*% mat_nab %*% lambdas
   #print(sum(wStar))
   # Portfolio variance
   Vtarg <- t(wStar) %*% covmat %*% wStar
@@ -2321,9 +2377,9 @@ optimize_portfolio <- function(M_inv, covmat_inv, covmat, mat_nab, targ_vec,
   sd_targ <- sqrt(Vtarg)
   #if(l_V > 0){wStar <- rep(NA, length(wStar))}
   #----------------------------------------------------
-  if(!is.null(backtest_info)){
-    nab_decRet_test <- backtest_info[["nab_decRet_test"]]
-    covmat_test <- backtest_info[["covmat_test"]]
+  if(!is.null(backtest_knfo)){
+    nab_decRet_test <- backtest_knfo[["nab_decRet_test"]]
+    covmat_test <- backtest_knfo[["covmat_test"]]
     Rtest <- t(wStar) %*% nab_decRet_test
     Vtest <- t(wStar) %*% covmat_test %*% wStar
     sd_test <- sqrt(Vtest)
@@ -2341,7 +2397,7 @@ optimize_portfolio <- function(M_inv, covmat_inv, covmat, mat_nab, targ_vec,
 # Define function for budget shares plot
 plot_budgetShares <- function(df_wStar, group_small = NULL, color_vec = NULL, graph_on = T, list_graph_options = NULL){
   # Budget shares plot
-  # Note df_w_in should have just the target risk column (i.e. don't also include the backtest risk column). At any rate, the budget risk column should be the same as the one used in the frontier plot.
+  # Note df_w_kn should have just the target risk column (i.e. don't also include the backtest risk column). At any rate, the budget risk column should be the same as the one used in the frontier plot.
   #df_plot <- df_wStar_prop
   #------------------------------------
   if(!is.null(list_graph_options)){
@@ -2373,8 +2429,8 @@ plot_budgetShares <- function(df_wStar, group_small = NULL, color_vec = NULL, gr
     gathercols <- colnames(df_plot)[-ncol(df_plot)]
   }
   #------------------------------------
-  df_plot$portfolio_id <- 1:nrow(df_wStar)
-  df_match_V <- df_plot[, c(grep("portfolio_id", colnames(df_plot)), grep("Risk", colnames(df_plot)))]
+  df_plot$portfolio_kd <- 1:nrow(df_wStar)
+  df_match_V <- df_plot[, c(grep("portfolio_kd", colnames(df_plot)), grep("Risk", colnames(df_plot)))]
   df_plot <- df_plot %>% gather_("Item", "Budget shares", gathercols)
   df_plot <- df_plot %>% group_by(Item) %>% 
     mutate(mu = median(`Budget shares`)) %>% 
@@ -2387,9 +2443,9 @@ plot_budgetShares <- function(df_wStar, group_small = NULL, color_vec = NULL, gr
   #------------------------------------
   if(is.null(color_vec)){
     # Randomly assign a color to each portfolio item if none assigned
-    n_items <- ncol(df_wStar) - 1
-    bag_of_colors <- randomcoloR::distinctColorPalette(k = 5 * n_items)
-    color_vec <- sample(bag_of_colors, n_items)
+    n_ktems <- ncol(df_wStar) - 1
+    bag_of_colors <- randomcoloR::distinctColorPalette(k = 5 * n_ktems)
+    color_vec <- sample(bag_of_colors, n_ktems)
   }
   #------------------------------------
   #  df_plot$`Risk (standard deviation)` <- as.factor(df_plot$`Risk (standard deviation)`)
@@ -2467,20 +2523,20 @@ get_optimal_frontier <- function(covmat, mat_nab,
   if(is.null(fun_env)){
     n_points_on_frontier = 50
     R_range = 0.3
-    backtest_info = NULL
+    backtest_knfo = NULL
     C_targ = 1
     dimRet = F
   }else{
     n_points_on_frontier = fun_env[["n_points_on_frontier"]]
     R_range <- fun_env[["R_range"]]
-    backtest_info = fun_env[["backtest_info"]]
+    backtest_knfo = fun_env[["backtest_knfo"]]
     C_targ = fun_env[["C_targ"]]
     dimRet = fun_env[["dimRet"]]
   }
   #-------------------------------------------
-  covmat_inv <- solve(covmat)
-  M <- t(mat_nab) %*% covmat_inv %*% mat_nab # Merton matrix
-  M_inv <- solve(M)
+  covmat_knv <- solve(covmat)
+  M <- t(mat_nab) %*% covmat_knv %*% mat_nab # Merton matrix
+  M_knv <- solve(M)
   R_at_minRisk <- M[1, 2] / M[2, 2] * C_targ
   #minRisk <- 
   Rtarg_vec <- seq(R_at_minRisk, R_at_minRisk + R_range, length.out = n_points_on_frontier)
@@ -2491,8 +2547,8 @@ get_optimal_frontier <- function(covmat, mat_nab,
     this_Rtarg <- Rtarg_vec[i]
     targ_vec <- c(this_Rtarg, C_targ)
     #-------------------------------------------
-    list_out <- optimize_portfolio(M_inv, covmat_inv, covmat, mat_nab, targ_vec,
-                                   backtest_info)
+    list_out <- optimize_portfolio(M_knv, covmat_knv, covmat, mat_nab, targ_vec,
+                                   backtest_knfo)
     #-------------------------------------------
     list_wStar[[i]] <- list_out[[1]]
     list_frontier[[i]] <- list_out[[2]]
@@ -2522,10 +2578,10 @@ get_optimal_frontier <- function(covmat, mat_nab,
 #=======================================================================
 #=======================================================================
 # Conventional risk-reward frontier
-n_items <- ncol(mat_ts_eg_train)
+n_ktems <- ncol(mat_ts_eg_train)
 C_targ <- 1
-nab_C <- rep(1, n_items)
-utility_interpretation <- F
+nab_C <- rep(1, n_ktems)
+utility_knterpretation <- F
 #--------------------------------------------------------------
 # Covariance matrix
 covmat_train <- covmat_decDiff_train #diag(eigen(covmat_decDiff_train)$values)
@@ -2545,14 +2601,14 @@ nab_decRet_test <- nab_decRet_eg_test
 mat_nab <- cbind(nab_decRet_train, nab_C)
 n_points_on_frontier <- 50
 R_range <- 0.05
-backtest_info <- list()
-backtest_info[["nab_decRet_test"]] <- nab_decRet_test
-backtest_info[["covmat_test"]] <- covmat_test
+backtest_knfo <- list()
+backtest_knfo[["nab_decRet_test"]] <- nab_decRet_test
+backtest_knfo[["covmat_test"]] <- covmat_test
 #--------------------------------------------------------------
 fun_env_getOptFront <- list()
 fun_env_getOptFront[["n_points_on_frontier"]] <- n_points_on_frontier
 fun_env_getOptFront[["R_range"]] <- R_range
-fun_env_getOptFront[["backtest_info"]] <- backtest_info
+fun_env_getOptFront[["backtest_knfo"]] <- backtest_knfo
 fun_env_getOptFront[["C_targ"]] <- C_targ
 fun_env_getOptFront[["dimRet"]] <- F
 #--------------------------------------------------------------
@@ -2568,9 +2624,9 @@ gg_frontier <- plot_frontier(df_frontier, ROI_basis = F, list_graph_options = NU
 # df_wStar_agg <- merge(df_wStar_agg, df_match_group, by = "Item")
 # df_wStar_agg <- df_wStar_agg %>% group_by(`Risk (standard deviation)`, Group) %>% summarise(`Budget Share` = sum(`Budget Share`)) %>% spread(Group, `Budget Share`)
 #gg_budget <- plot_budgetShares(df_wStar_agg, group_small = NULL, color_vec = group_colors, graph_on = F, list_graph_options = NULL)
-n_items <- ncol(df_wStar) - 1
-bag_of_colors <- randomcoloR::distinctColorPalette(k = 5 * n_items)
-color_vec_mv_eg <- sample(bag_of_colors, n_items)
+n_ktems <- ncol(df_wStar) - 1
+bag_of_colors <- randomcoloR::distinctColorPalette(k = 5 * n_ktems)
+color_vec_mv_eg <- sample(bag_of_colors, n_ktems)
 gg_budget <- plot_budgetShares(df_wStar, color_vec = color_vec_mv_eg, graph_on = F, list_graph_options = NULL)
 #--------------------------------------------------------------
 gg_frontier + gg_budget + plot_layout(ncol = 1)
