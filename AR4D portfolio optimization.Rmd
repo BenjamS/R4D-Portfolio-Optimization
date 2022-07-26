@@ -699,7 +699,7 @@ and
 <!-- \end{split} -->
 <!-- \end{equation} -->
 
-# Program value is cyclically real
+# Program value is cyclically real \label{sec:cycReal}
 <!-- [Modeling the program investment cycle in the complex plane] -->
 
 Between the disbursement of funds and the realization of project impacts, project value exists in an intangible form of "potential value". It is value that is in the process of being transformed from one concrete form into another, i.e., from a tangible monetary form into tangible program impacts in the target populations and environments. During this transformation, it is incorrect to say that the program's value is zero, even though the tangible monetary form of the investment has vanished, or is in the process of vanishing. On the other hand, it is not altogether correct to say that the program's value is equal to its NPV, since this form of program value has yet to materialize in any demonstrable, tangible sense.
@@ -752,7 +752,7 @@ The time horizon can be extended by $T / 2$ (i.e., $\pi$) in order to bring the 
 \end{split}
 \end{equation}
 
-More generally, a negative program value can be brought into phase by extending or shortening the time horizon by $(2n - 1) T / 2$, where $n$ is a positive integer. [In some decision making situations, it might make sense to consider n < 0, which extends the time horizon backwards---corresponding perhaps to funding of a process already in mid course.]
+More generally, a negative program value can be brought into phase by extending or shortening the time horizon by $(2\kappa - 1) T / 2$, where $\kappa$ is a positive integer. [In some decision making situations, it might make sense to consider n < 0, which extends the time horizon backwards---corresponding perhaps to funding of a process already in mid course.]
 
 <!-- Recalling equation \ref{eq:npvFnW}, the previous equation can be rearranged as follows. -->
 <!-- \begin{equation} -->
@@ -854,14 +854,23 @@ The portfolio optimization problem may now be formulated in terms of vis viva ma
 \max_{\mathbf{w}}{\mathcal{E}} \:\:\: s.t. \:\:\: \sigma = \overline{\sigma}
 \end{equation}
 
+Where the portfolio risk $\sigma$ is defined as follows.
+
+\begin{equation}
+\sigma = \mathbf{1} ' \Sigma_{X, X} \mathbf{1} = \boldsymbol{\mu} ' G_{X, X} \boldsymbol{\mu}
+\end{equation}
+
 <!-- Because $\mu_k(w_k)$ is monotonically increasing in $w_k$ -->
 With negligible loss of generality, the control variables $\mathbf{w}$ may be swapped for $\boldsymbol{\mu}$.
 
 \begin{equation}
 \max_{\boldsymbol{\mu}}{\mathcal{E}} \:\:\: s.t. \:\:\: \sigma = \overline{\sigma}
+\label{eq:probStat}
 \end{equation}
 
-The corresponding objective function or lagrangian is then 
+Note that this formulation of the portfolio optimization problem does not include a budget constraint. Nonetheless, it will soon become clear that solutions to this problem are valid up to scaling, such that the budget constraint may be arbitrarily enforced.
+
+The objective function or lagrangian is
 
 \begin{equation}
 \begin{split}
@@ -869,9 +878,8 @@ The corresponding objective function or lagrangian is then
 &= \frac{r^2}{2} \boldsymbol{\mu} ' \boldsymbol{\mu} - \lambda (\sqrt{\boldsymbol{\mu} ' G \boldsymbol{\mu}} - \overline{\sigma})
 \end{split}
 \end{equation}
-<!-- This is a cost function to be minimized. The sign on the vis viva constraint is negative because it is a benefit mitigating the portfolio "risk cost" $\sigma$. [The problem could just as well be formulated in terms of vis viva maximization subject to a risk cost.] -->
 
-The lagrangian multiplier $\lambda$ may be interpreted as the risk shadow price, that is to say, the marginal cost of a marginal increment in risk above the tolerance threshold $\overline{\sigma}$. Formally,
+The lagrangian multiplier $\lambda$ may be interpreted as the risk shadow price, that is to say, the marginal cost of a marginal increment in risk above the tolerance threshold $\bar{\sigma}$. Formally,
 
 \begin{equation}
 \frac{\partial \mathcal{L}}{\partial (\sigma - \overline{\sigma})} = \lambda
@@ -883,7 +891,7 @@ The first order conditions with respect to $\boldsymbol{\mu}$ are
 <!-- [The project vis viva is proportional to the risk gradient.] -->
 
 \begin{equation}
-\nabla_{\mu} \mathcal{L} = r^2 \boldsymbol{\mu} - \frac{\lambda}{\sigma} G \boldsymbol{\mu} = \mathbf{0}
+\nabla_{\boldsymbol{\mu}} \mathcal{L} = r^2 \boldsymbol{\mu} - \frac{\lambda}{\sigma} G \boldsymbol{\mu} = \mathbf{0}
 \end{equation}
 
 Where $\mathbf{0}$ is a vector of zeros. This can then be rearranged as follows.
@@ -892,7 +900,7 @@ Where $\mathbf{0}$ is a vector of zeros. This can then be rearranged as follows.
 G \boldsymbol{\mu} - \frac{r^2 \sigma}{\lambda} \boldsymbol{\mu} = \mathbf{0}
 \end{equation}
 
-The NPV vector $\boldsymbol{\mu}^*$ satisfying the first order conditions is thus given by any of the eigenvectors of $G$, with corresponding risk shadow price given in terms of the respective eigenvalue. More specifically, letting $\mathbf{q}_j$ and $\gamma_j$ stand for the $j^{th}$ eigenvector and eigenvalue of $G$, respectively, then the $j^{th}$ solution $\boldsymbol{\mu}_j^*$ can be written
+The program NPV vector $\boldsymbol{\mu}^*$ satisfying the first order conditions is thus given by any of the eigenvectors of $G$, with corresponding risk shadow price given in terms of the respective eigenvalue. More specifically, [letting $\mathbf{q}_j$ and $\gamma_j$ stand for the $j^{th}$ eigenvector and eigenvalue of $G$, respectively, then] the $j^{th}$ solution $\boldsymbol{\mu}_j^*$ can be written
 <!-- $\frac{r^2 \sigma}{\gamma_j}$ $\lambda$ given by the inverse of the respective eigenvalues, scaled by $r^2$.]  -->
 
 \begin{equation}
@@ -906,6 +914,8 @@ With corresponding risk shadow price $\lambda_j$.
 \end{equation}
 
 Where $\sigma_j$ is the portfolio risk corresponding to the $j^{th}$ solution.
+
+### Interpreting the risk shadow price and eigenvalues
 
 Note, in passing, that dotting the first order conditions through by $\boldsymbol{\mu}_j^*$ and solving for $\lambda_j$ results in an instructive expression for the risk shadow price.
 
@@ -932,22 +942,38 @@ Note, moreover, that setting this expression equal to the previous one results i
 
 The $j^th$ eigenvalue of $G$ thus reflects the portfolio risk (squared) per unit expected impact for that solution. In this way, $\lambda_j$ and $\gamma_j$ are effectively indicators of the risk involved in choosing one solution over another.
 
-By equation \ref{eq:muFnw}, the solutions $\boldsymbol{\mu}_j^*$ can then be solved for the optimal budget allocations as follows.
+### Optimal budget allocation
+
+By equation \ref{eq:muFnw}, the candidate solutions $\boldsymbol{\mu}_j^*$ can then be solved for the optimal budget allocations as follows.
 <!-- The solutions $\boldsymbol{\mu}_j^*$ represent the portfolio vis viva maximizing impact targets subject to a particular risk constraint. By equation \ref{}, they can then be solved for the optimal budget allocation as follows. -->
 
 \begin{equation}
-\mathbf{w}_j^* = C (D(\tilde{\mathbf{x}})^{-1} \mathbf{q}_j)^{\frac{1}{\boldsymbol{\alpha}}}
+\begin{split}
+\mathbf{w}_j^* &= C (D(\tilde{\mathbf{x}}(0))^{-1} \mathbf{q}_j)^{\frac{1}{\boldsymbol{\alpha}}} \\
+&= C (D(\tilde{\mathbf{x}}(0))^{-1} D(\mathbf{c}) \mathbf{p}_j)^{\frac{1}{\boldsymbol{\alpha}}}
 \label{eq:wStar}
 \end{equation}
 
 Because eigenvectors are defined up to scaling, the budget constraint may be arbitrarily enforced. That is to say, the optimal allocation may be rewritten
 
 \begin{equation}
-\mathbf{w}_j^* = \frac{C}{\sigma} (D(\tilde{\mathbf{x}})^{-1} \beta_j \mathbf{q}_j)^{\frac{1}{\boldsymbol{\alpha}}}
-\label{eq:wStar}
+\mathbf{w}_j^* = C (D(\tilde{\mathbf{x}}(0))^{-1} \beta_j \mathbf{q}_j)^{\frac{1}{\boldsymbol{\alpha}}}
+\label{eq:wStarScaled}
 \end{equation}
 
-Where $\beta_j$ is an arbitrary scaling constant, which may be chosen such that $\Sigma_k w_k = C$.
+Where $\beta_j$ is an arbitrary scaling constant, which may be chosen such that $\Sigma_k w_k = C$. More explicitly, then, the candidate program budget shares can be expressed
+
+\begin{equation}
+\begin{split}
+w_{kj}^* &= C \left( \frac{\beta_j q_{kj}}{\tilde{x}(0)} \right)^{\frac{1}{\alpha_k}} \\
+&= C \left( \frac{\beta_j c_k p_{kj}}{\tilde{x}(0)} \right)^{\frac{1}{\alpha_k}}
+&= C \left( \frac{\beta_j \sqrt{e^{s_k^2} - 1} p_{kj}}{\tilde{x}(0)} \right)^{\frac{1}{\alpha_k}}
+\end{split}
+\end{equation}
+
+### Dealing with negative budget allocations
+
+Generally speaking, the eigenvectors $\mathbf{q}_j$ may include negative values. As explained in \ref{sec:cycReal}, negative values may be interpreted as program funding cycles that are out of phase with the main funding cycle. Insofar as this interpretation is valid, negative weights can be made positive by extending or shortening that program's time horizon by an integer multiple of $2$. Mathematically, this means multiplying the solution $w_{kj}^*$ by $-e^{r T/(2 \kappa)}$, where $\kappa$ is an integer.
 
 ## Second order condition
 
@@ -1002,14 +1028,6 @@ Where $\Gamma_j$ is the diagonal matrix of eigenvalues of $G$ excluding the $j^{
 
 The leading eigenvector $\mathbf{q}_1$ is thus the solution that satisfies the second order condition (equation \ref{eq:soc}), and thus maximizes $\mathcal{L}$. By the same token, the trailing eigenvector of $\mathbf{q}_n$ is the solution that minimizes $\mathcal{L}$, and the intermediate eigenvectors $(1 < k < n)$ represent saddle point solutions of $\mathcal{L}$ between these two extremes.
 
-## A menu of solutions catering to a range of risk appetites
-
-The "optimal" solution ($\boldsymbol{\mu}_1^*$) is optimal in the sense that it maximizes expected portfolio impact subject to a risk constraint. However, this is the solution that also corresponds to the highest eigenvalue ($\gamma_1$), and is hence also the riskiest solution (recall equation \ref{eq:gammaRisk}). The other candidate solutions ($\boldsymbol{\mu}_1^*, \boldsymbol{\mu}_2^*,\dots, \boldsymbol{\mu}_n^*$) may correspond to lower expected impacts, but also successively decreasing eigenvalues ($\gamma_2, \gamma_3, \dots, \gamma_n$), and hence successively decreasing risk levels.
-
-AR4D donors and institutions are thus presented not with a single optimal solution, but an optimal menu of solutions corresponding to a range of risk tolerances. Typically, AR4D donors are guided by a pro-poor mandate which requires them to operate in the gaps left by market failures, and hence to incline towards ambitious research portfolios. Ambition implies risk, which in turn implies that AR4D donors should endeavor to select from among the riskier solutions on the optimal menu. It should be kept in mind, moreover, that higher portfolio risk is not unambiguously bad, as it exposes the investor to an increased probability of both lower and higher portfolio return.
-<!-- The leading eigenvector of $G$ is the portfolio budget allocation that maximizes portfolio impact subject to a risk constraint. $\overline{\mathcal{E}}$. The other solutions are not necessarily sub-optimal, but rather correspond to lower investor risk tolerances. Here it is important to keep in mind that higher portfolio risk is not unambiguously bad, but rather a matter of ambition. Higher risk exposes the investor to an increased probability of both lower and higher portfolio return. Moreover, if the portfolio items follow a gBm, as assumed here, then returns are lognormally distributed; and so the risk is primarily upside. Moreover, let's not forget that AR4D institutions have a pro-poor mandate to redress market failures; and this can often mean taking on ambitious, higher risk portfolios. -->
-<!-- Note that this is reflected in the corresponding eigenvalues. The leading eigenvalue---which corresponds to the risk maximizing solution---is the largest, indicating the highest risk for a given vis viva target $\overline{\mathcal{E}}$ (recall equation \ref{eq:lambDef}), while the remaining eigenvalues are successively smaller, indicating successively lower risk levels. -->
-
 ## Keeping only meaningful solutions
 <!-- ## Spectrally reduced covariance matrix -->
 
@@ -1032,28 +1050,181 @@ Such that $c_n = 1$.
 
 The exact value of the integer $m$ is somewhat subjective. A rule of thumb often followed in practice is to retain the $m$ leading eigenvectors required to explain at least $90\%$ of the portfolio variance (i.e., such that $c_m \geq 0.9$). This is tantamount to the "spectral cut-off" method used in the financial context [@guo2018eigen; @carrasco2011optimal].
 
-## Multi-objective portfolio optimization
+## A menu of solutions catering to a range of risk appetites
 
-[### AR4D correlation matrix eigenvectors encode AR4D policies]
+The "optimal" solution ($\boldsymbol{\mu}_1^*$) is optimal in the sense that it maximizes expected portfolio impact subject to a risk constraint. However, this is the solution that also corresponds to the highest eigenvalue ($\gamma_1$), and is hence also the riskiest of the candidate solutions (recall equation \ref{eq:gammaRisk}). The other candidate solutions ($\boldsymbol{\mu}_1^*, \boldsymbol{\mu}_2^*,\dots, \boldsymbol{\mu}_n^*$) may correspond to lower expected impacts, but also successively decreasing eigenvalues ($\gamma_2, \gamma_3, \dots, \gamma_n$), and hence successively decreasing risk levels.
 
-Generally speaking, each of the $m$ leading eigenvectors of a covariance matrix of a complex system of variables encode information about a specific aspect of the system. In the financial context, Gopikrishnan et al. [-@gopik2001quant] show that the each of the leading eigenvectors of a covariance matrix of hundreds of stock price series is associated with movements in a particular industry or sector. And each element in an eigenvector reflects a particular stock's contribution to, or participation in, movements in the respective sector.
+AR4D donors and institutions are thus presented not with a single optimal solution, but an optimal menu of solutions corresponding to a range of risk tolerances. Typically, AR4D donors are guided by a pro-poor mandate which requires them to operate in the gaps left by market failures, and hence to incline towards ambitious research portfolios. Ambition implies risk, which in turn implies that AR4D donors should endeavor to select from among the riskier solutions on the optimal menu. It should be kept in mind, moreover, that higher portfolio risk is not unambiguously bad, as it exposes the investor to an increased probability of both lower and higher portfolio return.
+<!-- The leading eigenvector of $G$ is the portfolio budget allocation that maximizes portfolio impact subject to a risk constraint. $\overline{\mathcal{E}}$. The other solutions are not necessarily sub-optimal, but rather correspond to lower investor risk tolerances. Here it is important to keep in mind that higher portfolio risk is not unambiguously bad, but rather a matter of ambition. Higher risk exposes the investor to an increased probability of both lower and higher portfolio return. Moreover, if the portfolio items follow a gBm, as assumed here, then returns are lognormally distributed; and so the risk is primarily upside. Moreover, let's not forget that AR4D institutions have a pro-poor mandate to redress market failures; and this can often mean taking on ambitious, higher risk portfolios. -->
+<!-- Note that this is reflected in the corresponding eigenvalues. The leading eigenvalue---which corresponds to the risk maximizing solution---is the largest, indicating the highest risk for a given vis viva target $\overline{\mathcal{E}}$ (recall equation \ref{eq:lambDef}), while the remaining eigenvalues are successively smaller, indicating successively lower risk levels. -->
+
+## A menu of solutions catering to a range of strategic objectives
+
+Generally speaking, each of the $m$ leading eigenvectors of a covariance matrix of a complex system of variables encode information about a specific aspect of the system. In the financial context, for example, Gopikrishnan et al. [-@gopik2001quant] show that the each of the leading eigenvectors of a covariance matrix of hundreds of stock price series is associated with movements in a particular industry or sector, such that each element in the eigenvectors reflects a particular stock's contribution to, or participation in, movements in the respective sector.
 <!-- [The authors even suggest this method might be used to classify firms into industries.] -->
 
-In technical language, this is because empirical collective movements (for e.g., sectorial movements) tend to align with the principal components of the system. Eigenvectors reflect the participation of individual variables (for e.g., stocks) in a particular collective movement because they are very nearly the covariances of variables ($X$) with principal components ($S$). The exact covariances of variables with principal components ($\Sigma_{X, S}$) is given by
+Elsewhere, I extend the logic of Gopikrishnan et al.'s analysis to AR4D correlation matrices [-@schiek2021reverse]. In that extension, I show that the collective movements associated with each eigenvector may be interpreted as the AR4D institution's (and/or donor's) strategic objectives or policies, such that the elements of the eigenvectors may be interpreted as reflecting each research program's contribution towards the respective policy.
+
+In technical language, this association between macro and micro level movements results because empirical collective movements (for e.g., sectorial movements) tend to align with the leading principal components of the system. The leading eigenvectors reflect the participation of individual variables (for e.g., stocks) in a particular collective movement because they are very nearly the covariances of variables ($X$) with leading principal components ($S$). The exact covariances of variables with leading principal components ($\tilde{\Sigma}_{X, S}$) are given by
 
 \begin{equation}
-\Sigma_{X, S} = P \Gamma
+\tilde{\Sigma}_{X, S} = \tilde{P} \tilde{\Gamma}
 \end{equation}
 
-Correlations between variables and principal components ($K_{X, S}$), it follows, are given by 
+(Where the tilde "~" indicates that the expression is restricted to the $m$ leading eigenvector-eigenvalue pairs.)
+
+Correlations between variables and leading principal components ($\tilde{K}_{X, S}$), it follows, are given by 
 
 \begin{equation}
-K_{X, S} = \tilde{P} \tilde{\Gamma}^{\frac{1}{2}}
+\tilde{K}_{X, S} = \tilde{P} \tilde{\Gamma}^{\frac{1}{2}}
 \end{equation}
 
-(See Schiek [-@schiek2021reverse] and/or Abdi [-@] for details.)
+(See Schiek [-@schiek2021reverse] or Abdi [-@] for details.)
 
-Elsewhere, I extend the logic of Gopikrishnan et al.'s analysis to AR4D correlation matrices, such that the collective movements associated with each eigenvector may be interpreted as the AR4D institution's (and/or donor's) strategic objectives or policies [-@schiek2021reverse]. The elements of the eigenvectors, it follows, may be interpreted as reflecting each research project's (or program's) contribution towards the respective policy.
+Pre-multiplying the correlations by an orthonormal (typically varimax) rotation matrix $B$ can be useful in clarifying which variables are associated with which collective movements.
+<!-- (Note that this is done without loss of generality, since covariance matrices are defined up to an orthonormal rotation of their eigenvectors.) -->
+
+\begin{equation}
+K_{X, S}^{\circlearrowright} = B \tilde{P} \tilde{\Gamma}^{\frac{1}{2}}
+\label{eq:rotL}
+\end{equation}
+
+<!-- In my previous work, I show how this matrix, which plays a central role in the next section, can be "crowdsourced"... -->
+This is a very useful matrix, which may reasonably be deduced from a survey of experts and stakeholders. The outer product $K_{X, S}^{\circlearrowright} K_{X, S}^{\circlearrowright}{'}$ gives the approximate program correlation matrix $\tilde{K}_{X, X}$, while the inner product $K_{X, S}^{\circlearrowright} {'} K_{X, S}^{\circlearrowright}$ gives the policy covariance matrix (call this $\Sigma_{S, S}^{\circlearrowright}$). In the absence of time series data by which to estimate program and policy correlations, then, the matrix $K_{X, S}^{\circlearrowright} = B \tilde{P}$ provides a means of deducing them from expert opinion. (See Schiek [-@schiek2021reverse] for details.)
+
+Because eigenvectors are associated with strategic objectives, by selecting a particular portfolio solution from the optimal menu, the investor effectively commits themselves to a particular strategic objective for the funding cycle. When selecting a budget allocation from the optimal menu, then, the investor must consider not only their risk tolerance, but also the strategic objective they wish to focus on for the funding cycle.
+
+## Multi-objective portfolio optimization
+
+Alternatively, the investor may want to optimize across multiple strategic objectives. In other words, they may want a budget allocation that is an optimal linear combination of the portfolios on the optimal menu. This optimal linear combination can be determined by solving the portfolio problem stated in equation \ref{eq:probStat} at the policy level.
+
+\begin{equation}
+\max_{\boldsymbol{\mu}^S} \mathcal{E}^S \:\:\:\:s.t.\:\:\: \sigma^S = \bar{\sigma}^S
+\end{equation}
+
+Where $\mathcal{E}^S$ and $\sigma^S$ are the policy vis viva and risk, defined as the aggregation of the program level NPVs.
+
+\begin{equation}
+\begin{split}
+\mathcal{E}^S &= \frac{1}{2} \Sigma_j \mathbf{v}_j^* ' \mathbf{v}_j^* \\
+&= \frac{r^2}{2} \Sigma_j \boldsymbol{\mu}_j^* ' \boldsymbol{\mu}_j^*
+\sigma^S &= \mathbf{1} ' \Sigma_{S, S} \mathbf{1} = \boldsymbol{\mu}^S ' G_{S,S} \boldsymbol{\mu}^S
+\end{split}
+\end{equation}
+
+Where $G_{S,S}$ is the policy cross coefficient of variation matrix, and the control variables $\boldsymbol{\mu}^S$ are the expected policy NPVs. The elements of $\boldsymbol{\mu}^S$ are defined
+
+\begin{equation}
+\boldsymbol{\mu}_j^S = \boldsymbol{\mu}_j^* ' \mathbf{1}
+\end{equation}
+
+But note that, since $\boldsymbol{\mu}_j^* = \mathbf{q}_j$, then $\boldsymbol{\mu}_j^* {'} \mathbf{1}$ equals the eigenvalue scaling constant $\beta_j$ (recall equation \ref{eq:wStarScaled}). Therefore, the control variables can be rewritten
+
+\begin{equation}
+\boldsymbol{\mu}_j^S = \boldsymbol{\beta}
+\end{equation}
+
+And the policy optimization problem can be rewritten
+
+\begin{equation}
+\max_{\boldsymbol{\beta}} \mathcal{E}^S \:\:\:\:s.t.\:\:\: \sigma^S = \bar{\sigma}^S
+\end{equation}
+
+Where
+
+\begin{equation}
+\begin{split}
+\mathcal{E}^S &= \frac{r^2}{2} \Sigma_j \boldsymbol{\beta} ' \boldsymbol{\beta}
+\sigma^S &= \boldsymbol{\beta} ' G_{S,S} \boldsymbol{\beta}
+\end{split}
+\end{equation}
+<!-- That is, the policy problem is one of finding the eigenvector scaling constants $\boldsymbol{\beta}^*$ that maximize policy vis viva (impact) subject to a risk tolerance threshold. -->
+
+The corresponding lagrangian is then
+
+\begin{equation}
+\begin{split}
+\mathcal{L} &= \mathcal{E}^S - \lambda^S (\sigma^S - \bar{\sigma}^S) \\
+&= \frac{r^2}{2} \boldsymbol{\beta} ' \boldsymbol{\beta} - \lambda^S (\boldsymbol{\beta} ' G_{S,S} \boldsymbol{\beta} - \bar{\sigma}^S)
+\end{split}
+\end{equation}
+
+And the first order conditions then follow as
+
+\begin{equation}
+\nabla_{\boldsymbol{\beta}} \mathcal{L} = r^2 \boldsymbol{\beta} - \frac{\lambda^S}{\sigma^S} G_{S, S} \boldsymbol{\beta} = \mathbf{0}
+\end{equation}
+
+The candidate solution $\boldsymbol{\beta}^*$ may thus be any of the eigenvectors of $G_{S, S}$, with corresponding policy risk shadow price ($\lambda^S$) given in terms of the respective eigenvalue.
+
+The eigenvectors of $G_{S, S}$ may be deduced from the crowdsourced matrix $K_{X, S}^{\circlearrowright}$ as follows. First, recall that the policy covariance matrix $\Sigma_{S, S}$ can be obtained as the inner product $K_{X, S}^{\circlearrowright} {'} K_{X, S}^{\circlearrowright}$, and that the eigendecomposition of $\Sigma_{S, S}^{\circlearrowright}$ works out to
+
+\begin{equation}
+\Sigma_{S, S}^{\circlearrowright} = B \tilde{\Gamma} B '
+\end{equation}
+
+(See for details.)
+
+That is to say, the eigenvectors of \Sigma_{S, S}^{\circlearrowright} are just the orthonormal rotation matrix $B$, and the respective eigenvalues are just the $m$ leading eigenvalues of the program cross coefficient of variation matrix $G_{X, X}$ and program correlation matrix $K_{X, X}$. (See Schiek [-@schiek2021reverse] for details.) Since $G_{S, S} = D(\boldsymbol{\mu}^S)^{-1} \Sigma_{S, S} D(\boldsymbol{\mu}^S)^{-1}$ by definition, then the eigenvectors of $G_{S, S}$ are $D(\boldsymbol{\mu}^S)^{-1} B$
+
+\begin{equation}
+\begin{split}
+G_{S, S} = E \\ 
+\end{split}
+\end{equation}
+
+
+...it turns out the eigenvectors of $\Sigma_{S, S}$ are just the orthonormal rotation matrix $B$.
+
+
+
+
+
+
+
+
+<!-- \begin{equation} -->
+<!-- G_{S, S} = D() K_{X, S}^{\circlearrowright} ' K_{X, S}^{\circlearrowright} -->
+<!-- \end{equation} -->
+
+
+
+<!-- ...an approximate program NPV correlation matrix $\tilde{K}$ as the outer product of this matrix with itself. -->
+<!-- \begin{equation} -->
+<!-- \tilde{K} = K_{X, S}^{\circlearrowright} K_{X, S}^{\circlearrowright} ' -->
+<!-- \end{equation} -->
+
+<!-- The leading eigenvectors $\tilde{P}$ and eigenvalues $\tilde{\Gamma}$ can then be obtained through the eigendecomposition of $\tilde{K}$. -->
+
+<!-- Moreover, the policy covariance matrix $\Sigma_{S, S}$ is obtained as the inner product of the crowdsourced matrix $\tilde{K}_{X, S}^{\circlearrowright}$ with itself. -->
+
+<!-- \begin{equation} -->
+<!-- \Sigma_{S, S} = K_{X, S}^{\circlearrowright} ' K_{X, S}^{\circlearrowright} -->
+<!-- \end{equation} -->
+
+<!-- The eigendecomposition of $\Sigma_{S,S}$ is then -->
+
+<!-- \begin{equation} -->
+<!-- \Sigma_{S, S} = B \tilde{\Gamma} B' -->
+<!-- \end{equation} -->
+
+<!-- That is to say, the eigenvectors of the policy covariance matrix are just the orthonormal rotation matrix $B$. (See Schiek [-@] for details.) -->
+
+...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 [
 -this is automatic anyway since the correlation matrix is deduced from $m$ loadings
@@ -1133,23 +1304,6 @@ In the context of the portfolio optimization method presented above, this implie
 
 In relation to the portfolio optimization method presented above, this implies that each of the $m$ program portfolio solutions $\boldsymbol{\mu}^*$ is tied to a specific strategic objective. Selection of any one of these solutions thus implies an exclusive focus on a particular strategic objective, and neglect of the rest. This may suit institutions that like to focus on a specific theme each funding cycle. However, it is problematic for AR4D institutions and donors that prefer to optimize budget allocations across multiple strategic objectives at once. [They want to pursue, for example, nutritional security, economic growth, and smallholder resilience, all at once, and not one at a time, in a piecemeal fashion. Moreover, such objectives usually go hand in hand, and cannot be pursued in isolation from each other.]
 
-The policy optimization problem is formulated in the same way as the program level problem, except that the budget weights are assigned at the policy level, which are then distributed among individual programs according to the program level solution above (equation ref...).
-
-\begin{equation}
-\min_{\mathbf{w}_j} \sigma_p \:\:\:\:s.t.\:\:\:\mathcal{E}_p = \overline{\mathcal{E}_p}
-\end{equation}
-
-The policy vis viva $\mathcal{E}_p$ is
-
-\begin{equation}
-\mathcal{E}_p = \frac{1}{2} v_p^2
-\end{equation}
-
-Where the portfolio velocity $v_p$ is
-
-\begin{equation}
-v_p = r \sqrt{\Sigma_k \mu_{kj}^{*2}}
-\end{equation}
 
 
 
@@ -1169,67 +1323,7 @@ some multi-objective criteria have been prposed, but involve ad hoc assigning ob
 
 <!-- and I showed how this idea can be used to deduce an approximate covariance matrix when time series data are unavailable [-@schiek2021reverse].  -->
 
-## Dealing with negative budget allocations
-
-<!-- Generally speaking, the eigenvectors of $K$ may include negative values. This is problematic for AR4D portfolio optimization since it implies complex valued budget allocations (recall equation \ref{eq:wStar}). -->
-
-<!-- * A better name for the complex numbers, at least in the present context, would be the "cyclically real" numbers. -->
-
-<!-- * This could also be portrayed in polar coordinates, but the representation on the complex plane is actually more realistic...since it captures the intangibility of the investment except when funds are initially disbursed at ... and then as a sunk cost at ... and finally as the realized impact at  ... -->
-
-
-<!-- As mentioned in the introduction, some have devised clever ways to modify the covariance matrix in order to coerce its leading eigenvector to have strictly positive entries... but even then, this is just one eigenvector (which corresponds to the risk maximizing solution), whereas we have just seen there are good reasons for investing in a linear combination of the eigenvectors. A corrollary to the Perron-Frobenius...says that if the leading eigenvector contains strictly positive entries, then none of the other eigenvectors can have this. A linear combination of eigenvectors might happen to contain strictly positive entries, but there is no guarantee of this. Eigenvectros are defined up to scaling, and so there is some freedom in adding together scaled eigenvectors such that the result is positive, but then the scale factors introduce subjectivity and must be defended. -->
-
-<!-- Here I present an alternative approach. First, note that the expected project NPV (equation \ref{eq:ExT}) can be expressed -->
-
-<!-- \begin{equation} -->
-<!-- E[x_k(T)]\bigr|_{t = 0} = \mu_k = x_k(0) e^{\omega 2 \pi} -->
-<!-- \label{eq:ExTrad} -->
-<!-- \end{equation} -->
-
-<!-- That is to say, $\mu_k$ can be mapped to polar coordinates, with the time horizon set to $2 \pi$, and $\omega  =  r T / 2 \pi$. Over the range $0 \geq \theta \geq 2 \pi$, $\mu_k$ traces out one cycle of a log spiral (Fig. ). -->
-
-
-<!-- Secondly, note that this has an equivalent expression in the complex plane. -->
-
-<!-- \begin{equation} -->
-<!-- \mu_k = -x_k(0) e^{2 \pi (\omega + i)} -->
-<!-- \label{eq:ExTcomp} -->
-<!-- \end{equation} -->
-
-<!-- Where $i = \sqrt{-1}$. To recap, expected project NPV has been mapped from its original Cartesian form to a polar form, and then from polar form to complex form. In the motivating context of this article, the latter of these three forms is the most realistic---in the sense that it reflects the intangibility of the project investment except as a sunk cost (at $\theta = \pi$), and as realized project NPV (at $\theta = 2 \pi$). A better name for the complex plane in this context might thus be the "cyclically real" plane. -->
-
-<!-- Finally, consider the case where $\mu_k$ is negative. That is, say $\mu_k = -\zeta$ where $\zeta > 0$. -->
-
-<!-- \begin{equation} -->
-<!-- -\zeta = -x_k(0) e^{2 \pi (\omega + i)} -->
-<!-- \end{equation} -->
-
-<!-- By Euler's formula ($e^{(2 n - 1)i \pi} = -1 \:;\:\:\:n\in \mathbb{Z}$), this can be rewritten -->
-
-<!-- \begin{equation} -->
-<!-- e^{ i \pi} \zeta = -x_k(0) e^{2 \pi (\omega + i)} -->
-<!-- \end{equation} -->
-
-<!-- Dividing through by $e^{i \pi}$ then gives -->
-
-<!-- \begin{equation} -->
-<!-- \zeta = -x_k(0) e^{\omega 2 \pi + i} -->
-<!-- \end{equation} -->
-
-<!-- Which has the effect of rotating the endpoint of the log spiral in Fig ... clockwise by $\pi$. In polar form, this rotation may be expressed -->
-
-<!-- \begin{equation} -->
-<!-- \zeta = x_k(0) e^{\omega \pi} -->
-<!-- \end{equation} -->
-
-<!-- Which then maps back to the original form as -->
-
-<!-- \begin{equation} -->
-<!-- \zeta = x_k(0) e^{r \frac{T}{2}} -->
-<!-- \end{equation} -->
-
-<!-- Dividing a negative entry in an eigenvector by $-1$ in order to remove the negative sign may thus be interpreted as a period-halving rotation of the respective project's log-spiral timeline, which may in turn be expressed as a scaling of its original Cartesian form by $e^{-r T / 2}$. -->
+# Deducing values...in minimum data contexts
 
 # Hypothetical example
 
