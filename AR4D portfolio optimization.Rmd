@@ -910,7 +910,10 @@ The program NPV vector $\boldsymbol{\mu}^*$ satisfying the first order condition
 With corresponding risk shadow price $\lambda_j$.
 
 \begin{equation}
-\lambda_j = r^2 \frac{\sigma_j}{\gamma_j}
+\begin{split}
+\lambda_j &= r^2 \frac{\sigma_j^*}{\gamma_j} \\
+&= \frac{r^2}{\sqrt{\gamma_j}}
+\end{split}
 \end{equation}
 
 Where $\sigma_j$ is the portfolio risk corresponding to the $j^{th}$ solution.
@@ -920,9 +923,13 @@ Where $\sigma_j$ is the portfolio risk corresponding to the $j^{th}$ solution.
 Note, in passing, that dotting the first order conditions through by $\boldsymbol{\mu}_j^*$ and solving for $\lambda_j$ results in an instructive expression for the risk shadow price.
 
 \begin{equation}
+\gamma_j = \sigma_j^{*2}
+\end{equation}
+
+\begin{equation}
 \begin{split}
-\boldsymbol{\mu}_j^* ' \nabla_{\mu} \mathcal{L} &= 2 r^2 \mathcal{E}_j - \lambda_j \sigma_j = 0 \\
-&\Rightarrow \lambda_j = 2 r^2 \frac{\mathcal{E}_j}{\sigma_j}
+\boldsymbol{\mu}_j^* ' \nabla_{\mu} \mathcal{L} &= 2 \mathcal{E}_j - \lambda_j \sigma_j = 0 \\
+&\Rightarrow \lambda_j = 2 \frac{\mathcal{E}_j}{\sigma_j}
 \end{split}
 \end{equation}
 
@@ -932,8 +939,9 @@ Note, moreover, that setting this expression equal to the previous one results i
 
 \begin{equation}
 \begin{split}
-2 r^2 \frac{\mathcal{E}_j}{\sigma_j} &= r^2 \frac{\sigma_j}{\gamma_j} \\
-\Rightarrow \gamma_j &= \frac{\sigma_j^2}{2 \mathcal{E}_j}
+2 \frac{\mathcal{E}_j}{\sigma_j} &= r^2 \frac{\sigma_j}{\gamma_j} \\
+\Rightarrow \gamma_j &= r^2 \frac{\sigma_j^2}{2 \mathcal{E}_j} \\
+&= \frac{\gamma_j}{\beta_j^2}
 \end{split}
 \label{eq:gammaRisk}
 \end{equation}
@@ -970,6 +978,8 @@ w_{kj}^* &= C \left( \frac{\beta_j q_{kj}}{\tilde{x}(0)} \right)^{\frac{1}{\alph
 &= C \left( \frac{\beta_j \sqrt{e^{s_k^2} - 1} p_{kj}}{\tilde{x}(0)} \right)^{\frac{1}{\alpha_k}}
 \end{split}
 \end{equation}
+
+[Note that this means $\mathcal{E}_j = r^2 \beta_j^2 / 2$, $\lambda_j = r^2 \beta_j^2 / \sigma_j = r^2 \beta_j^2 / \sqrt{\gamma_j}$ 
 
 ### Dealing with negative budget allocations
 
@@ -1073,10 +1083,10 @@ In technical language, this association between macro and micro level movements 
 
 (Where the tilde "~" indicates that the expression is restricted to the $m$ leading eigenvector-eigenvalue pairs.)
 
-Correlations between variables and leading principal components ($\tilde{K}_{X, S}$), it follows, are given by 
+Correlations between variables and leading principal components ($K_{X, S}$), it follows, are given by 
 
 \begin{equation}
-\tilde{K}_{X, S} = \tilde{P} \tilde{\Gamma}^{\frac{1}{2}}
+K_{X, S} = \tilde{P} \tilde{\Gamma}^{\frac{1}{2}}
 \end{equation}
 
 (See Schiek [-@schiek2021reverse] or Abdi [-@] for details.)
@@ -1090,7 +1100,7 @@ K_{X, S}^{\circlearrowright} = B \tilde{P} \tilde{\Gamma}^{\frac{1}{2}}
 \end{equation}
 
 <!-- In my previous work, I show how this matrix, which plays a central role in the next section, can be "crowdsourced"... -->
-This is a very useful matrix, which may reasonably be deduced from a survey of experts and stakeholders. The outer product $K_{X, S}^{\circlearrowright} K_{X, S}^{\circlearrowright}{'}$ gives the approximate program correlation matrix $\tilde{K}_{X, X}$, while the inner product $K_{X, S}^{\circlearrowright} {'} K_{X, S}^{\circlearrowright}$ gives the policy covariance matrix (call this $\Sigma_{S, S}^{\circlearrowright}$). In the absence of time series data by which to estimate program and policy correlations, then, the matrix $K_{X, S}^{\circlearrowright} = B \tilde{P}$ provides a means of deducing them from expert opinion. (See Schiek [-@schiek2021reverse] for details.)
+As discussed in section ... , This is a very useful matrix, which may reasonably be deduced from a survey of experts and stakeholders. The outer product $K_{X, S}^{\circlearrowright} K_{X, S}^{\circlearrowright}{'}$ gives the approximate program correlation matrix $\tilde{K}_{X, X}$, while the inner product $K_{X, S}^{\circlearrowright} {'} K_{X, S}^{\circlearrowright}$ gives the policy covariance matrix (call this $\Sigma_{S, S}^{\circlearrowright}$). In the absence of time series data by which to estimate program and policy correlations, then, the matrix $K_{X, S}^{\circlearrowright} = B \tilde{P}$ provides a means of deducing them from expert opinion. (See Schiek [-@schiek2021reverse] for details.)
 
 Because eigenvectors are associated with strategic objectives, by selecting a particular portfolio solution from the optimal menu, the investor effectively commits themselves to a particular strategic objective for the funding cycle. When selecting a budget allocation from the optimal menu, then, the investor must consider not only their risk tolerance, but also the strategic objective they wish to focus on for the funding cycle.
 
@@ -1124,7 +1134,7 @@ But note that, since $\boldsymbol{\mu}_j^* = \mathbf{q}_j$, then $\boldsymbol{\m
 \boldsymbol{\mu}_j^S = \boldsymbol{\beta}
 \end{equation}
 
-And the policy optimization problem can be rewritten
+And so the policy optimization problem can be rewritten
 
 \begin{equation}
 \max_{\boldsymbol{\beta}} \mathcal{E}^S \:\:\:\:s.t.\:\:\: \sigma^S = \bar{\sigma}^S
@@ -1153,31 +1163,61 @@ And the first order conditions then follow as
 
 \begin{equation}
 \nabla_{\boldsymbol{\beta}} \mathcal{L} = r^2 \boldsymbol{\beta} - \frac{\lambda^S}{\sigma^S} G_{S, S} \boldsymbol{\beta} = \mathbf{0}
+\label{eq:focS}
 \end{equation}
+<!-- Which can be rearranged -->
+<!-- \begin{equation} -->
+<!-- \boldsymbol{\beta} - \frac{\lambda^S}{r^2 \sigma^S} G_{S, S} \boldsymbol{\beta} = \mathbf{0} -->
+<!-- \end{equation} -->
 
 The candidate solution $\boldsymbol{\beta}^*$ may thus be any of the eigenvectors of $G_{S, S}$, with corresponding policy risk shadow price ($\lambda^S$) given in terms of the respective eigenvalue.
 
-The eigenvectors of $G_{S, S}$ may be deduced from the crowdsourced matrix $K_{X, S}^{\circlearrowright}$ as follows. First, recall that the policy covariance matrix $\Sigma_{S, S}$ can be obtained as the inner product $K_{X, S}^{\circlearrowright} {'} K_{X, S}^{\circlearrowright}$, and that the eigendecomposition of $\Sigma_{S, S}^{\circlearrowright}$ works out to
+The eigenvectors and eigenvalues of $G_{S, S}$ may be deduced from the crowdsourced matrix $K_{X, S}^{\circlearrowright}$ as follows. First, recall from section ... that the policy covariance matrix $\Sigma_{S, S}$ can be obtained as the inner product $K_{X, S}^{\circlearrowright} {'} K_{X, S}^{\circlearrowright}$. Moreover, note that the eigendecomposition of $\Sigma_{S, S}^{\circlearrowright}$ works out to
 
 \begin{equation}
 \Sigma_{S, S}^{\circlearrowright} = B \tilde{\Gamma} B '
 \end{equation}
 
-(See for details.)
+That is to say, the matrix of eigenvectors of $\Sigma_{S, S}^{\circlearrowright}$ is just the orthonormal rotation matrix $B$ that is applied to clarify program-policy correlations in equation \ref{eq:rotL}; and the respective eigenvalues are just the $m$ leading eigenvalues of the program cross coefficient of variation matrix $G_{X, X}$ (or program correlation matrix $K_{X, X}$). (See Schiek [-@schiek2021reverse] for details.)
 
-That is to say, the eigenvectors of \Sigma_{S, S}^{\circlearrowright} are just the orthonormal rotation matrix $B$, and the respective eigenvalues are just the $m$ leading eigenvalues of the program cross coefficient of variation matrix $G_{X, X}$ and program correlation matrix $K_{X, X}$. (See Schiek [-@schiek2021reverse] for details.) Since $G_{S, S} = D(\boldsymbol{\mu}^S)^{-1} \Sigma_{S, S} D(\boldsymbol{\mu}^S)^{-1}$ by definition, then the eigenvectors of $G_{S, S}$ are $D(\boldsymbol{\mu}^S)^{-1} B$
+Since $G_{S, S} = D(\boldsymbol{\beta})^{-1} \Sigma_{S, S} D(\boldsymbol{\beta})^{-1}$ by definition, it follows that the eigenvalues of $G_{S, S}$ are likewise $\tilde{\Gamma}$. Combining this information with the first order conditions (equation \ref{eq:focS}), it follows that
 
 \begin{equation}
-\begin{split}
-G_{S, S} = E \\ 
-\end{split}
+\lambda^S_j = r^2 \frac{\sigma^S}{\gamma_j}
 \end{equation}
 
+[\lambda = \lambda^S ?]
+[\sigma = \sigma^S ?]
 
-...it turns out the eigenvectors of $\Sigma_{S, S}$ are just the orthonormal rotation matrix $B$.
+Moreover, the first order conditions dotted through...
 
+\begin{equation}
+\lambda^S = 2 \frac{\mathcal{E}^S}{\sigma^S}
+\end{equation}
 
+and the eigenvectors of $G_{S, S}$ and \Sigma_{S, S}^{\circlearrowright} are related as follows. Letting $\boldsymbol{\varepsilon}_j$ and $\mathbf{b}_j$ stand for the $j^{th}$ eigenvectors of $G_{S, S}$ and $\Sigma_{S, S}^{\circlearrowright}$, respectively,
 
+\begin{equation}
+\boldsymbol{\varepsilon}_j = D(\boldsymbol{\beta})^{-1} \mathbf{b}_j
+\end{equation}
+
+But, when evaluated at the $j^{th}$ solution $\boldsymbol{\beta}_j^* = \boldsymbol{\varepsilon}_j$, this becomes
+
+\begin{equation}
+\boldsymbol{\varepsilon}_j = \mathbf{b}_j^{\frac{1}{2}}
+\end{equation}
+
+The $j^{th}$ optimal policy budget allocation $\boldsymbol{\beta}_j^*$ is thus given by
+
+\begin{equation}
+\boldsymbol{\beta}_j^* = \mathbf{b}_j^{\frac{1}{2}}
+\end{equation}
+
+The corresponding policy risk shadow price $\lambda^S$ can then be found by rearranging
+
+can't scale
+
+soc
 
 
 
