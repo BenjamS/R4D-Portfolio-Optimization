@@ -319,9 +319,10 @@ The portfolio variance, it follows, can be expressed
 
 <!-- = Var[X(T)]\bigr|_{t = \hat{t}} -->
 \begin{equation}
-\sigma(\hat{t})^2 = \boldsymbol{\mu}' G \boldsymbol{\mu} \end{equation}
+\sigma(\hat{t})^2 = \boldsymbol{\mu}' G_{X,X} \boldsymbol{\mu} \end{equation}
 
-Where $G$ is the "cross coefficient of variation matrix", i.e. the matrix whose diagonal elements are the squared coefficients of variation $c_k^2$, and whose off-diagonal elements are the cross coefficients of variation $c_{kj}$. Note that $G$ is just the covariance matrix left and right multiplied by a diagonal matrix of the inverse project means.
+Where $G_{X,X}$ is the "cross coefficient of variation matrix", i.e. the matrix whose elements are $c_{kj}$, where $c_{kk} = c_k^2$. Note that $G$ is just the covariance matrix left and right multiplied by a diagonal matrix of the inverse project means.
+ <!--whose elements are the squared coefficients of variation $c_k^2$, and whose off-diagonal elements are the cross coefficients of variation -->
 
 \begin{equation}
 G = D(\boldsymbol{\mu})^{-1} \Sigma D(\boldsymbol{\mu})^{-1}
@@ -699,7 +700,7 @@ and
 <!-- \end{split} -->
 <!-- \end{equation} -->
 
-# Program value is cyclically real \label{sec:cycReal}
+# Program NPV is cyclically real \label{sec:cycReal}
 <!-- [Modeling the program investment cycle in the complex plane] -->
 
 Between the disbursement of funds and the realization of project impacts, project value exists in an intangible form of "potential value". It is value that is in the process of being transformed from one concrete form into another, i.e., from a tangible monetary form into tangible program impacts in the target populations and environments. During this transformation, it is incorrect to say that the program's value is zero, even though the tangible monetary form of the investment has vanished, or is in the process of vanishing. On the other hand, it is not altogether correct to say that the program's value is equal to its NPV, since this form of program value has yet to materialize in any demonstrable, tangible sense.
@@ -711,17 +712,74 @@ It is possible to model this reality directly in the complex plane as follows. F
 \mu_k(0) = x_k(0) e^{(\omega + i) 2 \pi} \;\;;\;\;\; \omega = r \frac{T}{2 \pi}
 \end{equation}
 
-Where $i = \sqrt{-1}$. (Recall that $e^{2n i \pi} = 1$ for any integer $n$.) This may then be extended to all angles $\theta \in (0, 2 \pi)$ as follows
+Where $i = \sqrt{-1}$. (Recall that $e^{2\kappa i \pi} = 1$ for any integer $\kappa$.) This may then be extended to all angles $\theta \in (0, 2 \pi)$ as follows
 
 \begin{equation}
-\mu_k(\theta; T, r) = x_k(\theta) e^{(\omega + i) (2 \pi - \theta)}
+\mu_k(\theta; T, r) = x_k(\theta) e^{(2 \pi - \theta) (\omega + i)}
 \end{equation}
 
-In this formulation, program value $\mu_k(\theta; T, r)$ is real-valued at the start of the funding cycle ($\theta = 0$), midway through ($\theta = \pi$), and at the end of the cycle ($\theta = 2 \pi$); and is complex-valued elsewhere. Real program values thus correspond to the points in the funding cycle when the investment has a tangible form---particularly at the beginning, when the funds are disbursed, and at the end, when the investment has been productively consumed and transformed into program impacts. Complex values lying off the real number line, meanwhile, correspond to points in the funding cycle when the investment has no demonstrable or tangible form, i.e. when it is in the process of being transformed from its original monetary form into the planned program impacts. The negative real value occurring halfway through the cycle, at $\theta = \pi$, may be interpreted as the investment when it is demonstrable as a sunk cost.
+In this formulation, program value $\mu_k(\theta; T, r)$ is real-valued at the start of the funding cycle ($\theta = 0$), midway through ($\theta = \pi$), and at the end of the cycle ($\theta = 2 \pi$); and is complex-valued elsewhere. Real program values thus correspond to the points in the funding cycle when the investment has a tangible or demonstrable form---particularly at the beginning, when the funds are disbursed, and at the end, when the investment has been productively consumed and transformed into measurable program impacts. The negative real value occurring halfway through the cycle, at $\theta = \pi$, may be interpreted as the investment as a sunk cost. Complex values lying off the real number line, meanwhile, correspond to points in the funding cycle when the investment has no demonstrable or tangible form, i.e. when it is in the process of being transformed from its original monetary form into the planned program impacts.
 
-Note that if $\mu_k(\theta; T, r)$ is a positive real number at the start of the funding cycle ($\theta = 0$), then it must also be a positive real number at the end of the funding cycle ($\theta = 2 \pi$). Likewise, if program value is a negative real number at the start of a funding cycle, then it must also be negative at the end of the funding cycle. Funding cycles that begin and end on a positive real value may be called "normal funding cycles". Cycles that begin and end on a negative value may thus be said to be out of phase with the normal funding cycle by a rotation of $\pi$.
+In this representation of the program funding cycle, then, a negative program NPV may be interpreted as program NPV evaluated at the sunk cost point in the complex plane. Solving Eq \ref{eq:muFnw} for $w_k$ at $\hat{t} = 0$, this means that if program NPV is negative at the start of the funding cycle---that is, if $\mu_k(0) < 0$---then the budget allocation is complex valued.
 
-It follows that negative program values at $\theta = 0$ may be turned positive by extending or shortening the time horizon by $\pi$. That is, starting with an out of phase program value at $\theta = 0$,
+\begin{equation}
+w_k(\mu_k(0), \tilde{x}_k(0), r, T) = C \left( \frac{\mu_k(0)}{\tilde{x}_k(0)} e^{-r T} \right)^{\frac{1}{\alpha_k}}
+\label{eq:wFnmu}
+\end{equation}
+
+However, in the complex plane, this becomes
+
+\begin{equation}
+w_k(\mu_k(0), \tilde{x}_k(0), \omega, 2 \pi) = C \left( \frac{\mu_k(0)}{\tilde{x}_k(0)} e^{-2 \pi (\omega + i)} \right)^{\frac{1}{\alpha_k}}
+\end{equation}
+
+Such that the budget allocation can be made real valued again if the program's time horizon is extended by one half cycle (i.e., by $\pi$). To see this, note that the half cycle extension may formalized as follows.
+
+\begin{equation}
+\begin{split}
+w_k(\mu_k(0), \tilde{x}_k(0), \omega, 3 \pi) &= C \left( \frac{\mu_k(0)}{\tilde{x}_k(0)} e^{-3 \pi (\omega + i) } \right)^{\frac{1}{\alpha_k}} \\
+&= C \left( \frac{\mu_k(0)}{\tilde{x}_k(0)} e^{-3 \omega  \pi} e^{3 i \pi} \right)^{\frac{1}{\alpha_k}}
+\end{split}
+\end{equation}
+
+But recall that, by Euler's identity, $e^{(2 \kappa - 1) i \pi} = -1$ for any integer $\kappa$. Therefore, the $e^{3 i \pi}$ in this expression may be replaced with a $-1$.
+
+\begin{equation}
+\begin{split}
+w_k(\mu_k(0), \tilde{x}_k(0), \omega, 3 \pi) &= C \left( \frac{\mu_k(0)}{\tilde{x}_k(0)} e^{-3 \omega  \pi} (-1) \right)^{\frac{1}{\alpha_k}} \\
+&= C \left( -\frac{\mu_k(0)}{\tilde{x}_k(0)} e^{-3 \omega \pi} \right)^{\frac{1}{\alpha_k}}
+\end{split}
+\end{equation}
+
+Extending the time horizon by one half cycle ($\pi$) thus results in the appearance of $-\mu_k(0)$, which is positive, thereby making the budget allocation $w_k$ real valued.
+
+Note that the same result is achieved by using any odd integer multiple of $\pi$. That is, $w_k(\mu_k(0), \tilde{x}_k(0), \omega, (2 \kappa - 1) \pi)$ ...
+
+\begin{equation}
+w_k = C \left( \frac{\mu_k(0)}{\tilde{x}_k(0)} e^{-(2 \kappa - 1) \pi (\omega + i)} \right)^{\frac{1}{\alpha_k}}
+\end{equation}
+
+
+It is therefore useful to introduce an integer parameter $\kappa_k$ into the definition of each program NPV
+
+
+
+
+For the purposes of portfolio optimization, it is useful to introduce an integer parameter by which each program funding time horizon can be adjusted in half cycle intervals with respect to the funding cycle $T$.
+
+\begin{equation}
+\begin{split}
+\mu_k(0; r, T) &= x_k(0) (-1)^{2 \kappa_k - 1} e^{2 \pi \omega \left(\kappa_k + \frac{1}{2} \right))} \\
+&= x_k(0) e^{2 \pi \omega \left(\kappa_k + \frac{1}{2} \right) + 2 i \pi \left(\kappa_k + \frac{1}{2} \right)}
+\end{split}
+\end{equation}
+
+
+
+
+Note that if $\mu_k(\theta; T, r)$ is a positive real number at the start of the funding cycle ($\theta = 0$), then it must also be a positive real number at the end of the funding cycle ($\theta = 2 \pi$). Likewise, if program value is a negative real number at the start of a funding cycle, then it must also be negative at the end of the funding cycle. Funding cycles that begin and end on a positive real value may be called "normal funding cycles". Cycles that begin and end on a negative value may thus be said to be out of phase with the normal funding cycle by a rotation of $\pi$---i.e. by half a cycle.
+
+It follows that negative program values at the start of the cycle ($\theta = 0$) may be turned positive by extending or shortening the time horizon by $\pi$. That is, starting with an out of phase program value at $\theta = 0$,
 
 \begin{equation}
 \begin{split}
@@ -900,92 +958,54 @@ Where $\mathbf{0}$ is a vector of zeros. This can then be rearranged as follows.
 G \boldsymbol{\mu} - \frac{r^2 \sigma}{\lambda} \boldsymbol{\mu} = \mathbf{0}
 \end{equation}
 
-The program NPV vector $\boldsymbol{\mu}^*$ satisfying the first order conditions is thus given by any of the eigenvectors of $G$, with corresponding risk shadow price given in terms of the respective eigenvalue. More specifically, [letting $\mathbf{q}_j$ and $\gamma_j$ stand for the $j^{th}$ eigenvector and eigenvalue of $G$, respectively, then] the $j^{th}$ solution $\boldsymbol{\mu}_j^*$ can be written
+The program NPV vector $\boldsymbol{\mu}^*$ satisfying the first order conditions is thus given by any of the eigenvectors of $G$, with corresponding risk shadow price given in terms of the respective eigenvalue.
+<!-- More specifically, [letting $\mathbf{q}_j$ and $\gamma_j$ stand for the $j^{th}$ eigenvector and eigenvalue of $G$, respectively, then] the $j^{th}$ solution $\boldsymbol{\mu}_j^*$ can be written -->
 <!-- $\frac{r^2 \sigma}{\gamma_j}$ $\lambda$ given by the inverse of the respective eigenvalues, scaled by $r^2$.]  -->
 
 \begin{equation}
 \boldsymbol{\mu}_j^* = \mathbf{q}_j
+\label{eq:NPVstar}
 \end{equation}
 
-With corresponding risk shadow price $\lambda_j$.
+With risk shadow price $\lambda_j$
+
+\begin{equation}
+\lambda_j = r^2 \frac{\sigma_j^*}{\gamma_j}
+\end{equation}
+
+Where $\sigma_j^*$ is the portfolio risk corresponding to the $j^{th}$ solution,
 
 \begin{equation}
 \begin{split}
-\lambda_j &= r^2 \frac{\sigma_j^*}{\gamma_j} \\
-&= \frac{r^2}{\sqrt{\gamma_j}}
+\sigma_j^* &= \mathbf{q}_j ' G_{X, X} \mathbf{q}_j \\
+&= \gamma_j
 \end{split}
 \end{equation}
 
-Where $\sigma_j$ is the portfolio risk corresponding to the $j^{th}$ solution.
-
-### Interpreting the risk shadow price and eigenvalues
-
-Note, in passing, that dotting the first order conditions through by $\boldsymbol{\mu}_j^*$ and solving for $\lambda_j$ results in an instructive expression for the risk shadow price.
+Such that $\lambda_j$ reduces to
 
 \begin{equation}
-\gamma_j = \sigma_j^{*2}
+\lambda_j = \frac{r^2}{\sqrt{\gamma_j}} = \frac{r^2}{\sigma_j^*}
 \end{equation}
 
-\begin{equation}
-\begin{split}
-\boldsymbol{\mu}_j^* ' \nabla_{\mu} \mathcal{L} &= 2 \mathcal{E}_j - \lambda_j \sigma_j = 0 \\
-&\Rightarrow \lambda_j = 2 \frac{\mathcal{E}_j}{\sigma_j}
-\end{split}
-\end{equation}
+The risk shadow price is thus inversely proportional to portfolio risk. As risk increases, the marginal benefit of additional increments in risk decrease.
 
-The risk shadow price may thus be thought of as a "return to risk ratio". More specifically, $\lambda_j$ is proportional to the ratio of the portfolio vis viva---a measure of expected portfolio impact---to the portfolio risk.
-
-Note, moreover, that setting this expression equal to the previous one results in an instructive expression for the eigenvalues.
-
-\begin{equation}
-\begin{split}
-2 \frac{\mathcal{E}_j}{\sigma_j} &= r^2 \frac{\sigma_j}{\gamma_j} \\
-\Rightarrow \gamma_j &= r^2 \frac{\sigma_j^2}{2 \mathcal{E}_j} \\
-&= \frac{\gamma_j}{\beta_j^2}
-\end{split}
-\label{eq:gammaRisk}
-\end{equation}
-
-(Where $\mathcal{E}_j$ is the expected portfolio impact associated with the $j^{th}$ solution.)
-
-The $j^th$ eigenvalue of $G$ thus reflects the portfolio risk (squared) per unit expected impact for that solution. In this way, $\lambda_j$ and $\gamma_j$ are effectively indicators of the risk involved in choosing one solution over another.
-
-### Optimal budget allocation
-
-By equation \ref{eq:muFnw}, the candidate solutions $\boldsymbol{\mu}_j^*$ can then be solved for the optimal budget allocations as follows.
+The solutions given by Eq \ref{eq:NPVstar}, in turn, can be solved for their corresponding budget allocations $\mathbf{w}_j^*$ via Eq \ref{eq:muFnw}, as follows.
+<!-- The candidate budget allocations associated with the solutions in  can be found by solving equation \ref{eq:muFnw} for $\mathbf{w}$ and evaluating at $\boldsymbol{\mu}_j^*$, as follows. -->
 <!-- The solutions $\boldsymbol{\mu}_j^*$ represent the portfolio vis viva maximizing impact targets subject to a particular risk constraint. By equation \ref{}, they can then be solved for the optimal budget allocation as follows. -->
 
 \begin{equation}
 \begin{split}
-\mathbf{w}_j^* &= C (D(\tilde{\mathbf{x}}(0))^{-1} \mathbf{q}_j)^{\frac{1}{\boldsymbol{\alpha}}} \\
-&= C (D(\tilde{\mathbf{x}}(0))^{-1} D(\mathbf{c}) \mathbf{p}_j)^{\frac{1}{\boldsymbol{\alpha}}}
+\mathbf{w}_j^* &= C (D(\tilde{\mathbf{x}}(0))^{-1} \mathbf{q}_j e^{-r T})^{\frac{1}{\boldsymbol{\alpha}}}
 \label{eq:wStar}
 \end{equation}
+<!-- The individual program budget allocations are thus given by -->
+<!-- \begin{equation} -->
+<!-- \begin{split} -->
+<!-- \mathbf{w}_{kj}^* &= C \left(\frac{q_{kj}}{\tilde{x}(0)} e^{-r T} \right)^{\frac{1}{\alpha_k} -->
+<!-- \end{equation} -->
 
-Because eigenvectors are defined up to scaling, the budget constraint may be arbitrarily enforced. That is to say, the optimal allocation may be rewritten
-
-\begin{equation}
-\mathbf{w}_j^* = C (D(\tilde{\mathbf{x}}(0))^{-1} \beta_j \mathbf{q}_j)^{\frac{1}{\boldsymbol{\alpha}}}
-\label{eq:wStarScaled}
-\end{equation}
-
-Where $\beta_j$ is an arbitrary scaling constant, which may be chosen such that $\Sigma_k w_k = C$. More explicitly, then, the candidate program budget shares can be expressed
-
-\begin{equation}
-\begin{split}
-w_{kj}^* &= C \left( \frac{\beta_j q_{kj}}{\tilde{x}(0)} \right)^{\frac{1}{\alpha_k}} \\
-&= C \left( \frac{\beta_j c_k p_{kj}}{\tilde{x}(0)} \right)^{\frac{1}{\alpha_k}}
-&= C \left( \frac{\beta_j \sqrt{e^{s_k^2} - 1} p_{kj}}{\tilde{x}(0)} \right)^{\frac{1}{\alpha_k}}
-\end{split}
-\end{equation}
-
-[Note that this means $\mathcal{E}_j = r^2 \beta_j^2 / 2$, $\lambda_j = r^2 \beta_j^2 / \sigma_j = r^2 \beta_j^2 / \sqrt{\gamma_j}$ 
-
-### Dealing with negative budget allocations
-
-Generally speaking, the eigenvectors $\mathbf{q}_j$ may include negative values. As explained in \ref{sec:cycReal}, negative values may be interpreted as program funding cycles that are out of phase with the main funding cycle. Insofar as this interpretation is valid, negative weights can be made positive by extending or shortening that program's time horizon by an integer multiple of $2$. Mathematically, this means multiplying the solution $w_{kj}^*$ by $-e^{r T/(2 \kappa)}$, where $\kappa$ is an integer.
-
-## Second order condition
+## Second order condition \label{sec:soc}
 
 The second order condition guaranteeing that the solution is a maximizer of $\mathcal{L}$ is
 
@@ -1038,7 +1058,9 @@ Where $\Gamma_j$ is the diagonal matrix of eigenvalues of $G$ excluding the $j^{
 
 The leading eigenvector $\mathbf{q}_1$ is thus the solution that satisfies the second order condition (equation \ref{eq:soc}), and thus maximizes $\mathcal{L}$. By the same token, the trailing eigenvector of $\mathbf{q}_n$ is the solution that minimizes $\mathcal{L}$, and the intermediate eigenvectors $(1 < k < n)$ represent saddle point solutions of $\mathcal{L}$ between these two extremes.
 
-## Keeping only meaningful solutions
+## Post-solution processing
+
+### Keeping only meaningful solutions
 <!-- ## Spectrally reduced covariance matrix -->
 
 The trailing eigenvectors of a covariance matrix tend to represent noise in the data. The budget allocations associated with these eigenvectors are thus effectively random, and should be discarded from the menu of eligible solutions. To ensure that solutions are meaningful, only the leading $m$ eigenvectors required to explain a high fraction of total portfolio variance should be retained.
@@ -1060,13 +1082,103 @@ Such that $c_n = 1$.
 
 The exact value of the integer $m$ is somewhat subjective. A rule of thumb often followed in practice is to retain the $m$ leading eigenvectors required to explain at least $90\%$ of the portfolio variance (i.e., such that $c_m \geq 0.9$). This is tantamount to the "spectral cut-off" method used in the financial context [@guo2018eigen; @carrasco2011optimal].
 
-## A menu of solutions catering to a range of risk appetites
+### A menu of solutions catering to a range of risk appetites
 
 The "optimal" solution ($\boldsymbol{\mu}_1^*$) is optimal in the sense that it maximizes expected portfolio impact subject to a risk constraint. However, this is the solution that also corresponds to the highest eigenvalue ($\gamma_1$), and is hence also the riskiest of the candidate solutions (recall equation \ref{eq:gammaRisk}). The other candidate solutions ($\boldsymbol{\mu}_1^*, \boldsymbol{\mu}_2^*,\dots, \boldsymbol{\mu}_n^*$) may correspond to lower expected impacts, but also successively decreasing eigenvalues ($\gamma_2, \gamma_3, \dots, \gamma_n$), and hence successively decreasing risk levels.
 
 AR4D donors and institutions are thus presented not with a single optimal solution, but an optimal menu of solutions corresponding to a range of risk tolerances. Typically, AR4D donors are guided by a pro-poor mandate which requires them to operate in the gaps left by market failures, and hence to incline towards ambitious research portfolios. Ambition implies risk, which in turn implies that AR4D donors should endeavor to select from among the riskier solutions on the optimal menu. It should be kept in mind, moreover, that higher portfolio risk is not unambiguously bad, as it exposes the investor to an increased probability of both lower and higher portfolio return.
 <!-- The leading eigenvector of $G$ is the portfolio budget allocation that maximizes portfolio impact subject to a risk constraint. $\overline{\mathcal{E}}$. The other solutions are not necessarily sub-optimal, but rather correspond to lower investor risk tolerances. Here it is important to keep in mind that higher portfolio risk is not unambiguously bad, but rather a matter of ambition. Higher risk exposes the investor to an increased probability of both lower and higher portfolio return. Moreover, if the portfolio items follow a gBm, as assumed here, then returns are lognormally distributed; and so the risk is primarily upside. Moreover, let's not forget that AR4D institutions have a pro-poor mandate to redress market failures; and this can often mean taking on ambitious, higher risk portfolios. -->
 <!-- Note that this is reflected in the corresponding eigenvalues. The leading eigenvalue---which corresponds to the risk maximizing solution---is the largest, indicating the highest risk for a given vis viva target $\overline{\mathcal{E}}$ (recall equation \ref{eq:lambDef}), while the remaining eigenvalues are successively smaller, indicating successively lower risk levels. -->
+
+### Dealing with negative elements in the solution
+
+Generally speaking, the eigenvectors $\mathbf{q}_j$ may include negative elements, which in turn implies negative expected program NPV (equation \ref{eq:NPVstar}) and complex valued budget allocations (equation \ref{eq:wStar}). As explained in \ref{sec:cycReal}, negative program NPV may be interpreted as the NPV evaluated at the sunk cost point of the program funding cycle. Insofar as this interpretation is valid, negative NPV can be made positive by extending or shortening the program's time horizon by an odd integer multiple of one half the original time horizon $T$. Mathematically, this means multiplying the negative element $q_{kj} < 0$ by $-e^{rT (\kappa + 1/2)}$, where $\kappa$ is an integer. The "rotated" or "horizon adjusted" optimal program budget allocation $\hat{w}_{kj}^*$ and NPV $\hat{\mu}_{kj}^*$ are thus defined
+
+\begin{equation}
+\hat{w}_{kj}^* =
+\begin{cases}
+C \left( \frac{\beta_j q_{kj}}{\tilde{x}(0)} e^{-r T} \right)^{\frac{1}{\alpha_k}}, & \text{if $q_{kj} > 0$} \\
+C \left( - \frac{\beta_j q_{kj}}{\tilde{x}(0)} e^{-r T \left(\frac{1}{2} + \kappa \right)} \right)^{\frac{1}{\alpha_k}}, & \text{if $q_{kj} < 0$}
+\end{cases}
+\end{equation}
+
+And
+
+\begin{equation}
+\hat{\mu}_{kj}^* =
+\begin{cases}
+q_{kj}, & \text{if $q_{kj} > 0$} \\
+-e^{rT \left(\kappa - \frac{1}{2}\right)} q_{kj}, & \text{if $q_{kj} < 0$}
+\end{cases}
+\end{equation}
+<!-- The choice of $\kappa$ should be made depending on whether it makes more sense to shorten or to lengthen the time horizon of the program in question, and by how much. -->
+
+Or, more compactly,
+
+\begin{equation}
+\hat{w}_{kj}^* = \Sigma_{j = 1}^m C ( \frac{\beta_j q_{kj}}{\tilde{x}(0)} (-1)^{2 \kappa - 1} e^{-r T \left(\frac{1}{2} + \kappa \right)})^{\frac{1}{\alpha_k}}
+\end{equation}
+
+And
+
+\begin{equation}
+\hat{\mu}_{kj}^* = (-1)^{1 - 2 \kappa} e^{rT \left(\kappa - \frac{1}{2}\right)} \beta_j q_{kj}
+\end{equation}
+
+Where
+
+\begin{equation}
+\kappa
+\begin{cases}
+= \frac{1}{2}, & \text{if $q_{kj} > 0$} \\
+\in \mathbb{Z} & \text{if $q_{kj} < 0$}
+\end{cases}
+\end{equation}
+
+And in vector notation,
+
+\begin{equation}
+\hat{\mathbf{w}}_j^* = \Sigma_{j = 1}^m C_j (D(\tilde{\mathbf{x}}(0))^{-1} \mathbf{q}_j (-1)^{2 \kappa - 1} e^{-r T \left(\frac{1}{2} + \kappa \right)})^{\frac{1}{\boldsymbol{\alpha}}}
+\label{eq:wStarPolicy}
+\end{equation}
+
+\begin{equation}
+\hat{\boldsymbol{\mu}}_j^* = (-1)^{1 - 2 \kappa} e^{rT \left(\kappa - \frac{1}{2}\right)} \beta_j \mathbf{q}_j
+\end{equation}
+
+### Scaling the solution to enforce constraints
+
+Because eigenvectors are defined up to scaling, the optimal solution can be arbitrarily scaled in accordance with any portfolio impact, risk, or budget target/constraint. The budget constraint is usually the most binding of these three. In order to arbitrarily enforce the budget constraint $C$, then, note that the candidate optimal budget allocation may be rewritten
+
+\begin{equation}
+\hat{\mathbf{w}}_j^* = \Sigma_{j = 1}^m C_j (D(\tilde{\mathbf{x}}(0))^{-1} \beta_j \mathbf{q}_j (-1)^{2 \kappa - 1} e^{-r T \left(\frac{1}{2} + \kappa \right)})^{\frac{1}{\boldsymbol{\alpha}}}
+\label{eq:wStarPolicy}
+\end{equation}
+
+Where $\beta_j$ is an arbitrary scaling constant, which may be chosen such that $\hat{\mathbf{w}}_j^* {'} \mathbf{1} = C$.
+
+When choosing the scaling constant $\beta_j$ to enforce the budget constraint, the corresponding expected portfolio impact $\hat{\mathcal{E}}_j^*$ and risk $\hat{\sigma}_j^*$ are also defined in the process.
+
+<!-- \begin{equation} -->
+<!-- \boldsymbol{\mu}_j^* = (-1)^{1 - 2 \kappa} e^{rT \left(\kappa - \frac{1}{2}\right)} \beta_j \mathbf{q}_j -->
+<!-- \end{equation} -->
+\begin{equation}
+\begin{split}
+\hat{\mathcal{E}}_j^* &= \frac{1}{2} \hat{\mathbf{v}}_j^* ' \hat{\mathbf{v}}_j^* = \frac{r^2}{2} \hat{\boldsymbol{\mu}}_j^* ' \hat{\boldsymbol{\mu}}_j^* \\
+&= \frac{r^2}{2} \mathbf{q}_j ' \mathbf{q}_j = \frac{r^2}{2} \beta_j^2 \\
+\sigma_j^* &= \sqrt{\boldsymbol{\mu}_j^* ' G_{X, X} \boldsymbol{\mu}_j^*} = \sqrt{\mathbf{q}_j ' G_{X, X} \mathbf{q}_j} \\
+&= \beta_j \gamma_j
+\end{split}
+\end{equation}
+
+More explicitly, the individual candidate program budget shares can be expressed
+
+\begin{equation}
+\begin{split}
+w_{kj}^* &= C \left( \frac{\beta_j q_{kj}}{\tilde{x}(0)} e^{-r T} \right)^{\frac{1}{\alpha_k}} \\
+&= C \left( \frac{\beta_j c_k p_{kj}}{\tilde{x}(0)} e^{-r T} \right)^{\frac{1}{\alpha_k}}
+\end{split}
+\end{equation}
 
 ## A menu of solutions catering to a range of strategic objectives
 
@@ -1106,32 +1218,41 @@ Because eigenvectors are associated with strategic objectives, by selecting a pa
 
 ## Multi-objective portfolio optimization
 
-Alternatively, the investor may want to optimize across multiple strategic objectives. In other words, they may want a budget allocation that is an optimal linear combination of the portfolios on the optimal menu. This optimal linear combination can be determined by solving the portfolio problem stated in equation \ref{eq:probStat} at the policy level.
+Alternatively, the investor may want to optimize across multiple strategic objectives. In other words, they may want a budget allocation $\mathbf{w}^{**}$ that is some optimal linear combination of the budget allocations on the optimal menu.
+
+\begin{equation}
+\begin{split}
+\mathbf{w}^{**} &= W^* \boldsymbol{\nu}^* \\
+&= \Sigma_{j = 1}^m \mathbf{w}_j^* \nu_j^*
+\end{split}
+\end{equation}
+
+The optimal policy weight vector $\boldsymbol{\nu}^*$ can be determined by solving the portfolio problem stated in equation \ref{eq:probStat} at the policy level.
 
 \begin{equation}
 \max_{\boldsymbol{\mu}^S} \mathcal{E}^S \:\:\:\:s.t.\:\:\: \sigma^S = \bar{\sigma}^S
 \end{equation}
 
-Where $\mathcal{E}^S$ and $\sigma^S$ are the policy vis viva and risk, defined as the aggregation of the program level NPVs.
+Where $\mathcal{E}^S$ and $\sigma^S$ are the policy vis viva and risk, defined as the policy level aggregation of the program level solutions.
 
 \begin{equation}
 \begin{split}
-\mathcal{E}^S &= \frac{1}{2} \Sigma_j \mathbf{v}_j^* ' \mathbf{v}_j^* \\
+\mathcal{E}^S &= \Sigma_{j = 1}^m \mathcal{E}_j^* = \frac{1}{2} \Sigma_j \mathbf{v}_j^* ' \mathbf{v}_j^* \\
 &= \frac{r^2}{2} \Sigma_j \boldsymbol{\mu}_j^* ' \boldsymbol{\mu}_j^*
 \sigma^S &= \mathbf{1} ' \Sigma_{S, S} \mathbf{1} = \boldsymbol{\mu}^S ' G_{S,S} \boldsymbol{\mu}^S
 \end{split}
 \end{equation}
 
-Where $G_{S,S}$ is the policy cross coefficient of variation matrix, and the control variables $\boldsymbol{\mu}^S$ are the expected policy NPVs. The elements of $\boldsymbol{\mu}^S$ are defined
+Where $G_{S,S}$ is the policy cross coefficient of variation matrix, the control variables $\boldsymbol{\mu}^S$ are the expected policy NPVs, and the elements of $\boldsymbol{\mu}^S$ are defined
 
 \begin{equation}
-\boldsymbol{\mu}_j^S = \boldsymbol{\mu}_j^* ' \mathbf{1}
+\mu_j^S = \boldsymbol{\mu}_j^* ' \mathbf{1}
 \end{equation}
 
 But note that, since $\boldsymbol{\mu}_j^* = \mathbf{q}_j$, then $\boldsymbol{\mu}_j^* {'} \mathbf{1}$ equals the eigenvalue scaling constant $\beta_j$ (recall equation \ref{eq:wStarScaled}). Therefore, the control variables can be rewritten
 
 \begin{equation}
-\boldsymbol{\mu}_j^S = \boldsymbol{\beta}
+\boldsymbol{\mu}^S = \boldsymbol{\beta}
 \end{equation}
 
 And so the policy optimization problem can be rewritten
@@ -1144,7 +1265,7 @@ Where
 
 \begin{equation}
 \begin{split}
-\mathcal{E}^S &= \frac{r^2}{2} \Sigma_j \boldsymbol{\beta} ' \boldsymbol{\beta}
+\mathcal{E}^S &= \frac{r^2}{2} \boldsymbol{\beta} ' \boldsymbol{\beta} \\
 \sigma^S &= \boldsymbol{\beta} ' G_{S,S} \boldsymbol{\beta}
 \end{split}
 \end{equation}
@@ -1170,32 +1291,29 @@ And the first order conditions then follow as
 <!-- \boldsymbol{\beta} - \frac{\lambda^S}{r^2 \sigma^S} G_{S, S} \boldsymbol{\beta} = \mathbf{0} -->
 <!-- \end{equation} -->
 
-The candidate solution $\boldsymbol{\beta}^*$ may thus be any of the eigenvectors of $G_{S, S}$, with corresponding policy risk shadow price ($\lambda^S$) given in terms of the respective eigenvalue.
+The candidate solution $\boldsymbol{\beta}^*$ may thus be any of the eigenvectors of $G_{S, S}$, with corresponding policy risk shadow price ($\lambda^S$) given in terms of the respective eigenvalue. The eigenvectors and eigenvalues of $G_{S, S}$ may be deduced from the crowdsourced matrix $K_{X, S}^{\circlearrowright}$ as follows.
 
-The eigenvectors and eigenvalues of $G_{S, S}$ may be deduced from the crowdsourced matrix $K_{X, S}^{\circlearrowright}$ as follows. First, recall from section ... that the policy covariance matrix $\Sigma_{S, S}$ can be obtained as the inner product $K_{X, S}^{\circlearrowright} {'} K_{X, S}^{\circlearrowright}$. Moreover, note that the eigendecomposition of $\Sigma_{S, S}^{\circlearrowright}$ works out to
+First, recall from section ... that the policy covariance matrix $\Sigma_{S, S}$ can be obtained as the inner product $K_{X, S}^{\circlearrowright} {'} K_{X, S}^{\circlearrowright}$. Moreover, note that the eigendecomposition of $\Sigma_{S, S}^{\circlearrowright}$ works out to
 
 \begin{equation}
 \Sigma_{S, S}^{\circlearrowright} = B \tilde{\Gamma} B '
 \end{equation}
 
-That is to say, the matrix of eigenvectors of $\Sigma_{S, S}^{\circlearrowright}$ is just the orthonormal rotation matrix $B$ that is applied to clarify program-policy correlations in equation \ref{eq:rotL}; and the respective eigenvalues are just the $m$ leading eigenvalues of the program cross coefficient of variation matrix $G_{X, X}$ (or program correlation matrix $K_{X, X}$). (See Schiek [-@schiek2021reverse] for details.)
+That is to say, the matrix of eigenvectors of $\Sigma_{S, S}^{\circlearrowright}$ is just the orthonormal rotation matrix $B$ that is applied to clarify program-policy correlations (recall equation \ref{eq:rotL}); and the respective eigenvalues are just the $m$ leading eigenvalues of the program cross coefficient of variation matrix $G_{X, X}$ (or program correlation matrix $K_{X, X}$). (See Schiek [-@schiek2021reverse] for details.)
 
-Since $G_{S, S} = D(\boldsymbol{\beta})^{-1} \Sigma_{S, S} D(\boldsymbol{\beta})^{-1}$ by definition, it follows that the eigenvalues of $G_{S, S}$ are likewise $\tilde{\Gamma}$. Combining this information with the first order conditions (equation \ref{eq:focS}), it follows that
-
-\begin{equation}
-\lambda^S_j = r^2 \frac{\sigma^S}{\gamma_j}
-\end{equation}
-
-[\lambda = \lambda^S ?]
-[\sigma = \sigma^S ?]
-
-Moreover, the first order conditions dotted through...
+Since $G_{S, S} = D(\boldsymbol{\beta})^{-1} \Sigma_{S, S} D(\boldsymbol{\beta})^{-1}$ by definition, it follows that the eigenvalues of $G_{S, S}$ are likewise $\tilde{\Gamma}$. Combining this information with the first order conditions (equation \ref{eq:focS}), it follows that $\sigma_j^{S*} = \sqrt{\gamma_j} = \sigma_j^*$, and
 
 \begin{equation}
-\lambda^S = 2 \frac{\mathcal{E}^S}{\sigma^S}
+\begin{split}
+\lambda^S_j &= r^2 \frac{\sigma_j^{S*}}{\gamma_j} \\
+&= \frac{r^2}{\sqrt{\gamma_j}}
+&= \lambda_j
+\end{split}
 \end{equation}
 
-and the eigenvectors of $G_{S, S}$ and \Sigma_{S, S}^{\circlearrowright} are related as follows. Letting $\boldsymbol{\varepsilon}_j$ and $\mathbf{b}_j$ stand for the $j^{th}$ eigenvectors of $G_{S, S}$ and $\Sigma_{S, S}^{\circlearrowright}$, respectively,
+That is, the optimal policy portfolio risk and risk shadow price are equal to the optimal program portfolio risk and risk shadow price.
+
+Moreover, the eigenvectors of $G_{S, S}$ and \Sigma_{S, S}^{\circlearrowright} are trivially related as follows. Letting $\boldsymbol{\varepsilon}_j$ and $\mathbf{b}_j$ stand for the $j^{th}$ eigenvectors of $G_{S, S}$ and $\Sigma_{S, S}^{\circlearrowright}$, respectively,
 
 \begin{equation}
 \boldsymbol{\varepsilon}_j = D(\boldsymbol{\beta})^{-1} \mathbf{b}_j
@@ -1207,19 +1325,73 @@ But, when evaluated at the $j^{th}$ solution $\boldsymbol{\beta}_j^* = \boldsymb
 \boldsymbol{\varepsilon}_j = \mathbf{b}_j^{\frac{1}{2}}
 \end{equation}
 
-The $j^{th}$ optimal policy budget allocation $\boldsymbol{\beta}_j^*$ is thus given by
+The $\ell^{th}$ candidate policy budget allocation $\boldsymbol{\beta}_{\ell}^*$ is thus given by
 
 \begin{equation}
-\boldsymbol{\beta}_j^* = \mathbf{b}_j^{\frac{1}{2}}
+\boldsymbol{\beta}_{\ell}^* = \mathbf{b}_{\ell}^{\frac{1}{2}} \:\:;\:\:\: \ell \in (1, m)
 \end{equation}
 
-The corresponding policy risk shadow price $\lambda^S$ can then be found by rearranging
+To avoid complex valued elements in $\boldsymbol{\beta}_j$, recall that negative elements in $\mathbf{b}_j$ can be made positive by adjusting the program time horizon, as explained in section \ref{sec:cycReal}.
 
-can't scale
+Deduction of the second order condition for a maximum follows the same procedure as in the program level problem (section \ref{sec:soc}), and results in an analogous conclusion: the investor is presented not with a single optimal linear combination, but with an optimal menu of linear combinations, each corresponding to a particular portfolio risk tolerance (\sqrt{\gamma_{\ell}}). [The investor should choose the solution $\boldsymbol{\beta}_{\ell}^*$ with the risk shadow price $\lambda_{\ell}$ that best matches their risk tolerance.]
 
-soc
+With the optimal policy weights ($\boldsymbol{\beta}_{\ell}^*$) in hand, the optimal multi-objective program NPV vector $\boldsymbol{\mu}_{\ell}^*$ follows as the optimal linear combination of the optimal program NPV menu.
+
+\begin{equation}
+\begin{split}
+\boldsymbol{\mu}_{\ell}^* &= \Sigma_{j = 1}^m \mu_j^* \beta_{j \ell}^* \\
+\boldsymbol{\mu}_{\ell}^* &= Q \boldsymbol{\beta}_{\ell}^* \\
+&= D(\mathbf{c}) P \boldsymbol{\beta}_{\ell}^*
+\end{split}
+\end{equation}
+
+The optimal multi-objective impact $\mathcal{E}_{\ell}^{S*}$ then follows as
+
+\begin{equation}
+\begin{split}
+\mathcal{E}_{\ell}^{S*} &= \frac{r^2}{2} \boldsymbol{\mu}_{\ell}^* ' \boldsymbol{\mu}_{\ell}^* \\
+&= \frac{r^2}{2} \boldsymbol{\beta}_{\ell}^* Q ' Q \boldsymbol{\beta}_{\ell}^* \\
+&= \frac{r^2}{2} \boldsymbol{\beta}_{\ell}^* ' \boldsymbol{\beta}_{\ell}^*
+\end{split}
+\end{equation}
+
+And the optimal multi-objective budget allocation is
+
+\begin{equation}
+\mathbf{w}_{\ell}^* = \Sigma_{j = 1}^m C_j (D(\tilde{\mathbf{x}}(0))^{-1} \beta_{j \ell}^* \mathbf{q}_j (-1)^{2 \kappa - 1} e^{-r T \left(\frac{1}{2} + \kappa \right)})^{\frac{1}{\boldsymbol{\alpha}}}
+\label{eq:wStarPolicy}
+\end{equation}
+
+Where
+
+\begin{equation}
+\kappa
+\begin{cases}
+= \frac{1}{2}, & \text{if $q_{kj} > 0$} \\
+\in \mathbb{Z} & \text{if $q_{kj} < 0$}
+\end{cases}
+\end{equation}
 
 
+
+
+
+
+
+
+
+\begin{equation}
+\begin{split}
+\mathbf{w}_{\ell}^* &= \boldsymbol{\mu}_{\ell}^* ' \boldsymbol{\mu}_{\ell}^* \\
+&= \frac{r^2}{2} \boldsymbol{\beta}_{\ell}^* Q ' Q \boldsymbol{\beta}_{\ell}^* \\
+&= \frac{r^2}{2} \boldsymbol{\beta}_{\ell}^* ' \boldsymbol{\beta}_{\ell}^*
+\end{split}
+\end{equation}
+
+
+
+
+To enforce the budget constraint...scale to enforce budget constraint but know this scales risk too
 
 
 
