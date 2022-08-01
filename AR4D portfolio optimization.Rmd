@@ -306,49 +306,50 @@ Where the shorthand $s_{kj} = Cov[\Delta x_k/x_k(\hat{t}), \Delta x_j/x_j(\hat{t
 c_{kj} = \sqrt{\frac{\sigma_{kj}}{\mu_k \mu_j}} = \sqrt{e^{\rho_{i, j} s_k s_j \tau} - 1}
 \end{equation}
 
-This is a "cross coefficient of variation", analogous to the correlation coefficient in the following sense: Whereas the correlation coefficient is the covariance normalized by the product of the respective standard deviations, the cross coefficient of variation is the covariance normalized by the product of the respective means.
-
-<!-- $E[X(T)]\bigr|_{t = \hat{t}}$ -->
-Expected portfolio NPV $\mu(\hat{t})$  is then just the sum of the individual expected project NPVs.
-
-\begin{equation}
-\mu(\hat{t}) = \Sigma_k \mu_k(\hat{t})
-\end{equation}
+This is a "coefficient of covariation", analogous to the correlation coefficient in the following sense: Whereas the correlation coefficient is the covariance normalized by the product of the respective standard deviations, the coefficient of covariation is the covariance normalized by the product of the respective means.
+<!-- Expected portfolio NPV $\mu(\hat{t})$  is then just the sum of the individual expected project NPVs. -->
+<!-- \begin{equation} -->
+<!-- \mu(\hat{t}) = \Sigma_k \mu_k(\hat{t}) -->
+<!-- \end{equation} -->
 
 The portfolio variance, it follows, can be expressed
 
 <!-- = Var[X(T)]\bigr|_{t = \hat{t}} -->
 \begin{equation}
-\sigma(\hat{t})^2 = \boldsymbol{\mu}' G_{X,X} \boldsymbol{\mu} \end{equation}
+\begin{split}
+\sigma(\hat{t})^2 &= \mathbf{1} ' \Sigma_{X, X} \mathbf{1} \\
+&= \boldsymbol{\mu}(\hat{t})' G_{X,X} \boldsymbol{\mu}(\hat{t})
+\end{split}
+\end{equation}
 
-Where $G_{X,X}$ is the "cross coefficient of variation matrix", i.e. the matrix whose elements are $c_{kj}$, where $c_{kk} = c_k^2$. Note that $G$ is just the covariance matrix left and right multiplied by a diagonal matrix of the inverse project means.
+Where $G_{X,X}$ is the "coefficient of covariation matrix", i.e. the matrix whose elements are $c_{kj}$, where $c_{kk} = c_k^2$. Note that $G_{X, X}$ is just the covariance matrix left and right multiplied by a diagonal matrix of the inverse project means.
  <!--whose elements are the squared coefficients of variation $c_k^2$, and whose off-diagonal elements are the cross coefficients of variation -->
 
 \begin{equation}
-G = D(\boldsymbol{\mu})^{-1} \Sigma D(\boldsymbol{\mu})^{-1}
+G_{X, X} = D(\boldsymbol{\mu})^{-1} \Sigma_{X, X} D(\boldsymbol{\mu})^{-1}
 \end{equation}
 
 (Where the notation $D(\mathbf{y})$ means, for any vector $\mathbf{y}$, a diagonal matrix whose diagonal elements are the elements of the vector $\mathbf{y}$.)
 
-Alternatively, $G$ can be expressed in terms of the correlation matrix ($K$).
+Alternatively, $G_{X, X}$ can be expressed in terms of the correlation matrix ($K_{X, X}$).
 
 \begin{equation}
-G = D(\mathbf{c}) K D(\mathbf{c})
+G_{X, X} = D(\mathbf{c}) K_{X, X} D(\mathbf{c})
 \end{equation}
 
-It follows that $G$ has the same eigenvalues as $K$ and $\Sigma$; and that the eigenvectors of $G$ are just the eigenvectors of $K$ premultiplied by $D(\mathbf{c})$. That is to say, if the eigendecompositions of $G$ and $K$ are denoted, respectively,
+It follows that $G_{X, X}$ has the same eigenvalues as $K_{X, X}$ and $\Sigma_{X, X}$; and that the eigenvectors of $G_{X, X}$ are just the eigenvectors of $K_{X, X}$ premultiplied by $D(\mathbf{c})$. That is to say, if the eigendecompositions of $G_{X, X}$ and $K_{X, X}$ are denoted, respectively,
 
 \begin{equation}
-G = Q \Gamma Q'
+G_{X, X} = Q \Gamma Q'
 \end{equation}
 
 and
 
 \begin{equation}
-K = P \Gamma P'
+K_{X, X} = P \Gamma P'
 \end{equation}
 
-Then the eigenvectors of $G$ and $K$ are related as follows.
+Then the eigenvectors of $G_{X, X}$ and $K_{X, X}$ are related as follows.
 
 \begin{equation}
 Q = D(\mathbf{c}) P
@@ -390,16 +391,14 @@ Substituting this into equation \ref{eq:ExTraw}, program NPV at the start of the
 <!-- \frac{x_k(\hat{t})}{\tilde{x}_k(\hat{t})} =  \left(\frac{w_k}{C} \right)^{\alpha_k} -->
 <!-- \end{equation} -->
 
-## Deducing program NPV variances and covariances \label{sec:volEst}
+## Deducing program NPV means, variances, and covariances \label{sec:volEst}
 <!-- ## Deducing the program correlation matrix in minimum data contexts -->
 
 It is all very well to theorize and deduce formal expressions, but how are these things to be estimated in practice? In the financial context, means, variances, and covariances can be estimated from time series data in a straightforward manner. As mentioned earlier, however, no analogous data exists in the AR4D context.
 
-Program NPV ($\tilde{x}_k(\hat{t})$) can be estimated at the start of the funding cycle based on ex-ante impact assessment. But program NPV variance ($\sigma_k^2$) is less straightforward, and covariances between programs ($\sigma_{kj}$) even less so.
+Program NPV ($\tilde{x}_k(0)$) can be estimated at the start of the funding cycle based on ex-ante impact assessment. Given values for $\alpha_k$, $r$, $T$, and $C$, it is then possible to calculate $\mu_k(0)$. Estimation of the program NPV coefficients of variation $c_k$ and covariation $c_{kj}$ depends upon estimation of program NPV variances $\sigma_k^2$ and covariances $\sigma_{kj}$, which in turn hinges upon estimation of the logged program NPV variances $s_k^2 \tau$ and covariances $s_{kj} \tau$
 
-Elsewhere I develop a crowdsourcing method to estimate the AR4D correlation matrix based on principal components analysis [-@]. To convert these correlations into covariances, the program variances are required. More specifically, the standard deviation of percentage changes in NPV, $s_k$, is required.
-
-While it may be difficult to develop an intuitive grasp of the value of $s_k$, research managers (and/or stakeholders and/or the foresight economists conducting the program appraisal) generally have some idea of the uncertainty surrounding NPV estimates, such that they can be asked to quantify minimum and maximum bounds on the NPV. For example, they can say that NPV is $\tilde{x}(\hat{t})$, but that it might be six times that amount, or half that amount. (Or they may give the same information in terms of magnitude, which is then easily transformed into percentage terms.)
+While it may be difficult to develop an intuitive grasp of the value of $s_k$, research managers (and/or stakeholders and/or the foresight economists conducting the program appraisal) generally have some idea of the uncertainty surrounding NPV estimates, such that they can be asked to quantify minimum and maximum bounds on the NPV. For example, they can say that NPV is $\tilde{x}(0)$, but that it might be six times that amount, or half that amount. (Or they may give the same information in terms of magnitude, which is then easily transformed into percentage terms.)
 
 These upper and lower percentage errors may then be interpreted as the upper and lower bounds on the $95\%$ confidence interval about the expected percentage change in project NPV between the start and end of the project. Another phrase for "percentage change" is "arithmetic return" (call this $\mathscr{R}_k$), which may then be converted to a log return ($\ell_k = \ln(x_k(T) / x_k(\hat{t}))$) by the formula $\ell_k = \ln(\mathscr{R}_k + 1)$. Now, since $\tilde{x}_k(t)$ is assumed to follow a geometric Brownian motion, the log return may also be expressed
 
@@ -436,6 +435,14 @@ s_k &= \frac{z \pm \sqrt{z^2 - 1 / 2 (\bar{\ell} - r \tau)}}{ \sqrt{\tau}} \\
 &= \sqrt{ r - \frac{\bar{\ell} + \underline{\ell}}{2 \tau}}
 \end{split}
 \end{equation}
+
+The covariances...
+
+Elsewhere I develop a crowdsourcing method to estimate the AR4D correlation matrix based on principal components analysis [-@]. To convert these correlations into covariances, the program variances are required. More specifically, the standard deviation of percentage changes in NPV, $s_k$, is required.
+
+
+
+
 
 Once $s_k$ has been deduced in this way for each program, it is then straightforward to compute the variances $\boldsymbol{\sigma}$ and coefficients of variation $\mathbf{c}$. With these in hand,[together with the crowdsourced correlation matrix $\tilde{K}$,] the deduced covariance matrix and cross coefficient of variation matrix follow as
 
@@ -700,11 +707,116 @@ and
 <!-- \end{split} -->
 <!-- \end{equation} -->
 
-# Program NPV is cyclically real \label{sec:cycReal}
-<!-- [Modeling the program investment cycle in the complex plane] -->
+# The cyclically real reality of project NPV
 
-Between the disbursement of funds and the realization of project impacts, project value exists in an intangible form of "potential value". It is value that is in the process of being transformed from one concrete form into another, i.e., from a tangible monetary form into tangible program impacts in the target populations and environments. During this transformation, it is incorrect to say that the program's value is zero, even though the tangible monetary form of the investment has vanished, or is in the process of vanishing. On the other hand, it is not altogether correct to say that the program's value is equal to its NPV, since this form of program value has yet to materialize in any demonstrable, tangible sense.
-<!-- Everyone understands that program value in the process of transformation does not refer to a tangible value. However, b -->
+## The funding cycle
+
+The project funding cycle may be broadly defined as the process by which value is transformed from one tangibly or demonstrably real form to another. More specifically, in the AR4D context, it is the process by which a certain amount of funds is transformed into measurable project impacts. Project impacts at the end of a funding cycle may take the form of a demonstrable change in key development indicators; or they may be tangible impacts of a more intermediate nature, such as completed experiments, pilot implementations, proofs of concept, and/or empirical studies that resolve a prerequisite research question---with a view to demonstrable changes in key development indicators farther down the road, at the end of subsequent funding cycles.
+
+## Project time horizons are measured in terms of funding cycles
+
+The duration of a funding cycle is thus, by definition, the time elapsed between the disbursement of funds and the transformation of those funds into the realization of an agreed upon, tangible set of project impacts or "deliverables". Projects are usually designed so that this transformation occurs in a specific period of time. Let $T$ stand for the duration of the funding cycle expressed in terms of the judiciously chosen time step $\Delta t$. A typical AR4D funding cycle currently lasts 1-5 years. For the sake of argument, say it is 3 years. If the judicious time step $\Delta t$ is defined as an annual quarter, then, $T = 12$, in this case.
+
+Assuming that projects cannot begin or end in the middle of a funding cycle, it follows that AR4D project time horizons must be measured as a positive integer multiple of $T$. That is, $T_k = T\nu_k \;;\;\; \nu_k \in \mathbb{Z}^+$.
+
+## Project NPV is cyclically real \label{sec:cycReal}
+
+In the course of the funding cycle, project funds are productively consumed to generate project deliverables. During this process of transformation from one tangible form to another, the "project value" that undergoes the transformation exists in a limbo state where it is a complex amalgam of sunk cost, deliverables in formation, and funds not yet spent, still in their monetary form.
+
+In other words, the value of the investment during the transformative process is not real, at least not in any immediately tangible or demonstrable sense. One may speak of "project value" at any point in the funding cycle, but one understands that this refers not to any palpable value the project might have at that point, but rather _either_ the value of the monetary investment at the start of the cycle, _or_ the expected value of project deliverables at the end of the cycle.
+
+In this sense, project NPV is "cyclically real". That is, it is cyclically tangible or demonstrable, particularly at the start and end of funding cycles. One may also discern a sunk cost point, where the value is real but negative. At other points in the cycle, project NPV exists, but not in a way that intersects with our reality in any tangible or demonstrable sense.
+
+Note that the same can be said of complex numbers $e^{i \theta}\;;\;\; i = \sqrt{-1},\;\;\theta \in (0, 2 \pi)$. That is, complex numbers are cyclically real---at $\theta = 0$, $\theta = \pi$, and $\theta = 2 \pi$. Elsewhere, they exist, but have no physically meaningful interpretation (forget about quantum mechanics for now). The complex plane thus presents us with a more realistic framework by which to model the cyclically real nature of project NPV. This means replacing $\mu_k(\hat{t})$ (equation ...) as a model of expected project NPV with $\mu_k(\hat{\theta})$, defined as follows.
+
+Euler's formula... key identities
+
+As a quick reminder,
+
+\begin{equation}
+e^{i \theta} = \cos(\theta) + i \sin(\theta)
+\end{equation}
+
+Hence, for any integer $\kappa$
+
+\begin{equation}
+e^{i 2 \kappa \pi} = 1
+\end{equation}
+
+\begin{equation}
+e^{i (2 \kappa - 1) \pi} = -1
+\end{equation}
+
+...
+
+\begin{equation}
+\mu_k(\hat{\theta}) = x_k(\hat{\theta}) e^{(2 \nu_k \pi - \hat{\theta})(\omega + i) }
+\end{equation}
+
+Where the duration of the funding cycle $T$ is replaced by $2 \pi$.
+
+At the start of the funding cycle,
+
+\begin{equation}
+\mu_k(0) = x_k(0) e^{2 \nu_k \pi (\omega + i)}
+\end{equation}
+
+Which by Euler's identity ($e^{2 \nu_k i \pi} = 1$) reduces to
+
+\begin{equation}
+\mu_k(0) = x_k(0) e^{2 \nu_k \pi \omega}
+\end{equation}
+
+Midway through,
+
+\begin{equation}
+\mu_k(\pi) = x_k(\pi) e^{(2 \nu_k - 1) \pi (\omega + i)}
+\end{equation}
+
+Which by Euler's identity ($e^{(2 \nu_k - 1) i \pi} = -1$) reduces to
+
+\begin{equation}
+\mu_k(\pi) = -x_k(\pi) e^{(2 \nu_k - 1) \pi \omega}
+\end{equation}
+
+And at the end of the funding cycle,
+
+\begin{equation}
+\begin{split}
+\mu_k(2 \pi) &= x_k(2 \pi) e^{2 \pi (\nu_k - 1) (\omega + i)} \\
+&= x_k(2 \pi) e^{2 \pi (\nu_k - 1) \omega}
+\end{split}
+\end{equation}
+
+Since the two models (Eq ... and Eq ...) must give the same project NPV at the start of the funding cycle, $r$, $T$, and $\omega$ can be expressed in terms of each other by setting the two models equal at $\hat{t} = \hat{\theta} = 0$.
+
+\begin{equation}
+\begin{split}
+x_k(0) e^{2 \nu_k \pi(\omega + i) } &= x_k(0) e^{r T \nu_k} \\
+e^{2 \nu_k \pi \omega} &= e^{r T \nu_k} \\
+\Rightarrow \omega &= \frac{r T}{2 \pi}
+\end{split}
+\end{equation}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 It is possible to model this reality directly in the complex plane as follows. First, note that project NPV at $t = 0$ may be expressed
 
@@ -712,13 +824,33 @@ It is possible to model this reality directly in the complex plane as follows. F
 \mu_k(0) = x_k(0) e^{(\omega + i) 2 \pi} \;\;;\;\;\; \omega = r \frac{T}{2 \pi}
 \end{equation}
 
-Where $i = \sqrt{-1}$. (Recall that $e^{2\kappa i \pi} = 1$ for any integer $\kappa$.) This may then be extended to all angles $\theta \in (0, 2 \pi)$ as follows
+ (Recall that $e^{2\kappa i \pi} = 1$ for any integer $\kappa$.) This may then be extended to all angles $\theta \in (0, 2 \pi)$ as follows
 
 \begin{equation}
 \mu_k(\theta; T, r) = x_k(\theta) e^{(2 \pi - \theta) (\omega + i)}
 \end{equation}
 
-In this formulation, program value $\mu_k(\theta; T, r)$ is real-valued at the start of the funding cycle ($\theta = 0$), midway through ($\theta = \pi$), and at the end of the cycle ($\theta = 2 \pi$); and is complex-valued elsewhere. Real program values thus correspond to the points in the funding cycle when the investment has a tangible or demonstrable form---particularly at the beginning, when the funds are disbursed, and at the end, when the investment has been productively consumed and transformed into measurable program impacts. The negative real value occurring halfway through the cycle, at $\theta = \pi$, may be interpreted as the investment as a sunk cost. Complex values lying off the real number line, meanwhile, correspond to points in the funding cycle when the investment has no demonstrable or tangible form, i.e. when it is in the process of being transformed from its original monetary form into the planned program impacts.
+In this formulation, program value $\mu_k(\theta; T, r)$ is real-valued at the start of the funding cycle ($\theta = 0$), midway through ($\theta = \pi$), and at the end of the cycle ($\theta = 2 \pi$); and is complex-valued elsewhere. Real program values thus correspond to the points in the funding cycle when the investment has a tangible or demonstrable form---particularly at the beginning, when the funds are disbursed, and at the end, when the investment has been productively consumed and transformed into measurable program impacts. The negative real value occurring halfway through the cycle, at $\theta = \pi$, may be interpreted as the point in the funding cycle when the investment is demonstrable as a sunk cost. Complex values lying off the real number line, meanwhile, correspond to points in the funding cycle when the investment has no demonstrable or tangible form, i.e. when it is in the process of being transformed from its original monetary form into the planned project impacts.
+
+## Defining project time horizons in terms of funding cycles
+
+By definition, then, a funding cycle begins and ends on a real value. The corresponding project time horizon, $T_k$, it follows, may be expressed as an integer multiple of the funding cycle $T$.
+
+\begin{equation}
+T_k = \nu_k, & \nu_k \in \mathbb{Z}
+\end{equation}
+
+
+
+\begin{equation}
+\begin{split}
+T_k &= \left(T + \left(2 \kappa_k - 1 \right) \frac{T}{2} \right) \\
+&= T \left(\kappa_k + \frac{1}{2} \right)
+\end{split}
+\end{equation}
+
+
+[## Dealing with complex valued budget allocations]
 
 In this representation of the program funding cycle, then, a negative program NPV may be interpreted as program NPV evaluated at the sunk cost point in the complex plane. Solving Eq \ref{eq:muFnw} for $w_k$ at $\hat{t} = 0$, this means that if program NPV is negative at the start of the funding cycle---that is, if $\mu_k(0) < 0$---then the budget allocation is complex valued.
 
@@ -764,7 +896,7 @@ w_k(\mu_k(0), \tilde{x}_k(0), \omega, 2 \pi + (2 \kappa - 1) \pi) &= C \left( \f
 \right)^{\frac{1}{\alpha_k}}
 \end{equation}
 
-Note, moreover, that the adjustment made to the time horizon may either be an extension ($\kappa > 0$) or a contraction ($\kappa \leq 0$).
+[Note, moreover, that the adjustment made to the time horizon may either be an extension ($\kappa > 0$) or a contraction ($\kappa \leq 0$). -- negative kappa imply extending the time horizon backward to a point before $\hat{t} = 0$ ?]
 
 Alternatively, the same result is achieved through a complex transformation of the discount parameter $\omega$.
 
@@ -774,7 +906,7 @@ w_k(\mu_k(0), \tilde{x}_k(0), \omega, 2 \pi + (2 \kappa - 1) \pi) = w_k(\mu_k(0)
 
 This approach leaves the time horizon unchanged, but requires a theory of complex valued discount rates (which will not be attempted here).
 
-To guarantee real valued $w_k$, then, it is useful to introduce the decision parameter $\kappa_k$ into the definition of $w_k$, as follows.
+To guarantee real valued $w_k$, then, it is useful to introduce the parameter $\kappa_k$ into the definition of $w_k$, as follows.
 
 \begin{equation}
 \begin{split}
@@ -782,7 +914,6 @@ w_k &= C \left( \frac{\mu_k(0)}{\tilde{x}_k(0)} e^{-2 \pi \left(\kappa_k + \frac
 &= \left( \frac{\mu_k(0)}{\tilde{x}_k(0)} (-1)^{2 \kappa_k + 1} e^{-2 \omega \pi \left(\kappa_k + \frac{1}{2} \right)} \right)^{\frac{1}{\alpha_k}} \\
 &= \left( \frac{\mu_k(0)}{\tilde{x}_k(0)} (-1)^{2 \kappa_k + 1} e^{-r T \left(\kappa_k + \frac{1}{2} \right)} \right)^{\frac{1}{\alpha_k}}
 \end{split}
-\label{eq:wFnmuKap}
 \end{equation}
 
 Where
@@ -794,12 +925,35 @@ Where
 \in \mathbb{Z}, & \text{if $\mu_k(0) < 0$}
 \end{cases}
 \end{equation}
+<!-- This, of course, implies that the definition of program NPV also be modified as follows. -->
+<!-- \begin{equation} -->
+<!-- \mu_k(0) = \tilde{x}_k(0) \left(\frac{w_k}{C} \right)^\alpha_k (-1)^{2 \kappa_k + 1} e^{rT \left(\kappa_k + \frac{1}{2} \right)} \label{eq:muFnwKap} -->
+<!-- \end{equation} -->
 
-This, of course, implies that the definition of program NPV also be modified as follows.
+## Defining project time horizons in terms of funding cycles
+
+The foregoing discussion in passing glosses over and important point...Note that the true project time horizon, that is to say, the actual duration of the $k^{th}$ project, may be expressed in terms of funding cycles $T$, as follows.
 
 \begin{equation}
-\mu_k(0) = \tilde{x}_k(0) \left(\frac{w_k}{C} \right)^\alpha_k (-1)^{2 \kappa_k + 1} e^{rT \left(\kappa_k + \frac{1}{2} \right)} \label{eq:muFnwKap}
+\begin{split}
+T_k &= \left(T + \left(2 \kappa_k - 1 \right) \frac{T}{2} \right) \\
+&= T \left(\kappa_k + \frac{1}{2} \right)
+\end{split}
 \end{equation}
+
+A more compact and intelligible expression for $w_k$ thus results by replacing $\kappa_k$ with the equivalent form in terms of $T_k$ and $T$.
+
+\begin{equation}
+w_k = \left( \frac{\mu_k(0)}{\tilde{x}_k(0)} (-1)^{2 \frac{T_k}{T}} e^{-r T_k} \right)^{\frac{1}{\alpha_k}}
+\label{eq:wFnmuKap}
+\end{equation}
+
+By making this change of variables, the focus is shifted from the rather abstract parameter $\kappa_k$ to the more palpable project time horizon $T_k$, and its relation to the funding cycle $T$. This, in turn, forces us to define project time horizons not in terms of years, but in terms of funding cycles.
+
+If the funding cycle is $3$ years, then a project with a time horizon of $15$ years is a $5$ cycle project. If the cycle ends at a sunk cost point, such that the budget allocation is complex valued, then donors may extend or shorten the time horizon by a half cycle ($1.5$ years) in order to obtain a real valued budget allocation.
+
+
+
 <!-- Recalling equation \ref{eq:npvFnW}, the previous equation can be rearranged as follows. -->
 <!-- \begin{equation} -->
 <!-- \frac{\mu_k(\theta)}{\tilde{x}_k(\theta)} = \left(\frac{w_k}{C} \right)^{\alpha_k} e^{(\omega + i) (2 \pi - \theta)} -->
