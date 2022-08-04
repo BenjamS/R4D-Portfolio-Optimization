@@ -707,7 +707,7 @@ and
 <!-- \end{split} -->
 <!-- \end{equation} -->
 
-# The cyclically real reality of project NPV
+# The cyclically real reality of expected project NPV
 
 ## The funding cycle
 
@@ -723,237 +723,190 @@ Assuming that projects cannot begin or end in the middle of a funding cycle, it 
 
 In the course of the funding cycle, project funds are productively consumed to generate project deliverables. During this process of transformation from one tangible form to another, the "project value" that undergoes the transformation exists in a limbo state where it is a complex amalgam of sunk cost, deliverables in formation, and funds not yet spent, still in their monetary form.
 
-In other words, the value of the investment during the transformative process is not real, at least not in any immediately tangible or demonstrable sense. One may speak of "project value" at any point in the funding cycle, but one understands that this refers not to any palpable value the project might have at that point, but rather _either_ the value of the monetary investment at the start of the cycle, _or_ the expected value of project deliverables at the end of the cycle.
+In other words, the value of the investment during the transformative process is not real, at least not in any immediately tangible or demonstrable sense. One speaks of "project value" at any point in the funding cycle, but one understands that this refers not to any palpable value the project might have at that point, but rather _either_ the value of the monetary investment at the start of the cycle, _or_ the expected value of project deliverables at the end of the cycle.
 
-In this sense, project NPV is "cyclically real". That is, it is cyclically tangible or demonstrable, particularly at the start and end of funding cycles. One may also discern a sunk cost point, where the value is real but negative. At other points in the cycle, project NPV exists, but not in a way that intersects with our reality in any tangible or demonstrable sense.
+In this sense, project NPV is "cyclically real". That is, it is cyclically tangible or demonstrable, particularly at the start and end of funding cycles. (One might also discern a sunk cost point, where the value is real but negative.) At other points in the cycle, project NPV exists, but not in a way that intersects with our reality in any tangible or demonstrable sense. Mathematically, this means that the NPV model in equation \ref{eq:muFnw} is effectively restricted to the domain of $\hat{t}$ that are integer multiples of $T$.
 
-Note that the same can be said of complex numbers $e^{i \theta}\;;\;\; i = \sqrt{-1},\;\;\theta \in (0, 2 \pi)$. That is, complex numbers are cyclically real---at $\theta = 0$, $\theta = \pi$, and $\theta = 2 \pi$. Elsewhere, they exist, but have no physically meaningful interpretation (forget about quantum mechanics for now). The complex plane thus presents us with a more realistic framework by which to model the cyclically real nature of project NPV. This means replacing $\mu_k(\hat{t})$ (equation ...) as a model of expected project NPV with $\mu_k(\hat{\theta})$, defined as follows.
+## Modeling project NPV in the complex plane
 
-Euler's formula... key identities
-
-As a quick reminder,
+The same can be said of complex numbers. Recall that a complex number $e^{i \theta}$ is defined
 
 \begin{equation}
 e^{i \theta} = \cos(\theta) + i \sin(\theta)
+\label{eq:compNum}
 \end{equation}
 
-Hence, for any integer $\kappa$
+Where $i = \sqrt{-1}$ and $\theta \in (0, 2\kappa \pi)$ for any positive integer $\kappa$. Complex numbers are thus cyclically real---at $\theta = 0$, $\theta = (2 \kappa - 1) \pi$, and $\theta = 2 \kappa \pi$. Elsewhere, they have no physically meaningful interpretation (leave quantum mechanics aside for now), but nonetheless may be expressed in terms of a real part, $\cos(\theta)$, and an imaginary part, $i\sin(\theta)$. The complex plane thus presents a framework by which to extend $\mu_k(\hat{t})$ (Eq \ref{eq:muFnw}) to time points between the integer multiples of the funding cycle $T$.
 
-\begin{equation}
-e^{i 2 \kappa \pi} = 1
-\end{equation}
-
-\begin{equation}
-e^{i (2 \kappa - 1) \pi} = -1
-\end{equation}
-
-...
-
-\begin{equation}
-\mu_k(\hat{\theta}) = x_k(\hat{\theta}) e^{(2 \nu_k \pi - \hat{\theta})(\omega + i) }
-\end{equation}
-
-Where the duration of the funding cycle $T$ is replaced by $2 \pi$.
-
-At the start of the funding cycle,
-
-\begin{equation}
-\mu_k(0) = x_k(0) e^{2 \nu_k \pi (\omega + i)}
-\end{equation}
-
-Which by Euler's identity ($e^{2 \nu_k i \pi} = 1$) reduces to
+To build up to this extension intuitively, note first of all that expected project NPV evaluated at the start of the funding cycle---that is to say $\mu_k(0) = x_k(0)e^{r T \nu_k}$---has the following equivalent expression in the complex plane.
 
 \begin{equation}
 \mu_k(0) = x_k(0) e^{2 \nu_k \pi \omega}
 \end{equation}
 
-Midway through,
+Where the funding cycle $T$ is mapped to $2 \pi$, so that $\omega 2 \pi = r T$; and the time step $\Delta t$ maps to $\Delta \theta$ such that $2 \pi \Delta \theta = T\Delta t$. Now, consider that, by Eq \ref{eq:compNum}, $e^{2i \pi} = 1$. Hence, $\mu_k(0)$ may also be written
 
 \begin{equation}
-\mu_k(\pi) = x_k(\pi) e^{(2 \nu_k - 1) \pi (\omega + i)}
+\mu_k(0) = x_k(0) e^{2 \nu_k \pi (\omega + i)}
 \end{equation}
 
-Which by Euler's identity ($e^{(2 \nu_k - 1) i \pi} = -1$) reduces to
-
-\begin{equation}
-\mu_k(\pi) = -x_k(\pi) e^{(2 \nu_k - 1) \pi \omega}
-\end{equation}
-
-And at the end of the funding cycle,
+Extension to all angles $\theta \in (0, 2 \kappa \pi)$ in the complex plane then results in the following expression.
 
 \begin{equation}
 \begin{split}
-\mu_k(2 \pi) &= x_k(2 \pi) e^{2 \pi (\nu_k - 1) (\omega + i)} \\
-&= x_k(2 \pi) e^{2 \pi (\nu_k - 1) \omega}
+\mu_k(\theta) &= x_k(\theta) e^{(2 \nu_k \pi - \theta)(\omega + i)} \\
+&= \tilde{x}_k(\theta) \left(\frac{w_k}{C} \right)^{\alpha_k} e^{(2 \nu_k \pi - \theta)(\omega + i)}
+\label{eq:muFnwComp}
+\end{equation}
+<!-- [graphic? $\mu_k(\hat{\theta}) / x_k(\hat{\theta})$ decay---ratio of E[x(T)]|_t / x(t)] -->
+
+## Negative expected NPV and phase correction
+
+This extension of expected project NPV to the complex plane encompasses the sunk cost point occurring halfway through the funding cycle ($\theta = \pi$), when the investment is real valued, but negative.
+
+\begin{equation}
+\begin{split}
+\mu_k((2\kappa - 1) \pi) &= x_k((2\kappa - 1) \pi) e^{(2 \nu_k \pi - (2\kappa - 1) \pi) (\omega + i)} \\
+&= -x_k((2\kappa - 1) \pi) e^{(2 (\nu_k - \kappa) + 1) \pi \omega}
 \end{split}
 \end{equation}
 
-Since the two models (Eq ... and Eq ...) must give the same project NPV at the start of the funding cycle, $r$, $T$, and $\omega$ can be expressed in terms of each other by setting the two models equal at $\hat{t} = \hat{\theta} = 0$.
+By definition, the funding cycle begins and ends on a positive real value. A project investment that is negative at the start of the funding cycle thus implies that it is out of phase with the funding cycle by an odd integer multiple of $\pi$. Without loss of generality, consideration may be limited to the case where the odd integer multiple is $1$. That is, if $\mu_k(0) < 0$, this implies
 
 \begin{equation}
 \begin{split}
-x_k(0) e^{2 \nu_k \pi(\omega + i) } &= x_k(0) e^{r T \nu_k} \\
-e^{2 \nu_k \pi \omega} &= e^{r T \nu_k} \\
-\Rightarrow \omega &= \frac{r T}{2 \pi}
+\mu_k(0) &= -x_k(0) e^{2 \nu_k \pi \omega} \\
+&= x_k(0) e^{2 \nu_k \pi \omega \pm i \pi}
 \end{split}
 \end{equation}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-It is possible to model this reality directly in the complex plane as follows. First, note that project NPV at $t = 0$ may be expressed
-
-\begin{equation}
-\mu_k(0) = x_k(0) e^{(\omega + i) 2 \pi} \;\;;\;\;\; \omega = r \frac{T}{2 \pi}
-\end{equation}
-
- (Recall that $e^{2\kappa i \pi} = 1$ for any integer $\kappa$.) This may then be extended to all angles $\theta \in (0, 2 \pi)$ as follows
-
-\begin{equation}
-\mu_k(\theta; T, r) = x_k(\theta) e^{(2 \pi - \theta) (\omega + i)}
-\end{equation}
-
-In this formulation, program value $\mu_k(\theta; T, r)$ is real-valued at the start of the funding cycle ($\theta = 0$), midway through ($\theta = \pi$), and at the end of the cycle ($\theta = 2 \pi$); and is complex-valued elsewhere. Real program values thus correspond to the points in the funding cycle when the investment has a tangible or demonstrable form---particularly at the beginning, when the funds are disbursed, and at the end, when the investment has been productively consumed and transformed into measurable program impacts. The negative real value occurring halfway through the cycle, at $\theta = \pi$, may be interpreted as the point in the funding cycle when the investment is demonstrable as a sunk cost. Complex values lying off the real number line, meanwhile, correspond to points in the funding cycle when the investment has no demonstrable or tangible form, i.e. when it is in the process of being transformed from its original monetary form into the planned project impacts.
-
-## Defining project time horizons in terms of funding cycles
-
-By definition, then, a funding cycle begins and ends on a real value. The corresponding project time horizon, $T_k$, it follows, may be expressed as an integer multiple of the funding cycle $T$.
-
-\begin{equation}
-T_k = \nu_k, & \nu_k \in \mathbb{Z}
-\end{equation}
-
-
+To bring the project into phase with the funding cycle, the time horizon can be extended or shortened by $\pi$.
 
 \begin{equation}
 \begin{split}
-T_k &= \left(T + \left(2 \kappa_k - 1 \right) \frac{T}{2} \right) \\
-&= T \left(\kappa_k + \frac{1}{2} \right)
+\mu_k(0) &= -x_k(0) e^{(2 \nu_k \pi \pm \pi) (\omega + i)} \\
+&= -x_k(0) e^{(2 \nu_k \pi \pm \pi) \omega} e^{(2 \nu_k \pm 1) i \pi} \\
+&= x_k(0) e^{2 \pi \omega \left(\nu_k \pm \frac{1}{2} \right) \omega}
 \end{split}
 \end{equation}
 
-
-[## Dealing with complex valued budget allocations]
-
-In this representation of the program funding cycle, then, a negative program NPV may be interpreted as program NPV evaluated at the sunk cost point in the complex plane. Solving Eq \ref{eq:muFnw} for $w_k$ at $\hat{t} = 0$, this means that if program NPV is negative at the start of the funding cycle---that is, if $\mu_k(0) < 0$---then the budget allocation is complex valued.
-
-\begin{equation}
-w_k(\mu_k(0), \tilde{x}_k(0), r, T) = C \left( \frac{\mu_k(0)}{\tilde{x}_k(0)} e^{-r T} \right)^{\frac{1}{\alpha_k}}
-\label{eq:wFnmu}
-\end{equation}
-
-However, in the complex plane, this becomes
-
-\begin{equation}
-w_k(\mu_k(0), \tilde{x}_k(0), \omega, 2 \pi) = C \left( \frac{\mu_k(0)}{\tilde{x}_k(0)} e^{-2 \pi (\omega + i)} \right)^{\frac{1}{\alpha_k}}
-\end{equation}
-
-Such that the budget allocation can be made real valued again if the program's time horizon is extended by one half cycle (i.e., by $\pi$). To see this, note that the half cycle extension may formalized as follows.
+In fact, adjustment by any odd integer multiple of $\pi$ will bring the project into phase.
 
 \begin{equation}
 \begin{split}
-w_k(\mu_k(0), \tilde{x}_k(0), \omega, 3 \pi) &= C \left( \frac{\mu_k(0)}{\tilde{x}_k(0)} e^{-3 \pi (\omega + i) } \right)^{\frac{1}{\alpha_k}} \\
-&= C \left( \frac{\mu_k(0)}{\tilde{x}_k(0)} e^{-3 \omega  \pi} e^{-3 i \pi} \right)^{\frac{1}{\alpha_k}}
+\mu_k(0) &= -x_k(0) e^{(2 \nu_k \pi \pm (2 \kappa - 1) \pi) (\omega + i)} \\
+&= -x_k(0) e^{2 \pi \omega \left(\nu_k \pm \kappa - \frac{1}{2} \right)} e^{(2 (\nu_k \pm \kappa) - 1) i \pi} \\
+&= x_k(0) e^{2 \pi \omega \left(\nu_k \pm \kappa - \frac{1}{2} \right)}
 \end{split}
 \end{equation}
 
-But recall that, by Euler's identity, $e^{(2 \kappa - 1) i \pi} = -1$ for any integer $\kappa$. Therefore, the $e^{3 i \pi}$ in this expression may be replaced with a $-1$.
+This suggests the introduction of an automatic phase correction parameter $\kappa_k$ in the definition of the time horizon $T_k$.
 
 \begin{equation}
-\begin{split}
-w_k(\mu_k(0), \tilde{x}_k(0), \omega, 3 \pi) &= C \left( \frac{\mu_k(0)}{\tilde{x}_k(0)} e^{-3 \omega  \pi} (-1) \right)^{\frac{1}{\alpha_k}} \\
-&= C \left( -\frac{\mu_k(0)}{\tilde{x}_k(0)} e^{-3 \omega \pi} \right)^{\frac{1}{\alpha_k}}
-\end{split}
-\end{equation}
-
-Extending the time horizon by one half cycle ($\pi$) thus results in the appearance of $-\mu_k(0)$, which is positive when $\mu_k(0) < 0$, thereby making the budget allocation $w_k$ real valued when $\mu_k(0) < 0$. Note that the same result is achieved by applying any odd integer multiple of $\pi$.
-
-\begin{equation}
-\begin{split}
-w_k(\mu_k(0), \tilde{x}_k(0), \omega, 2 \pi + (2 \kappa - 1) \pi) &= C \left( \frac{\mu_k(0)}{\tilde{x}_k(0)} e^{-(2 \pi + (2 \kappa - 1) \pi) (\omega + i)} \right)^{\frac{1}{\alpha_k}} \\
-&= C \left( \frac{\mu_k(0)}{\tilde{x}_k(0)} e^{-\omega \pi \left(2 \kappa + 1 \right) - i \pi \left(2 \kappa + 1 \right)} \right)^{\frac{1}{\alpha_k}} \\
-&= C \left( \frac{\mu_k(0)}{\tilde{x}_k(0)} e^{-\omega \pi \left(2 \kappa + 1 \right)} + e^{-i \pi \left(2 \kappa + 1 \right)} \right)^{\frac{1}{\alpha_k}} \\
-&= C \left( \frac{\mu_k(0)}{\tilde{x}_k(0)} e^{- \omega \pi \left(2 \kappa + 1 \right)} (-1)^{2 \kappa + 1}
-\right)^{\frac{1}{\alpha_k}} \\
-&= C \left( -\frac{\mu_k(0)}{\tilde{x}_k(0)} e^{- 2 \omega \pi \left(\kappa + \frac{1}{2} \right)}
-\right)^{\frac{1}{\alpha_k}}
-\end{equation}
-
-[Note, moreover, that the adjustment made to the time horizon may either be an extension ($\kappa > 0$) or a contraction ($\kappa \leq 0$). -- negative kappa imply extending the time horizon backward to a point before $\hat{t} = 0$ ?]
-
-Alternatively, the same result is achieved through a complex transformation of the discount parameter $\omega$.
-
-\begin{equation}
-w_k(\mu_k(0), \tilde{x}_k(0), \omega, 2 \pi + (2 \kappa - 1) \pi) = w_k(\mu_k(0), \tilde{x}_k(0), \omega (\kappa + 1 / 2) + i (\kappa - 1 / 2), 2 \pi)
-\end{equation}
-
-This approach leaves the time horizon unchanged, but requires a theory of complex valued discount rates (which will not be attempted here).
-
-To guarantee real valued $w_k$, then, it is useful to introduce the parameter $\kappa_k$ into the definition of $w_k$, as follows.
-
-\begin{equation}
-\begin{split}
-w_k &= C \left( \frac{\mu_k(0)}{\tilde{x}_k(0)} e^{-2 \pi \left(\kappa_k + \frac{1}{2} \right) (\omega + i)} \right)^{\frac{1}{\alpha_k}} \\
-&= \left( \frac{\mu_k(0)}{\tilde{x}_k(0)} (-1)^{2 \kappa_k + 1} e^{-2 \omega \pi \left(\kappa_k + \frac{1}{2} \right)} \right)^{\frac{1}{\alpha_k}} \\
-&= \left( \frac{\mu_k(0)}{\tilde{x}_k(0)} (-1)^{2 \kappa_k + 1} e^{-r T \left(\kappa_k + \frac{1}{2} \right)} \right)^{\frac{1}{\alpha_k}}
-\end{split}
+T_k = T \left(\nu_k + \kappa_k - \frac{1}{2} \right)
+\label{eq:Tk}
 \end{equation}
 
 Where
 
 \begin{equation}
-\kappa_k
+\kappa_k =
 \begin{cases}
-= \frac{1}{2}, & \text{if $\mu_k(0) \geq 0$} \\
-\in \mathbb{Z}, & \text{if $\mu_k(0) < 0$}
+\frac{1}{2}, & \text{if $\mu_k(0) > 0$} \\
+0 \text{or } 1, & \text{if $\mu_k(0) < 0$}
 \end{cases}
 \end{equation}
-<!-- This, of course, implies that the definition of program NPV also be modified as follows. -->
+
+In this modified definition of the time horizon, a half cycle phase correction is automatically triggered if expected project NPV is negative. The phase correction amounts to a half cycle extension or contraction of the project time horizon. The decision of whether to extend or contract the horizon is made by the investor and/or research project managers. If extending, then $\kappa_k$ is set to $1$. If contracting, then $\kappa_k = 0$. Either way, this horizon adjustment brings the project into phase with the funding cycle, such that $\mu_k(0) > 0$. If expected project NPV is positive to begin with (and thus already in phase), then $\kappa_k$ defaults to $1 / 2$, such that no phase adjustment is made to the project time horizon.
+
+Phase correction is particularly useful for budget allocation. Solving...
+
+\begin{equation}
+\end{equation}
+
+(Note that this decision implies no change to the project budget, just to the amount of time in which budget must be spent.) 
+<!-- Negative expected NPV at the start of the funding cycle is problematic for budget allocation. Rearranging Eq \ref{eq:muFnwComp} into an expression for the budget allocation $w_k$ at $\theta = 0$, it becomes evident that a negative NPV at the start implies a complex valued budget allocation. -->
 <!-- \begin{equation} -->
-<!-- \mu_k(0) = \tilde{x}_k(0) \left(\frac{w_k}{C} \right)^\alpha_k (-1)^{2 \kappa_k + 1} e^{rT \left(\kappa_k + \frac{1}{2} \right)} \label{eq:muFnwKap} -->
+<!-- w_k = C \left( \frac{\mu_k(0)}{\tilde{x}_k(0)} e^{-r T} \right)^{\frac{1}{\alpha_k}} -->
+<!-- \label{eq:wFnmu} -->
 <!-- \end{equation} -->
-
-## Defining project time horizons in terms of funding cycles
-
-The foregoing discussion in passing glosses over and important point...Note that the true project time horizon, that is to say, the actual duration of the $k^{th}$ project, may be expressed in terms of funding cycles $T$, as follows.
-
-\begin{equation}
-\begin{split}
-T_k &= \left(T + \left(2 \kappa_k - 1 \right) \frac{T}{2} \right) \\
-&= T \left(\kappa_k + \frac{1}{2} \right)
-\end{split}
-\end{equation}
-
-A more compact and intelligible expression for $w_k$ thus results by replacing $\kappa_k$ with the equivalent form in terms of $T_k$ and $T$.
-
-\begin{equation}
-w_k = \left( \frac{\mu_k(0)}{\tilde{x}_k(0)} (-1)^{2 \frac{T_k}{T}} e^{-r T_k} \right)^{\frac{1}{\alpha_k}}
-\label{eq:wFnmuKap}
-\end{equation}
-
-By making this change of variables, the focus is shifted from the rather abstract parameter $\kappa_k$ to the more palpable project time horizon $T_k$, and its relation to the funding cycle $T$. This, in turn, forces us to define project time horizons not in terms of years, but in terms of funding cycles.
-
-If the funding cycle is $3$ years, then a project with a time horizon of $15$ years is a $5$ cycle project. If the cycle ends at a sunk cost point, such that the budget allocation is complex valued, then donors may extend or shorten the time horizon by a half cycle ($1.5$ years) in order to obtain a real valued budget allocation.
-
-
-
+<!-- (\mu_k(0), \tilde{x}_k(0), r, T) -->
+<!-- However, in the complex plane, this becomes -->
+<!-- \begin{equation} -->
+<!-- w_k(\mu_k(0), \tilde{x}_k(0), \omega, 2 \pi) = C \left( \frac{\mu_k(0)}{\tilde{x}_k(0)} e^{-2 \pi (\omega + i)} \right)^{\frac{1}{\alpha_k}} -->
+<!-- \end{equation} -->
+<!-- [## Dealing with complex valued budget allocations] -->
+<!-- In this representation of the program funding cycle, then, a negative program NPV may be interpreted as program NPV evaluated at the sunk cost point in the complex plane. Solving Eq \ref{eq:muFnw} for $w_k$ at $\hat{t} = 0$, this means that if program NPV is negative at the start of the funding cycle---that is, if $\mu_k(0) < 0$---then the budget allocation is complex valued. -->
+<!-- \begin{equation} -->
+<!-- w_k(\mu_k(0), \tilde{x}_k(0), r, T) = C \left( \frac{\mu_k(0)}{\tilde{x}_k(0)} e^{-r T} \right)^{\frac{1}{\alpha_k}} -->
+<!-- \label{eq:wFnmu} -->
+<!-- \end{equation} -->
+<!-- However, in the complex plane, this becomes -->
+<!-- \begin{equation} -->
+<!-- w_k(\mu_k(0), \tilde{x}_k(0), \omega, 2 \pi) = C \left( \frac{\mu_k(0)}{\tilde{x}_k(0)} e^{-2 \pi (\omega + i)} \right)^{\frac{1}{\alpha_k}} -->
+<!-- \end{equation} -->
+<!-- Such that the budget allocation can be made real valued again if the program's time horizon is extended by one half cycle (i.e., by $\pi$). To see this, note that the half cycle extension may formalized as follows. -->
+<!-- \begin{equation} -->
+<!-- \begin{split} -->
+<!-- w_k(\mu_k(0), \tilde{x}_k(0), \omega, 3 \pi) &= C \left( \frac{\mu_k(0)}{\tilde{x}_k(0)} e^{-3 \pi (\omega + i) } \right)^{\frac{1}{\alpha_k}} \\ -->
+<!-- &= C \left( \frac{\mu_k(0)}{\tilde{x}_k(0)} e^{-3 \omega  \pi} e^{-3 i \pi} \right)^{\frac{1}{\alpha_k}} -->
+<!-- \end{split} -->
+<!-- \end{equation} -->
+<!-- But recall that, by Euler's identity, $e^{(2 \kappa - 1) i \pi} = -1$ for any integer $\kappa$. Therefore, the $e^{3 i \pi}$ in this expression may be replaced with a $-1$. -->
+<!-- \begin{equation} -->
+<!-- \begin{split} -->
+<!-- w_k(\mu_k(0), \tilde{x}_k(0), \omega, 3 \pi) &= C \left( \frac{\mu_k(0)}{\tilde{x}_k(0)} e^{-3 \omega  \pi} (-1) \right)^{\frac{1}{\alpha_k}} \\ -->
+<!-- &= C \left( -\frac{\mu_k(0)}{\tilde{x}_k(0)} e^{-3 \omega \pi} \right)^{\frac{1}{\alpha_k}} -->
+<!-- \end{split} -->
+<!-- \end{equation} -->
+<!-- Extending the time horizon by one half cycle ($\pi$) thus results in the appearance of $-\mu_k(0)$, which is positive when $\mu_k(0) < 0$, thereby making the budget allocation $w_k$ real valued when $\mu_k(0) < 0$. Note that the same result is achieved by applying any odd integer multiple of $\pi$. -->
+<!-- \begin{equation} -->
+<!-- \begin{split} -->
+<!-- w_k(\mu_k(0), \tilde{x}_k(0), \omega, 2 \pi + (2 \kappa - 1) \pi) &= C \left( \frac{\mu_k(0)}{\tilde{x}_k(0)} e^{-(2 \pi + (2 \kappa - 1) \pi) (\omega + i)} \right)^{\frac{1}{\alpha_k}} \\ -->
+<!-- &= C \left( \frac{\mu_k(0)}{\tilde{x}_k(0)} e^{-\omega \pi \left(2 \kappa + 1 \right) - i \pi \left(2 \kappa + 1 \right)} \right)^{\frac{1}{\alpha_k}} \\ -->
+<!-- &= C \left( \frac{\mu_k(0)}{\tilde{x}_k(0)} e^{-\omega \pi \left(2 \kappa + 1 \right)} + e^{-i \pi \left(2 \kappa + 1 \right)} \right)^{\frac{1}{\alpha_k}} \\ -->
+<!-- &= C \left( \frac{\mu_k(0)}{\tilde{x}_k(0)} e^{- \omega \pi \left(2 \kappa + 1 \right)} (-1)^{2 \kappa + 1} -->
+<!-- \right)^{\frac{1}{\alpha_k}} \\ -->
+<!-- &= C \left( -\frac{\mu_k(0)}{\tilde{x}_k(0)} e^{- 2 \omega \pi \left(\kappa + \frac{1}{2} \right)} -->
+<!-- \right)^{\frac{1}{\alpha_k}} -->
+<!-- \end{equation} -->
+<!-- [Note, moreover, that the adjustment made to the time horizon may either be an extension ($\kappa > 0$) or a contraction ($\kappa \leq 0$). -- negative kappa imply extending the time horizon backward to a point before $\hat{t} = 0$ ?] -->
+<!-- Alternatively, the same result is achieved through a complex transformation of the discount parameter $\omega$. -->
+<!-- \begin{equation} -->
+<!-- w_k(\mu_k(0), \tilde{x}_k(0), \omega, 2 \pi + (2 \kappa - 1) \pi) = w_k(\mu_k(0), \tilde{x}_k(0), \omega (\kappa + 1 / 2) + i (\kappa - 1 / 2), 2 \pi) -->
+<!-- \end{equation} -->
+<!-- This approach leaves the time horizon unchanged, but requires a theory of complex valued discount rates (which will not be attempted here). -->
+<!-- To guarantee real valued $w_k$, then, it is useful to introduce the parameter $\kappa_k$ into the definition of $w_k$, as follows. -->
+<!-- \begin{equation} -->
+<!-- \begin{split} -->
+<!-- w_k &= C \left( \frac{\mu_k(0)}{\tilde{x}_k(0)} e^{-2 \pi \left(\kappa_k + \frac{1}{2} \right) (\omega + i)} \right)^{\frac{1}{\alpha_k}} \\ -->
+<!-- &= \left( \frac{\mu_k(0)}{\tilde{x}_k(0)} (-1)^{2 \kappa_k + 1} e^{-2 \omega \pi \left(\kappa_k + \frac{1}{2} \right)} \right)^{\frac{1}{\alpha_k}} \\ -->
+<!-- &= \left( \frac{\mu_k(0)}{\tilde{x}_k(0)} (-1)^{2 \kappa_k + 1} e^{-r T \left(\kappa_k + \frac{1}{2} \right)} \right)^{\frac{1}{\alpha_k}} -->
+<!-- \end{split} -->
+<!-- \end{equation} -->
+<!-- Where -->
+<!-- \begin{equation} -->
+<!-- \kappa_k -->
+<!-- \begin{cases} -->
+<!-- = \frac{1}{2}, & \text{if $\mu_k(0) \geq 0$} \\ -->
+<!-- \in \mathbb{Z}, & \text{if $\mu_k(0) < 0$} -->
+<!-- \end{cases} -->
+<!-- \end{equation} -->
+<!-- ## Defining project time horizons in terms of funding cycles -->
+<!-- The foregoing discussion in passing glosses over and important point...Note that the true project time horizon, that is to say, the actual duration of the $k^{th}$ project, may be expressed in terms of funding cycles $T$, as follows. -->
+<!-- \begin{equation} -->
+<!-- \begin{split} -->
+<!-- T_k &= \left(T + \left(2 \kappa_k - 1 \right) \frac{T}{2} \right) \\ -->
+<!-- &= T \left(\kappa_k + \frac{1}{2} \right) -->
+<!-- \end{split} -->
+<!-- \end{equation} -->
+<!-- A more compact and intelligible expression for $w_k$ thus results by replacing $\kappa_k$ with the equivalent form in terms of $T_k$ and $T$. -->
+<!-- \begin{equation} -->
+<!-- w_k = \left( \frac{\mu_k(0)}{\tilde{x}_k(0)} (-1)^{2 \frac{T_k}{T}} e^{-r T_k} \right)^{\frac{1}{\alpha_k}} -->
+<!-- \label{eq:wFnmuKap} -->
+<!-- \end{equation} -->
+<!-- By making this change of variables, the focus is shifted from the rather abstract parameter $\kappa_k$ to the more palpable project time horizon $T_k$, and its relation to the funding cycle $T$. This, in turn, forces us to define project time horizons not in terms of years, but in terms of funding cycles. -->
+<!-- If the funding cycle is $3$ years, then a project with a time horizon of $15$ years is a $5$ cycle project. If the cycle ends at a sunk cost point, such that the budget allocation is complex valued, then donors may extend or shorten the time horizon by a half cycle ($1.5$ years) in order to obtain a real valued budget allocation. -->
 <!-- Recalling equation \ref{eq:npvFnW}, the previous equation can be rearranged as follows. -->
 <!-- \begin{equation} -->
 <!-- \frac{\mu_k(\theta)}{\tilde{x}_k(\theta)} = \left(\frac{w_k}{C} \right)^{\alpha_k} e^{(\omega + i) (2 \pi - \theta)} -->
@@ -1047,7 +1000,7 @@ If the funding cycle is $3$ years, then a project with a time horizon of $15$ ye
 
 ## First order conditions
 
-The portfolio optimization problem may now be formulated in terms of vis viva maximization subject to a risk tolerance threshold.
+With the groundwork laid above, the portfolio optimization problem may now be formulated and solved in terms of vis viva maximization subject to a risk tolerance threshold.
 
 \begin{equation}
 \max_{\mathbf{w}}{\mathcal{E}} \:\:\: s.t. \:\:\: \sigma = \overline{\sigma}
@@ -1136,9 +1089,13 @@ The risk shadow price is thus inversely proportional to portfolio risk. As risk 
 The budget allocations satisfying the first order conditions ($w_{kj}^*$) are given by Eq \ref{eq:wFnmuKap} evaluated at $\mu_{kj}^*$.
 
 \begin{equation}
-\mathbf{w}_{kj}^* = C \left(\frac{q_{kj}}{\tilde{x_k(0)}} (-1)^{2 \kappa_k + 1} e^{-r T \left( \kappa_k + \frac{1}{2} \right)} \right)^{\frac{1}{\alpha_k}}
+\mathbf{w}_{kj}^* = C \left(\frac{q_{kj}}{\tilde{x_k(0)}}e^{-r T_k} \right)^{\frac{1}{\alpha_k}}
 \label{eq:wStar}
 \end{equation}
+<!-- \begin{equation} -->
+<!-- \mathbf{w}_{kj}^* = C \left(\frac{q_{kj}}{\tilde{x_k(0)}} (-1)^{2 \kappa_k + 1} e^{-r T_k} \right)^{\frac{1}{\alpha_k}} -->
+<!-- \label{eq:wStar} -->
+<!-- \end{equation} -->
 
 Generally speaking, the eigenvectors $\mathbf{q}_j$ may include negative elements, implying negative expected program NPV ($\mu_{kj}(0)^* < 0$). As explained in \ref{sec:cycReal}, negative program NPV may be interpreted as the NPV evaluated at the sunk cost point of the program funding cycle. For the purposes of portfolio optimization, this is problematic, as it implies complex valued budget allocations. However, as explained above, the budget allocation can be made real valued in such cases by extending or shortening the program's time horizon by an odd integer multiple of one half the funding cycle. This is achieved by setting $\kappa_k$ to an integer value.
 <!-- And in vector notation, -->
