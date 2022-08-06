@@ -426,6 +426,18 @@ The upper and lower bounds on the log return, $\bar{\ell}$ and $\underline{\ell}
 
 Where $z = 1.96$ is the standard score corresponding to the $95\%$ confidence interval of a normally distributed random variable. The standard score $z$ can of course be adjusted to match the practitioner's idea of a suitable confidence interval defined by the bounds $\bar{\ell}$ and $\underline{\ell}$.
 
+Where $z = 1.96$ is the standard score corresponding to the $95\%$ confidence interval of a normally distributed random variable. (The standard score can of course be adjusted to match the practitioner's idea of a suitable confidence interval defined by the bounds $\bar{\ell}$ and $\underline{\ell}$.) Subtracting the second equation from the first and rearranging then gives an expression for the volatility parameter $s$ in terms of known parameters.
+
+\begin{equation}
+s = \frac{1}{2 \sqrt{\tau} z} (\bar{\ell} - \underline{\ell})
+\end{equation}
+
+
+
+
+
+
+
 This system of equations can then be rearranged into three expressions for the volatility parameter $s_k$ in terms of known parameters (i.e. in terms of the upper and lower log returns $\bar{\ell}, \underline{\ell}$, the discount rate $r$, the project time horizon $T_k$, and the standard score $z$).
 
 \begin{equation}
