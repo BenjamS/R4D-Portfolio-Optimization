@@ -260,10 +260,10 @@ s^2 \Delta t &= Var \left[\frac{\Delta x(T)}{x(T)} \right]
 
 (For a reference, see Hull [@].)
 
-Technically, $\Delta t$ is an instantaneous or infinitesimal time interval and hence $m$ is the expected instantaneous growth rate. In practice, it is acceptable to treat $\Delta t$ as a finitely small, but judicious, time step. The time step should be as small as possible while still ensuring that changes in $x$ occur in every time step. In the present context, it is reasonable to assume that random research and/or non-research related changes in program NPV occur at least once per month. The time step $\Delta t$ at the project level may thus be judiciously defined as a month, and $m$ may be interpreted as the expected monthly growth rate.
+Technically, $\Delta t$ is an instantaneous or infinitesimal time interval and hence $m$ is the expected instantaneous growth rate. In practice, it is acceptable to treat $\Delta t$ as a finitely small, but judicious, time step. The time step should be as small as possible while still ensuring that changes in $x$ occur in every time step. In the present context, it is reasonable to assume that random research and/or non-research related changes in project NPV occur at least once per annual quarter. The time step $\Delta t$ at the project level may thus be judiciously defined as an annual quarter, and $m$ may be interpreted as the expected quarterly growth rate.
 <!-- This selection must be made on the basis of both realism and expedience. Periods of a few substantial changes interspersed by relatively longer periods of many small changes. Geometric Brownian motion expedient and versatile  -->
 
-By definition, program NPV appreciates over time at the monthly discount rate $r$. Therefore, the growth rate $m$ should be set equal to $r$. A program growth rate different from $r$ implies that the program $NPV$ is inaccurately calculated.
+By definition, project NPV appreciates over time at the quarterly discount rate $r$. Conversely put, a program growth rate different from $r$ implies that the program $NPV$ is inaccurately calculated. Therefore, by assuming that project NPV is accurately calculated, one assumes that the growth rate $m$ equals $r$.
 
 ## Expected value, variance, and covariance of program NPVs
 
@@ -317,39 +317,39 @@ The portfolio variance, it follows, can be expressed
 <!-- = Var[X(T)]\bigr|_{t = \hat{t}} -->
 \begin{equation}
 \begin{split}
-\sigma(\hat{t})^2 &= \mathbf{1} ' \Sigma_{X, X} \mathbf{1} \\
-&= \boldsymbol{\mu}(\hat{t})' G_{X,X} \boldsymbol{\mu}(\hat{t})
+\sigma(\hat{t})^2 &= \mathbf{1} ' \Sigma_{x, x} \mathbf{1} \\
+&= \boldsymbol{\mu}(\hat{t})' G_{x,x} \boldsymbol{\mu}(\hat{t})
 \end{split}
 \end{equation}
 
-Where $G_{X,X}$ is the "coefficient of covariation matrix", i.e. the matrix whose elements are $c_{kj}$, where $c_{kk} = c_k^2$. Note that $G_{X, X}$ is just the covariance matrix left and right multiplied by a diagonal matrix of the inverse project means.
+Where $G_{x,x}$ is the "coefficient of covariation matrix", i.e. the matrix whose elements are $c_{kj}$, where $c_{kk} = c_k^2$. Note that $G_{x, x}$ is just the covariance matrix left and right multiplied by a diagonal matrix of the inverse project means.
  <!--whose elements are the squared coefficients of variation $c_k^2$, and whose off-diagonal elements are the cross coefficients of variation -->
 
 \begin{equation}
-G_{X, X} = D(\boldsymbol{\mu})^{-1} \Sigma_{X, X} D(\boldsymbol{\mu})^{-1}
+G_{x, x} = D(\boldsymbol{\mu})^{-1} \Sigma_{x, x} D(\boldsymbol{\mu})^{-1}
 \end{equation}
 
 (Where the notation $D(\mathbf{y})$ means, for any vector $\mathbf{y}$, a diagonal matrix whose diagonal elements are the elements of the vector $\mathbf{y}$.)
 
-Alternatively, $G_{X, X}$ can be expressed in terms of the correlation matrix ($K_{X, X}$).
+Alternatively, $G_{x, x}$ can be expressed in terms of the correlation matrix ($K_{x, x}$).
 
 \begin{equation}
-G_{X, X} = D(\mathbf{c}) K_{X, X} D(\mathbf{c})
+G_{x, x} = D(\mathbf{c}) K_{x, x} D(\mathbf{c})
 \end{equation}
 
-It follows that $G_{X, X}$ has the same eigenvalues as $K_{X, X}$ and $\Sigma_{X, X}$; and that the eigenvectors of $G_{X, X}$ are just the eigenvectors of $K_{X, X}$ premultiplied by $D(\mathbf{c})$. That is to say, if the eigendecompositions of $G_{X, X}$ and $K_{X, X}$ are denoted, respectively,
+It follows that $G_{x, x}$ has the same eigenvalues as $K_{x, x}$ and $\Sigma_{x, x}$; and that the eigenvectors of $G_{x, x}$ are just the eigenvectors of $K_{x, x}$ premultiplied by $D(\mathbf{c})$. That is to say, if the eigendecompositions of $G_{x, x}$ and $K_{x, x}$ are denoted, respectively,
 
 \begin{equation}
-G_{X, X} = Q \Gamma Q'
+G_{x, x} = Q \Gamma Q'
 \end{equation}
 
 and
 
 \begin{equation}
-K_{X, X} = P \Gamma P'
+K_{x, x} = P \Gamma P'
 \end{equation}
 
-Then the eigenvectors of $G_{X, X}$ and $K_{X, X}$ are related as follows.
+Then the eigenvectors of $G_{x, x}$ and $K_{x, x}$ are related as follows.
 
 \begin{equation}
 Q = D(\mathbf{c}) P
@@ -426,28 +426,28 @@ The upper and lower bounds on the log return, $\bar{\ell}$ and $\underline{\ell}
 
 Where $z = 1.96$ is the standard score corresponding to the $95\%$ confidence interval of a normally distributed random variable. The standard score $z$ can of course be adjusted to match the practitioner's idea of a suitable confidence interval defined by the bounds $\bar{\ell}$ and $\underline{\ell}$.
 
-This system of equations can then be rearranged into three expressions for the volatility parameter $s_k$ in terms of known parameters (i.e. in terms of the upper and lower log returns $\bar{\ell}, \underline{\ell}$, the discount rate $r$, the project time horizon $T$, and the standard score $z$).
+This system of equations can then be rearranged into three expressions for the volatility parameter $s_k$ in terms of known parameters (i.e. in terms of the upper and lower log returns $\bar{\ell}, \underline{\ell}$, the discount rate $r$, the project time horizon $T_k$, and the standard score $z$).
 
 \begin{equation}
 \begin{split}
-s_k &= \frac{z \pm \sqrt{z^2 - 1 / 2 (\bar{\ell} - r \tau)}}{ \sqrt{\tau}} \\
-&= \frac{-z \pm \sqrt{z^2 - 1 / 2 (\underline{\ell} - r \tau)}}{ \sqrt{\tau}} \\
-&= \sqrt{ r - \frac{\bar{\ell} + \underline{\ell}}{2 \tau}}
+s_k &= \frac{z \pm \sqrt{z^2 - 1 / 2 (\bar{\ell} - r \tau_k)}}{ \sqrt{\tau_k}} \\
+&= \frac{-z \pm \sqrt{z^2 - 1 / 2 (\underline{\ell} - r \tau_k)}}{ \sqrt{\tau_k}} \\
+&= \sqrt{ r - \frac{\bar{\ell} + \underline{\ell}}{2 \tau_k}}
 \end{split}
 \end{equation}
 
 Given $s_k$ and $\mu_k$, it is then straightforward to compute the variances $\sigma_k^2$ and coefficients of covariation $c_k$.
 
-An approximate project correlation matrix $\tilde{K}_{X, X}$ can be deduced from expert opinion using a method I develop elsewhere [-@]. The approximate covariance matrix $\tilde{\Sigma}_{X,X}$  and coefficient of covariation matrix $\tilde{G}_{X,X}$ can then be constructed as follows.
+An approximate project correlation matrix $\tilde{K}_{x, x}$ can be deduced from expert opinion using a method I develop elsewhere [-@]. The approximate covariance matrix $\tilde{\Sigma}_{x,x}$  and coefficient of covariation matrix $\tilde{G}_{x,x}$ can then be constructed as follows.
 
 \begin{equation}
-\tilde{\Sigma}_{X,X} = D(\boldsymbol{\sigma}) \tilde{K}_{X,X} D(\boldsymbol{\sigma})
+\tilde{\Sigma}_{x,x} = D(\boldsymbol{\sigma}) \tilde{K}_{x,x} D(\boldsymbol{\sigma})
 \end{equation}
 
 And
 
 \begin{equation}
-\tilde{G}_{X,X} = D(\mathbf{c}) \tilde{K}_{X,X} D(\mathbf{c})
+\tilde{G}_{x,x} = D(\mathbf{c}) \tilde{K}_{x,x} D(\mathbf{c})
 \end{equation}
 
 Respectively.
@@ -1012,7 +1012,7 @@ With the groundwork laid above, the portfolio optimization problem may now be fo
 Where the portfolio risk $\sigma$ is defined as follows.
 
 \begin{equation}
-\sigma = \mathbf{1} ' \Sigma_{X, X} \mathbf{1} = \boldsymbol{\mu} ' G_{X, X} \boldsymbol{\mu}
+\sigma = \mathbf{1} ' \Sigma_{x, x} \mathbf{1} = \boldsymbol{\mu} ' G_{x, x} \boldsymbol{\mu}
 \end{equation}
 
 <!-- Because $\mu_k(w_k)$ is monotonically increasing in $w_k$ -->
@@ -1074,7 +1074,7 @@ Where $\sigma_j^*$ is the portfolio risk corresponding to the $j^{th}$ solution,
 
 \begin{equation}
 \begin{split}
-\sigma_j^* &= \mathbf{q}_j ' G_{X, X} \mathbf{q}_j \\
+\sigma_j^* &= \mathbf{q}_j ' G_{x, x} \mathbf{q}_j \\
 &= \gamma_j
 \end{split}
 \end{equation}
@@ -1137,7 +1137,7 @@ When choosing the scaling constant $\beta_j$ to enforce the budget constraint, t
 \begin{split}
 \hat{\mathcal{E}}_j^* &= \frac{1}{2} \hat{\mathbf{v}}_j^* ' \hat{\mathbf{v}}_j^* = \frac{r^2}{2} \hat{\boldsymbol{\mu}}_j^* ' \hat{\boldsymbol{\mu}}_j^* \\
 &= \frac{r^2}{2} \beta_j \mathbf{q}_j ' \beta_j \mathbf{q}_j = \frac{r^2}{2} \beta_j^2 \\
-\sigma_j^* &= \sqrt{\boldsymbol{\mu}_j^* ' G_{X, X} \boldsymbol{\mu}_j^*} = \sqrt{(\beta_j \mathbf{q}_j) ' G_{X, X} (\beta_j \mathbf{q}_j}) \\
+\sigma_j^* &= \sqrt{\boldsymbol{\mu}_j^* ' G_{x, x} \boldsymbol{\mu}_j^*} = \sqrt{(\beta_j \mathbf{q}_j) ' G_{x, x} (\beta_j \mathbf{q}_j}) \\
 &= \beta_j \sqrt{\gamma_j}
 \end{split}
 \end{equation}
@@ -1286,37 +1286,30 @@ Where $\mathcal{E}^p$ and $\sigma^p$ are the policy vis viva and risk, defined a
 \begin{split}
 \mathcal{E}^p &= \Sigma_{j = 1}^m \mathcal{E}_j^* = \frac{1}{2} \Sigma_j \mathbf{v}_j^* ' \mathbf{v}_j^* \\
 &= \frac{r^2}{2} \Sigma_j \boldsymbol{\mu}_j^* ' \boldsymbol{\mu}_j^* = \frac{r^2}{2} \boldsymbol{\beta} ' \boldsymbol{\beta} \\
-\sigma^p &= \mathbf{1} ' \Sigma_{p,p} \mathbf{1} = \boldsymbol{\mu}^p ' G_{p,p} \boldsymbol{\mu}^p \\
-&= \boldsymbol{\beta} ' G_{p,p} \boldsymbol{\beta}
+\sigma^p &= \mathbf{1} ' \Sigma_{p,p} \mathbf{1} = \boldsymbol{\beta} ' G_{p,p} \boldsymbol{\beta}
 \end{split}
 \end{equation}
 
-Where $G_{p,p}$ is the policy coefficient of covariation matrix, and where the control variables $\boldsymbol{\mu}^p$ are the expected policy NPVs, whose elements are defined
-
-\begin{equation}
-\mu_j^p = \boldsymbol{\mu}_j^* ' \mathbf{1}
-\end{equation}
-
-But note that, since $\boldsymbol{\mu}_j^* = \mathbf{q}_j$, then $\boldsymbol{\mu}_j^* {'} \mathbf{1}$ equals the eigenvalue scaling constant $\beta_j$ (recall equation \ref{eq:wStarScaled}). Therefore, the control variables can be rewritten
-
-\begin{equation}
-\boldsymbol{\mu}^p = \boldsymbol{\beta}
-\end{equation}
-
-And so the policy optimization problem can be rewritten
-
-\begin{equation}
-\max_{\boldsymbol{\beta}} \mathcal{E}^p \:\:\:\:s.t.\:\:\: \sigma^p = \bar{\sigma}^p
-\end{equation}
-
-Where
-
-\begin{equation}
-\begin{split}
-\mathcal{E}^p &= \frac{r^2}{2} \boldsymbol{\beta} ' \boldsymbol{\beta} \\
-\sigma^p &= \boldsymbol{\beta} ' G_{p,p} \boldsymbol{\beta}
-\end{split}
-\end{equation}
+Where $G_{p,p}$ is the policy coefficient of covariation matrix
+<!-- , and where the control variables $\boldsymbol{\mu}^p$ are the expected policy NPVs, whose elements are defined -->
+<!-- \begin{equation} -->
+<!-- \mu_j^p = \boldsymbol{\mu}_j^* ' \mathbf{1} -->
+<!-- \end{equation} -->
+<!-- But note that, since $\boldsymbol{\mu}_j^* = \mathbf{q}_j$, then $\boldsymbol{\mu}_j^* {'} \mathbf{1}$ equals the eigenvalue scaling constant $\beta_j$ (recall equation \ref{eq:wStarScaled}). Therefore, the control variables can be rewritten -->
+<!-- \begin{equation} -->
+<!-- \boldsymbol{\mu}^p = \boldsymbol{\beta} -->
+<!-- \end{equation} -->
+<!-- And so the policy optimization problem can be rewritten -->
+<!-- \begin{equation} -->
+<!-- \max_{\boldsymbol{\beta}} \mathcal{E}^p \:\:\:\:s.t.\:\:\: \sigma^p = \bar{\sigma}^p -->
+<!-- \end{equation} -->
+<!-- Where -->
+<!-- \begin{equation} -->
+<!-- \begin{split} -->
+<!-- \mathcal{E}^p &= \frac{r^2}{2} \boldsymbol{\beta} ' \boldsymbol{\beta} \\ -->
+<!-- \sigma^p &= \boldsymbol{\beta} ' G_{p,p} \boldsymbol{\beta} -->
+<!-- \end{split} -->
+<!-- \end{equation} -->
 
 The matrix $G_{p,p}$ can be deduced from the policy NPV covariance matrix $\Sigma_{p,p}$, which in turn is obtained as the inner product of the project-policy correlation matrix (Eq \ref{eq:Lrot}) with itself.
 
@@ -1324,7 +1317,7 @@ The matrix $G_{p,p}$ can be deduced from the policy NPV covariance matrix $\Sigm
 \Sigma_{p,p} = K_{X, S}^{\circlearrowright} ' K_{X, S}^{\circlearrowright}
 \end{equation}
 
-<!-- $K_{X, S}^{\circlearrowright} K_{X, S}^{\circlearrowright}{'}$ gives the approximate program correlation matrix $\tilde{K}_{X, X}$, while the inner product  gives the policy covariance matrix (call this $\Sigma_{S, S}^{\circlearrowright}$). In the absence of time series data by which to estimate program and policy correlations, then, the matrix $K_{X, S}^{\circlearrowright} = B \tilde{P}$ provides a means of deducing them from expert opinion. (See Schiek [-@schiek2021reverse] for details.) -->
+<!-- $K_{X, S}^{\circlearrowright} K_{X, S}^{\circlearrowright}{'}$ gives the approximate program correlation matrix $\tilde{K}_{x, x}$, while the inner product  gives the policy covariance matrix (call this $\Sigma_{S, S}^{\circlearrowright}$). In the absence of time series data by which to estimate program and policy correlations, then, the matrix $K_{X, S}^{\circlearrowright} = B \tilde{P}$ provides a means of deducing them from expert opinion. (See Schiek [-@schiek2021reverse] for details.) -->
 
 
 This is just the project portfolio problem (equation \ref{eq:probStat}) stated at the policy level. The corresponding lagrangian is then
@@ -1355,7 +1348,7 @@ First, recall from section ... that the policy covariance matrix $\Sigma_{S, S}$
 \Sigma_{S, S}^{\circlearrowright} = B \tilde{\Gamma} B '
 \end{equation}
 
-That is to say, the matrix of eigenvectors of $\Sigma_{S, S}^{\circlearrowright}$ is just the orthonormal rotation matrix $B$ that is applied to clarify program-policy correlations (recall equation \ref{eq:rotL}); and the respective eigenvalues are just the $m$ leading eigenvalues of the program cross coefficient of variation matrix $G_{X, X}$ (or program correlation matrix $K_{X, X}$). (See Schiek [-@schiek2021reverse] for details.)
+That is to say, the matrix of eigenvectors of $\Sigma_{S, S}^{\circlearrowright}$ is just the orthonormal rotation matrix $B$ that is applied to clarify program-policy correlations (recall equation \ref{eq:rotL}); and the respective eigenvalues are just the $m$ leading eigenvalues of the program cross coefficient of variation matrix $G_{x, x}$ (or program correlation matrix $K_{x, x}$). (See Schiek [-@schiek2021reverse] for details.)
 
 Since $G_{S, S} = D(\boldsymbol{\beta})^{-1} \Sigma_{S, S} D(\boldsymbol{\beta})^{-1}$ by definition, it follows that the eigenvalues of $G_{S, S}$ are likewise $\tilde{\Gamma}$. Combining this information with the first order conditions (equation \ref{eq:focS}), it follows that $\sigma_j^{S*} = \sqrt{\gamma_j} = \sigma_j^*$, and
 
