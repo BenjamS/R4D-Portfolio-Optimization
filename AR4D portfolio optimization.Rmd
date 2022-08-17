@@ -410,42 +410,24 @@ With mean and variance
 
 \begin{equation}
 \begin{split}
-E[\ell] \bigr|_{t = \hat{t}} &= \left(r - \frac{s_k^2}{2} \right) \tau \\
-Var[\ell] \bigr|_{t = \hat{t}} &= s_k^2 \tau
+\mu_k = E[\ell] \bigr|_{t = \hat{t}} &= \left(r - \frac{s_k^2}{2} \right) \tau \\
+\sigma_k^2 = Var[\ell] \bigr|_{t = \hat{t}} &= s_k^2 \tau
 \end{split}
 \end{equation}
 
-The upper and lower bounds on the log return, $\bar{\ell}$ and $\underline{\ell}$, may thus be expressed as follows.
+The upper and lower bounds on the log return, $\bar{\ell}_k$ and $\underline{\ell}_k$, may thus be expressed as follows.
 
 \begin{equation}
 \begin{split}
-\bar{\ell} &= E[\ell] \bigr|_{t = \hat{t}} + z \sqrt{Var[\ell] \bigr|_{t = \hat{t}}} \\
-\underline{\ell} &= E[\ell] \bigr|_{t = \hat{t}} - z \sqrt{Var[\ell] \bigr|_{t = \hat{t}}}
+\bar{\ell}_k &= \mu_k + z \sigma_k \\
+\underline{\ell}_k &= \mu_k - z \sigma_k
 \end{split}
 \end{equation}
 
-Where $z = 1.96$ is the standard score corresponding to the $95\%$ confidence interval of a normally distributed random variable. The standard score $z$ can of course be adjusted to match the practitioner's idea of a suitable confidence interval defined by the bounds $\bar{\ell}$ and $\underline{\ell}$.
-
-Where $z = 1.96$ is the standard score corresponding to the $95\%$ confidence interval of a normally distributed random variable. (The standard score can of course be adjusted to match the practitioner's idea of a suitable confidence interval defined by the bounds $\bar{\ell}$ and $\underline{\ell}$.) Subtracting the second equation from the first and rearranging then gives an expression for the volatility parameter $s$ in terms of known parameters.
+Where $z = 1.96$ is the standard score corresponding to the $95\%$ confidence interval of a normally distributed random variable. (The standard score can of course be adjusted to match the practitioner's idea of a suitable confidence interval defined by the bounds $\bar{\ell}_k$ and $\underline{\ell}_k$.) Subtracting the second equation from the first and rearranging then gives an expression for the volatility parameter $s_k$ in terms of known parameters.
 
 \begin{equation}
-s = \frac{1}{2 \sqrt{\tau} z} (\bar{\ell} - \underline{\ell})
-\end{equation}
-
-
-
-
-
-
-
-This system of equations can then be rearranged into three expressions for the volatility parameter $s_k$ in terms of known parameters (i.e. in terms of the upper and lower log returns $\bar{\ell}, \underline{\ell}$, the discount rate $r$, the project time horizon $T_k$, and the standard score $z$).
-
-\begin{equation}
-\begin{split}
-s_k &= \frac{z \pm \sqrt{z^2 - 1 / 2 (\bar{\ell} - r \tau_k)}}{ \sqrt{\tau_k}} \\
-&= \frac{-z \pm \sqrt{z^2 - 1 / 2 (\underline{\ell} - r \tau_k)}}{ \sqrt{\tau_k}} \\
-&= \sqrt{ r - \frac{\bar{\ell} + \underline{\ell}}{2 \tau_k}}
-\end{split}
+s_k = \frac{1}{2 \sqrt{\tau_k} z} (\bar{\ell}_k - \underline{\ell}_k)
 \end{equation}
 
 Given $s_k$ and $\mu_k$, it is then straightforward to compute the variances $\sigma_k^2$ and coefficients of covariation $c_k$.
@@ -713,7 +695,7 @@ and
 <!-- \end{split} -->
 <!-- \end{equation} -->
 
-# The cyclically real reality of expected project NPV \label{sec:cycReal}
+# Cyclically real expected project NPV \label{sec:cycReal}
 
 ## The funding cycle
 
@@ -1227,7 +1209,7 @@ c_m = \sum_{j=1}^m k_j
 
 Such that $c_n = 1$.
 
-The exact value of the integer $m$ is somewhat subjective. A rule of thumb often followed in practice is to retain the $m$ leading eigenvectors required to explain at least $90\%$ of the portfolio variance (i.e., such that $c_m \geq 0.9$). This is tantamount to the "spectral cut-off" method used in the financial context [@guo2018eigen; @carrasco2011optimal].
+The exact value of the integer $m$ is subjective. A rule of thumb often followed in practice is to retain the $m$ leading eigenvectors required to explain at least $90\%$ of the portfolio variance (i.e., such that $c_m \geq 0.9$). This is tantamount to the "spectral cut-off" method used in the financial context [@guo2018eigen; @carrasco2011optimal].
 
 ## A menu of solutions catering to a range of risk appetites
 
@@ -1239,7 +1221,7 @@ AR4D donors and institutions are thus presented not with a single optimal soluti
 
 ## A menu of solutions catering to a range of strategic objectives
 
-Generally speaking, each of the $m$ leading eigenvectors of a covariance matrix of a complex system of variables encode information about a specific aspect of the system. In the financial context, for example, Gopikrishnan et al. [-@gopik2001quant] show that the each of the leading eigenvectors of a covariance matrix of hundreds of stock price series is associated with movements in a particular industry or sector, such that each element in the eigenvectors reflects a particular stock's contribution to, or participation in, movements in the respective sector.
+Generally speaking, each of the $m$ leading eigenvectors of a covariance matrix of a complex system of variables encode information about a specific aspect of the system. In the financial context, for example, Gopikrishnan et al. [-@gopik2001quant] show that each of the leading eigenvectors of a covariance matrix of hundreds of stock price series is associated with movements in a particular industry or sector, such that each element in the eigenvectors reflects a particular stock's contribution to, or participation in, movements in the respective sector.
 <!-- [The authors even suggest this method might be used to classify firms into industries.] -->
 
 Elsewhere, I extend the logic of Gopikrishnan et al.'s analysis to AR4D correlation matrices [-@schiek2021reverse]. In that extension, I show that the collective movements associated with each eigenvector may be interpreted as the AR4D institution's (and/or donor's) strategic objectives or policies, such that the elements of the eigenvectors may be interpreted as reflecting each research program's contribution towards the respective policy.
