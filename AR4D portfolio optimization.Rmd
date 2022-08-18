@@ -50,7 +50,7 @@ legendText_size <- 7
 axisText_size <- 6
 axisTitle_size <- 7
 facetTitle_size <- 7
-
+cellText_size <- 3
 #==============================================================
 # Define function to plot covariance/correlation matrices
 plot_covmat <- function(covmat, fig_title = "Covariance Matrix", round_to = 2, graph_on = T, legend_position = NULL, num_size = NULL){
@@ -1723,15 +1723,39 @@ list_groups <- list(prop_highYcommod, prop_smallHolder, prop_CSA)
 n_groups <- length(list_groups)
 bag_of_colors <- randomcoloR::distinctColorPalette(k = 5 * n_groups)
 group_colors <- sample(bag_of_colors, n_groups)
-group_knfo <- list(list_groups, group_names, group_colors)
-
+group_info <- list(list_groups, group_names, group_colors)
 sigNames <- c("GDP Growth", "Economic\nEquality", "Environmental\nSustainability", "Nutritional\nSecurity")
 n_signals <- length(sigNames)
 sigNames <- paste("Policy", 1:n_signals, "\n", sigNames)
-# xAxis_title <- "Rotated Correlations"
-# plot_corrXS_barchart(mat_Lrot, group_knfo, xAxis_title, sigNames)
-# 
+xAxis_title <- "Rotated Correlations"
+# plot_corrXS_barchart(mat_Lrot, group_info, xAxis_title, sigNames)
 # ggsave("Fig 6.tiff")
+#--------------------------------------------------------------
+alpha <- c(0.6, 0.65, 0.6, 0.75, 0.65, 0.6, 0.65, 0.8, 0.7, 0.75, 0.8)
+xTilde <- 100 * runif(nrow(Ptilde)) #exp(rnorm(nr))
+xTilde <- round(xTilde, 2)
+TvecYrs <- c(18, 14, 8, 15, 12, 14, 10, 5, 4, 7, 12)
+TvecTstep <- TvecYrs * 4
+# projNames <- df_table$Project
+df_param <- data.frame(proj = projNames, alpha, xTilde,
+                       Tyrs = TvecYrs, Tt = TvecTstep)
+df_param <- df_param %>% gather(var, val, alpha:Tt)
+#df_param$val <- factor(df_param$val)
+cNames <- c(expression(alpha),
+            expression(tilde(x)),
+            "Time horizon\n(Years)",
+            "Time horizon\n(Quarters)")
+gg <- ggplot(df_param, aes(x = var, y = proj,
+                           label = val))
+gg <- gg + geom_tile()
+gg <- gg + scale_x_discrete("var", labels = cNames, position = "top")
+gg <- gg + geom_text(size = cellText_size)
+gg <- gg + theme_bw()
+gg <- gg + theme(axis.title = element_blank(),
+                 axis.text.y = element_blank(),
+                 axis.title.x = element_text(size = axisText_size))
+gg
+#--------------------------------------------------------------
 
 
 
@@ -1786,8 +1810,6 @@ rYrly_discrete <- 0.08 #0.035
 r_discrete <- (1 + rYrly_discrete)^(1 / tStep) - 1
 # Convert discrete discount rate to continuous discount rate
 r <- round(log(1 + r_discrete), 3)
-alpha <- c(0.6, 0.65, 0.6, 0.75, 0.65, 0.6, 0.65, 0.8, 0.7, 0.75, 0.8)
-xTilde <- 100 * runif(nrow(Ptilde)) #exp(rnorm(nr))
 #----------------------
 ind <- which(Ptilde < 0)
 Ptilde[ind] <- - exp(- r * Tt / 2) * Ptilde[ind]
@@ -2239,10 +2261,10 @@ bag_of_colors <- randomcoloR::distinctColorPalette(k = 5 * n_groups)
 group_colors <- sample(bag_of_colors, n_groups)
 #--------------------------------------------------------------
 # Define function to order data by group
-group_fn <- function(group_knfo){
-  list_groups <- group_knfo[[1]]
-  group_names <- group_knfo[[2]]
-  group_colors <- group_knfo[[3]]
+group_fn <- function(group_info){
+  list_groups <- group_info[[1]]
+  group_names <- group_info[[2]]
+  group_colors <- group_info[[3]]
   varNames_ordered <- do.call(c, list_groups)
   n_groups <- length(group_names)
   n_ktems <- length(varNames_ordered)
@@ -2270,8 +2292,8 @@ group_fn <- function(group_knfo){
   return(out_list)
 }
 #--------------------------------------------------------------
-group_knfo <- list(list_groups, group_names, group_colors)
-outlist <- group_fn(group_knfo)
+group_info <- list(list_groups, group_names, group_colors)
+outlist <- group_fn(group_info)
 cols_ordered_by_group <- outlist[[1]]
 group_color_vec <- outlist[[2]]
 group_vec_ordered <- outlist[[3]]
@@ -2552,11 +2574,11 @@ plot_returns_barchart <- function(df_pctRet, group_colors, list_graph_options, g
 # }
 #=======================================================================
 # Define function to order data frames by group for period returns barchart and daily returns box and whiskers plots
-get_hist_dfs_ready <- function(mat_ts_kn, group_knfo){
+get_hist_dfs_ready <- function(mat_ts_kn, group_info){
   #------------------------------------------------------------
   # Group the vars according to provided group info
-  #varNames_ordered <- do.call(c, group_knfo[[1]])
-  outlist <- group_fn(group_knfo)
+  #varNames_ordered <- do.call(c, group_info[[1]])
+  outlist <- group_fn(group_info)
   cols_ordered_by_group <- outlist[[1]]
   group_color_vec <- outlist[[2]]
   group_vec_ordered <- outlist[[3]]
@@ -2705,7 +2727,7 @@ test_stop_date <- row.names(mat_pctDiff_eg_test)[nrow(mat_pctDiff_eg_test)]
 #=======================================================================
 # Define portfolio optimization function
 optimize_portfolio <- function(M_knv, covmat_knv, covmat, mat_nab, targ_vec,
-                               backtest_knfo = NULL){
+                               backtest_info = NULL){
   #print(M)
   lambdas <- -2 * M_knv %*% targ_vec
   # Return shadow price
@@ -2726,9 +2748,9 @@ optimize_portfolio <- function(M_knv, covmat_knv, covmat, mat_nab, targ_vec,
   sd_targ <- sqrt(Vtarg)
   #if(l_V > 0){wStar <- rep(NA, length(wStar))}
   #----------------------------------------------------
-  if(!is.null(backtest_knfo)){
-    nab_decRet_test <- backtest_knfo[["nab_decRet_test"]]
-    covmat_test <- backtest_knfo[["covmat_test"]]
+  if(!is.null(backtest_info)){
+    nab_decRet_test <- backtest_info[["nab_decRet_test"]]
+    covmat_test <- backtest_info[["covmat_test"]]
     Rtest <- t(wStar) %*% nab_decRet_test
     Vtest <- t(wStar) %*% covmat_test %*% wStar
     sd_test <- sqrt(Vtest)
@@ -2872,13 +2894,13 @@ get_optimal_frontier <- function(covmat, mat_nab,
   if(is.null(fun_env)){
     n_points_on_frontier = 50
     R_range = 0.3
-    backtest_knfo = NULL
+    backtest_info = NULL
     C_targ = 1
     dimRet = F
   }else{
     n_points_on_frontier = fun_env[["n_points_on_frontier"]]
     R_range <- fun_env[["R_range"]]
-    backtest_knfo = fun_env[["backtest_knfo"]]
+    backtest_info = fun_env[["backtest_info"]]
     C_targ = fun_env[["C_targ"]]
     dimRet = fun_env[["dimRet"]]
   }
@@ -2897,7 +2919,7 @@ get_optimal_frontier <- function(covmat, mat_nab,
     targ_vec <- c(this_Rtarg, C_targ)
     #-------------------------------------------
     list_out <- optimize_portfolio(M_knv, covmat_knv, covmat, mat_nab, targ_vec,
-                                   backtest_knfo)
+                                   backtest_info)
     #-------------------------------------------
     list_wStar[[i]] <- list_out[[1]]
     list_frontier[[i]] <- list_out[[2]]
@@ -2950,14 +2972,14 @@ nab_decRet_test <- nab_decRet_eg_test
 mat_nab <- cbind(nab_decRet_train, nab_C)
 n_points_on_frontier <- 50
 R_range <- 0.05
-backtest_knfo <- list()
-backtest_knfo[["nab_decRet_test"]] <- nab_decRet_test
-backtest_knfo[["covmat_test"]] <- covmat_test
+backtest_info <- list()
+backtest_info[["nab_decRet_test"]] <- nab_decRet_test
+backtest_info[["covmat_test"]] <- covmat_test
 #--------------------------------------------------------------
 fun_env_getOptFront <- list()
 fun_env_getOptFront[["n_points_on_frontier"]] <- n_points_on_frontier
 fun_env_getOptFront[["R_range"]] <- R_range
-fun_env_getOptFront[["backtest_knfo"]] <- backtest_knfo
+fun_env_getOptFront[["backtest_info"]] <- backtest_info
 fun_env_getOptFront[["C_targ"]] <- C_targ
 fun_env_getOptFront[["dimRet"]] <- F
 #--------------------------------------------------------------
