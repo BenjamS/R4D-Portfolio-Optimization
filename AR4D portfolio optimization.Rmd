@@ -1586,6 +1586,8 @@ To illustrate the portfolio optimization workflow presented above, here I walk t
 
 In this hypothetical example, a donor wants to know the optimal distribution of limited funds over a five year funding cycle across a portfolio of eight AR4D programs. The programs might be defined in terms of major commodity categories (cereals, roots & tubers, legumes, livestock, fruit & vegetables, fish, etc.); or they might be organized around thematic areas (climate smart agriculture, smallholder resilience, digital agriculture, etc.); or they might be some combination thereof. The donor wants to maximize impact for a given risk tolerance ...such that risk is minimized for a given impact target (as represented by the vis viva). As explained in section ..., there are $m$ possible budget allocations that solve the problem, corresponding to the $m$ leading eigenvectors of the program cross coefficient of variation matrix $G$. Each of these 
 
+\ref{fig:rotCorrXSnParams}
+
 $\tilde{K}$ -> $\tilde{G}$
 
 the exected program NPVs and their corresponding variances are estimated following the method described in section \ref{sec:volEst}
@@ -1611,9 +1613,65 @@ Following the method explained in section ..., these correlations are interprete
 
 The strategic objective covariance matrix can be calculated as the inner product $\Sigma_{SS}^{\circlearrowleft} = L_{\circlearrowleft} ' L_{\circlearrowleft}$. This, in turn, has the eigendecompsition $\Sigma_{SS}^{\circlearrowleft} = B \tilde{\Gamma} B'$, where $B$ is the orthonormal rotation matrix. The eigenvectors of $\tilde{K}$ can then be  can thus be deduced from the elicited information $L_{\circlearrowleft}$.
 
-```{r exampLoadings0, results = "markup", echo = F}
-# fig.show = 'hold', fig.width = 4, fig.height = 4, fig.align = "center", fig.cap = "\\label{fig:ExpPctRet_Examp}Hypothetical AR4D project expected returns and risk."}
-#---------------------------------------------
+```{r, fig.show = 'hold', fig.width=5, fig.height=3, fig.align='left', fig.cap="\\label{fig:rotCorrXSnParams}(Left) Bar chart of hypothetical project-policy correlations, (right) table of hypothetical project parameters."}
+
+#====================================================================
+# Define function(s)
+# Barchart of variable-signal correlations
+plot_corrXS_barchart <- function(mat_L, group_info = NULL, xAxis_title = NULL, sigNames = NULL){
+  
+  n_signals <- ncol(mat_L)
+  df_plot <- data.frame(Item = row.names(mat_L), mat_L)
+  df_plot$Item <- as.character(df_plot$Item)
+  #-------------------------------------------------------
+  if(is.null(sigNames)){
+    signal_id <- paste("Signal", 1:n_signals)
+  }else{
+    #signal_id <- paste("Signal", 1:n_signals, "\n", sigNames)
+    signal_id <- sigNames
+  }
+  colnames(df_plot)[2:(n_signals + 1)] <- signal_id
+  #-------------------------------------------------------
+  gathercols <- as.character(signal_id) 
+  df_plot <- gather_(df_plot, "Signal", "Correlation", gathercols)
+  df_plot <- transform(df_plot,
+                       Signal = factor(Signal, levels = gathercols))
+  
+  if(!is.null(group_info)){
+    outlist <- group_fn(group_info)
+    cols_ordered_by_group <- outlist[[1]]
+    group_color_vec <- outlist[[2]]
+    group_vec_ordered <- outlist[[3]]
+    df_match_group <- data.frame(Item = cols_ordered_by_group, Group = group_vec_ordered)
+    df_plot <- merge(df_plot, df_match_group, by = "Item")
+    df_plot <- df_plot[order(df_plot$Group), ]
+    df_plot$Item <- factor(df_plot$Item, levels = unique(df_plot$Item))
+    gg <- ggplot(df_plot, aes(x = Item, y = Correlation, fill = Group))
+    gg <- gg + scale_fill_manual(values = unique(group_color_vec))
+  }else{
+    df_plot$Item <- factor(df_plot$Item,
+                           levels = rev(unique(df_plot$Item)))
+    gg <- ggplot(df_plot, aes(x = Item, y = Correlation))
+  }
+  gg <- gg + geom_bar(stat = "identity", color = "black", position = "dodge")
+  gg <- gg + ylim(limits = c(-1, 1))
+  gg <- gg + facet_wrap(~ Signal, nrow = 1)
+  if(!is.null(xAxis_title)){
+    gg <- gg + labs(y = xAxis_title)
+  }
+  gg <- gg + theme(axis.text = element_text(size = 7),
+                   axis.title.x = element_text(size = 7),
+                   axis.title.y = element_blank(),
+                   legend.title = element_blank(),
+                   legend.text = element_text(size = 7),
+                   strip.text = element_text(size = 7))
+  gg <- gg + coord_equal()
+  gg <- gg + coord_flip()
+  gg
+  
+}
+
+#====================================================================
 prop_CSA <- c("Heat Tolerant\nBeans", "Coffee\nAgroforestry", "Digital\nAgriculture", "Low Emission\nSilvopastoral")
 econGrowth_CSA <- c(0.11, 0.38, 0.4, -0.35)
 econEquality_CSA <- c(0.7, 0.32, 0.71, 0.27)
@@ -1728,15 +1786,17 @@ sigNames <- c("GDP Growth", "Economic\nEquality", "Environmental\nSustainability
 n_signals <- length(sigNames)
 sigNames <- paste("Policy", 1:n_signals, "\n", sigNames)
 xAxis_title <- "Rotated Correlations"
-# plot_corrXS_barchart(mat_Lrot, group_info, xAxis_title, sigNames)
+# gg_bar <- plot_corrXS_barchart(mat_Lrot, group_info, xAxis_title, sigNames)
 # ggsave("Fig 6.tiff")
 #--------------------------------------------------------------
 alpha <- c(0.6, 0.65, 0.6, 0.75, 0.65, 0.6, 0.65, 0.8, 0.7, 0.75, 0.8)
-xTilde <- 100 * runif(nrow(Ptilde)) #exp(rnorm(nr))
+xTilde <- 100 * runif(nrow(df_x)) #exp(rnorm(nr))
 xTilde <- round(xTilde, 2)
+tStep <- 4 #T step per year
 TvecYrs <- c(18, 14, 8, 15, 12, 14, 10, 5, 4, 7, 12)
-TvecTstep <- TvecYrs * 4
-# projNames <- df_table$Project
+TvecTstep <- TvecYrs * tStep
+tFundCyc <- 3 * tStep # Say 3 year funding cycle
+projNames <- df_table$Project
 df_param <- data.frame(proj = projNames, alpha, xTilde,
                        Tyrs = TvecYrs, Tt = TvecTstep)
 df_param <- df_param %>% gather(var, val, alpha:Tt)
@@ -1747,20 +1807,24 @@ cNames <- c(expression(alpha),
             "Time horizon\n(Quarters)")
 gg <- ggplot(df_param, aes(x = var, y = proj,
                            label = val))
-gg <- gg + geom_tile()
+gg <- gg + geom_tile(alpha = 0)
 gg <- gg + scale_x_discrete("var", labels = cNames, position = "top")
 gg <- gg + geom_text(size = cellText_size)
 gg <- gg + theme_bw()
 gg <- gg + theme(axis.title = element_blank(),
                  axis.text.y = element_blank(),
-                 axis.title.x = element_text(size = axisText_size))
-gg
+                 axis.text.x = element_text(size = axisText_size),
+                 panel.grid = element_blank())
+gg_tab <- gg
 #--------------------------------------------------------------
+#gg_bar + gg_tab + plot_layout()
+#--------------------------------------------------------------
+```
 
 
+\ref{fig:wStarVecs}
 
-
-
+```{r, fig.show = "hold", fig.width = 5, fig.height=3, fig.align="center", fig.cap="\\label{fig:wStarVecs}Optimal budget allocations for each policy/risk tolerance level.", echo = FALSE}
 # D_sdX <- diag(10^2 * sdX_vec)
 #D_sdX <- diag(1/sdX_vec)
 # mat_Lrot <- as.matrix(df_Lrot[, c(2:5)])
@@ -1786,15 +1850,13 @@ gg
 #==============================================================
 #==============================================================
 #==============================================================
-#D_sdX <- diag(sdX_vec)
-cormat_XX_derived <- mat_Lrot %*% t(mat_Lrot)
-D_sdCorrect <- diag(1 / sqrt(diag(cormat_XX_derived)))
-cormat_XX_derived <- D_sdCorrect %*% cormat_XX_derived %*% D_sdCorrect
-colnames(cormat_XX_derived) <- row.names(mat_Lrot)
-# fig_title <- "Reverse engineered approximate AR4D project correlation matrix"
-# plot_covmat(cormat_XX_derived, fig_title, round_to = 2, graph_on = F)
-
-#cormat_XX_derived
+# #D_sdX <- diag(sdX_vec)
+# cormat_XX_derived <- mat_Lrot %*% t(mat_Lrot)
+# D_sdCorrect <- diag(1 / sqrt(diag(cormat_XX_derived)))
+# cormat_XX_derived <- D_sdCorrect %*% cormat_XX_derived %*% D_sdCorrect
+# colnames(cormat_XX_derived) <- row.names(mat_Lrot)
+# # fig_title <- "Reverse engineered approximate AR4D project correlation matrix"
+# # plot_covmat(cormat_XX_derived, fig_title, round_to = 2, graph_on = F)
 
 #eMatProj <- eigen(cormat_XX_derived)$vectors[, 1:n_signals]
 covmatSSderived <- t(mat_Lrot) %*% mat_Lrot
@@ -1802,83 +1864,121 @@ eValp <- eigen(covmatSSderived)$values
 eVecp <- eigen(covmatSSderived)$vectors
 L <- mat_Lrot %*% (eVecp)
 Ptilde <- L %*% diag(1 / sqrt(eValp))
-#----------------------
-yrs <- 5
-tStep <- 12 #T step per year
-Tt <- yrs * tStep
+#--------------------------------------------------------------------
 rYrly_discrete <- 0.08 #0.035
 r_discrete <- (1 + rYrly_discrete)^(1 / tStep) - 1
 # Convert discrete discount rate to continuous discount rate
 r <- round(log(1 + r_discrete), 3)
-#----------------------
+#--------------------------------------------------------------------
+# Single objective optimal budget allocation
 ind <- which(Ptilde < 0)
-Ptilde[ind] <- - exp(- r * Tt / 2) * Ptilde[ind]
-mat_woCstar <- (diag(cvVec) %*% Ptilde / xTilde)^(1 / alpha)
-#mat_woCstar <- mat_woCstar %*% diag(1 / colSums(mat_woCstar))
-#colSums(mat_woCstar)
+PtildeStar <- Ptilde
+PtildeStar[ind] <- - exp(- r * tFundCyc / 2) * PtildeStar[ind]
+mat_woCstar <- (diag(cvVec) %*% PtildeStar / xTilde)^(1 / alpha)
+mat_woCstar <- mat_woCstar %*% diag(1 / colSums(mat_woCstar))
+colSums(mat_woCstar)
 round(mat_woCstar, 3)
+#--------------------------------------------------------------------
+df_plot <- as.data.frame(mat_woCstar)
+colnames(df_plot) <- sigNames
+df_plot$Project <- projNames
+gathercols <- sigNames
+df_plot <- df_plot %>% gather_("Policy", "Budget share", gathercols)
+
+gg <- ggplot(df_plot, aes(x = Project, y = `Budget share`))
+gg <- gg + geom_bar(stat = "identity", color = "black", position = "dodge")
+gg <- gg + ylim(limits = c(-1, 1))
+gg <- gg + facet_wrap(~ Policy, nrow = 1)
+#gg <- gg + labs(y = xAxis_title)
+gg <- gg + theme(axis.text = element_text(size = 7),
+                   axis.title.x = element_text(size = 7),
+                   axis.title.y = element_blank(),
+                   legend.title = element_blank(),
+                   legend.text = element_text(size = 7),
+                   strip.text = element_text(size = 7))
+gg <- gg + coord_equal()
+gg <- gg + coord_flip()
+gg
+
+```
+
+
+
+
+
+\ref{fig:wStarVecMO}
+
+```{r, fig.show = "hold", fig.width = 5, fig.height=3, fig.align="center", fig.cap="\\label{fig:wStarVecMO}Multi-objective optimal budget allocations corresponding to each risk tolerance.", echo = FALSE}
+
+# Multi-objective optimal budget allocation
 matWgts <- eVecp[, 1]
 ind <- which(matWgts < 0)
-matWgts[ind] <- - exp(- r * Tt / 2) * matWgts[ind]
-woCstar <- mat_woCstar %*% matWgts
-sum(woCstar)
-#----------------------
-matWgts <- diag(eVecp[, 1])
-PtildeStar <- Ptilde %*% matWgts
-PtildeStar <- PtildeStar %*% matrix(1, ncol(PtildeStar), 1)
-ind <- which(PtildeStar < 0)
-PtildeStar[ind] <- - exp(- r * Tt / 2) * PtildeStar[ind]
-#----------------------
-woCstar <- (PtildeStar / xTilde)^(1 / alpha)
-woCstar <- woCstar / sum(woCstar)
-#colSums(matWoCstar)
+matWgts[ind] <- - exp(- r * tFundCyc / 2) * matWgts[ind]
+PtildeStarMO <- Ptilde %*% matWgts
+ind <- which(PtildeStarMO < 0)
+PtildeStarMO[ind] <- - exp(- r * tFundCyc / 2) * PtildeStarMO[ind]
+woCstarMO <- (diag(cvVec) %*% PtildeStarMO / xTilde)^(1 / alpha)
+woCstarMO <- woCstarMO / sum(woCstarMO)
 round(woCstar, 3)
-sum(woCstar)
+#--------------------------------------------------------------------
+
+
+# matWgts <- diag(eVecp[, 1])
+# PtildeStar <- Ptilde %*% matWgts
+# PtildeStar <- PtildeStar %*% matrix(1, ncol(PtildeStar), 1)
+# ind <- which(PtildeStar < 0)
+# PtildeStar[ind] <- - exp(- r * Tt / 2) * PtildeStar[ind]
+# #----------------------
+# woCstar <- (PtildeStar / xTilde)^(1 / alpha)
+# woCstar <- woCstar / sum(woCstar)
+# #colSums(matWoCstar)
+# round(woCstar, 3)
+# sum(woCstar)
 
 
 
 
-#=============================================================
-# Experiment
-nc <- 3
-nr <- 10
-randvec <- rnorm(nr * nc)
-#randvec <- runif(nr * nc)
-Lrot <- matrix(randvec, nr, nc)
-Lrot <- Lrot / max(abs(Lrot))
-Mp <- round(t(Lrot) %*% (Lrot), 4)
-eVecp <- eigen(Mp)$vectors
-eValp <- eigen(Mp)$values
-L <- Lrot %*% (eVecp)
-Ptilde <- L %*% diag(1 / sqrt(eValp))
-#----------------------
-yrs <- 5
-tStep <- 12 #T step per year
-Tt <- yrs * tStep
-rYrly_discrete <- 0.08 #0.035
-r_discrete <- (1 + rYrly_discrete)^(1 / tStep) - 1
-# Convert discrete discount rate to continuous discount rate
-r <- round(log(1 + r_discrete), 3)
-alpha <- runif(nr)
-xTilde <- 100 * runif(nr) #exp(rnorm(nr))
-#----------------------
-# ind <- which(Ptilde < 0)
-# Ptilde[ind] <- - exp(- r * Tt / 2) * Ptilde[ind]
-# woCstar <- (Ptilde / xTilde)^(1 / alpha)
-# woCstar <- woCstar %*% diag(1 / colSums(woCstar))
-# #colSums(woCstar)
+# #=============================================================
+# # Experiment
+# nc <- 3
+# nr <- 10
+# randvec <- rnorm(nr * nc)
+# #randvec <- runif(nr * nc)
+# Lrot <- matrix(randvec, nr, nc)
+# Lrot <- Lrot / max(abs(Lrot))
+# Mp <- round(t(Lrot) %*% (Lrot), 4)
+# eVecp <- eigen(Mp)$vectors
+# eValp <- eigen(Mp)$values
+# L <- Lrot %*% (eVecp)
+# Ptilde <- L %*% diag(1 / sqrt(eValp))
+# #----------------------
+# yrs <- 5
+# tStep <- 12 #T step per year
+# Tt <- yrs * tStep
+# rYrly_discrete <- 0.08 #0.035
+# r_discrete <- (1 + rYrly_discrete)^(1 / tStep) - 1
+# # Convert discrete discount rate to continuous discount rate
+# r <- round(log(1 + r_discrete), 3)
+# alpha <- runif(nr)
+# xTilde <- 100 * runif(nr) #exp(rnorm(nr))
+# #----------------------
+# # ind <- which(Ptilde < 0)
+# # Ptilde[ind] <- - exp(- r * Tt / 2) * Ptilde[ind]
+# # woCstar <- (Ptilde / xTilde)^(1 / alpha)
+# # woCstar <- woCstar %*% diag(1 / colSums(woCstar))
+# # #colSums(woCstar)
+# # round(woCstar, 2)
+# #----------------------
+# matWgts <- diag(eVecp[, 1])
+# PtildeStar <- Ptilde %*% matWgts
+# PtildeStar <- PtildeStar %*% matrix(1, nc, 1)
+# ind <- which(PtildeStar < 0)
+# PtildeStar[ind] <- - exp(- r * Tt / 2) * PtildeStar[ind]
+# #----------------------
+# woCstar <- (PtildeStar / xTilde)^(1 / alpha)
+# woCstar <- woCstar / sum(woCstar)
+# #colSums(matWoCstar)
 # round(woCstar, 2)
-#----------------------
-matWgts <- diag(eVecp[, 1])
-PtildeStar <- Ptilde %*% matWgts
-PtildeStar <- PtildeStar %*% matrix(1, nc, 1)
-ind <- which(PtildeStar < 0)
-PtildeStar[ind] <- - exp(- r * Tt / 2) * PtildeStar[ind]
-#----------------------
-woCstar <- (PtildeStar / xTilde)^(1 / alpha)
-woCstar <- woCstar / sum(woCstar)
-#colSums(matWoCstar)
-round(woCstar, 2)
 
 
 
@@ -1894,25 +1994,25 @@ round(woCstar, 2)
 
 
 
-mat_Lrot <- varimax(mat_L)[[1]]
-mat_Lrot <- matrix(as.numeric(mat_Lrot),
-                   attributes(mat_Lrot)$dim,
-                   dimnames = attributes(mat_Lrot)$dimnames)
-mat_R <- varimax(mat_L)[[2]]
-mat_R <- matrix(as.numeric(mat_R),
-                attributes(mat_R)$dim,
-                dimnames = attributes(mat_R)$dimnames)
-
-#=============================================================
-
-# ggsave("Fig 7.tiff")
-
-# ```{r, fig.show = 'hold', fig.width = 6, fig.height = 4, fig.align = "left", fig.cap = "\\label{fig:cormatProps}Approximate AR4D project correlation matrix calculated from the crowdsourced policy-project correlations."}
-
-
-# **Fig 7. Approximate AR4D project correlation matrix** calculated from the crowdsourced policy-project correlations.
+# mat_Lrot <- varimax(mat_L)[[1]]
+# mat_Lrot <- matrix(as.numeric(mat_Lrot),
+#                    attributes(mat_Lrot)$dim,
+#                    dimnames = attributes(mat_Lrot)$dimnames)
+# mat_R <- varimax(mat_L)[[2]]
+# mat_R <- matrix(as.numeric(mat_R),
+#                 attributes(mat_R)$dim,
+#                 dimnames = attributes(mat_R)$dimnames)
 # 
-# &nbsp;
+# #=============================================================
+# 
+# # ggsave("Fig 7.tiff")
+# 
+# # ```{r, fig.show = 'hold', fig.width = 6, fig.height = 4, fig.align = "left", fig.cap = "\\label{fig:cormatProps}Approximate AR4D project correlation matrix calculated from the crowdsourced policy-project correlations."}
+# 
+# 
+# # **Fig 7. Approximate AR4D project correlation matrix** calculated from the crowdsourced policy-project correlations.
+# # 
+# # &nbsp;
 
 
 ```
