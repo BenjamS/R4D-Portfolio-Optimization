@@ -270,7 +270,7 @@ By definition, project NPV appreciates over time at the quarterly discount rate 
 Given the assumption that program NPV follows a geometric Brownian movement, and assuming that program NPVs are accurately calculated, the expected value of the $k^{th}$ program NPV at the end of the funding cycle ($x_k(T)$) is
 
 \begin{equation}
-E[x_k(T)]\bigr|_{t = \hat{t}} = x_k(\hat{t}) e^{r \tau}
+E[x_k(T)]\bigr|_{t = \hat{t}} = x_k(\hat{t}) e^{r \tau_k}
 \label{eq:ExTraw}
 \end{equation}
 
@@ -377,7 +377,7 @@ And $\alpha_k$ lies between $0$ and $1$, reflecting marginally diminishing retur
 Substituting this into equation \ref{eq:ExTraw}, program NPV at the start of the funding cycle can now be rewritten as a function of funding level.
 
 \begin{equation}
-\mu_k(0) = \tilde{x}_k(0) \left( \frac{w_k}{C} \right)^{\alpha_k} e^{r T}
+\mu_k(0) = \tilde{x}_k(0) \left( \frac{w_k}{C} \right)^{\alpha_k} e^{r T_k}
 \label{eq:muFnw}
 \end{equation}
 <!-- ... -->
@@ -396,9 +396,9 @@ Substituting this into equation \ref{eq:ExTraw}, program NPV at the start of the
 
 It is all very well to theorize and deduce formal expressions, but how are these things to be estimated in practice? In the financial context, means, variances, and covariances can be estimated from time series data in a straightforward manner. As mentioned earlier, however, no analogous data exists in the AR4D context.
 
-Program NPV ($\tilde{x}_k(0)$) can be estimated at the start of the funding cycle based on ex-ante impact assessment. Given values for $\alpha_k$, $r$, $T$, and $C$, it is then possible to calculate $\mu_k(0)$. Estimation of the program NPV coefficients of variation $c_k$ and covariation $c_{kj}$ depends upon estimation of program NPV variances $\sigma_k^2$ and covariances $\sigma_{kj}$, which in turn hinges upon estimation of the logged program NPV variances $s_k^2 \tau$ and covariances $s_{kj} \tau$
+Program NPV ($\tilde{x}_k(0)$) can be estimated at the start of the funding cycle based on ex-ante impact assessment. Given values for $\alpha_k$, $r$, $T_k$, and $C$, it is then possible to calculate $\mu_k(0)$. Estimation of the program NPV coefficients of variation $c_k$ and covariation $c_{kj}$ depends upon estimation of program NPV variances $\sigma_k^2$ and covariances $\sigma_{kj}$, which in turn hinges upon estimation of the logged program NPV variances $s_k^2 \tau_k$ and covariances $s_{kj} \tau_k$
 
-While it may be difficult to develop an intuitive grasp of the value of $s_k$, research managers (and/or stakeholders and/or the foresight economists conducting the program appraisal) generally have some idea of the uncertainty surrounding NPV estimates, such that they can be asked to quantify minimum and maximum bounds on the NPV. For example, they can say that NPV is $\tilde{x}(0)$, but that it might be six times that amount, or half that amount. (Or they may give the same information in terms of magnitude, which is then easily transformed into percentage terms.)
+While it may be difficult to develop an intuitive grasp of the value of $s_k$, research managers (and/or stakeholders and/or the foresight economists conducting the program appraisal) generally have some idea of the uncertainty surrounding NPV estimates, such that they can be asked to quantify minimum and maximum bounds on the NPV. For example, they can say that NPV is $\tilde{x}_k(0)$, but that it might be three times that amount, or half that amount. (Or they may give the same information in terms of magnitude, which is then easily transformed into percentage terms.)
 
 These upper and lower percentage errors may then be interpreted as the upper and lower bounds on the $95\%$ confidence interval about the expected percentage change in project NPV between the start and end of the project. Another phrase for "percentage change" is "arithmetic return" (call this $\mathscr{R}_k$), which may then be converted to a log return ($\ell_k = \ln(x_k(T) / x_k(\hat{t}))$) by the formula $\ell_k = \ln(\mathscr{R}_k + 1)$. Now, since $\tilde{x}_k(t)$ is assumed to follow a geometric Brownian motion, the log return may also be expressed
 
@@ -430,7 +430,7 @@ Where $z = 1.96$ is the standard score corresponding to the $95\%$ confidence in
 s_k = \frac{1}{2 \sqrt{\tau_k} z} (\bar{\ell}_k - \underline{\ell}_k)
 \end{equation}
 
-Given $s_k$ and $\mu_k$, it is then straightforward to compute the variances $\sigma_k^2$ and coefficients of covariation $c_k$.
+Given $s_k$ and $\mu_k$, it is then straightforward to compute the variances $\sigma_k^2$ and coefficients of variation $c_k$.
 
 An approximate project correlation matrix $\tilde{K}_{x, x}$ can be deduced from expert opinion using a method I develop elsewhere [-@]. The approximate covariance matrix $\tilde{\Sigma}_{x,x}$  and coefficient of covariation matrix $\tilde{G}_{x,x}$ can then be constructed as follows.
 
@@ -1874,10 +1874,10 @@ r <- round(log(1 + r_discrete), 3)
 ind <- which(Ptilde < 0)
 PtildeStar <- Ptilde
 PtildeStar[ind] <- - exp(- r * tFundCyc / 2) * PtildeStar[ind]
-mat_woCstar <- (diag(cvVec) %*% PtildeStar / xTilde)^(1 / alpha)
+mat_woCstar <- (diag(exp(-r * TvecTstep)) %*% PtildeStar / xTilde)^(1 / alpha)
 mat_woCstar <- mat_woCstar %*% diag(1 / colSums(mat_woCstar))
 colSums(mat_woCstar)
-round(mat_woCstar, 3)
+round(mat_woCstar, 4)
 #--------------------------------------------------------------------
 df_plot <- as.data.frame(mat_woCstar)
 colnames(df_plot) <- sigNames
