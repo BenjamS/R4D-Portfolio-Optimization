@@ -432,7 +432,7 @@ s_k = \frac{1}{2 \sqrt{\tau_k} z} (\bar{\ell}_k - \underline{\ell}_k)
 
 Given $s_k$ and $\mu_k$, it is then straightforward to compute the variances $\sigma_k^2$ and coefficients of variation $c_k$.
 
-An approximate project correlation matrix $\tilde{K}_{x, x}$ can be deduced from expert opinion using a method I develop elsewhere [-@]. The approximate covariance matrix $\tilde{\Sigma}_{x,x}$  and coefficient of covariation matrix $\tilde{G}_{x,x}$ can then be constructed as follows.
+An approximate project correlation matrix $\tilde{K}_{x, x}$ can be deduced from expert opinion using a method developed by Schiek [-@]. The approximate covariance matrix $\tilde{\Sigma}_{x,x}$  and coefficient of covariation matrix $\tilde{G}_{x,x}$ can then be constructed as follows.
 
 \begin{equation}
 \tilde{\Sigma}_{x,x} = D(\boldsymbol{\sigma}) \tilde{K}_{x,x} D(\boldsymbol{\sigma})
@@ -1247,7 +1247,7 @@ Pre-multiplying the correlations by an orthonormal (typically varimax) rotation 
 
 \begin{equation}
 K_{X, S}^{\circlearrowright} = B \tilde{P} \tilde{\Gamma}^{\frac{1}{2}}
-\label{eq:rotL}
+\label{eq:Lrot}
 \end{equation}
 
 In the AR4D context, this may be interpreted as the matrix of correlations between projects and policies, and elicited from expert opinion as such [@schiek2021reverse]. This matrix will become very useful in the next section.
@@ -1284,10 +1284,14 @@ Where $\mathcal{E}^p$ and $\sigma^p$ are the policy vis viva and risk, defined a
 \end{split}
 \end{equation}
 
-Where $G_{S,S}$ is the policy coefficient of covariation matrix, which can be deduced from the policy NPV covariance matrix $\Sigma_{S,S}$, which in turn is obtained as the inner product of the project-policy correlation matrix (Eq \ref{eq:Lrot}) with itself (see Schiek [-@schiek2021reverse] for details).
+Where $G_{S,S}$ is the policy coefficient of covariation matrix, which can be deduced from the policy NPV covariance matrix $\Sigma_{S,S}$, which in turn is obtained as the inner product of the crowdsourced project-policy correlation matrix (Eq \ref{eq:Lrot}) with itself (see Schiek [-@schiek2021reverse] for details).
 
 \begin{equation}
-\Sigma_{S,S} = K_{X, S}^{\circlearrowright} ' K_{X, S}^{\circlearrowright}
+\begin{split}
+K_{X, S}^{\circlearrowright} ' K_{X, S}^{\circlearrowright} &= B \tilde{\Gamma} B ' \\
+&= \Sigma_{S,S}
+\end{split}
+\label{eq:SigSSeig}
 \end{equation}
 <!-- , and where the control variables $\boldsymbol{\mu}^p$ are the expected policy NPVs, whose elements are defined -->
 <!-- \begin{equation} -->
@@ -1330,17 +1334,9 @@ And the first order conditions then follow as
 <!-- \boldsymbol{\beta} - \frac{\lambda^S}{r^2 \sigma^S} G_{S, S} \boldsymbol{\beta} = \mathbf{0} -->
 <!-- \end{equation} -->
 
-The candidate solution $\boldsymbol{\beta}^*$ may thus be any of the eigenvectors of $G_{S, S}$, with corresponding policy risk shadow price ($\lambda^p$) given in terms of the respective eigenvalue. The eigenvectors and eigenvalues of $G_{S, S}$ may be deduced from the crowdsourced matrix $K_{X, S}^{\circlearrowright}$ as follows.
+The candidate solution $\boldsymbol{\beta}^*$ may thus be any of the eigenvectors of $G_{S, S}$, with corresponding policy risk shadow price ($\lambda^p$) given in terms of the respective eigenvalue. Note from equation \ref{eq:SigSSeig} that the matrix of eigenvectors of $\Sigma_{S,S}$ is just the orthonormal rotation matrix $B$ that is applied to clarify project-policy correlations; and the respective eigenvalues are just the $m$ leading eigenvalues of the project correlation matrix $K_{x, x}$ (or coefficient of covariation matrix $G_{x, x}$). (See Schiek [-@schiek2021reverse] for details.)
 
-First, recall from section ... that the policy covariance matrix $\Sigma_{S, S}$ can be obtained as the inner product $K_{X, S}^{\circlearrowright} {'} K_{X, S}^{\circlearrowright}$. Moreover, note that the eigendecomposition of $\Sigma_{S, S}^{\circlearrowright}$ works out to
-
-\begin{equation}
-\Sigma_{S, S}^{\circlearrowright} = B \tilde{\Gamma} B '
-\end{equation}
-
-That is to say, the matrix of eigenvectors of $\Sigma_{S, S}^{\circlearrowright}$ is just the orthonormal rotation matrix $B$ that is applied to clarify program-policy correlations (recall equation \ref{eq:rotL}); and the respective eigenvalues are just the $m$ leading eigenvalues of the program cross coefficient of variation matrix $G_{x, x}$ (or project correlation matrix $K_{x, x}$). (See Schiek [-@schiek2021reverse] for details.)
-
-Since $G_{S, S} = D(\boldsymbol{\beta})^{-1} \Sigma_{S, S} D(\boldsymbol{\beta})^{-1}$ by definition, it follows that the eigenvalues of $G_{S, S}$ are likewise $\tilde{\Gamma}$. Combining this information with the first order conditions (equation \ref{eq:focS}), it follows that $\sigma_j^{p*} = \sqrt{\gamma_j} = \sigma_j^*$, and
+By definition, $G_{S, S} = D(\boldsymbol{\beta})^{-1} \Sigma_{S, S} D(\boldsymbol{\beta})^{-1}$; and so it follows that the eigenvalues of $G_{S, S}$ are likewise $\tilde{\Gamma}$. Combining this information with the first order conditions (equation \ref{eq:focS}), it follows that $\sigma_j^{p*} = \sqrt{\gamma_j} = \sigma_j^*$, and
 
 \begin{equation}
 \begin{split}
@@ -1350,9 +1346,9 @@ Since $G_{S, S} = D(\boldsymbol{\beta})^{-1} \Sigma_{S, S} D(\boldsymbol{\beta})
 \end{split}
 \end{equation}
 
-That is, the optimal policy portfolio risk and risk shadow price are equal to the optimal program portfolio risk and risk shadow price.
+That is, the optimal policy portfolio risk and risk shadow price are equal to the optimal project portfolio risk and risk shadow price.
 
-Moreover, the eigenvectors of $G_{S, S}$ and \Sigma_{S, S}^{\circlearrowright} are trivially related as follows. Letting $\boldsymbol{\varepsilon}_j$ and $\mathbf{b}_j$ stand for the $j^{th}$ eigenvectors of $G_{S, S}$ and $\Sigma_{S, S}^{\circlearrowright}$, respectively,
+Moreover, the eigenvectors of $G_{S, S}$ and $\Sigma_{S, S}$ are trivially related as follows. Letting $\boldsymbol{\varepsilon}_j$ and $\mathbf{b}_j$ stand for the $j^{th}$ eigenvectors of $G_{S, S}$ and $\Sigma_{S, S}^{\circlearrowright}$, respectively,
 
 \begin{equation}
 \boldsymbol{\varepsilon}_j = D(\boldsymbol{\beta})^{-1} \mathbf{b}_j
@@ -1370,11 +1366,20 @@ The $\ell^{th}$ candidate policy budget allocation $\boldsymbol{\beta}_{\ell}^*$
 \boldsymbol{\beta}_{\ell}^* = \mathbf{b}_{\ell}^{\frac{1}{2}} \:\:;\:\:\: \ell \in (1, m)
 \end{equation}
 
-To avoid complex valued elements in $\boldsymbol{\beta}_j$, recall that negative elements in $\mathbf{b}_j$ can be made positive by adjusting the program time horizon, as explained in section \ref{sec:cycReal}.
-
 Deduction of the second order condition for a maximum follows the same procedure as in the project level problem (section \ref{sec:soc}), and results in an analogous conclusion: the investor is presented not with a single optimal linear combination, but with an optimal menu of linear combinations, each corresponding to a particular portfolio risk tolerance (\sqrt{\gamma_{\ell}}). The investor should choose the solution $\boldsymbol{\beta}_{\ell}^*$ with the risk shadow price $\lambda_{\ell}$ that best matches their risk tolerance.
 
-With the optimal policy weights ($\boldsymbol{\beta}_{\ell}^*$) in hand, the optimal multi-objective project NPV vector $\boldsymbol{\mu}_{\ell}^*$ follows as the optimal linear combination of the optimal project NPV menu.
+With the optimal policy weights ($\boldsymbol{\beta}_{\ell}^*$) in hand, the optimal multi-objective impact $\mathcal{E}_{\ell}^{p*}$ then follows as
+
+\begin{equation}
+\begin{split}
+\mathcal{E}_{\ell}^{p*} &= \frac{r^2}{2} \boldsymbol{\beta}_{\ell}^* ' \boldsymbol{\beta}_{\ell}^* \\
+&= \mathbf{b}_{\ell}^{\frac{1}{2}} ' \mathbf{b}_{\ell}^{\frac{1}{2}}
+\end{split}
+\end{equation}
+<!-- &= \frac{r^2}{2} \boldsymbol{\mu}_{\ell}^* ' \boldsymbol{\mu}_{\ell}^* \\ -->
+<!-- &= \frac{r^2}{2} \boldsymbol{\beta}_{\ell}^* Q ' Q \boldsymbol{\beta}_{\ell}^* \\ -->
+
+The optimal multi-objective project NPV vector $\boldsymbol{\mu}_{\ell}^*$ follows as the optimal linear combination of the optimal project NPV menu.
 
 \begin{equation}
 \begin{split}
@@ -1384,23 +1389,14 @@ With the optimal policy weights ($\boldsymbol{\beta}_{\ell}^*$) in hand, the opt
 \end{split}
 \end{equation}
 
-The optimal multi-objective impact $\mathcal{E}_{\ell}^{p*}$ then follows as
-
-\begin{equation}
-\begin{split}
-\mathcal{E}_{\ell}^{p*} &= \frac{r^2}{2} \boldsymbol{\mu}_{\ell}^* ' \boldsymbol{\mu}_{\ell}^* \\
-&= \frac{r^2}{2} \boldsymbol{\beta}_{\ell}^* Q ' Q \boldsymbol{\beta}_{\ell}^* \\
-&= \frac{r^2}{2} \boldsymbol{\beta}_{\ell}^* ' \boldsymbol{\beta}_{\ell}^*
-\end{split}
-\end{equation}
-
 And the optimal multi-objective budget allocation is
 
 \begin{equation}
-\mathbf{w}_{\ell}^* = \Sigma_{j = 1}^m (D(\tilde{\mathbf{x}}(0))^{-1} \beta_{j \ell}^* \mathbf{q}_j e^{-r T_k})^{\frac{1}{\boldsymbol{\alpha}}}
+\mathbf{w}_{\ell}^* = C (D(\tilde{\mathbf{x}}(0))^{-1} D(e^{-r \mathbf{T}}) \beta_{j \ell}^* \boldsymbol{\mu}_{\ell}^* )^{\frac{1}{\boldsymbol{\alpha}}}
 \label{eq:wStarPolicy}
 \end{equation}
 
+<!-- To avoid complex valued elements in $\boldsymbol{\beta}_{\ell}^*$, recall that negative elements in $\mathbf{b}_j$ can be made positive by adjusting the program time horizon, as explained in section \ref{sec:cycReal}. -->
 To enforce the budget constraint...scale to enforce budget constraint but know this scales risk too
 
 
@@ -1509,6 +1505,7 @@ where $m$ is the number of leading eigenvectors sufficient to explain $90\%$ of 
 
 Following the method explained in section ..., these correlations are interpreted as the leading, orthonormally rotated loadings $L_{\circlearrowleft}$ explaining $90\%$ of variation in the program NPV time series. The spectrally reduced correlation matrix can be calculated as the outer product $\tilde{K} = L_{\circlearrowleft} L_{\circlearrowleft}'$. The leading eigenvectors of this matrix $\tilde{P}$ 
 
+The matrix of leading eigenvectors of the project correlation matrix $\tilde{P}$ is deduced from equation ... Schiek [-@].
 
 The strategic objective covariance matrix can be calculated as the inner product $\Sigma_{SS}^{\circlearrowleft} = L_{\circlearrowleft} ' L_{\circlearrowleft}$. This, in turn, has the eigendecompsition $\Sigma_{SS}^{\circlearrowleft} = B \tilde{\Gamma} B'$, where $B$ is the orthonormal rotation matrix. The eigenvectors of $\tilde{K}$ can then be  can thus be deduced from the elicited information $L_{\circlearrowleft}$.
 
@@ -1612,19 +1609,16 @@ colnames(df_table)[1] <- "Project"
 
 df_table$Project <- gsub("\n", " ", df_table$Project)
 df_table$Group <- gsub("\n", " ", df_table$Group)
-#===============================================================
-#sigSq = \mu_k^2 (e^{s_k^2 \tau} - 1)
-cvVec <- runif(nrow(df_table))
-#==========================================================================
-#==========================================================================
+#========================================================================
+#========================================================================
 # Have to turn off table to fit PLOS ONE submission guidelines? Otherwise, turn back on.
 # kable(df_table,
 #       format = "pandoc",
 #       caption = "**Hypothetical list of AR4D projects**\\label{tab:exampLoadings}") %>%
 #   kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive"))
-#==========================================================================
-#==========================================================================
-#==========================================================================
+#========================================================================
+#========================================================================
+#========================================================================
 group_names <- as.character(unique(df_Lrot$Group))
 n_groups <- length(group_names)
 bag_of_colors <- randomcoloR::distinctColorPalette(k = 2 * n_groups)
@@ -1688,22 +1682,39 @@ xAxis_title <- "Rotated Correlations"
 # gg_bar <- plot_corrXS_barchart(mat_Lrot, group_info, xAxis_title, sigNames)
 # ggsave("Fig 6.tiff")
 #--------------------------------------------------------------
+# Project params
 alpha <- c(0.6, 0.65, 0.6, 0.75, 0.65, 0.6, 0.65, 0.8, 0.7, 0.75, 0.8)
 xTilde <- 100 * runif(nrow(df_x)) #exp(rnorm(nr))
-xTilde <- round(xTilde, 2)
+xTilde <- round(xTilde, 4)
 tStep <- 4 #T step per year
 TvecYrs <- c(18, 14, 8, 15, 12, 14, 10, 5, 4, 7, 12)
 TvecTstep <- TvecYrs * tStep
 tFundCyc <- 3 * tStep # Say 3 year funding cycle
+#-----
+# Deduce project risk
+# Arithmetic return upper and lower bounds (95% conf interval)
+nProj <- nrow(df_table)
+yMaxA <- exp(rnorm(nProj, 0.25, 0.75))
+yMinA <- -runif(nProj)
+# Convert to log return upper and lower bounds
+yMax <- round(log(1 + yMaxA), 2)
+yMin <- round(log(1 + yMinA), 2)
+# Deduce s
+zBound <- 1.96
+sVec <- (yMax - yMin) / (2 * zBound * sqrt(TvecTstep))
+sVec <- round(sVec, 3)
+cvVec <- sqrt(exp(sVec^2 * TvecTstep) - 1)
+#-----
 projNames <- df_table$Project
 df_param <- data.frame(proj = projNames, alpha, xTilde,
-                       Tyrs = TvecYrs, Tt = TvecTstep)
+                       Tyrs = TvecYrs, Tt = TvecTstep, c = cvVec)
 df_param <- df_param %>% gather(var, val, alpha:Tt)
 #df_param$val <- factor(df_param$val)
 cNames <- c(expression(alpha),
             expression(tilde(x)),
             "Time horizon\n(Years)",
-            "Time horizon\n(Quarters)")
+            "Time horizon\n(Quarters)",
+            "Coef. of variation")
 gg <- ggplot(df_param, aes(x = var, y = proj,
                            label = val))
 gg <- gg + geom_tile(alpha = 0)
@@ -1720,6 +1731,7 @@ gg_tab <- gg
 #--------------------------------------------------------------
 
 ```
+
 
 
 \ref{fig:wStarVecs}
@@ -1757,9 +1769,13 @@ gg_tab <- gg
 # colnames(cormat_XX_derived) <- row.names(mat_Lrot)
 # # fig_title <- "Reverse engineered approximate AR4D project correlation matrix"
 # # plot_covmat(cormat_XX_derived, fig_title, round_to = 2, graph_on = F)
-
 #eMatProj <- eigen(cormat_XX_derived)$vectors[, 1:n_signals]
+# cormatXXtilde <- mat_Lrot %*% t(mat_Lrot)
+# cormatXXtilde <- diag(1 / sqrt(diag(cormatXXtilde))) %*% cormatXXtilde %*% diag(1 / sqrt(diag(cormatXXtilde)))
+# eValP <- eigen(cormatXXtilde)$values
+# eVecp <- eigen(cormatSSderived)$vectors
 covmatSSderived <- t(mat_Lrot) %*% mat_Lrot
+diag((mat_Lrot) %*% t(mat_Lrot))
 eValp <- eigen(covmatSSderived)$values
 eVecp <- eigen(covmatSSderived)$vectors
 L <- mat_Lrot %*% (eVecp)
@@ -1774,7 +1790,8 @@ r <- round(log(1 + r_discrete), 3)
 ind <- which(Ptilde < 0)
 PtildeStar <- Ptilde
 PtildeStar[ind] <- - exp(- r * tFundCyc / 2) * PtildeStar[ind]
-mat_woCstar <- (diag(exp(-r * TvecTstep)) %*% PtildeStar / xTilde)^(1 / alpha)
+QtildeStar <- diag(cvVec) %*% PtildeStar
+mat_woCstar <- (diag(exp(-r * TvecTstep)) %*% diag(1 / xTilde) %*% QtildeStar)^(1 / alpha)
 mat_woCstar <- mat_woCstar %*% diag(1 / colSums(mat_woCstar))
 colSums(mat_woCstar)
 round(mat_woCstar, 4)
@@ -1811,15 +1828,17 @@ gg
 ```{r, fig.show = "hold", fig.width = 5, fig.height=3, fig.align="center", fig.cap="\\label{fig:wStarVecMO}Multi-objective optimal budget allocations corresponding to each risk tolerance.", echo = FALSE}
 
 # Multi-objective optimal budget allocation
-matWgts <- eVecp[, 1]
-ind <- which(matWgts < 0)
-matWgts[ind] <- - exp(- r * tFundCyc / 2) * matWgts[ind]
+matWgtsSq <- eVecp[, 1]
+ind <- which(matWgtsSq < 0)
+matWgtsSq[ind] <- - exp(- r * tFundCyc / 2) * matWgtsSq[ind]
+matWgts <- sqrt(matWgtsSq)
 PtildeStarMO <- Ptilde %*% matWgts
 ind <- which(PtildeStarMO < 0)
 PtildeStarMO[ind] <- - exp(- r * tFundCyc / 2) * PtildeStarMO[ind]
-woCstarMO <- (diag(cvVec) %*% PtildeStarMO / xTilde)^(1 / alpha)
+QTildeStarMO <- diag(cvVec) %*% PtildeStarMO
+woCstarMO <- (diag(exp(-r * TvecTstep)) %*%  diag(1 / xTilde) %*% QTildeStarMO)^(1 / alpha)
 woCstarMO <- woCstarMO / sum(woCstarMO)
-round(woCstar, 3)
+round(woCstar, 4)
 #--------------------------------------------------------------------
 
 
