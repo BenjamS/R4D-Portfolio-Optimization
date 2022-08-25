@@ -703,7 +703,7 @@ The project funding cycle may be broadly defined as the process by which value i
 
 ## Project time horizons are measured in terms of funding cycles
 
-The duration of a funding cycle is thus, by definition, the time elapsed between the disbursement of funds and the transformation of those funds into the realization of an agreed upon, tangible set of project impacts or "deliverables". Projects are usually designed so that this transformation occurs in a specific period of time. Let $T$ stand for the duration of the funding cycle expressed in terms of the judiciously chosen time step $\Delta t$. A typical AR4D funding cycle currently lasts 1-5 years. For the sake of argument, say it is 3 years. If the judicious time step $\Delta t$ is defined as an annual quarter, then, $T = 12$, in this case.
+The duration of a funding cycle is thus, by definition, the time elapsed between the disbursement of funds and the transformation of those funds into the realization of an agreed upon, tangible set of project impacts or "deliverables". Projects are usually designed so that this transformation occurs in a specific period of time. Let $T$ stand for the duration of the funding cycle expressed in terms of the judiciously chosen time step $\Delta t$. A typical AR4D funding cycle currently lasts 1-5 years. For the sake of argument, say it is 3 years. If the judicious time step $\Delta t$ is defined as an annual quarter, then, $T = 4$, in this case.
 
 Assuming that projects cannot begin or end in the middle of a funding cycle, it follows that AR4D project time horizons must be measured as a positive integer multiple of $T$. That is, $T_k = T\nu_k \;;\;\; \nu_k \in \mathbb{Z}^+$.
 
@@ -748,7 +748,7 @@ Extension to all angles $\theta \in (0, 2 \kappa \pi)$ in the complex plane then
 \end{equation}
 <!-- [graphic? $\mu_k(\hat{\theta}) / x_k(\hat{\theta})$ decay---ratio of E[x(T)]|_t / x(t)] -->
 
-## Negative expected NPV and phase corrected budget allocation
+## Negative or complex valued project NPVs and phase corrections
 
 This extension of expected project NPV to the complex plane encompasses the sunk cost point occurring halfway through the funding cycle ($\theta = (2 \kappa - 1) \pi$), when the investment is real valued, but negative.
 
@@ -763,67 +763,91 @@ By definition, the funding cycle begins and ends on a positive real value. A pro
 
 \begin{equation}
 \begin{split}
-\mu_k(0) &= -x_k(0) e^{2 \nu_k \pi \omega} \\
-&= x_k(0) e^{2 \nu_k \pi \omega \pm i \pi}
+\mu_k(0) &= -x_k(0) e^{T_k (\omega + i)} \;\;\;;\;\; T_k = 2 \pi \nu_k \\
+&= x_k(0) e^{T_k (\omega + i) \pm i \pi}
 \end{split}
 \end{equation}
 
-To bring the project into phase with the funding cycle, the time horizon can be extended or shortened by half a funding cycle, i.e. by $\pi$.
+In other words, a negative valued $\mu_k(0)$ is out of phase with the funding cycle by one half cycle. More generally,
+
+\begin{equation}
+\mu_k(0) = x_k(0) e^{T_k (\omega + i) \pm i \rho_k \pi}
+\end{equation}
+
+Where $0 \leq \rho_k \leq 1$, such that the project is in phase with the funding cycle if $\rho_k = 0$, and is otherwise out of phase by a fraction $\rho_k / 2$ of the cycle.
+
+It follows that projects with $\rho_k > 0$ can be brought into phase by extending or shortening the time horizon by $\rho_k \pi$ of a cycle. To see this, replace $T_k$ with $T_k \mp \rho_k \pi$.
 
 \begin{equation}
 \begin{split}
-\mu_k(0) &= -x_k(0) e^{(2 \nu_k \pi \pm \pi) (\omega + i)} \\
-&= -x_k(0) e^{(2 \nu_k \pi \pm \pi) \omega} e^{(2 \nu_k \pm 1) i \pi} \\
-&= -x_k(0) e^{(2 \nu_k \pi \pm \pi) \omega} (-1)^{2 \nu_k \pm 1} \\
-&= x_k(0) e^{2 \pi \omega \left(\nu_k \pm \frac{1}{2} \right) \omega}
-\end{split}
+\mu_k(0) &= x_k(0) e^{(T_k \mp \rho_k \pi) (\omega + i) \pm i \rho_k \pi} \\
+&= x_k(0) e^{2 \pi \left(\nu_k \mp \frac{1}{2} \rho_k \right) (\omega + i) \pm i \rho_k \pi} \\
+&= x_k(0) e^{2 \pi \omega \left(\nu_k \mp \frac{1}{2} \rho_k \right)} e^{2 \pi i \left(\nu_k \mp \frac{1}{2} \rho_k \right) \pm i \rho_k \pi} \\
+&= x_k(0) e^{2 \pi \omega \left(\nu_k \mp \frac{1}{2} \rho_k \right)} e^{2 \pi i \nu_k} e^{\mp \rho_k \pi i \pm \rho_k \pi i} \\
+&= x_k(0) e^{2 \pi \omega \left(\nu_k \mp \frac{1}{2} \rho_k \right)}
 \end{equation}
 
-In fact, adjustment by any odd integer multiple of $\pi$ will bring the project into phase.
+To ensure that starting expected NPV is always in phase with the funding cycle, and thus real valued and positive, the time horizon is henceforth redefined
 
 \begin{equation}
-\begin{split}
-\mu_k(0) &= -x_k(0) e^{(2 \nu_k \pi \pm (2 \kappa - 1) \pi) (\omega + i)} \\
-&= -x_k(0) e^{2 \pi \omega \left(\nu_k \pm \kappa - \frac{1}{2} \right)} e^{(2 (\nu_k \pm \kappa) - 1) i \pi} \\
-&= -x_k(0) e^{2 \pi \omega \left(\nu_k \pm \kappa - \frac{1}{2} \right)} (-1)^{2 (\nu_k \pm \kappa) - 1} \\
-&= x_k(0) e^{2 \pi \omega \left(\nu_k \pm \kappa - \frac{1}{2} \right)}
-\end{split}
-\end{equation}
-
-This suggests the introduction of an automatic phase correction parameter $\kappa_k$ in the definition of the time horizon $T_k$.
-
-\begin{equation}
-T_k = T \left(\nu_k + \kappa_k - \frac{1}{2} \right)
+T_k = 2 \pi \left(\nu_k \mp \frac{1}{2} \rho_k \right)
 \label{eq:Tk}
 \end{equation}
 
-Or, in the complex plane,
-
-\begin{equation}
-T_k = 2 \pi \left(\nu_k + \kappa_k - \frac{1}{2} \right)
-\label{eq:Tk}
-\end{equation}
-
-Where
-
-\begin{equation}
-\kappa_k =
-\begin{cases}
-\frac{1}{2}, & \text{if $\mu_k(0) > 0$} \\
-0 \text{or } 1, & \text{if $\mu_k(0) < 0$}
-\end{cases}
-\end{equation}
-
-In this modified definition of the time horizon, a half cycle phase correction is automatically triggered if expected project NPV is negative at the start of the funding cycle. The phase correction amounts to a half cycle extension or contraction of the project time horizon. The decision of whether to extend or contract the horizon is made by the investor and/or research project managers. If extending, then $\kappa_k$ is set to $1$. If contracting, then $\kappa_k = 0$. Either way, this horizon adjustment brings the project into phase with the funding cycle, such that $\mu_k(0) > 0$. If expected project NPV is positive to begin with (and thus already in phase), then $\kappa_k$ defaults to $1 / 2$, such that no phase adjustment is made.
-
-Phase correction is particularly useful to avoid complex valued budget allocations. An expression for the project budget allocation is obtained by solving Eq \ref{eq:muFnwComp} for $w_k$ at $\theta = 0$.
+Such that a phase corecting time horizon adjustment is automatically triggered if $\mu_k(0)$ is negative or complex valued at the start of the funding cycle. This redefinition of the project time horizon is particularly important for avoiding complex valued budget allocations. An expression for the project budget allocation is obtained by solving Eq \ref{eq:muFnwComp} for $w_k$ at $\theta = 0$.
 
 \begin{equation}
 w_k = C \left( \frac{\mu_k(0)}{\tilde{x}_k(0)} e^{-T_k (\omega + i)} \right)^{\frac{1}{\alpha_k}}
 \label{eq:wFnmuComp}
 \end{equation}
 
-Whereby it is evident that $w_k$ is complex valued if $\mu_k(0) < 0$ and $T_k = T \nu_k$. But, if the modified definition of $T_k$ in Eq \ref{eq:Tk} is introduced, then it is evident that $w_k$ is always real valued.
+Whereby it is evident that $w_k$ is complex valued if $\rho_k > 0$ and $T_k = 2 \pi \nu_k$. But, if the modified definition of $T_k$ in Eq \ref{eq:Tk} is introduced, then it is evident that $w_k$ is always real valued and positive.
+
+The decision of whether the phase correcting adjustment be an extension or a shortening of the project time horizon is made by the investor and/or research project managers. By Eq \ref{eq:wFnmuComp} it is clear that shortening the time horizon increases the budget allocation, while an extension has the opposite effect. Some project proponents may thus be biased towards a shortening of the time horizon. Either way, the time horizons of most AR4D projects imply that $\nu_k$ is considerably larger than $\rho_k$, such that the effect of the phase correcting time horizon adjustment on the budget allocation is probably small in most cases.
+<!-- In this modified definition of the time horizon, a half cycle phase correction is automatically triggered if expected project NPV is negative at the start of the funding cycle. The phase correction amounts to a half cycle extension or contraction of the project time horizon. The decision of whether to extend or contract the horizon is made by the investor and/or research project managers. If extending, then $\kappa_k$ is set to $1$. If contracting, then $\kappa_k = 0$. Either way, this horizon adjustment brings the project into phase with the funding cycle, such that $\mu_k(0) > 0$. If expected project NPV is positive to begin with (and thus already in phase), then $\kappa_k$ defaults to $1 / 2$, such that no phase adjustment is made. -->
+<!-- \begin{equation} -->
+<!-- \begin{split} -->
+<!-- \mu_k(0) &= -x_k(0) e^{(2 \nu_k \pi \pm \pi) (\omega + i)} \\ -->
+<!-- &= -x_k(0) e^{(2 \nu_k \pi \pm \pi) \omega} e^{(2 \nu_k \pm 1) i \pi} \\ -->
+<!-- &= -x_k(0) e^{(2 \nu_k \pi \pm \pi) \omega} (-1)^{2 \nu_k \pm 1} \\ -->
+<!-- &= x_k(0) e^{2 \pi \omega \left(\nu_k \pm \frac{1}{2} \right)} -->
+<!-- \end{split} -->
+<!-- \end{equation} -->
+<!-- \begin{equation} -->
+<!-- \begin{split} -->
+<!-- \mu_k(0) &= e^{i \rho_k } x_k(0) e^{(2 \nu_k \pi \pm \pi) (\omega + i)} \\ -->
+<!-- &= -x_k(0) e^{(2 \nu_k \pi \pm \pi) \omega} e^{(2 \nu_k \pm 1) i \pi} \\ -->
+<!-- &= -x_k(0) e^{(2 \nu_k \pi \pm \pi) \omega} (-1)^{2 \nu_k \pm 1} \\ -->
+<!-- &= x_k(0) e^{2 \pi \omega \left(\nu_k \pm \frac{1}{2} \right)} -->
+<!-- \end{split} -->
+<!-- \end{equation} -->
+<!-- In fact, adjustment by any odd integer multiple of $\pi$ will bring the project into phase. -->
+<!-- \begin{equation} -->
+<!-- \begin{split} -->
+<!-- \mu_k(0) &= -x_k(0) e^{(2 \nu_k \pi \pm (2 \kappa - 1) \pi) (\omega + i)} \\ -->
+<!-- &= -x_k(0) e^{2 \pi \omega \left(\nu_k \pm \kappa - \frac{1}{2} \right)} e^{(2 (\nu_k \pm \kappa) - 1) i \pi} \\ -->
+<!-- &= -x_k(0) e^{2 \pi \omega \left(\nu_k \pm \kappa - \frac{1}{2} \right)} (-1)^{2 (\nu_k \pm \kappa) - 1} \\ -->
+<!-- &= x_k(0) e^{2 \pi \omega \left(\nu_k \pm \kappa - \frac{1}{2} \right)} -->
+<!-- \end{split} -->
+<!-- \end{equation} -->
+<!-- This suggests the introduction of an automatic phase correction parameter $\kappa_k$ in the definition of the time horizon $T_k$. -->
+<!-- \begin{equation} -->
+<!-- T_k = T (\nu_k \pm \kappa_k) -->
+<!-- \label{eq:Tk} -->
+<!-- \end{equation} -->
+<!-- Or, in the complex plane, -->
+<!-- \begin{equation} -->
+<!-- T_k = 2 \pi \left(\nu_k + \kappa_k - \frac{1}{2} \right) -->
+<!-- \label{eq:Tk} -->
+<!-- \end{equation} -->
+<!-- Where -->
+<!-- \begin{equation} -->
+<!-- \kappa_k = -->
+<!-- \begin{cases} -->
+<!-- \frac{1}{2}, & \text{if $\mu_k(0) > 0$} \\ -->
+<!-- 0 \text{or } 1, & \text{if $\mu_k(0) < 0$} -->
+<!-- \end{cases} -->
+<!-- \end{equation} -->
 <!-- Note, moreover, that $\tilde{x}_k(0)$ must always be non-negative, and so $w_k$ is always real and non-negative. -->
 <!-- (Note that this decision implies no change to the project budget, just to the amount of time in which budget must be spent.)  -->
 <!-- Negative expected NPV at the start of the funding cycle is problematic for budget allocation. 
@@ -1086,13 +1110,13 @@ The risk shadow price is thus inversely proportional to portfolio risk. As risk 
 The budget allocations satisfying the first order conditions ($w_{kj}^*$) are given by Eq \ref{eq:wFnmu} evaluated at $\mu_{kj}^*$.
 
 \begin{equation}
-\mathbf{w}_{kj}^* = C \left(\frac{q_{kj}}{\tilde{x_k(0)}}e^{- r T_k } \right)^{\frac{1}{\alpha_k}}
+\mathbf{w}_{kj}^* = C \left(\frac{\mu_{kj}^*}{\tilde{x_k(0)}}e^{- r T_k } \right)^{\frac{1}{\alpha_k}}
 \end{equation}
 
 But recall that this has the following equivalent expression in the complex plane.
 
 \begin{equation}
-\mathbf{w}_{kj}^* = C \left(\frac{q_{kj}}{\tilde{x_k(0)}}e^{- T_k (\omega + i)} \right)^{\frac{1}{\alpha_k}}
+\mathbf{w}_{kj}^* = C \left(\frac{\mu_{kj}^*}{\tilde{x_k(0)}}e^{- T_k (\omega + i)} \right)^{\frac{1}{\alpha_k}}
 \label{eq:wStar}
 \end{equation}
 <!-- \begin{equation} -->
@@ -1100,7 +1124,7 @@ But recall that this has the following equivalent expression in the complex plan
 <!-- \label{eq:wStar} -->
 <!-- \end{equation} -->
 
-Generally speaking, the eigenvectors $\mathbf{q}_j$ may include negative elements, implying negative project NPV. As explained in \ref{sec:cycReal}, a negative expected NPV at the start of the funding cycle means the project is out of phase with the funding cycle. The project time horizon $T_k$ is defined in Eq \ref{eq:Tk} so as to automatically bring such projects into phase by extending or contracting the time horizon by half a funding cycle. This adjustment, in turn, ensures that $\mathbf{w}_{kj}^*$ is real valued. Note, moreover, that all of the terms in Eq \ref{eq:wStar} are positive, whereby it is guaranteed that $\mathbf{w}_{kj}^*$ is also positive.
+Generally speaking, the eigenvectors $\mathbf{q}_j$ may include negative elements, which in turn implies negative project NPV $\mu_{kj}^*$. As explained in \ref{sec:cycReal}, a negative expected NPV at the start of the funding cycle means the project is out of phase with the funding cycle. The project time horizon $T_k$ is defined in Eq \ref{eq:Tk} so as to automatically bring such projects into phase by extending or contracting the time horizon by half a funding cycle. This adjustment, in turn, ensures that $\mathbf{w}_{kj}^*$ is real valued. Note, moreover, that all of the terms in Eq \ref{eq:wStar} are positive, whereby it is guaranteed that $\mathbf{w}_{kj}^*$ is also positive.
 <!-- And in vector notation, -->
 <!-- \begin{equation} -->
 <!-- \hat{\mathbf{w}}_j^* = \Sigma_{j = 1}^m C_j (D(\tilde{\mathbf{x}}(0))^{-1} \mathbf{q}_j (-1)^{2 \kappa - 1} e^{-r T \left(\frac{1}{2} + \kappa \right)})^{\frac{1}{\boldsymbol{\alpha}}} -->
@@ -1115,7 +1139,7 @@ Generally speaking, the eigenvectors $\mathbf{q}_j$ may include negative element
 Because eigenvectors are defined up to scaling, the optimal solution can be arbitrarily scaled in accordance with any portfolio impact, risk, or budget target/constraint. The budget constraint is usually the most binding of these three. In order to arbitrarily enforce the budget constraint $C$, then, note that the candidate optimal budget allocations may be rewritten
 
 \begin{equation}
-\mathbf{w}_{kj}^* = C \left(\frac{\beta_j q_{kj}}{\tilde{x_k(0)}} e^{-T_k (\omega + i)} \right)^{\frac{1}{\alpha_k}}
+\mathbf{w}_{kj}^* = C \left(\frac{\beta_j \mu_{kj}^*}{\tilde{x_k(0)}} e^{-T_k (\omega + i)} \right)^{\frac{1}{\alpha_k}}
 \label{eq:wStarPolicy}
 \end{equation}
 <!-- \begin{equation} -->
@@ -1187,7 +1211,7 @@ Where $\Gamma_j$ is the diagonal matrix of eigenvalues of $G$ excluding the $j^{
 <!-- (i.e., the case where $\boldsymbol{\mu}^*$ equals the leading eigenvector of $K$) -->
 <!-- (i.e., the case where \boldsymbol{\mu}^* equals the trailing eigenvector of $G$) -->
 
-The leading eigenvector $\mathbf{q}_1$ is thus the solution that satisfies the second order condition (equation \ref{eq:soc}), and thus maximizes $\mathcal{L}$. By the same token, the trailing eigenvector of $\mathbf{q}_n$ is the solution that minimizes $\mathcal{L}$, and the intermediate eigenvectors $(1 < k < n)$ represent saddle point solutions of $\mathcal{L}$ between these two extremes.
+The leading eigenvector $\mathbf{q}_1$ is thus the solution that satisfies the second order condition (Eq \ref{eq:soc}), and thus maximizes $\mathcal{L}$. By the same token, the trailing eigenvector of $\mathbf{q}_n$ is the solution that minimizes $\mathcal{L}$, and the intermediate eigenvectors $(1 < k < n)$ represent saddle point solutions of $\mathcal{L}$ between these two extremes.
 
 ## Keeping only meaningful solutions
 <!-- ## Spectrally reduced covariance matrix -->
@@ -1224,7 +1248,7 @@ AR4D donors and institutions are thus presented not with a single optimal soluti
 Generally speaking, each of the $m$ leading eigenvectors of a covariance matrix of a complex system of variables encode information about a specific aspect of the system. In the financial context, for example, Gopikrishnan et al. [-@gopik2001quant] show that each of the leading eigenvectors of a covariance matrix of hundreds of stock price series is associated with movements in a particular industry or sector, such that each element in the eigenvectors reflects a particular stock's contribution to, or participation in, movements in the respective sector.
 <!-- [The authors even suggest this method might be used to classify firms into industries.] -->
 
-Elsewhere, I extend the logic of Gopikrishnan et al.'s analysis to AR4D correlation matrices [-@schiek2021reverse]. In that extension, I show that the collective movements associated with each eigenvector may be interpreted as the AR4D institution's (and/or donor's) strategic objectives or policies, such that the elements of the eigenvectors may be interpreted as reflecting each research program's contribution towards the respective policy.
+Schiek extends the logic of Gopikrishnan et al.'s analysis to AR4D correlation matrices [-@schiek2021reverse]. In that extension, Schiek shows that the collective movements associated with each eigenvector may be interpreted as the AR4D institution's (and/or donor's) strategic objectives or policies, such that the elements of the eigenvectors may be interpreted as reflecting each research program's contribution towards the respective policy.
 
 In technical language, this association between macro and micro level movements results because empirical collective movements (for e.g., sectorial movements) tend to align with the leading principal components of the system. The leading eigenvectors reflect the participation of individual variables (for e.g., stocks) in a particular collective movement because they are very nearly the covariances of variables ($X$) with leading principal components ($S$). The exact covariances of variables with leading principal components ($\tilde{\Sigma}_{X, S}$) are given by
 
@@ -1259,13 +1283,10 @@ Because eigenvectors are associated with strategic objectives, by selecting a pa
 Alternatively, the investor may want to optimize across multiple strategic objectives. In other words, they may want an optimal linear combination of the solution menu.
 
 \begin{equation}
-\begin{split}
-\boldsymbol{\mu}^* &= \Sigma_{j = 1}^m \boldsymbol{\mu}_j^{**} \\
-&= \Sigma_{j = 1}^m \mathbf{q}_j \beta_j^*
-\end{split}
+\boldsymbol{\mu}^* = Q \boldsymbol{\beta}^*
 \end{equation}
 
-Where the optimal scaling parameters $\beta_j^*$ are defined as those which maximize policy impact subject to a policy risk tolerance. Formally,
+Where the optimal scaling parameters $\beta_j^*$ are defined as those which maximize policy impact subject to a policy risk tolerance. Formally, this problem can be stated as follows.
 <!-- $\mathcal{E}^p = r^2/2\; \boldsymbol{\mu} {'} \boldsymbol{\mu}$ -->
 <!-- $\sigma^p = \sqrt{\boldsymbol{\mu}^p ' G_{p,p} \boldsymbol{\mu}^p}$ -->
 <!-- Which can then be solved for the optimal multi-objective budget allocation.  -->
@@ -1366,6 +1387,8 @@ The $\ell^{th}$ candidate policy budget allocation $\boldsymbol{\beta}_{\ell}^*$
 \boldsymbol{\beta}_{\ell}^* = \mathbf{b}_{\ell}^{\frac{1}{2}} \:\:;\:\:\: \ell \in (1, m)
 \end{equation}
 
+To avoid complex valued elements in $\boldsymbol{\beta}_{\ell}^*$, recall that negative elements in $\mathbf{b}_{\ell}$ can be made positive by adjusting the program time horizon, as explained in section \ref{sec:cycReal}.
+
 Deduction of the second order condition for a maximum follows the same procedure as in the project level problem (section \ref{sec:soc}), and results in an analogous conclusion: the investor is presented not with a single optimal linear combination, but with an optimal menu of linear combinations, each corresponding to a particular portfolio risk tolerance (\sqrt{\gamma_{\ell}}). The investor should choose the solution $\boldsymbol{\beta}_{\ell}^*$ with the risk shadow price $\lambda_{\ell}$ that best matches their risk tolerance.
 
 With the optimal policy weights ($\boldsymbol{\beta}_{\ell}^*$) in hand, the optimal multi-objective impact $\mathcal{E}_{\ell}^{p*}$ then follows as
@@ -1385,61 +1408,40 @@ The optimal multi-objective project NPV vector $\boldsymbol{\mu}_{\ell}^*$ follo
 \begin{split}
 \boldsymbol{\mu}_{\ell}^* &= \Sigma_{j = 1}^m \mu_j^* \beta_{j \ell}^* \\
 \boldsymbol{\mu}_{\ell}^* &= Q \boldsymbol{\beta}_{\ell}^* \\
-&= D(\mathbf{c}) P \boldsymbol{\beta}_{\ell}^*
+&= D(\tilde{\mathbf{c}}) \tilde{P} \boldsymbol{\beta}_{\ell}^*
 \end{split}
 \end{equation}
 
 And the optimal multi-objective budget allocation is
 
 \begin{equation}
-\mathbf{w}_{\ell}^* = C (D(\tilde{\mathbf{x}}(0))^{-1} D(e^{-r \mathbf{T}}) \beta_{j \ell}^* \boldsymbol{\mu}_{\ell}^* )^{\frac{1}{\boldsymbol{\alpha}}}
+\mathbf{w}_{\ell}^* = C (D(\tilde{\mathbf{x}}(0))^{-1} D(e^{-r \mathbf{T}}) \boldsymbol{\mu}_{\ell}^* )^{\frac{1}{\boldsymbol{\alpha}}}
 \label{eq:wStarPolicy}
 \end{equation}
 
-<!-- To avoid complex valued elements in $\boldsymbol{\beta}_{\ell}^*$, recall that negative elements in $\mathbf{b}_j$ can be made positive by adjusting the program time horizon, as explained in section \ref{sec:cycReal}. -->
-To enforce the budget constraint...scale to enforce budget constraint but know this scales risk too
+Again, the elements in $\mathbf{T}$ are so defined that... (recall Eq \ref{eq:Tk}), complex valued budget allocations, negative elements in $\boldsymbol{\mu}_{\ell}^*$ can be made positive by adjusting the program time horizon, as explained in section \ref{sec:cycReal}. To enforce the budget constraint, the eigenvector matrix $B$ may be scaled by a parameter $\chi_{\ell}$ such that $\mathbf{w}_{\ell}^* {'} \mathbf{1} = C$. The 
 
+\begin{equation}
+\boldsymbol{\mu}_{\ell}^* = \chi_{\ell} D(\tilde{\mathbf{c}}) \tilde{P} \boldsymbol{\beta}_{\ell}^*
+\end{equation}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-[
--this is automatic anyway since the correlation matrix is deduced from $m$ loadings
-
+Note that adjustments to $\chi_{\ell}$ also scale the optimal policy portfolio risk $\sigma^p$ and impact $\mathcal{E}^p$.
 <!-- I reconstructed the analysis, working with the loadings $L$ instead of the eigenvectors -->
 <!-- ---because the loadings have a more straightforward interpretation as the correlation between an item and the collective movement associated with the eigenvector--- -->
 <!-- and I observed that a varimax rotation of $L$ greatly clarifies the contributions of items to collective movements [-@schiek2021reverse]. I also  -->
 <!-- the correlation matrix is reconstructed from the $m < n$ leading eigenvectors of $\Sigma$ as follows. -->
 <!-- $\tilde{\Sigma}$ -->
-
 <!-- \begin{equation} -->
 <!-- \tilde{\Sigma} = L L ' -->
 <!-- \label{eq:LL} -->
 <!-- \end{equation} -->
-
 <!-- Where -->
-
 <!-- \begin{equation} -->
 <!-- L = \tilde{P} \tilde{\Gamma}^{\frac{1}{2}} -->
 <!-- \end{equation} -->
-
 <!-- And $\tilde{U}$, $\tilde{\Gamma}$ refer to the matrix of $m$ retained, leading eigenvectors and the corresponding (diagonal) matrix of retained eigenvalues of $\Sigma$, respectively. (See Schiek [-@schiek2021reverse] for an application in the AR4D context.) -->
-
 <!-- By construction, then, the spectrally reduced covariance matrix has just $m$ nonzero eigenvalues, with the remaining $n - m$ eigenvalues equal to zero. This removal of trailing eigenvectors has a signal strengthening effect (or, conversely, a noise attenuating effect), such that $\tilde{\Sigma}$ typically approximates $\Sigma$, but may also be considered more accurate than $\Sigma$ with respect to the "true process" that generates the underlying data, to the extent that the data are contaminated by noise. All of the eigenvectors of $\tilde{\Sigma}$ with nonzero eigenvalues encode meaningful information about the portfolio items and their interactions. The optimal solution $\boldsymbol{\mu}^*$ corresponding to the smallest nonzero eigenvalue of $\tilde{\Sigma}$ is thus likewise meaningful. -->
-
 <!-- The individual and cumulative portions of variance explained by each signal in the financial dataset are plotted in Fig \ref{fig:varExplained_barchart}. Customarily, researchers like to retain signals such that at least 90% of the variance in the original data is explained. The horizontal dashed line in the plot marks this subjective threshold. -->
-
 <!-- # ```{r, fig.show = 'hold', fig.width=5, fig.height=2, fig.align='left', fig.cap="\\label{fig:varExplained_barchart}Plot of the individual and cumulative portions of variance explained by each signal in the financial dataset.", echo=F} -->
 <!-- c_vec <- eig_values / sum(eig_values) -->
 <!-- ck_vec <- cumsum(c_vec) -->
@@ -1480,6 +1482,14 @@ To enforce the budget constraint...scale to enforce budget constraint but know t
 To illustrate the portfolio optimization workflow presented above, here I walk through a step-by-step example of how the method might be applied in an AR4D fund allocation decision.
 
 In this hypothetical example, a donor wants to know the optimal distribution of limited funds over a five year funding cycle across a portfolio of eight AR4D programs. The programs might be defined in terms of major commodity categories (cereals, roots & tubers, legumes, livestock, fruit & vegetables, fish, etc.); or they might be organized around thematic areas (climate smart agriculture, smallholder resilience, digital agriculture, etc.); or they might be some combination thereof. The donor wants to maximize impact for a given risk tolerance ...such that risk is minimized for a given impact target (as represented by the vis viva). As explained in section ..., there are $m$ possible budget allocations that solve the problem, corresponding to the $m$ leading eigenvectors of the program cross coefficient of variation matrix $G$. Each of these 
+
+The $m$ leading eigenvectors of the project correlation matrix $K_{X, X}$ can be deduced from the crowdsourced rotated project-policy correlation matrix $K_{X,S}^{\circlearrowright}$ as follows.
+
+\begin{equation}
+\tilde{P} = K_{X,S}^{\circlearrowright} B ' \tilde{Gamma}^{-\frac{1}{2}}
+\end{equation}
+
+(See Schiek [-@] for details.)
 
 \ref{fig:rotCorrXSnParams}
 
