@@ -1464,15 +1464,15 @@ Note that adjustments to $\chi_{\ell}$ also scale the optimal policy portfolio r
 <!-- gg -->
 <!-- ggsave("Fig 4.tiff") -->
 <!-- #==================================================== -->
-<!-- n_signals <- which(ck_vec > 0.9)[1] -->
-<!-- mat_S <- mat_S_all[, 1:n_signals] -->
-<!-- mat_L <- cormat_XS[, 1:n_signals] -->
-<!-- eig_values_sigs <- eig_values[1:n_signals] -->
+<!-- nSig <- which(ck_vec > 0.9)[1] -->
+<!-- mat_S <- mat_S_all[, 1:nSig] -->
+<!-- mat_L <- cormat_XS[, 1:nSig] -->
+<!-- eig_values_sigs <- eig_values[1:nSig] -->
 <!-- #==================================================== -->
 <!-- ``` -->
 <!-- **Fig 4. Plot of the individual and cumulative portions of variance** explained by each signal in the financial dataset. -->
 <!-- &nbsp; -->
-<!-- The plot shows that, for the financial data set, the leading `r n_signals` signals are sufficient to meet this criterion. -->
+<!-- The plot shows that, for the financial data set, the leading `r nSig` signals are sufficient to meet this criterion. -->
 <!-- [Of course, the appearance of zero-valued eigenvalues makes the projected Hessian (equation \ref{eq:...}) semi-definite as opposed to definite. But this does not matter since this is by design, and the solutions with zero-valued eigenvalues are likewise ignored by design. In other words, the projected Hessian remains definite over the set of solutions that are of any interest to the investor.] -->
 <!-- ## Policy portfolio optimization -->
 <!-- In relation to the portfolio optimization method presented above, this implies that each of the $m$ program portfolio solutions $\boldsymbol{\mu}^*$ is tied to a specific strategic objective. Selection of any one of these solutions thus implies an exclusive focus on a particular strategic objective, and neglect of the rest. This may suit institutions that like to focus on a specific theme each funding cycle. However, it is problematic for AR4D institutions and donors that prefer to optimize budget allocations across multiple strategic objectives at once. [They want to pursue, for example, nutritional security, economic growth, and smallholder resilience, all at once, and not one at a time, in a piecemeal fashion. Moreover, such objectives usually go hand in hand, and cannot be pursued in isolation from each other.] -->
@@ -1519,6 +1519,8 @@ The matrix of leading eigenvectors of the project correlation matrix $\tilde{P}$
 
 The strategic objective covariance matrix can be calculated as the inner product $\Sigma_{SS}^{\circlearrowleft} = L_{\circlearrowleft} ' L_{\circlearrowleft}$. This, in turn, has the eigendecompsition $\Sigma_{SS}^{\circlearrowleft} = B \tilde{\Gamma} B'$, where $B$ is the orthonormal rotation matrix. The eigenvectors of $\tilde{K}$ can then be  can thus be deduced from the elicited information $L_{\circlearrowleft}$.
 
+time adjustments
+
 ```{r, fig.show = 'hold', fig.width=5, fig.height=3, fig.align='left', fig.cap="\\label{fig:rotCorrXSnParams}(Left) Bar chart of hypothetical project-policy correlations, (right) table of hypothetical project parameters."}
 
 #====================================================================
@@ -1526,17 +1528,17 @@ The strategic objective covariance matrix can be calculated as the inner product
 # Barchart of variable-signal correlations
 plot_corrXS_barchart <- function(mat_L, group_info = NULL, xAxis_title = NULL, sigNames = NULL){
   
-  n_signals <- ncol(mat_L)
+  nSig <- ncol(mat_L)
   df_plot <- data.frame(Item = row.names(mat_L), mat_L)
   df_plot$Item <- as.character(df_plot$Item)
   #-------------------------------------------------------
   if(is.null(sigNames)){
-    signal_id <- paste("Signal", 1:n_signals)
+    signal_id <- paste("Signal", 1:nSig)
   }else{
-    #signal_id <- paste("Signal", 1:n_signals, "\n", sigNames)
+    #signal_id <- paste("Signal", 1:nSig, "\n", sigNames)
     signal_id <- sigNames
   }
-  colnames(df_plot)[2:(n_signals + 1)] <- signal_id
+  colnames(df_plot)[2:(nSig + 1)] <- signal_id
   #-------------------------------------------------------
   gathercols <- as.character(signal_id) 
   df_plot <- gather_(df_plot, "Signal", "Correlation", gathercols)
@@ -1636,7 +1638,7 @@ group_colors_arb <- sample(bag_of_colors, n_groups)
 # 
 # # Randomly assign an expected pct. return to each AR4D proposal
 # n_prop <- nrow(df_Lrot)
-# n_signals <- ncol(df_Lrot) - 2
+# nSig <- ncol(df_Lrot) - 2
 # # inv_scalability_ar4d <- exp(rnorm(n_prop))
 # # inv_scalability_ar4d <- round(inv_scalability_ar4d / sum(inv_scalability_ar4d), 3) * 100
 # #inv_scalability_ar4d <- runif(n_prop)
@@ -1686,8 +1688,8 @@ bag_of_colors <- randomcoloR::distinctColorPalette(k = 5 * n_groups)
 group_colors <- sample(bag_of_colors, n_groups)
 group_info <- list(list_groups, group_names, group_colors)
 sigNames <- c("GDP Growth", "Economic\nEquality", "Environmental\nSustainability", "Nutritional\nSecurity")
-n_signals <- length(sigNames)
-sigNames <- paste("Policy", 1:n_signals, "\n", sigNames)
+nSig <- length(sigNames)
+sigNames <- paste("Policy", 1:nSig, "\n", sigNames)
 xAxis_title <- "Rotated Correlations"
 # gg_bar <- plot_corrXS_barchart(mat_Lrot, group_info, xAxis_title, sigNames)
 # ggsave("Fig 6.tiff")
@@ -1775,24 +1777,25 @@ gg_tab <- gg
 #==============================================================
 #==============================================================
 #==============================================================
-# #D_sdX <- diag(sdX_vec)
-# cormat_XX_derived <- mat_Lrot %*% t(mat_Lrot)
-# D_sdCorrect <- diag(1 / sqrt(diag(cormat_XX_derived)))
-# cormat_XX_derived <- D_sdCorrect %*% cormat_XX_derived %*% D_sdCorrect
+#D_sdX <- diag(sdX_vec)
+KxxTilde <- mat_Lrot %*% t(mat_Lrot)
+# D_sdCorrect <- diag(1 / sqrt(diag(KxxTilde)))
+# KxxTilde <- D_sdCorrect %*% KxxTilde %*% D_sdCorrect
 # colnames(cormat_XX_derived) <- row.names(mat_Lrot)
 # # fig_title <- "Reverse engineered approximate AR4D project correlation matrix"
 # # plot_covmat(cormat_XX_derived, fig_title, round_to = 2, graph_on = F)
-#eMatProj <- eigen(cormat_XX_derived)$vectors[, 1:n_signals]
-# cormatXXtilde <- mat_Lrot %*% t(mat_Lrot)
-# cormatXXtilde <- diag(1 / sqrt(diag(cormatXXtilde))) %*% cormatXXtilde %*% diag(1 / sqrt(diag(cormatXXtilde)))
-# eValP <- eigen(cormatXXtilde)$values
-# eVecp <- eigen(cormatSSderived)$vectors
-covmatSSderived <- t(mat_Lrot) %*% mat_Lrot
-diag((mat_Lrot) %*% t(mat_Lrot))
-eValp <- eigen(covmatSSderived)$values
-eVecp <- eigen(covmatSSderived)$vectors
-L <- mat_Lrot %*% (eVecp)
-Ptilde <- L %*% diag(1 / sqrt(eValp))
+#eMatProj <- eigen(cormat_XX_derived)$vectors[, 1:nSig]
+
+GxxTilde <- diag(cvVec) %*% KxxTilde %*% diag(cvVec)
+gammaGxx <- eigen(GxxTilde)$values[1:nSig]
+QxxTilde <- eigen(GxxTilde)$vectors[, 1:nSig]
+
+SigSS <- t(mat_Lrot) %*% mat_Lrot
+# diag((mat_Lrot) %*% t(mat_Lrot))
+gammaSigSS <- eigen(SigSS)$values
+B <- eigen(SigSS)$vectors
+L <- mat_Lrot %*% B
+Ptilde <- L %*% diag(1 / sqrt(gammaSigSS))
 #--------------------------------------------------------------------
 rYrly_discrete <- 0.08 #0.035
 r_discrete <- (1 + rYrly_discrete)^(1 / tStep) - 1
@@ -1801,10 +1804,10 @@ r <- round(log(1 + r_discrete), 3)
 omega <- r * tFundCyc / (2 * pi)
 #--------------------------------------------------------------------
 # Single objective optimal budget allocation
-mat_muHatStar <- diag(cvVec) %*% Ptilde
+mat_muHatStar <- QxxTilde
 TkHat <- 2 * pi * TvecFcyc
-mat_wShareStar <- matrix(NA, nProj, n_signals)
-mat_muStar <- matrix(NA, nProj, n_signals)
+mat_wShareStar <- matrix(NA, nProj, nSig)
+mat_muStar <- matrix(NA, nProj, nSig)
 visVivVec <- c()
 betaStarVec <- c()
 wSlack <- function(beta, Tk, omega, xTilde, muStar, alpha){
@@ -1813,7 +1816,7 @@ wSlack <- function(beta, Tk, omega, xTilde, muStar, alpha){
   return(wSlack)
 }
 thisInt <- c(0, 100)
-for(j in 1:n_signals){
+for(j in 1:nSig){
   muHatStar <- mat_muHatStar[, j]
   ind <- which(muHatStar < 0)
   rhoK <- rep(0, length(TkHat))
@@ -1836,10 +1839,14 @@ for(j in 1:n_signals){
 }
 mat_muStar <- round(mat_muStar, 4)
 mat_wShareStar <- round(mat_wShareStar, 4)
+#colSums(mat_wShareStar)
 visVivVec <- round(visVivVec, 4)
-sigVec <- round(eValp, 4)
+sigVec <- round(gammaGxx, 4)
 betaStarVec <- round(betaStarVec, 4)
-
+row.names(mat_muStar) <- projNames
+colnames(mat_muStar) <- sigNames
+row.names(mat_wShareStar) <- projNames
+colnames(mat_wShareStar) <- sigNames
 # eiThetHat <- diag(exp(-TkHat * omega)) %*% diag(1 / xTilde) %*% muHatStar
 # thetHat <- acos(Real(eiThetHat))
 # rhoKpi <- thetHat - TkHat
