@@ -748,18 +748,19 @@ Extension to all angles $\theta \in (0, 2 \kappa \pi)$ in the complex plane then
 \end{equation}
 <!-- [graphic? $\mu_k(\hat{\theta}) / x_k(\hat{\theta})$ decay---ratio of E[x(T)]|_t / x(t)] -->
 
-## Negative or complex valued project NPVs and phase corrections
+## Negative project NPV and time horizon adjustments to ensure real valued budget allocations
 
-This extension of expected project NPV to the complex plane encompasses the sunk cost point occurring halfway through the funding cycle ($\theta = (2 \kappa - 1) \pi$), when the investment is real valued, but negative.
+This extension of expected project NPV to all points on the complex plane encompasses the sunk cost point occurring halfway through the funding cycle ($\theta = (2 \kappa - 1) \pi$), when the investment is real valued, but negative.
 
 \begin{equation}
 \begin{split}
-\mu_k((2\kappa - 1) \pi) &= x_k((2\kappa - 1) \pi) e^{(2 \nu_k \pi - (2\kappa - 1) \pi) (\omega + i)} \\
+\mu_k((2\kappa - 1) \pi) &= x_k((2\kappa - 1) \pi) e^{(T_k - (2\kappa - 1) \pi) (\omega + i)} \\
 &= -x_k((2\kappa - 1) \pi) e^{(2 (\nu_k - \kappa) + 1) \pi \omega}
 \end{split}
 \end{equation}
 
-By definition, the funding cycle begins and ends on a positive real value. A project investment that is negative at the start of the funding cycle thus implies that it is out of phase with the funding cycle by an odd integer multiple of $\pi$. Without loss of generality, consideration may be limited to the case where the odd integer multiple is $1$. That is, if $\mu_k(0) < 0$, this implies
+<!-- By definition, the funding cycle begins and ends on a positive real value. A project investment that is negative at the start of the funding cycle thus implies that it is out of phase with the funding cycle by an odd integer multiple of $\pi$. -->
+Without loss of generality, consideration may be limited to the case where the odd integer multiple is $1$. That is, if $\mu_k(0) < 0$, this implies
 
 \begin{equation}
 \begin{split}
@@ -768,43 +769,60 @@ By definition, the funding cycle begins and ends on a positive real value. A pro
 \end{split}
 \end{equation}
 
-In other words, a negative valued $\mu_k(0)$ is out of phase with the funding cycle by one half cycle. More generally,
-
-\begin{equation}
-\mu_k(0) = x_k(0) e^{T_k (\omega + i) \pm i \rho_k \pi}
-\end{equation}
-
-Where $0 \leq \rho_k \leq 1$, such that the project is in phase with the funding cycle if $\rho_k = 0$, and is otherwise out of phase by a fraction $\rho_k / 2$ of the cycle.
-
-It follows that projects with $\rho_k > 0$ can be brought into phase by extending or shortening the time horizon by $\rho_k \pi$ of a cycle. To see this, replace $T_k$ with $T_k \mp \rho_k \pi$.
-
-\begin{equation}
-\begin{split}
-\mu_k(0) &= x_k(0) e^{(T_k \mp \rho_k \pi) (\omega + i) \pm i \rho_k \pi} \\
-&= x_k(0) e^{2 \pi \left(\nu_k \mp \frac{1}{2} \rho_k \right) (\omega + i) \pm i \rho_k \pi} \\
-&= x_k(0) e^{2 \pi \omega \left(\nu_k \mp \frac{1}{2} \rho_k \right)} e^{2 \pi i \left(\nu_k \mp \frac{1}{2} \rho_k \right) \pm i \rho_k \pi} \\
-&= x_k(0) e^{2 \pi \omega \left(\nu_k \mp \frac{1}{2} \rho_k \right)} e^{2 \pi i \nu_k} e^{\mp \rho_k \pi i \pm \rho_k \pi i} \\
-&= x_k(0) e^{2 \pi \omega \left(\nu_k \mp \frac{1}{2} \rho_k \right)}
-\end{equation}
-
-To ensure that starting expected NPV is always in phase with the funding cycle, and thus real valued and positive, the time horizon is henceforth redefined
-
-\begin{equation}
-T_k = 2 \pi \left(\nu_k \mp \frac{1}{2} \rho_k \right)
-\label{eq:Tk}
-\end{equation}
-
-Such that a phase corecting time horizon adjustment is automatically triggered if $\mu_k(0)$ is negative or complex valued at the start of the funding cycle. This redefinition of the project time horizon is particularly important for avoiding complex valued budget allocations. An expression for the project budget allocation is obtained by solving Eq \ref{eq:muFnwComp} for $w_k$ at $\theta = 0$.
+Negative project NPV is problematic for portfolio optimization since it implies a complex valued budget allocation. To see this, note that an expression for the project budget allocation is obtained by solving Eq \ref{eq:muFnwComp} for $w_k$ at $\theta = 0$.
 
 \begin{equation}
 w_k = C \left( \frac{\mu_k(0)}{\tilde{x}_k(0)} e^{-T_k (\omega + i)} \right)^{\frac{1}{\alpha_k}}
 \label{eq:wFnmuComp}
 \end{equation}
 
-Whereby it is evident that $w_k$ is complex valued if $\rho_k > 0$ and $T_k = 2 \pi \nu_k$. But, if the modified definition of $T_k$ in Eq \ref{eq:Tk} is introduced, then it is evident that $w_k$ is always real valued and positive.
+Whereby it is evident that $w_k$ is complex valued if $\mu_k(0) < 0$ and $T_k = 2 \pi \nu_k$. To ensure that budget allocations are always real valued, the time horizon is henceforth redefined
 
-The decision of whether the phase correcting adjustment be an extension or a shortening of the project time horizon is made by the investor and/or research project managers. By Eq \ref{eq:wFnmuComp} it is clear that shortening the time horizon increases the budget allocation, while an extension has the opposite effect. Some project proponents may thus be biased towards a shortening of the time horizon. Either way, the time horizons of most AR4D projects imply that $\nu_k$ is considerably larger than $\rho_k$, such that the effect of the phase correcting time horizon adjustment on the budget allocation is probably small in most cases.
-<!-- In this modified definition of the time horizon, a half cycle phase correction is automatically triggered if expected project NPV is negative at the start of the funding cycle. The phase correction amounts to a half cycle extension or contraction of the project time horizon. The decision of whether to extend or contract the horizon is made by the investor and/or research project managers. If extending, then $\kappa_k$ is set to $1$. If contracting, then $\kappa_k = 0$. Either way, this horizon adjustment brings the project into phase with the funding cycle, such that $\mu_k(0) > 0$. If expected project NPV is positive to begin with (and thus already in phase), then $\kappa_k$ defaults to $1 / 2$, such that no phase adjustment is made. -->
+\begin{equation}
+T_k = 2 \pi \left(\nu_k \mp \frac{1}{2} \kappa_k \right)
+\label{eq:Tk}
+\end{equation}
+
+Where
+\begin{equation}
+\kappa_k =
+\begin{cases}
+0, & \text{if $\mu_k(0) > 0$} \\
+1, & \text{if $\mu_k(0) < 0$}
+\end{cases}
+\end{equation}
+
+In this modified definition of the time horizon, a half cycle phase correction is automatically triggered if expected project NPV is negative. The phase correction amounts to a half cycle extension or contraction of the project time horizon. (The decision of whether to extend or contract the horizon is made by the investor and/or research project managers.) This in turn guarantees that the budget allocation is real valued. To see this, consider a case where $\mu_k(0) < 0$ and apply the modified definition of $T_k$.
+
+\begin{equation}
+\begin{split}
+w_k &= C \left( \frac{\mu_k(0)}{\tilde{x}_k(0)} e^{-T_k (\omega + i)} \right)^{\frac{1}{\alpha_k}} \\
+&= C \left( \frac{e^{ \pm i \pi} |\mu_k(0)|}{\tilde{x}_k(0)} e^{-2 \pi \left(\nu_k \mp \frac{1}{2} \right) (\omega + i)} \right)^{\frac{1}{\alpha_k}} \\
+&= C \left(\frac{|\mu_k(0)|}{\tilde{x}_k(0)} e^{-2 \pi \left(\nu_k \mp \frac{1}{2} \right) (\omega + i) \pm i \pi} \right)^{\frac{1}{\alpha_k}} \\
+&= C \left(\frac{|\mu_k(0)|}{\tilde{x}_k(0)} e^{-2 \pi \omega \left( \nu_k \mp \frac{1}{2} \right) + 2 i \pi \left( \nu_k \mp \frac{1}{2} \right) \pm i \pi} \right)^{\frac{1}{\alpha_k}} \\
+&= C \left(\frac{|\mu_k(0)|}{\tilde{x}_k(0)} e^{-2 \pi \omega \left( \nu_k \mp \frac{1}{2} \right) + 2 i \pi \nu_k \mp i \pi  \pm i \pi} \right)^{\frac{1}{\alpha_k}} \\
+&= C \left(\frac{|\mu_k(0)|}{\tilde{x}_k(0)} e^{-2 \pi \omega \left( \nu_k \mp \frac{1}{2} \right)} \right)^{\frac{1}{\alpha_k}}
+\end{split}
+\end{equation}
+<!-- Such that a phase correcting time horizon adjustment is automatically triggered if $\mu_k(0)$ is negative or complex valued at the start of the funding cycle. This redefinition of the project time horizon is particularly important for avoiding complex valued budget allocations.  -->
+<!-- But, if the modified definition of $T_k$ in Eq \ref{eq:Tk} is introduced, then it is evident that $w_k$ is always real valued and positive. -->
+<!-- In other words, a negative valued $\mu_k(0)$ is out of phase with the funding cycle by one half cycle. -->
+<!-- More generally, -->
+<!-- \begin{equation} -->
+<!-- \mu_k(0) = x_k(0) e^{T_k (\omega + i) + i \rho_k \pi} -->
+<!-- \end{equation} -->
+<!-- Where $0 \leq \rho_k \leq 1$, such that the project is in phase with the funding cycle if $\rho_k = 0$, and is otherwise out of phase by a fraction $\rho_k / 2$ of the cycle. -->
+<!-- It follows that projects with $\rho_k > 0$ can be brought into phase by extending or shortening the time horizon by $\rho_k \pi$ of a cycle. To see this, replace $T_k$ with $T_k - \rho_k \pi$. -->
+<!-- \begin{equation} -->
+<!-- \begin{split} -->
+<!-- \mu_k(0) &= x_k(0) e^{(T_k - \rho_k \pi) (\omega + i) + i \rho_k \pi} \\ -->
+<!-- &= x_k(0) e^{2 \pi \left(\nu_k - \frac{1}{2} \rho_k \right) (\omega + i) + i \rho_k \pi} \\ -->
+<!-- &= x_k(0) e^{2 \pi \omega \left(\nu_k - \frac{1}{2} \rho_k \right)} e^{2 \pi i \left(\nu_k - \frac{1}{2} \rho_k \right) + i \rho_k \pi} \\ -->
+<!-- &= x_k(0) e^{2 \pi \omega \left(\nu_k - \frac{1}{2} \rho_k \right)} e^{2 \pi i \nu_k} e^{- \rho_k \pi i + \rho_k \pi i} \\ -->
+<!-- &= x_k(0) e^{2 \pi \omega \left(\nu_k - \frac{1}{2} \rho_k \right)} -->
+<!-- \end{equation} -->
+<!-- The decision of whether the phase correcting adjustment be an extension or a shortening of the project time horizon is made by the investor and/or research project managers. By Eq \ref{eq:wFnmuComp} it is clear that shortening the time horizon increases the budget allocation, while an extension has the opposite effect. Some project proponents may thus be biased towards a shortening of the time horizon. Either way, the time horizons of most AR4D projects imply that $\nu_k$ is considerably larger than $\rho_k$, such that the effect of the phase correcting time horizon adjustment on the budget allocation is probably small in most cases. -->
+<!--  If extending, then $\kappa_k$ is set to $1$. If contracting, then $\kappa_k = 0$. Either way, this horizon adjustment brings the project into phase with the funding cycle, such that $\mu_k(0) > 0$. If expected project NPV is positive to begin with (and thus already in phase), then $\kappa_k$ defaults to $1 / 2$, such that no phase adjustment is made. -->
 <!-- \begin{equation} -->
 <!-- \begin{split} -->
 <!-- \mu_k(0) &= -x_k(0) e^{(2 \nu_k \pi \pm \pi) (\omega + i)} \\ -->
@@ -839,14 +857,6 @@ The decision of whether the phase correcting adjustment be an extension or a sho
 <!-- \begin{equation} -->
 <!-- T_k = 2 \pi \left(\nu_k + \kappa_k - \frac{1}{2} \right) -->
 <!-- \label{eq:Tk} -->
-<!-- \end{equation} -->
-<!-- Where -->
-<!-- \begin{equation} -->
-<!-- \kappa_k = -->
-<!-- \begin{cases} -->
-<!-- \frac{1}{2}, & \text{if $\mu_k(0) > 0$} \\ -->
-<!-- 0 \text{or } 1, & \text{if $\mu_k(0) < 0$} -->
-<!-- \end{cases} -->
 <!-- \end{equation} -->
 <!-- Note, moreover, that $\tilde{x}_k(0)$ must always be non-negative, and so $w_k$ is always real and non-negative. -->
 <!-- (Note that this decision implies no change to the project budget, just to the amount of time in which budget must be spent.)  -->
@@ -1124,7 +1134,7 @@ But recall that this has the following equivalent expression in the complex plan
 <!-- \label{eq:wStar} -->
 <!-- \end{equation} -->
 
-Generally speaking, the eigenvectors $\mathbf{q}_j$ may include negative elements, which in turn implies negative project NPV $\mu_{kj}^*$. As explained in \ref{sec:cycReal}, a negative expected NPV at the start of the funding cycle means the project is out of phase with the funding cycle. The project time horizon $T_k$ is defined in Eq \ref{eq:Tk} so as to automatically bring such projects into phase by extending or contracting the time horizon by half a funding cycle. This adjustment, in turn, ensures that $\mathbf{w}_{kj}^*$ is real valued. Note, moreover, that all of the terms in Eq \ref{eq:wStar} are positive, whereby it is guaranteed that $\mathbf{w}_{kj}^*$ is also positive.
+Generally speaking, the eigenvectors $\mathbf{q}_j$ may include negative elements, which in turn implies negative project NPV $\mu_{kj}^*$. As explained in \ref{sec:cycReal}, a negative expected NPV may be interpreted as the project value at the sunk cost point in the funding cycle. Negative project NPV is problematic for portfolio optimization since it implies a complex valued budget allocation (Eq \ref{eq:wStar}). The project time horizon $T_k$ is defined in Eq \ref{eq:Tk} so as to automatically extend or contract the time horizon by half a funding cycle, such that the budget allocations $\mathbf{w}_{kj}^*$ are guaranteed to be real valued. Note, moreover, that all of the terms in Eq \ref{eq:wStar} are positive, whereby it is guaranteed that $\mathbf{w}_{kj}^*$ is also positive.
 <!-- And in vector notation, -->
 <!-- \begin{equation} -->
 <!-- \hat{\mathbf{w}}_j^* = \Sigma_{j = 1}^m C_j (D(\tilde{\mathbf{x}}(0))^{-1} \mathbf{q}_j (-1)^{2 \kappa - 1} e^{-r T \left(\frac{1}{2} + \kappa \right)})^{\frac{1}{\boldsymbol{\alpha}}} -->
@@ -1521,7 +1531,7 @@ The strategic objective covariance matrix can be calculated as the inner product
 
 time adjustments
 
-```{r, fig.show = 'hold', fig.width=5, fig.height=3, fig.align='left', fig.cap="\\label{fig:rotCorrXSnParams}(Left) Bar chart of hypothetical project-policy correlations, (right) table of hypothetical project parameters."}
+```{r, fig.show = 'hold', fig.width=4, fig.height=2, fig.align='left', fig.cap="\\label{fig:rotCorrXSnParams}(Left) Bar chart of hypothetical project-policy correlations, (right) table of hypothetical project parameters."}
 
 #====================================================================
 # Define function(s)
@@ -1572,11 +1582,45 @@ plot_corrXS_barchart <- function(mat_L, group_info = NULL, xAxis_title = NULL, s
                    axis.title.y = element_blank(),
                    legend.title = element_blank(),
                    legend.text = element_text(size = 7),
+                   legend.position = "top",
                    strip.text = element_text(size = 7))
   gg <- gg + coord_equal()
   gg <- gg + coord_flip()
   gg
   
+}
+#--------------------------------------------------------------
+
+# Define function to order data by group
+group_fn <- function(group_info){
+  list_groups <- group_info[[1]]
+  group_names <- group_info[[2]]
+  group_colors <- group_info[[3]]
+  varNames_ordered <- do.call(c, list_groups)
+  n_groups <- length(group_names)
+  n_items <- length(varNames_ordered)
+  if(is.na(group_colors)){
+    bag_of_colors <- randomcoloR::distinctColorPalette(k = 5 * n_groups)
+    group_colors <- sample(bag_of_colors, n_groups)
+    #group_colors <- viridis::viridis_pal(option = "D")(length(group_names))
+  }
+  #if(reverse_order){group_colors <- rev(group_colors)}
+  #varNames_ordered <- colnames(mat_pctDiff)
+  group_vec <- rep(NA, n_items)
+  group_color_vec <- rep(NA, n_items)
+  for(i in 1:n_groups){
+    this_group_vec <- list_groups[[i]]
+    this_group_name <- group_names[i]
+    this_group_color <- group_colors[i]
+    group_vec[which(varNames_ordered %in% this_group_vec)] <- this_group_name
+    group_color_vec[which(varNames_ordered %in% this_group_vec)] <- this_group_color
+  }
+  ind_ordered_cols <- order(factor(group_vec))
+  cols_ordered_by_group <- as.character(varNames_ordered[ind_ordered_cols])
+  group_color_vec <- group_color_vec[ind_ordered_cols]
+  group_vec_ordered <- group_vec[ind_ordered_cols]
+  out_list <- list(cols_ordered_by_group, group_color_vec, group_vec_ordered, ind_ordered_cols, group_vec)
+  return(out_list)
 }
 
 #====================================================================
@@ -1691,11 +1735,11 @@ sigNames <- c("GDP Growth", "Economic\nEquality", "Environmental\nSustainability
 nSig <- length(sigNames)
 sigNames <- paste("Policy", 1:nSig, "\n", sigNames)
 xAxis_title <- "Rotated Correlations"
-# gg_bar <- plot_corrXS_barchart(mat_Lrot, group_info, xAxis_title, sigNames)
+gg_bar <- plot_corrXS_barchart(mat_Lrot, group_info, xAxis_title, sigNames)
 # ggsave("Fig 6.tiff")
 #--------------------------------------------------------------
 # Project params
-alpha <- c(0.6, 0.65, 0.6, 0.75, 0.65, 0.6, 0.65, 0.8, 0.7, 0.75, 0.8)
+alpha <- c(0.65, 0.65, 0.6, 0.75, 0.65, 0.6, 0.65, 0.8, 0.7, 0.75, 0.7)
 xTilde <- 100 * runif(nrow(df_x)) #exp(rnorm(nr))
 xTilde <- round(xTilde, 4)
 tStep <- 4 #T step per year
@@ -1718,31 +1762,45 @@ confInt95 <- paste(yMin, yMax, sep = "/")
 zBound <- 1.96
 sVec <- (yMax - yMin) / (2 * zBound * sqrt(TvecTstep))
 sVec <- round(sVec, 3)
-cvVec <- sqrt(exp(sVec^2 * TvecTstep) - 1)
+cvVec <- round(sqrt(exp(sVec^2 * TvecTstep) - 1), 3)
 #-----
 projNames <- df_table$Project
 df_param <- data.frame(proj = projNames, alpha, xTilde,
-                       Tt = TvecTstep, confInt95, c = cvVec)
+                       Tt, confInt95, c = cvVec)
 df_param <- df_param %>% gather(var, val, alpha:c)
 #df_param$val <- factor(df_param$val)
-cNames <- c(expression(alpha),
-            expression(tilde(x)),
-            "Time horizon\n(Years/Quarters/Fund. Cycles)",
-            "Arithmetic return\n95% confidence interval",
-            "Coef. of variation")
+# cNames <- c(expression("Scale\nelasticity\n("*alpha*")"),
+#             "Coef. of variation",
+#             "Arithmetic return\n95% conf. interval",
+#             "Time horizon\n(Years/Quarters/Fund. Cyc.)",
+#             expression(tilde(x))
+#             )
+facetTitles <- c("Scale\nelasticity", "Max.\nimpact",
+              "Time horizon\n(Years/Quarters/Fund. Cyc.)",
+            "Arithmetic return\n95% conf. interval",
+            "Coef. of\nvariation"
+            )
+names(facetTitles) <- unique(df_param$var)
+#   as_labeller(c(`alpha` =  "Scale\nelasticity",
+# `c` = "Coef. of variation",
+# `confInt95` = "Arithmetic return\n95% conf. interval",
+# `Tt` = "Time horizon\n(Years/Quarters/Fund. Cyc.)",
+# `xTilde` = expression(tilde(x))))
 gg <- ggplot(df_param, aes(x = var, y = proj,
                            label = val))
 gg <- gg + geom_tile(alpha = 0)
-gg <- gg + scale_x_discrete("var", labels = cNames, position = "top")
+# gg <- gg + scale_x_discrete("var", labels = cNames, position = "top")
+gg <- gg + facet_wrap(~var, nrow = 1, labeller = labeller(var = facetTitles))
 gg <- gg + geom_text(size = cellText_size)
-gg <- gg + theme_bw()
+#gg <- gg + theme_bw()
 gg <- gg + theme(axis.title = element_blank(),
                  axis.text.y = element_blank(),
                  axis.text.x = element_text(size = axisText_size),
-                 panel.grid = element_blank())
+                 panel.grid = element_blank(),
+                 strip.text = element_text(size = facetTitle_size))
 gg_tab <- gg
 #--------------------------------------------------------------
-#gg_bar + gg_tab + plot_layout()
+gg_bar + gg_tab + plot_layout()
 #--------------------------------------------------------------
 
 ```
@@ -1804,35 +1862,33 @@ r <- round(log(1 + r_discrete), 3)
 omega <- r * tFundCyc / (2 * pi)
 #--------------------------------------------------------------------
 # Single objective optimal budget allocation
-mat_muHatStar <- QxxTilde
+mat_muStar <- QxxTilde
 TkHat <- 2 * pi * TvecFcyc
 mat_wShareStar <- matrix(NA, nProj, nSig)
-mat_muStar <- matrix(NA, nProj, nSig)
+#mat_muStar <- matrix(NA, nProj, nSig)
 visVivVec <- c()
 betaStarVec <- c()
 wSlack <- function(beta, Tk, omega, xTilde, muStar, alpha){
-  wShare <- ((diag(exp(-Tk * omega)) %*% diag(1 / xTilde) %*% muStar) * beta)^(1 / alpha)
+  wShare <- ((diag(exp(-Tk * omega)) %*% diag(1 / xTilde) %*% abs(muStar)) * beta)^(1 / alpha)
   wSlack <- sum(wShare) - 1
   return(wSlack)
 }
 thisInt <- c(0, 100)
 for(j in 1:nSig){
-  muHatStar <- mat_muHatStar[, j]
-  ind <- which(muHatStar < 0)
-  rhoK <- rep(0, length(TkHat))
-  rhoK[ind] <- 1
-  Tk <- TkHat - rhoK * pi
-  muStar <- muHatStar
-  muStar[ind] <- -exp(- omega * pi) * muStar[ind]
+  muStar <- mat_muStar[, j]
+  ind <- which(muStar < 0)
+  kappaK <- rep(0, length(TkHat))
+  kappaK[ind] <- 1
+  Tk <- TkHat - kappaK * pi
   out <- uniroot(wSlack, interval = thisInt,
                  Tk = Tk, omega = omega, xTilde = xTilde,
                  muStar = muStar, alpha = alpha,
                  lower = min(thisInt), upper = max(thisInt))
   betaStar <- out$root
   print(out$f.root)
-  wShareStar <- ((diag(exp(-Tk * omega)) %*% diag(1 / xTilde) %*% muStar) * betaStar)^(1 / alpha)
+  wShareStar <- ((diag(exp(-Tk * omega)) %*% diag(1 / xTilde) %*% abs(muStar)) * betaStar)^(1 / alpha)
   print(sum(wShareStar))
-  mat_muStar[, j] <- muStar * betaStar
+  #mat_muStar[, j] <- muStar * betaStar
   mat_wShareStar[, j] <- wShareStar
   visVivVec[j] <- r^2 / 2 * betaStar^2
   betaStarVec[j] <- betaStar
@@ -1841,6 +1897,7 @@ mat_muStar <- round(mat_muStar, 4)
 mat_wShareStar <- round(mat_wShareStar, 4)
 #colSums(mat_wShareStar)
 visVivVec <- round(visVivVec, 4)
+muStarVec <- colSums(mat_muStar)
 sigVec <- round(gammaGxx, 4)
 betaStarVec <- round(betaStarVec, 4)
 row.names(mat_muStar) <- projNames
@@ -1861,7 +1918,7 @@ colnames(mat_wShareStar) <- sigNames
 # colSums(mat_woCstar)
 # round(mat_woCstar, 4)
 #--------------------------------------------------------------------
-df_plot <- as.data.frame(mat_woCstar)
+df_plot <- as.data.frame(mat_wShareStar)
 colnames(df_plot) <- sigNames
 df_plot$Project <- projNames
 gathercols <- sigNames
@@ -1869,7 +1926,7 @@ df_plot <- df_plot %>% gather_("Policy", "Budget share", gathercols)
 
 gg <- ggplot(df_plot, aes(x = Project, y = `Budget share`))
 gg <- gg + geom_bar(stat = "identity", color = "black", position = "dodge")
-gg <- gg + ylim(limits = c(-1, 1))
+#gg <- gg + ylim(limits = c(0, 1))
 gg <- gg + facet_wrap(~ Policy, nrow = 1)
 #gg <- gg + labs(y = xAxis_title)
 gg <- gg + theme(axis.text = element_text(size = 7),
