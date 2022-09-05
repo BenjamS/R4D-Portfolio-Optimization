@@ -386,12 +386,12 @@ Estimation of the project NPV coefficients of variation $c_k$ and covariation $c
 While it may be difficult to develop an intuitive grasp of the value of the project volatility parameter $s_k$, research managers (and/or stakeholders and/or the foresight economists conducting the program appraisal) generally have some idea of the uncertainty surrounding estimates of project NPV, such that they can be asked to quantify minimum and maximum bounds on the expected arithmetic return $r$. For example, they can usually make statements to the effect of: "In the very best of cases, the maximum arithmetic return to project $k$ is probably about $250\%$, while in the worst of cases it may be as low as $-50\%$".
 <!-- (Or they may give the same information in terms of magnitude, which is then easily transformed into percentage terms.) -->
 
-These upper and lower error margins on the expected arithmetic return $r$ may then be interpreted as the upper and lower bounds of a $95\%$ confidence interval. The arithmetic return $r$ can be converted to a log return by the formula
+These upper and lower error margins on the expected arithmetic return $r$ may then be interpreted as the upper and lower bounds of a $95\%$ confidence interval. The arithmetic return $r$ can be converted to a log return $r_{\ell}$ by the formula
 
 \begin{equation}
-\ell = \ln(r + 1)
+r_{\ell} = \ln(r + 1)
 \end{equation}
-
+<!-- https://quant.stackexchange.com/questions/47537/convert-arithmetic-returns-to-log-returns -->
 <!-- (call this $\mathscr{R}_k$), which may then be converted to a log return ($\ell_k = \ln(x_k(T) / x_k(\hat{t}))$) by the formula. Now, since $\tilde{x}_k(t)$ is assumed to follow a geometric Brownian motion, the log return may also be expressed -->
 <!-- about the expected percentage change in project NPV between the start and end of the project. Another phrase for "percentage change" is "arithmetic return" -->
 
