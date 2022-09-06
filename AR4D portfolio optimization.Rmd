@@ -252,18 +252,18 @@ Where $\epsilon$ is a normally distributed random variable with mean $0$ and var
 
 \begin{equation}
 \begin{split}
-m \Delta t &= E \left[\frac{\Delta x(T)}{x(T)} \right] \\
-s^2 \Delta t &= Var \left[\frac{\Delta x(T)}{x(T)} \right]
+m \Delta t &= E \left[\frac{\Delta x}{x} \right] \\
+s^2 \Delta t &= Var \left[\frac{\Delta x}{x} \right]
 \end{split}
 \end{equation}
 <!-- and $m_k$ is the expected growth rate; that is to say $m_k = E[\Delta x_k/x_k(\hat{t})]; \:\:\: \Delta x_k = x_k(\hat{t} + \Delta t) - x_k(\hat{t})$ -->
 
 (For a reference, see Hull [@].)
 
-Technically, $\Delta t$ is an instantaneous or infinitesimal time interval and hence $m$ is the expected instantaneous growth rate. In practice, it is acceptable to treat $\Delta t$ as a finitely small, but judicious, time step. The time step should be as small as possible while still ensuring that changes in $x$ occur in every time step. In the present context, it is reasonable to assume that random research and/or non-research related changes in project NPV occur at least once per annual quarter. The time step $\Delta t$ at the project level may thus be judiciously defined as an annual quarter, and $m$ may be interpreted as the expected quarterly growth rate.
+Technically, $\Delta t$ is an instantaneous or infinitesimal time interval and hence $m$ is the expected instantaneous growth rate. In practice, it is acceptable to treat $\Delta t$ as a finitely small, but judicious, time step. The time step should be as small as possible while still ensuring that changes in $x$ occur in every time step. In the present context, it is reasonable to assume that random research and/or non-research related changes in project NPV occur at least once per annual quarter. The time step $\Delta t$ at the project level may thus be judiciously defined as an annual quarter, and $m$ may be interpreted as the expected quarterly growth rate, or the expected arithmetic return.
 <!-- This selection must be made on the basis of both realism and expedience. Periods of a few substantial changes interspersed by relatively longer periods of many small changes. Geometric Brownian motion expedient and versatile  -->
 
-By definition, project NPV appreciates over time at the quarterly discount rate $r$. Conversely put, a program growth rate different from $r$ implies that the program NPV is inaccurately calculated. Therefore, by assuming that project NPV is accurately calculated, one assumes that the growth rate $m$ equals $r$.
+By definition, project NPV appreciates over time at the quarterly discount rate $r$. Conversely put, a program growth rate different from $r$ implies that the program NPV is inaccurately calculated. Therefore, by assuming that project NPV is accurately calculated, one effectively assumes that the expected arithmetic return $m$ equals $r$.
 
 ## Expected value, variance, and covariance of program NPVs
 
@@ -383,13 +383,62 @@ Project NPV given budget $C$ ($\tilde{x}_k(0)$) can be estimated at the start of
 
 Estimation of the project NPV coefficients of variation $c_k$ and covariation $c_{kj}$ depends upon estimation of project NPV variances $\sigma_k^2$ and covariances $\sigma_{kj}$, which in turn hinges upon estimation of the project return variances $s_k^2 \tau_k$ and covariances $s_{kj} \sqrt{\tau_k \tau_j}$.
 
-While it may be difficult to develop an intuitive grasp of the value of the project volatility parameter $s_k$, research managers (and/or stakeholders and/or the foresight economists conducting the program appraisal) generally have some idea of the uncertainty surrounding estimates of project NPV, such that they can be asked to quantify minimum and maximum bounds on the expected arithmetic return $r$. For example, they can usually make statements to the effect of: "In the very best of cases, the maximum arithmetic return to project $k$ is probably about $250\%$, while in the worst of cases it may be as low as $-50\%$".
-<!-- (Or they may give the same information in terms of magnitude, which is then easily transformed into percentage terms.) -->
+While it may be difficult to develop an intuitive grasp of the value of the project volatility parameter $s_k$, research managers (and/or stakeholders and/or the foresight economists conducting the program appraisal) generally have some idea of the uncertainty surrounding estimates of project NPV, such that they can be asked to quantify minimum or maximum bounds on the expected arithmetic return $r$. For example, they can usually make statements to the effect of: "In the very best of cases, the maximum arithmetic return to project $k$ by the end of the project is probably about $1.5$". (Or they may give the same information in percentage terms, or in terms of magnitude, which is then easily converted to arithmetic return.)
 
-These upper and lower error margins on the expected arithmetic return $r$ may then be interpreted as the upper and lower bounds of a $95\%$ confidence interval. The arithmetic return $r$ can be converted to a log return $r_{\ell}$ by the formula
+first have to convert to quarterly return!
+This maximum arithmetic return may then be interpreted as the upper bound of the $95\%$ confidence interval about $r$. Let the upper and lower bounds of this interval be denoted $\bar{r}_k$ and $\underline{r}_k$, respectively. Since project NPV is assumed to follow a gBm, the arithmetic return is thereby assumed to be normally distributed and hence symmetric about $r$, such that the upper and lower bounds of the confidence interval are related as follows.
 
 \begin{equation}
-r_{\ell} = \ln(r + 1)
+\frac{\underline{r}_k + \bar{r}_k}{2} = r
+\end{equation}
+
+The lower bound of the confidence interval is thus easily deduced from the elicited upper bound $\bar{r}_k$. Now, recalling the expression for the log return of a gBm (Eq ...), note that the arithmetic and log return are related as follows.
+
+\begin{equation}
+\frac{\Delta x_k}{x_k} &= \frac{x_k(t + \Delta t) - x_k(t)}{x_k(t)} = \frac{x_k(t + \Delta t)}{x_k(t)} - 1 \\
+&\Rightarrow \: \ln \left( \frac{x_k(t + \Delta t)}{x_k(t)} \right) = \ln \left( \frac{\Delta x_k}{x_k} + 1 \right)
+\end{equation}
+
+The upper and lower log returns (call these $\bar{\ell}_k$ and $\underline{\ell}_k$) over the judicious time step $\Delta t$ can thus be deduced from $\bar{r}_k$ and $\underline{r}_k$.
+
+\begin{equation}
+\begin{split}
+\bar{\ell}_k &= \ln( \bar{r}_k + 1) \\
+\underline{\ell}_k &= \ln( \underline{r}_k + 1)
+\end{equation}
+
+
+
+
+Where $z = 1.96$ is the standard score corresponding to the $95\%$ confidence interval of a normally distributed random variable. The standard score can of course be adjusted to match the practitioner's idea of a suitable confidence interval.
+
+Because the arithmetic return is normally distributed, the 
+
+
+
+
+Subtracting the second equation from the first and rearranging then gives an expression for the volatility parameter $s_k$ in terms of known parameters.
+
+
+such that the upper and lower bounds of the confidence interval are related is symmetric about the mean; and hence the lower bound of the confidence interval $\underline{r}_k$ must be $r-1.5$.
+
+
+
+
+Alternatively, an analogous statement regarding the minimum percentage return can likewise be elicited. ; or "in the very worst of cases, the minimum arithmetic return to project $k$ is probably about $-50\%$". Maybe it's good to do both.
+Either way, the volatility $s_k$ can be deduced from the elicited information as follows. 
+
+<!-- (Or they may give the same information in terms of magnitude, which is then easily transformed into percentage terms.) -->
+
+ 
+
+These upper and lower error margins bracketing  Let these upper and lower bounds . Now, recall the expression for the log return of a gBm (Eq \ref{}) to see that the expected arithmetic and log return of a project NPV $x_k$ are related as follows.
+
+\begin{equation}
+\begin{split}
+r = E \left[ \frac{\Delta x_k}{x_k} \right] = \frac{x_k(t + \Delta t) - x_k(t)}{x_k(t)} = \frac{x_k(t + \Delta t)}{x_k(t)} - 1} \\
+\Rightarrow 
+\end{split}
 \end{equation}
 <!-- https://quant.stackexchange.com/questions/47537/convert-arithmetic-returns-to-log-returns -->
 <!-- (call this $\mathscr{R}_k$), which may then be converted to a log return ($\ell_k = \ln(x_k(T) / x_k(\hat{t}))$) by the formula. Now, since $\tilde{x}_k(t)$ is assumed to follow a geometric Brownian motion, the log return may also be expressed -->
