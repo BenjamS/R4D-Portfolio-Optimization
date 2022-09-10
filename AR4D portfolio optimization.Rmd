@@ -654,10 +654,11 @@ group_colors_arb <- sample(bag_of_colors, n_groups)
 #==============================================================
 df_x <- df_Lrot
 df_x$Group <- NULL
-prop_col <- df_x$Proposal
+projNames <- df_x$Proposal
+matLcolNames <- colnames(df_x)
 df_x$Proposal <- NULL
 mat_Lrot <- as.matrix(df_x)
-rownames(mat_Lrot) <- prop_col
+rownames(mat_Lrot) <- projNames
 list_groups <- list(prop_highYcommod, prop_smallHolder, prop_CSA)
 n_groups <- length(list_groups)
 bag_of_colors <- randomcoloR::distinctColorPalette(k = 5 * n_groups)
@@ -683,6 +684,7 @@ gg_Kdxdx <- plot_covmat(KdxdxTilde, fig_title, round_to = 2, graph_on = F)
 #==============================================================
 # gg_bar + gg_Kdxdx + plot_layout(nrow = 1)
 #==============================================================
+nProj <- nrow(df_table)
 
 ```
 
@@ -702,29 +704,29 @@ Where the elements of the vector $\mathbf{s}$ are the project volatility paramet
 
 ## Modeling diminishing returns to investment
 
-Generally speaking, project NPV scales with investment. That is to say, beyond a certain minimum level of funding required to generate, release, and support the diffusion and uptake of the project's research product(s) on a pilot level, further increments in project investment have the effect of broadening the scope of impact---i.e. extending the size and number of populations or markets where the research product is released and has an impact. For reasons well known to economists, this scaling is not linear, but rather marginally diminishing. Project NPV at the start of the funding cycle ($x_k(0)$) may thus be expressed as a marginally diminishing function of the funding allocation $w_k$, as follows.
+Generally speaking, project NPV scales with investment. That is to say, beyond a certain minimum level of funding required to generate, release, and support the diffusion and uptake of the project's research product(s) on a pilot level, further increments in project investment have the effect of broadening the scope of impact---i.e. extending the size and number of populations or markets where the research product is released and has an impact. For reasons well known to economists, this scaling is not linear, but rather marginally diminishing. Project NPV $x_k(\hat{t})$ may thus be expressed as a marginally diminishing function of the funding allocation $w_k$, as follows.
 
 \begin{equation}
-x_k(0) = \tilde{x}_k(0) \left(\frac{w_k}{C} \right)^{\alpha_k}
+x_k(\hat{t}) = \tilde{x}_k(\hat{t}) \left(\frac{w_k}{C} \right)^{\alpha_k}
 \label{eq:npvFnW}
 \end{equation}
 
-Where $C$ is the portfolio budget, $\tilde{x}_k(0)$ is the maximum financially feasible NPV---i.e., the NPV if the entire budget were invested in the project (the case where $w_k = C$)---and the exponent $\alpha_k$ is the elasticity of project NPV with respect to funding. That is,
+Where $C$ is the portfolio budget, $\tilde{x}_k(\hat{t})$ is the maximum financially feasible NPV---i.e., the NPV if the entire budget were invested in the project (the case where $w_k = C$)---and the exponent $\alpha_k$ is the elasticity of project NPV with respect to funding. That is,
 
 \begin{equation}
-\frac{\partial \ln(x_k(0))}{\partial \ln(w_k)} = \alpha_k
+\frac{\partial \ln(x_k(\hat{t}))}{\partial \ln(w_k)} = \alpha_k
 \end{equation}
 
 And $\alpha_k$ lies between $0$ and $1$, reflecting marginally diminishing returns to investment.
 
-Substituting the right hand side of Eq \ref{eq:npvFnW} for $x_k(0)$ wherever it appears, expected project NPV $\mu_k$ becomes a function of investment
+Substituting the right hand side of Eq \ref{eq:npvFnW} for $x_k(\hat{t})$, expected project NPV $\mu_k$ becomes a function of investment.
 
 \begin{equation}
-\mu_k(0) = \tilde{x}_k(0) \left( \frac{w_k}{C} \right)^{\alpha_k} e^{r T_k}
+\mu_k(\hat{t}) = \tilde{x}_k(\hat{t}) \left( \frac{w_k}{C} \right)^{\alpha_k} e^{r \tau_k}
 \label{eq:muFnw}
 \end{equation}
 
-And likewise for project NPV variance and covariance $\sigma_{jk}$, and the coefficients of covariation $c_{jk}$.
+Note that project NPV variances and covariances $\sigma_{jk}$ are also functions of investment, since $\mu_k$ appears in their definition.
 
 Eq \ref{eq:npvFnW} is an ansatz. Practitioners may design other functional forms more suitable to their particular context; but, in general, the ansatz should be restricted to the domain $(0,\infty)$ and be marginally diminishing in the investment $w_k$. In some contexts, it may make sense to use a sigmoidal ansatz that exhibits increasing returns to investment up to a point of constant returns, and decreasing returns thereafter---such as $x_k(0) = \tilde{x}_k(0) e^{-C/w_k}$.
 <!-- ... -->
@@ -868,7 +870,7 @@ In the motivating context of the present article, the displacement $\Delta u_k$ 
 
 \begin{equation}
 \begin{split}
-\Delta u_k = \int_{\hat{t}}^T v_k dt &= u_k(\tau)|_{*} - u_k(\tau) \\
+\Delta u_k = \int_{\hat{t}}^T_k v_k dt &= u_k(\tau_k)|_{*} - u_k(\tau_k) \\
 &= E[x_k(T)]\bigr|_{t = \hat{t}}
 \end{split}
 \end{equation}
@@ -876,13 +878,13 @@ In the motivating context of the present article, the displacement $\Delta u_k$ 
 Assuming $x_k(t)$ follows a gBm,
 
 \begin{equation}
-\Delta u_k |_{t = \hat{t}} = \mu_k(\hat{t}) = x_k(\hat{t}) e^{r \tau} \bigr|_{t = \hat{t}}
+\Delta u_k |_{t = \hat{t}} = \mu_k(\hat{t}) = x_k(\hat{t}) e^{r \tau_k} \bigr|_{t = \hat{t}}
 \end{equation}
 
 The corresponding velocity thus works out to
 
 \begin{equation}
-\frac{\Delta u_k}{\Delta t} \bigr|_{t = \hat{t}} = -r x_k(\hat{t}) e^{r \tau}
+\frac{\Delta u_k}{\Delta t} \bigr|_{t = \hat{t}} = -r x_k(\hat{t}) e^{r \tau_k}
 \end{equation}
 
 With starting and finishing values of
@@ -897,7 +899,7 @@ and
 \frac{\Delta u_k}{\Delta t} \bigr|_{t = T_k} = -r x_k(T_k)
 \end{equation}
 
-The velocity is negative because time progression in the definition of $\mu_k$ is expressed not in terms of the number of time steps transpired, but rather in terms of the number of time steps that have yet to transpire until the time horizon $T_k$. Nonetheless, the velocity is monotonically increasing in time (Figure \ref{fig:kinema2}).
+The velocity is negative because time progression in the definition of $\mu_k$ is expressed not in terms of the number of time steps transpired, but rather in terms of the number of time steps that have yet to transpire until the time horizon $T_k$. Nonetheless, the velocity is monotonically increasing in time (Fig \ref{fig:kinema2}).
 
 ```{r, fig.show = "hold", fig.width = 3, fig.height=3, fig.align="center", fig.cap="\\label{fig:kinema2}Acceleration of a net benefit stream.", echo = FALSE}
 
@@ -948,7 +950,7 @@ The vis viva, meanwhile, works out to
 
 \begin{equation}
 \begin{split}
-\mathcal{E}_k(\hat{t}) &= \frac{\lambda}{2} r^2 x_k(\hat{t})^2 e^{2r \tau} \\
+\mathcal{E}_k(\hat{t}) &= \frac{\lambda}{2} r^2 x_k(\hat{t})^2 e^{2r \tau_k} \\
 &= \frac{\lambda}{2} r e^{r \tau} \mu_k(\hat{t})^2
 \end{split}
 \end{equation}
@@ -1191,7 +1193,7 @@ Where the portfolio risk $\sigma$ is defined as follows.
 \end{equation}
 
 <!-- Because $\mu_k(w_k)$ is monotonically increasing in $w_k$ -->
-With no loss of generality, the control variables $\mathbf{w}$ may be swapped for $\boldsymbol{\mu}$.
+Without loss of generality, the control variables $\mathbf{w}$ may be swapped for $\boldsymbol{\mu}$.
 
 \begin{equation}
 \max_{\boldsymbol{\mu}}{\mathcal{E}} \:\:\: s.t. \:\:\: \sigma = \overline{\sigma}
@@ -1230,8 +1232,7 @@ Where $\mathbf{0}$ is a vector of zeros. This can then be rearranged as follows.
 G \boldsymbol{\mu} - \frac{r^2 \sigma}{\lambda} \boldsymbol{\mu} = \mathbf{0}
 \end{equation}
 
-The program NPV vector $\boldsymbol{\mu}^*$ satisfying the first order conditions is thus given by any of the eigenvectors of $G$, with corresponding risk shadow price given in terms of the respective eigenvalue.
-<!-- More specifically, [letting $\mathbf{q}_j$ and $\gamma_j$ stand for the $j^{th}$ eigenvector and eigenvalue of $G$, respectively, then] the $j^{th}$ solution $\boldsymbol{\mu}_j^*$ can be written -->
+The program NPV vector $\boldsymbol{\mu}^*$ satisfying the first order conditions is thus given by any of the eigenvectors of $G$, with corresponding risk shadow price given in terms of the respective eigenvalue. More specifically, letting $\mathbf{q}_j$ and $\upsilon_j$ stand for the $j^{th}$ eigenvector and eigenvalue of $G$, respectively, then] the $j^{th}$ solution $\boldsymbol{\mu}_j^*$ can be written
 <!-- $\frac{r^2 \sigma}{\gamma_j}$ $\lambda$ given by the inverse of the respective eigenvalues, scaled by $r^2$.]  -->
 
 \begin{equation}
@@ -1242,7 +1243,7 @@ The program NPV vector $\boldsymbol{\mu}^*$ satisfying the first order condition
 With risk shadow price $\lambda_j$
 
 \begin{equation}
-\lambda_j = r^2 \frac{\sigma_j^*}{\gamma_j}
+\lambda_j = r^2 \frac{\sigma_j^*}{\upsilon_j}
 \end{equation}
 
 Where $\sigma_j^*$ is the portfolio risk corresponding to the $j^{th}$ solution,
@@ -1250,14 +1251,14 @@ Where $\sigma_j^*$ is the portfolio risk corresponding to the $j^{th}$ solution,
 \begin{equation}
 \begin{split}
 \sigma_j^* &= \mathbf{q}_j ' G \mathbf{q}_j \\
-&= \gamma_j
+&= \upsilon_j
 \end{split}
 \end{equation}
 
 Such that $\lambda_j$ reduces to
 
 \begin{equation}
-\lambda_j = \frac{r^2}{\sqrt{\gamma_j}} = \frac{r^2}{\sigma_j^*}
+\lambda_j = \frac{r^2}{\sqrt{\upsilon_j}} = \frac{r^2}{\sigma_j^*}
 \end{equation}
 
 The risk shadow price is thus inversely proportional to portfolio risk. As risk increases, the marginal benefit of additional increments in risk decrease.
@@ -1342,7 +1343,7 @@ To resolve this condition into a more intelligible form, note that $\mathbf{a}$ 
 Z \mathbf{y} = \mathbf{a} \:|\: \nabla_{\boldsymbol{\mu}} \sigma |_{\boldsymbol{\mu} = \boldsymbol{\mu}^*} ' Z = \mathbf{0}
 \end{equation}
 
-Since $\nabla_{\boldsymbol{\mu}} \sigma |_{\boldsymbol{\mu} = \boldsymbol{\mu}^*}$ is any eigenvector of $G$, say the $j^{th}$ eigenvector, then the other eigenvectors constitute a valid basis $Z$. Letting the notation $Q_j$ stand for the eigenvectors of $G$ excluding the $j^{th}$ column, then $Z = Q_j$. The second order condition can thus be rewritten
+Since $\nabla_{\boldsymbol{\mu}} \sigma |_{\boldsymbol{\mu} = \boldsymbol{\mu}^*}$ is any eigenvector of $G$, say the $j^{th}$ eigenvector, then the other eigenvectors constitute a valid basis $Z$. Letting the notation $Q_j$ stand for the matrix of eigenvectors of $G$ excluding the $j^{th}$ column, then $Z = Q_j$. The second order condition can thus be rewritten
 
 \begin{equation}
 \mathbf{y} ' H_j \mathbf{y} &> 0
@@ -1359,273 +1360,84 @@ The second order condition is thus fulfilled if and only if $H_j$ is negative de
 \begin{equation}
 \begin{split}
 H_j &= Q_j ' (r^2 \boldsymbol{\mu}_j^* - \frac{\lambda_j}{\sigma} G \boldsymbol{\mu}_j^*) Q_j \\
-&= Q_j ' (r^2 \mathbf{q}_j - \frac{r^2}{\gamma_j} G \mathbf{q}_j) Q_j \\
-&= r^2 (I - \frac{1}{\gamma_j} \Gamma_j)
+&= Q_j ' (r^2 \mathbf{q}_j - \frac{r^2}{\upsilon_j} G \mathbf{q}_j) Q_j \\
+&= r^2 (I - \frac{1}{\upsilon_j} U_j)
 \end{split}
 \end{equation}
 
-Where $\Gamma_j$ is the diagonal matrix of eigenvalues of $G$ excluding the $j^{th}$ eigenvalue. Since $G$ is positive definite, its eigenvalues are positive. And since $\gamma_1 > \gamma_2 > ... > \gamma_n$ for a portfolio of $n$ items, it is straightforward to see that $H_1$ is negative definite, $H_n$ is positive definite, and the matrices $H_{1 < k < n}$ are indefinite.
+Where $U_j$ is the diagonal matrix of eigenvalues of $G$ excluding the $j^{th}$ eigenvalue. Since $G$ is positive definite, its eigenvalues are positive. And since $\upsilon_1 > \upsilon_2 > ... > \upsilon_n$ for a portfolio of $n$ items, it is straightforward to see that $H_1$ is negative definite, $H_n$ is positive definite, and the matrices $H_{1 < k < n}$ are indefinite.
 <!-- (i.e., the case where $\boldsymbol{\mu}^*$ equals the leading eigenvector of $K$) -->
 <!-- (i.e., the case where \boldsymbol{\mu}^* equals the trailing eigenvector of $G$) -->
 
 The leading eigenvector $\mathbf{q}_1$ is thus the solution that satisfies the second order condition (Eq \ref{eq:soc}), and thus maximizes $\mathcal{L}$. By the same token, the trailing eigenvector of $\mathbf{q}_n$ is the solution that minimizes $\mathcal{L}$, and the intermediate eigenvectors $(1 < k < n)$ represent saddle point solutions of $\mathcal{L}$ between these two extremes.
 
+# Post-solution considerations
+
 ## Keeping only meaningful solutions
-<!-- ## Spectrally reduced covariance matrix -->
 
 The trailing eigenvectors of a covariance matrix tend to represent noise in the data. The budget allocations associated with these eigenvectors are thus effectively random, and should be discarded from the menu of eligible solutions. To ensure that solutions are meaningful, only the leading $m$ eigenvectors required to explain a high fraction of total portfolio variance should be retained.
 
-The percentage of portfolio variance explained by any given eigenvector $q_j$ (call this $k_j$) is the corresponding eigenvalue $\gamma_j$ divided by the sum of all the eigenvalues (See Abdi [-@] for details).
-<!-- associated principle component's variance divided by the sum of all principle component variances. Recalling from Eq \ref{eq:covmat_SS} that a signal's variance is just the corresponding eigenvalue $\gamma_k$ extracted from $\Sigma_{XX}$, this is expressed -->
+The percentage of portfolio variance explained by any given eigenvector $\mathbf{q}_j$ (call this $k_j$) is the corresponding eigenvalue $\upsilon_j$ divided by the sum of all the eigenvalues (See Abdi [-@] for details).
 
 \begin{equation}
-k_j = \frac{\gamma_j}{\sum_{k = 1}^n \gamma_k}
+k_j = \frac{\upsilon_j}{\sum_{k = 1}^n \upsilon_k}
 \end{equation}
 
 The cumulative variance captured by a group of $m < n$ leading eigenvectors is then
 
 \begin{equation}
-\upsilon_m = \sum_{j=1}^m k_j
+\zeta_m = \sum_{j=1}^m k_j
 \end{equation}
 
-Such that $\upsilon_n = 1$.
+Such that $\zeta_n = 1$.
 
-The exact value of the integer $m$ is subjective. A rule of thumb often followed in practice is to retain the $m$ leading eigenvectors required to explain at least $90\%$ of the portfolio variance (i.e., such that $\upsilon_m \geq 0.9$). This is tantamount to the "spectral cut-off" method used in the financial context [@guo2018eigen; @carrasco2011optimal].
+The exact value of the integer $m$ is subjective. Practitioners typically retain the $m$ leading eigenvectors required to explain some high percentage of the portfolio variance, such as $95\%$ (corresponding to $\zeta_m \geq 0.95$). This is tantamount to the "spectral cut-off" method used in the financial context [@guo2018eigen; @carrasco2011optimal].
 
 ## A menu of solutions catering to a range of risk appetites
 
-The "optimal" solution ($\boldsymbol{\mu}_1^*$) is optimal in the sense that it maximizes expected portfolio impact subject to a risk constraint. However, this is the solution that also corresponds to the highest eigenvalue ($\gamma_1$), and is hence also the riskiest of the candidate solutions (recall equation \ref{eq:gammaRisk}). The other candidate solutions ($\boldsymbol{\mu}_1^*, \boldsymbol{\mu}_2^*,\dots, \boldsymbol{\mu}_n^*$) may correspond to lower expected impacts, but also successively decreasing eigenvalues ($\gamma_2, \gamma_3, \dots, \gamma_n$), and hence successively decreasing risk levels.
+The "optimal" solution ($\boldsymbol{\mu}_1^*$) is optimal in the sense that it maximizes expected portfolio impact subject to a risk constraint. However, this is the solution that also corresponds to the highest eigenvalue ($\upsilon_1$), and is hence also the riskiest of the candidate solutions (recall equation \ref{eq:gammaRisk}). The other candidate solutions ($\boldsymbol{\mu}_1^*, \boldsymbol{\mu}_2^*,\dots, \boldsymbol{\mu}_m^*$) may correspond to lower expected impacts, but also successively decreasing eigenvalues ($\upsilon_2, \upsilon_3, \dots, \upsilon_m$), and hence successively decreasing risk levels.
 
 AR4D donors and institutions are thus presented not with a single optimal solution, but an optimal menu of solutions corresponding to a range of risk tolerances. Typically, AR4D donors are guided by a pro-poor mandate which requires them to operate in the gaps left by market failures, and hence to incline towards ambitious research portfolios. Ambition implies risk, which in turn implies that AR4D donors should endeavor to select from among the riskier solutions on the optimal menu. It should be kept in mind, moreover, that higher portfolio risk is not unambiguously bad, as it exposes the investor to an increased probability of both lower and higher portfolio return.
+
+Nonetheless, selection of a high risk solution from the optimal menu must be justified by a correspondingly high expected impact (vis viva). Obviously, a lower risk solution with higher expected impact should be selected over a higher risk solution with relatively lower vis viva.
+
+Finally, political considerations come into play. Solutions must be reasonably distributed among projects. Selection of a solution that allocates most of the budget to just one or two projects is bound to create a toxic work environment.
 <!-- The leading eigenvector of $G$ is the portfolio budget allocation that maximizes portfolio impact subject to a risk constraint. $\overline{\mathcal{E}}$. The other solutions are not necessarily sub-optimal, but rather correspond to lower investor risk tolerances. Here it is important to keep in mind that higher portfolio risk is not unambiguously bad, but rather a matter of ambition. Higher risk exposes the investor to an increased probability of both lower and higher portfolio return. Moreover, if the portfolio items follow a gBm, as assumed here, then returns are lognormally distributed; and so the risk is primarily upside. Moreover, let's not forget that AR4D institutions have a pro-poor mandate to redress market failures; and this can often mean taking on ambitious, higher risk portfolios. -->
 <!-- Note that this is reflected in the corresponding eigenvalues. The leading eigenvalue---which corresponds to the risk maximizing solution---is the largest, indicating the highest risk for a given vis viva target $\overline{\mathcal{E}}$ (recall equation \ref{eq:lambDef}), while the remaining eigenvalues are successively smaller, indicating successively lower risk levels. -->
+```{r, fig.show = 'hold', fig.width=5, fig.height=2, fig.align='left', fig.cap="\\label{fig:varExplained_barchart}Plot of the individual and cumulative portions of variance explained by each signal in the financial dataset.", echo=F}
+c_vec <- eig_values / sum(eig_values)
+ck_vec <- cumsum(c_vec)
+df_plot <- data.frame(Signal = paste("Signal", 1:length(eig_values)), Portion_explained = c_vec, Portion_explained_cumul = ck_vec)
+colnames(df_plot)[2:3] <- c("Individually", "Cumulatively")
+gathercols <- colnames(df_plot)[2:3]
+df_plot <- gather_(df_plot, "Portion explained", "Value", gathercols)
+df_plot$Signal <- factor(df_plot$Signal,
+                         levels = unique(df_plot$Signal),
+                         ordered = T)
+gg <- ggplot(df_plot, aes(x = Signal, y = Value, fill = `Portion explained`))
+gg <- gg + geom_bar(stat = "identity", color = "black", position = "dodge")
+gg <- gg + scale_fill_manual(values = c("wheat3", "paleturquoise"))
+gg <- gg + geom_hline(yintercept = 0.9, color = "coral", size = 1, linetype = "dashed")
+gg <- gg + theme(axis.text.y = element_text(size = 7),
+                 axis.text.x = element_text(size = 7, angle = 60, hjust = 1),
+                 axis.title = element_blank(),
+                 legend.title = element_text(size = 8),
+                 legend.text = element_text(size = 8))
+gg
+ggsave("Fig 4.tiff")
+#====================================================
+nSig <- which(ck_vec > 0.9)[1]
+mat_S <- mat_S_all[, 1:nSig]
+mat_L <- cormat_XS[, 1:nSig]
+eig_values_sigs <- eig_values[1:nSig]
+#====================================================
+```
 
-## A menu of solutions catering to a range of strategic objectives
+**Fig 4. Plot of the individual and cumulative portions of variance** explained by each signal in the financial dataset.
 
-Generally speaking, each of the $m$ leading eigenvectors of a covariance matrix of a complex system of variables encode information about a specific aspect of the system. In the financial context, for example, Gopikrishnan et al. [-@gopik2001quant] show that each of the leading eigenvectors of a covariance matrix of hundreds of stock price series is associated with movements in a particular industry or sector, such that each element in the eigenvectors reflects a particular stock's contribution to, or participation in, movements in the respective sector.
-<!-- [The authors even suggest this method might be used to classify firms into industries.] -->
+&nbsp;
 
-Schiek extends the logic of Gopikrishnan et al.'s analysis to AR4D correlation matrices [-@schiek2021reverse]. In that extension, Schiek shows that the collective movements associated with each eigenvector may be interpreted as the AR4D institution's (and/or donor's) strategic objectives or policies, such that the elements of the eigenvectors may be interpreted as reflecting each research program's contribution towards the respective policy.
-
-In technical language, this association between macro and micro level movements results because empirical collective movements (for e.g., sectorial movements) tend to align with the leading principal components of the system. The leading eigenvectors reflect the participation of individual variables (for e.g., stocks) in a particular collective movement because they are very nearly the covariances of variables ($X$) with leading principal components ($S$).
-<!-- The exact covariances of variables with leading principal components ($\tilde{\Sigma}_{X, S}$) are given by -->
-<!-- \begin{equation} -->
-<!-- \tilde{\Sigma}_{X, S} = \tilde{P} \tilde{\Gamma} -->
-<!-- \end{equation} -->
-<!-- (Where the tilde "~" indicates that the expression is restricted to the $m$ leading eigenvector-eigenvalue pairs.) -->
-<!-- Correlations between variables and leading principal components ($K_{X, S}$), it follows, are given by  -->
-<!-- \begin{equation} -->
-<!-- K_{X, S} = \tilde{P} \tilde{\Gamma}^{\frac{1}{2}} -->
-<!-- \end{equation} -->
-<!-- (See Schiek [-@schiek2021reverse] or Abdi [-@] for details.) -->
-<!-- Pre-multiplying the correlations by an orthonormal (typically varimax) rotation matrix $B$ can be useful in clarifying which variables are associated with which collective movements. -->
-<!-- <!-- (Note that this is done without loss of generality, since covariance matrices are defined up to an orthonormal rotation of their eigenvectors.) -->
-<!-- \begin{equation} -->
-<!-- K_{X, S}^{\circlearrowright} = B \tilde{P} \tilde{\Gamma}^{\frac{1}{2}} -->
-<!-- \label{eq:Lrot} -->
-<!-- \end{equation} -->
-<!-- In the AR4D context, this may be interpreted as the matrix of correlations between projects and policies, and elicited from expert opinion as such [@schiek2021reverse]. This matrix will become very useful in the next section. -->
-
-Because eigenvectors are associated with strategic objectives, by selecting a particular portfolio solution from the optimal menu, the investor effectively commits themselves to a particular strategic objective for the funding cycle. When selecting a budget allocation from the optimal menu, then, the investor must consider not only their risk tolerance, but also the strategic objective they wish to focus on for the funding cycle.
-
-## Multi-objective portfolio optimization
-
-Alternatively, the investor may want to optimize across multiple strategic objectives. In other words, they may want an optimal linear combination of the solution menu.
-
-\begin{equation}
-\boldsymbol{\mu}^* = Q \boldsymbol{\beta}^*
-\end{equation}
-
-Where the optimal scaling parameters $\beta_j^*$ are defined as those which maximize policy impact subject to a policy risk tolerance. Formally, this problem can be stated as follows.
-<!-- $\mathcal{E}^p = r^2/2\; \boldsymbol{\mu} {'} \boldsymbol{\mu}$ -->
-<!-- $\sigma^p = \sqrt{\boldsymbol{\mu}^p ' G_{p,p} \boldsymbol{\mu}^p}$ -->
-<!-- Which can then be solved for the optimal multi-objective budget allocation.  -->
-
-\begin{equation}
-\max_{\boldsymbol{\beta}} \mathcal{E}^p \:\:\:\:s.t.\:\:\: \sigma^p = \bar{\sigma}^p
-\end{equation}
-
-Where $\mathcal{E}^p$ and $\sigma^p$ are the policy vis viva and risk, defined as the policy level aggregation of the project level solution menu.
-
-\begin{equation}
-\begin{split}
-\mathcal{E}^p &= \Sigma_{j = 1}^m \mathcal{E}_j^* \;\;;\;\;\; \mathcal{E}_j^* = \frac{1}{2} \mathbf{v}_j^* ' \mathbf{v}_j^* = \frac{r^2}{2} \boldsymbol{\mu}_j^* ' \boldsymbol{\mu}_j^* =  \frac{r^2}{2} \beta_j^2 \\
-&= \frac{r^2}{2} \boldsymbol{\beta} ' \boldsymbol{\beta} \\
-\sigma^p &= \mathbf{1} ' \Sigma^p \mathbf{1} = \boldsymbol{\beta} ' G^p \boldsymbol{\beta}
-\end{split}
-\end{equation}
-
-Where $G^p$ is the policy coefficient of covariation matrix, which can be deduced from the policy NPV covariance matrix $\Sigma^p$, which in turn is obtained as the inner product of the crowdsourced project-policy correlation matrix (Eq \ref{eq:Lrot}) with itself (see Schiek [-@schiek2021reverse] for details).
-
-\begin{equation}
-\begin{split}
-K_{X, S}^{\circlearrowright} ' K_{X, S}^{\circlearrowright} &= B \tilde{\Gamma} B ' \\
-&= \Sigma_{S,S}
-\end{split}
-\label{eq:SigSSeig}
-\end{equation}
-<!-- , and where the control variables $\boldsymbol{\mu}^p$ are the expected policy NPVs, whose elements are defined -->
-<!-- \begin{equation} -->
-<!-- \mu_j^p = \boldsymbol{\mu}_j^* ' \mathbf{1} -->
-<!-- \end{equation} -->
-<!-- But note that, since $\boldsymbol{\mu}_j^* = \mathbf{q}_j$, then $\boldsymbol{\mu}_j^* {'} \mathbf{1}$ equals the eigenvalue scaling constant $\beta_j$ (recall equation \ref{eq:wStarScaled}). Therefore, the control variables can be rewritten -->
-<!-- \begin{equation} -->
-<!-- \boldsymbol{\mu}^p = \boldsymbol{\beta} -->
-<!-- \end{equation} -->
-<!-- And so the policy optimization problem can be rewritten -->
-<!-- \begin{equation} -->
-<!-- \max_{\boldsymbol{\beta}} \mathcal{E}^p \:\:\:\:s.t.\:\:\: \sigma^p = \bar{\sigma}^p -->
-<!-- \end{equation} -->
-<!-- Where -->
-<!-- \begin{equation} -->
-<!-- \begin{split} -->
-<!-- \mathcal{E}^p &= \frac{r^2}{2} \boldsymbol{\beta} ' \boldsymbol{\beta} \\ -->
-<!-- \sigma^p &= \boldsymbol{\beta} ' G_{p,p} \boldsymbol{\beta} -->
-<!-- \end{split} -->
-<!-- \end{equation} -->
-<!-- $K_{X, S}^{\circlearrowright} K_{X, S}^{\circlearrowright}{'}$ gives the approximate program correlation matrix $\tilde{K}_{x, x}$, while the inner product  gives the policy covariance matrix (call this $\Sigma_{S, S}^{\circlearrowright}$). In the absence of time series data by which to estimate program and policy correlations, then, the matrix $K_{X, S}^{\circlearrowright} = B \tilde{P}$ provides a means of deducing them from expert opinion. (See Schiek [-@schiek2021reverse] for details.) -->
-
-This is just the project portfolio problem (equation \ref{eq:probStat}) stated at the policy level. The corresponding lagrangian is then
-
-\begin{equation}
-\begin{split}
-\mathcal{L} &= \mathcal{E}^p - \lambda^p (\sigma^p - \bar{\sigma}^p) \\
-&= \frac{r^2}{2} \boldsymbol{\beta} ' \boldsymbol{\beta} - \lambda^p (\boldsymbol{\beta} ' G^p \boldsymbol{\beta} - \bar{\sigma}^p)
-\end{split}
-\end{equation}
-
-And the first order conditions then follow as
-
-\begin{equation}
-\nabla_{\boldsymbol{\beta}} \mathcal{L} = r^2 \boldsymbol{\beta} - \frac{\lambda^p}{\sigma^p} G^p \boldsymbol{\beta} = \mathbf{0}
-\label{eq:focS}
-\end{equation}
-<!-- Which can be rearranged -->
-<!-- \begin{equation} -->
-<!-- \boldsymbol{\beta} - \frac{\lambda^S}{r^2 \sigma^S} G_{S, S} \boldsymbol{\beta} = \mathbf{0} -->
-<!-- \end{equation} -->
-
-The candidate solution $\boldsymbol{\beta}^*$ may thus be any of the eigenvectors of $G^p$, with corresponding policy risk shadow price ($\lambda^p$) given in terms of the respective eigenvalue. Note from equation \ref{eq:SigSSeig} that the matrix of eigenvectors of $\Sigma^p$ is just the orthonormal rotation matrix $B$ that is applied to clarify project-policy correlations; and the respective eigenvalues are just the $m$ leading eigenvalues of the project correlation matrix $K$ (or coefficient of covariation matrix $G$). (See Schiek [-@schiek2021reverse] for details.)
-
-By definition, $G_{S, S} = D(\boldsymbol{\beta})^{-1} \Sigma_{S, S} D(\boldsymbol{\beta})^{-1}$; and so it follows that the eigenvalues of $G_{S, S}$ are likewise $\tilde{\Gamma}$. Combining this information with the first order conditions (equation \ref{eq:focS}), it follows that $\sigma_j^{p*} = \sqrt{\gamma_j} = \sigma_j^*$, and
-
-\begin{equation}
-\begin{split}
-\lambda^p_j &= r^2 \frac{\sigma_j^{S*}}{\gamma_j} \\
-&= \frac{r^2}{\sqrt{\gamma_j}}
-&= \lambda_j
-\end{split}
-\end{equation}
-
-That is, the optimal policy portfolio risk and risk shadow price are equal to the optimal project portfolio risk and risk shadow price.
-
-Moreover, the eigenvectors of $G_{S, S}$ and $\Sigma_{S, S}$ are trivially related as follows. Letting $\boldsymbol{\varepsilon}_j$ and $\mathbf{b}_j$ stand for the $j^{th}$ eigenvectors of $G_{S, S}$ and $\Sigma_{S, S}^{\circlearrowright}$, respectively,
-
-\begin{equation}
-\boldsymbol{\varepsilon}_j = D(\boldsymbol{\beta})^{-1} \mathbf{b}_j
-\end{equation}
-
-But, when evaluated at the $j^{th}$ solution $\boldsymbol{\beta}_j^* = \boldsymbol{\varepsilon}_j$, this becomes
-
-\begin{equation}
-\boldsymbol{\varepsilon}_j = \mathbf{b}_j^{\frac{1}{2}}
-\end{equation}
-
-The $\ell^{th}$ candidate policy budget allocation $\boldsymbol{\beta}_{\ell}^*$ is thus given by
-
-\begin{equation}
-\boldsymbol{\beta}_{\ell}^* = \mathbf{b}_{\ell}^{\frac{1}{2}} \:\:;\:\:\: \ell \in (1, m)
-\end{equation}
-
-To avoid complex valued elements in $\boldsymbol{\beta}_{\ell}^*$, recall that negative elements in $\mathbf{b}_{\ell}$ can be made positive by adjusting the program time horizon, as explained in section \ref{sec:cycReal}.
-
-Deduction of the second order condition for a maximum follows the same procedure as in the project level problem (section \ref{sec:soc}), and results in an analogous conclusion: the investor is presented not with a single optimal linear combination, but with an optimal menu of linear combinations, each corresponding to a particular portfolio risk tolerance (\sqrt{\gamma_{\ell}}). The investor should choose the solution $\boldsymbol{\beta}_{\ell}^*$ with the risk shadow price $\lambda_{\ell}$ that best matches their risk tolerance.
-
-With the optimal policy weights ($\boldsymbol{\beta}_{\ell}^*$) in hand, the optimal multi-objective impact $\mathcal{E}_{\ell}^{p*}$ then follows as
-
-\begin{equation}
-\begin{split}
-\mathcal{E}_{\ell}^{p*} &= \frac{r^2}{2} \boldsymbol{\beta}_{\ell}^* ' \boldsymbol{\beta}_{\ell}^* \\
-&= \mathbf{b}_{\ell}^{\frac{1}{2}} ' \mathbf{b}_{\ell}^{\frac{1}{2}}
-\end{split}
-\end{equation}
-<!-- &= \frac{r^2}{2} \boldsymbol{\mu}_{\ell}^* ' \boldsymbol{\mu}_{\ell}^* \\ -->
-<!-- &= \frac{r^2}{2} \boldsymbol{\beta}_{\ell}^* Q ' Q \boldsymbol{\beta}_{\ell}^* \\ -->
-
-The optimal multi-objective project NPV vector $\boldsymbol{\mu}_{\ell}^*$ follows as the optimal linear combination of the optimal project NPV menu.
-
-\begin{equation}
-\begin{split}
-\boldsymbol{\mu}_{\ell}^* &= \Sigma_{j = 1}^m \mu_j^* \beta_{j \ell}^* \\
-\boldsymbol{\mu}_{\ell}^* &= Q \boldsymbol{\beta}_{\ell}^* \\
-&= D(\tilde{\mathbf{c}}) \tilde{P} \boldsymbol{\beta}_{\ell}^*
-\end{split}
-\end{equation}
-
-And the optimal multi-objective budget allocation is
-
-\begin{equation}
-\mathbf{w}_{\ell}^* = C (D(\tilde{\mathbf{x}}(0))^{-1} D(e^{-r \mathbf{T}}) \boldsymbol{\mu}_{\ell}^* )^{\frac{1}{\boldsymbol{\alpha}}}
-\label{eq:wStarPolicy}
-\end{equation}
-
-Again, the elements in $\mathbf{T}$ are so defined that... (recall Eq \ref{eq:Tk}), complex valued budget allocations, negative elements in $\boldsymbol{\mu}_{\ell}^*$ can be made positive by adjusting the program time horizon, as explained in section \ref{sec:cycReal}. To enforce the budget constraint, the eigenvector matrix $B$ may be scaled by a parameter $\chi_{\ell}$ such that $\mathbf{w}_{\ell}^* {'} \mathbf{1} = C$. The 
-
-\begin{equation}
-\boldsymbol{\mu}_{\ell}^* = \chi_{\ell} D(\tilde{\mathbf{c}}) \tilde{P} \boldsymbol{\beta}_{\ell}^*
-\end{equation}
-
-Note that adjustments to $\chi_{\ell}$ also scale the optimal policy portfolio risk $\sigma^p$ and impact $\mathcal{E}^p$.
-<!-- I reconstructed the analysis, working with the loadings $L$ instead of the eigenvectors -->
-<!-- ---because the loadings have a more straightforward interpretation as the correlation between an item and the collective movement associated with the eigenvector--- -->
-<!-- and I observed that a varimax rotation of $L$ greatly clarifies the contributions of items to collective movements [-@schiek2021reverse]. I also  -->
-<!-- the correlation matrix is reconstructed from the $m < n$ leading eigenvectors of $\Sigma$ as follows. -->
-<!-- $\tilde{\Sigma}$ -->
-<!-- \begin{equation} -->
-<!-- \tilde{\Sigma} = L L ' -->
-<!-- \label{eq:LL} -->
-<!-- \end{equation} -->
-<!-- Where -->
-<!-- \begin{equation} -->
-<!-- L = \tilde{P} \tilde{\Gamma}^{\frac{1}{2}} -->
-<!-- \end{equation} -->
-<!-- And $\tilde{U}$, $\tilde{\Gamma}$ refer to the matrix of $m$ retained, leading eigenvectors and the corresponding (diagonal) matrix of retained eigenvalues of $\Sigma$, respectively. (See Schiek [-@schiek2021reverse] for an application in the AR4D context.) -->
-<!-- By construction, then, the spectrally reduced covariance matrix has just $m$ nonzero eigenvalues, with the remaining $n - m$ eigenvalues equal to zero. This removal of trailing eigenvectors has a signal strengthening effect (or, conversely, a noise attenuating effect), such that $\tilde{\Sigma}$ typically approximates $\Sigma$, but may also be considered more accurate than $\Sigma$ with respect to the "true process" that generates the underlying data, to the extent that the data are contaminated by noise. All of the eigenvectors of $\tilde{\Sigma}$ with nonzero eigenvalues encode meaningful information about the portfolio items and their interactions. The optimal solution $\boldsymbol{\mu}^*$ corresponding to the smallest nonzero eigenvalue of $\tilde{\Sigma}$ is thus likewise meaningful. -->
-<!-- The individual and cumulative portions of variance explained by each signal in the financial dataset are plotted in Fig \ref{fig:varExplained_barchart}. Customarily, researchers like to retain signals such that at least 90% of the variance in the original data is explained. The horizontal dashed line in the plot marks this subjective threshold. -->
-<!-- # ```{r, fig.show = 'hold', fig.width=5, fig.height=2, fig.align='left', fig.cap="\\label{fig:varExplained_barchart}Plot of the individual and cumulative portions of variance explained by each signal in the financial dataset.", echo=F} -->
-<!-- c_vec <- eig_values / sum(eig_values) -->
-<!-- ck_vec <- cumsum(c_vec) -->
-<!-- df_plot <- data.frame(Signal = paste("Signal", 1:length(eig_values)), Portion_explained = c_vec, Portion_explained_cumul = ck_vec) -->
-<!-- colnames(df_plot)[2:3] <- c("Individually", "Cumulatively") -->
-<!-- gathercols <- colnames(df_plot)[2:3] -->
-<!-- df_plot <- gather_(df_plot, "Portion explained", "Value", gathercols) -->
-<!-- df_plot$Signal <- factor(df_plot$Signal, -->
-<!--                          levels = unique(df_plot$Signal), -->
-<!--                          ordered = T) -->
-<!-- gg <- ggplot(df_plot, aes(x = Signal, y = Value, fill = `Portion explained`)) -->
-<!-- gg <- gg + geom_bar(stat = "identity", color = "black", position = "dodge") -->
-<!-- gg <- gg + scale_fill_manual(values = c("wheat3", "paleturquoise")) -->
-<!-- gg <- gg + geom_hline(yintercept = 0.9, color = "coral", size = 1, linetype = "dashed") -->
-<!-- gg <- gg + theme(axis.text.y = element_text(size = 7), -->
-<!--                  axis.text.x = element_text(size = 7, angle = 60, hjust = 1), -->
-<!--                  axis.title = element_blank(), -->
-<!--                  legend.title = element_text(size = 8), -->
-<!--                  legend.text = element_text(size = 8)) -->
-<!-- gg -->
-<!-- ggsave("Fig 4.tiff") -->
-<!-- #==================================================== -->
-<!-- nSig <- which(ck_vec > 0.9)[1] -->
-<!-- mat_S <- mat_S_all[, 1:nSig] -->
-<!-- mat_L <- cormat_XS[, 1:nSig] -->
-<!-- eig_values_sigs <- eig_values[1:nSig] -->
-<!-- #==================================================== -->
-<!-- ``` -->
-<!-- **Fig 4. Plot of the individual and cumulative portions of variance** explained by each signal in the financial dataset. -->
-<!-- &nbsp; -->
-<!-- The plot shows that, for the financial data set, the leading `r nSig` signals are sufficient to meet this criterion. -->
-<!-- [Of course, the appearance of zero-valued eigenvalues makes the projected Hessian (equation \ref{eq:...}) semi-definite as opposed to definite. But this does not matter since this is by design, and the solutions with zero-valued eigenvalues are likewise ignored by design. In other words, the projected Hessian remains definite over the set of solutions that are of any interest to the investor.] -->
-<!-- ## Policy portfolio optimization -->
-<!-- In relation to the portfolio optimization method presented above, this implies that each of the $m$ program portfolio solutions $\boldsymbol{\mu}^*$ is tied to a specific strategic objective. Selection of any one of these solutions thus implies an exclusive focus on a particular strategic objective, and neglect of the rest. This may suit institutions that like to focus on a specific theme each funding cycle. However, it is problematic for AR4D institutions and donors that prefer to optimize budget allocations across multiple strategic objectives at once. [They want to pursue, for example, nutritional security, economic growth, and smallholder resilience, all at once, and not one at a time, in a piecemeal fashion. Moreover, such objectives usually go hand in hand, and cannot be pursued in isolation from each other.] -->
+The plot shows that, for the financial data set, the leading `r nSig` signals are sufficient to meet this criterion.
 
 # Hypothetical example
 
@@ -1672,67 +1484,66 @@ The strategic objective covariance matrix can be calculated as the inner product
 time adjustments
 
 ```{r, fig.show = 'hold', fig.width=3, fig.height=2, fig.align='left', fig.cap="\\label{fig:rotCorrXSnParams}(Left) Bar chart of hypothetical project-policy correlations, (right) table of hypothetical project parameters."}
-
-
+# RupLoP <- 1.5
+# Tk <- 12 * 4
+# #RupLoP = (1 + rUp)^Tk - 1
+# rUp <- (RupLoP + 1)^(1 / Tk) - 1
+#--------------------------------------------------------------
+# Arithmetic and log return over judicious time step (quarterly)
+rYrlyArith <- 0.04 #0.035 # Equal to the discount rate
+tStep <- 4 #T step per year
+rQrtrlyArith <- (1 + rYrlyArith)^(1 / tStep) - 1
+# Convert arithmetic return to log return
+r <- round(log(1 + rQrtrlyArith), 3)
 #--------------------------------------------------------------
 # Project params
 alpha <- c(0.65, 0.65, 0.6, 0.75, 0.65, 0.6, 0.65, 0.8, 0.7, 0.75, 0.7)
-xTilde <- 100 * runif(nrow(df_x)) #exp(rnorm(nr))
+xTilde <- exp(rnorm(nProj, 6, 0.75))
 xTilde <- round(xTilde, 4)
-tStep <- 4 #T step per year
 TvecYrs <- c(18, 14, 8, 15, 12, 14, 10, 5, 4, 7, 12)
 TvecTstep <- TvecYrs * tStep
 tFundCyc <- 3 * tStep # Say 3 year funding cycle
+omega <- r * tFundCyc / (2 * pi)
 TvecFcyc <- round(TvecTstep / tFundCyc, 2) # nu_k
 Tt <- paste(TvecYrs, TvecTstep, TvecFcyc, sep = "/")
-#-----
+#--------------------------------------------------------------
 # Deduce project risk
 # Arithmetic return upper and lower bounds (95% conf interval)
-nProj <- nrow(df_table)
-yMaxA <- exp(rnorm(nProj, 0.25, 0.75))
-yMinA <- -runif(nProj)
-# Convert to log return upper and lower bounds
-yMax <- round(log(1 + yMaxA), 2)
-yMin <- round(log(1 + yMinA), 2)
-confInt95 <- paste(yMin, yMax, sep = "/")
+# Elicit max return over life of project from ex-ante impact assessment
+ErTkArith <- (1 + rQrtrlyArith)^(TvecTstep) - 1
+rTkArith_max <- ErTkArith + exp(rnorm(nProj, 0.15, 0.75))
+# Covert to max return over the judicious time step (quarterly)
+rQrtrlyArith_max <- (1 + rTkArith_max)^(1 / TvecTstep) - 1
+# Deduce min quarterly return based on symmetry of normal distribution
+rQrtrlyArith_min <- 2 * rQrtrlyArith - rQrtrlyArith_max
+rQrtrlyArith_max <- round(rQrtrlyArith_max, 4)
 # Deduce s
 zBound <- 1.96
-#sVec <- (yMax - yMin) / (2 * zBound * sqrt(TvecTstep))
-sVec <- (yMax - yMin) / (2 * zBound)
-sVec <- round(sVec, 3)
-#cvVec <- round(sqrt(exp(sVec^2 * TvecTstep) - 1), 3)
-#-----
+sVec <- (rQrtrlyArith_max - rQrtrlyArith) / zBound
+sVec <- round(sVec, 4)
+# Display conf interval
+confInt95 <- paste(round(rQrtrlyArith_min, 4), round(rQrtrlyArith_max, 4), sep = "/")
+#--------------------------------------------------------------
 projNames <- df_table$Project
 df_param <- data.frame(proj = projNames, alpha, xTilde,
-                       Tt, confInt95, c = cvVec)
-df_param <- df_param %>% gather(var, val, alpha:c)
+                       Tt, confInt95, sVec = sVec)
+df_param <- df_param %>% gather(var, val, alpha:sVec)
 #df_param$val <- factor(df_param$val)
-# cNames <- c(expression("Scale\nelasticity\n("*alpha*")"),
-#             "Coef. of variation",
-#             "Arithmetic return\n95% conf. interval",
-#             "Time horizon\n(Years/Quarters/Fund. Cyc.)",
-#             expression(tilde(x))
-#             )
-facetTitles <- c("Scale\nelasticity", "Max.\nimpact",
-              "Time horizon\n(Years/Quarters/Fund. Cyc.)",
+cNames <- c(expression("Scale\nelasticity\n("*alpha*")"),
+            "Stand. dev.\narithmetic ret.",
             "Arithmetic return\n95% conf. interval",
-            "Coef. of\nvariation"
+            "Time horizon\n(Years/Quarters/Fund. Cyc.)",
+            expression(tilde(x))
             )
-names(facetTitles) <- unique(df_param$var)
-#   as_labeller(c(`alpha` =  "Scale\nelasticity",
-# `c` = "Coef. of variation",
-# `confInt95` = "Arithmetic return\n95% conf. interval",
-# `Tt` = "Time horizon\n(Years/Quarters/Fund. Cyc.)",
-# `xTilde` = expression(tilde(x))))
 gg <- ggplot(df_param, aes(x = var, y = proj,
                            label = val))
 gg <- gg + geom_tile(alpha = 0)
-# gg <- gg + scale_x_discrete("var", labels = cNames, position = "top")
-gg <- gg + facet_wrap(~var, nrow = 1, labeller = labeller(var = facetTitles))
+gg <- gg + scale_x_discrete("var", labels = cNames, position = "top")
+# gg <- gg + facet_wrap(~var, nrow = 1, labeller = labeller(var = facetTitles))
 gg <- gg + geom_text(size = cellText_size)
 #gg <- gg + theme_bw()
 gg <- gg + theme(axis.title = element_blank(),
-                 axis.text.y = element_blank(),
+                 axis.text.y = element_text(size = axisText_size),
                  axis.text.x = element_text(size = axisText_size),
                  panel.grid = element_blank(),
                  strip.text = element_text(size = facetTitle_size))
@@ -1749,30 +1560,27 @@ gg_tab
 
 ```{r, fig.show = "hold", fig.width = 5, fig.height=3, fig.align="center", fig.cap="\\label{fig:wStarVecs}Optimal budget allocations for each policy/risk tolerance level.", echo = FALSE}
 
-GxxTilde <- exp(SigdxdxTilde) - 1
-gammaGxx <- eigen(GxxTilde)$values[1:nSig]
-QxxTilde <- eigen(GxxTilde)$vectors[, 1:nSig]
-
-SigdSdS <- t(mat_Lrot) %*% mat_Lrot
-qP <- colSums(QxxTilde)
-SigSS <- diag(qP) %*% (exp(SigdSdS) - 1) %*% diag(qP)
-# diag((mat_Lrot) %*% t(mat_Lrot))
-gammaSigSS <- eigen(SigSS)$values
-eVecSigSS <- eigen(SigSS)$vectors
-#B <- eigen(SigdSdS)$vectors
-# L <- mat_Lrot %*% B
-# Ptilde <- L %*% diag(1 / sqrt(gammaSigdSdS))
-#--------------------------------------------------------------------
-rYrly_discrete <- 0.08 #0.035
-r_discrete <- (1 + rYrly_discrete)^(1 / tStep) - 1
-# Convert discrete discount rate to continuous discount rate
-r <- round(log(1 + r_discrete), 3)
-omega <- r * tFundCyc / (2 * pi)
+G <- exp(SigdxdxTilde) - 1
+ups <- eigen(G)$values
+xx <- cumsum(ups) / sum(ups)
+thresh <- 0.95
+nSigG <- which(xx > thresh)[1]
+upsTilde <- ups[1:nSigG]
+Qtilde <- eigen(G)$vectors[, 1:nSigG]
+#-------------------------------------------------------------------
+# SigdSdS <- t(mat_Lrot) %*% mat_Lrot
+# qP <- colSums(Qtilde)
+# #SigP <- diag(qP) %*% (exp(SigdSdS) - 1) %*% diag(qP)
+# # diag((mat_Lrot) %*% t(mat_Lrot))
+# uSigP <- eigen(SigP)$values
+# eVecSigP <- eigen(SigP)$vectors
+# #B <- eigen(SigdSdS)$vectors
+# # L <- mat_Lrot %*% B
+# # Ptilde <- L %*% diag(1 / sqrt(gammaSigdSdS))
 #--------------------------------------------------------------------
 # Single objective optimal budget allocation
-mat_muStar <- QxxTilde
 TkHat <- 2 * pi * TvecFcyc
-mat_wShareStar <- matrix(NA, nProj, nSig)
+mat_wShareStar <- matrix(NA, nProj, nSigG)
 #mat_muStar <- matrix(NA, nProj, nSig)
 visVivVec <- c()
 betaStarVec <- c()
@@ -1781,9 +1589,9 @@ wSlack <- function(beta, Tk, omega, xTilde, muStar, alpha){
   wSlack <- sum(wShare) - 1
   return(wSlack)
 }
-thisInt <- c(0, 100)
-for(j in 1:nSig){
-  muStar <- mat_muStar[, j]
+thisInt <- c(0, 10000)
+for(j in 1:nSigG){
+  muStar <- Qtilde[, j]
   ind <- which(muStar < 0)
   kappaK <- rep(0, length(TkHat))
   kappaK[ind] <- 1
@@ -1801,24 +1609,23 @@ for(j in 1:nSig){
   visVivVec[j] <- r^2 / 2 * betaStar^2
   betaStarVec[j] <- betaStar
 }
-mat_muStar <- round(mat_muStar, 4)
+mat_muStar <- round(Qtilde, 4)
 mat_wShareStar <- round(mat_wShareStar, 4)
 #colSums(mat_wShareStar)
-visVivVec <- round(visVivVec, 4)
+visVivVec <- round(visVivVec, 2)
 muStarVec <- colSums(mat_muStar)
-sigVec <- round(gammaGxx, 4)
+sigVec <- round(upsTilde, 2)
 betaStarVec <- round(betaStarVec, 4)
 row.names(mat_muStar) <- projNames
-colnames(mat_muStar) <- sigNames
+colnames(mat_muStar) <- paste(sigVec, "/", visVivVec)
 row.names(mat_wShareStar) <- projNames
-colnames(mat_wShareStar) <- sigNames
+colnames(mat_wShareStar) <- paste(sigVec, "/", visVivVec)
 #--------------------------------------------------------------------
-visVivVec / sigVec
+#visVivVec / sigVec
 #--------------------------------------------------------------------
 df_plot <- as.data.frame(mat_wShareStar)
-colnames(df_plot) <- sigNames
+gathercols <- colnames(df_plot)
 df_plot$Project <- projNames
-gathercols <- sigNames
 df_plot <- df_plot %>% gather_("Policy", "Budget share", gathercols)
 
 gg <- ggplot(df_plot, aes(x = Project, y = `Budget share`))
@@ -1835,6 +1642,44 @@ gg <- gg + theme(axis.text = element_text(size = 7),
 gg <- gg + coord_equal()
 gg <- gg + coord_flip()
 gg
+#=====================================================================
+muStar <- mat_muStar[, 1]
+SigStar <- diag(muStar) %*% G %*% diag(muStar)
+t(muStar) %*% G %*% muStar
+Kstar <- diag(1 / sqrt(diag(SigStar))) %*% SigStar %*% diag(1 / sqrt(diag(SigStar)))
+e <- eigen(Kstar)$values
+xx <- cumsum(e) / sum(e)
+thresh <- 0.95
+eTilde <- e[1:nSigKstar]
+nSigKstar <- which(xx > thresh)[1]
+Etilde <- eigen(Kstar)$vectors[, 1:nSigKstar] 
+
+mat_L <- Etilde %*% diag(sqrt(eTilde))
+
+mat_Lrot <- varimax(mat_L)[[1]]
+mat_Lrot <- matrix(as.numeric(mat_Lrot),
+                   attributes(mat_Lrot)$dim,
+                   dimnames = attributes(mat_Lrot)$dimnames)
+mat_R <- varimax(mat_L)[[2]]
+mat_R <- matrix(as.numeric(mat_R),
+                attributes(mat_R)$dim,
+                dimnames = attributes(mat_R)$dimnames)
+bag_of_colors <- randomcoloR::distinctColorPalette(k = 5 * n_groups)
+group_colors <- sample(bag_of_colors, n_groups)
+group_info <- list(list_groups, group_names, group_colors)
+sigNames <- c("GDP Growth", "Economic\nEquality", "Environmental\nSustainability", "Nutritional\nSecurity")
+nSig <- length(sigNames)
+sigNames <- paste("Policy", 1:nSig, "\n", sigNames)
+fig_title <- "Project-policy correlations elicited from experts"
+colnames(mat_Lrot) <- matLcolNames
+row.names(mat_Lrot) <- projNames
+colnames(mat_L) <- matLcolNames
+row.names(mat_L) <- projNames
+gg_bar <- plot_corrXS_barchart(mat_Lrot, group_info, fig_title, sigNames)
+#ggsave("x.png", width = 5, height = 4)
+gg_bar
+#=====================================================================
+
 
 ```
 
@@ -1852,8 +1697,8 @@ mat_muStarMO <- matrix(NA, nProj, nSig)
 visVivMOvec <- c()
 betaStarMOvec <- c()
 for(l in 1:nSig){
-  matWgts <- eVecSigSS[, l]
-  muStarMO <- QxxTilde %*% matWgts
+  matWgts <- eVecSigP[, l]
+  muStarMO <- Q %*% matWgts
   ind <- which(muStar < 0)
   kappaK <- rep(0, length(TkHat))
   kappaK[ind] <- 1
@@ -1875,21 +1720,20 @@ for(l in 1:nSig){
 mat_muStarMO <- round(mat_muStarMO, 4)
 mat_wShareStarMO <- round(mat_wShareStarMO, 4)
 #colSums(mat_wShareStar)
-visVivMOvec <- round(visVivMOvec, 4)
+visVivMOvec <- round(visVivMOvec, 2)
 muStarMOvec <- colSums(mat_muStarMO)
-sigVecMO <- round(gammaSigSS, 4)
-betaStarMOvec <- round(betaStarMOvec, 4)
+sigVecMO <- round(uSigP, 2)
+betaStarMOvec <- round(betaStarMOvec, 2)
 row.names(mat_muStarMO) <- projNames
-colnames(mat_muStarMO) <- as.character(sigVec)
+colnames(mat_muStarMO) <- paste(sigVecMO, "/", visVivMOvec)
 row.names(mat_wShareStarMO) <- projNames
-colnames(mat_wShareStarMO) <- as.character(sigVec)
+colnames(mat_wShareStarMO) <- paste(sigVecMO, "/", visVivMOvec)
 #--------------------------------------------------------------------
-visVivMOvec / sigVecMO
+#visVivMOvec / sigVecMO
 #--------------------------------------------------------------------
-df_plot <- as.data.frame(mat_wShareStar)
-colnames(df_plot) <- sigNames
+df_plot <- as.data.frame(mat_wShareStarMO)
+gathercols <- colnames(df_plot)
 df_plot$Project <- projNames
-gathercols <- sigNames
 df_plot <- df_plot %>% gather_("Policy", "Budget share", gathercols)
 
 gg <- ggplot(df_plot, aes(x = Project, y = `Budget share`))
@@ -1979,1081 +1823,167 @@ Above I have presented a novel portfolio optimization method which... offers a m
 
 
 
-In financial contexts, the goal of MV Analysis is to find the optimal investment across a portfolio of risky assets such that risk is minimized for a given budget constraint and portfolio return target. More formally, this can be expressed
 
-\begin{equation}
-\max_{\mathbf{w}}\:R - C \:\:\:\:s.t. \:\:\: C=\bar{C} \:, \:\:\: \sigma^2 = \bar{\sigma}^2
-\end{equation}
 
-, $R$ is the expected portfolio return, defined $R = \mathbf{w} \cdot \boldsymbol{\mu}$, where $\boldsymbol{\mu}$ is the vector of expected returns of each asset; $C$ is the cost, defined $C = \mathbf{w} \cdot \mathbf{1}$, constrained to sum to the budget $\bar{C}$; and $\sigma^2$ is the portfolio variance (a measure of the portfolio risk), defined $\sigma^2 = \mathbf{w} \cdot \Sigma \cdot \mathbf{w}$, where $\Sigma$ is the asset covariance matrix; and $\sigma^2$ is constrained to equal a tolerance $\bar{\sigma}^2$ set by the investor.^[]
 
-The Lagrangian is then
 
-\begin{equation}
-\mathcal{L} = R - C + \lambda_C(C - \bar{C}) + \lambda_{\sigma}(\sigma^2 - \bar{\sigma}^2)
-\end{equation}
 
-Since this is formulated as a minimization problem, the Lagrangian is essentially a cost function. The terms $\sigma^2$ and $C$ add to the cost, and hence carry positive signs, while the $R$ term offsets the cost, and thus carries a negative sign.
 
-The first order conditions are
 
-\begin{equation}
-\nabla \mathcal{L} = \boldsymbol{\mu} - \gamma \mathbf{1} + 2 \lambda_{\sigma} \Sigma \cdot \mathbf{w} = \mathbf{0} \:\:;\:\:\: \gamma = 1-\lambda_C
-\end{equation}
 
-and second order conditions
 
-\begin{equation}
-\mathbf{w} \cdot \nabla^2 \mathcal{L} \cdot \mathbf{w} = 2 \lambda_{\sigma} \sigma^2 < 0
-\end{equation}
 
-where $\nabla^2 \mathcal{L}$ is the Hessian matrix of $\mathcal{L}$. Since $\Sigma$ is symmetric and variances are, by definition, positive, then $\Sigma$ is positive semi-definite. Hence, a maximum is guaranteed so long as $\lambda_{\sigma}$ is negative.
-
-Dotting the first order conditions through by $\mathbf{w}$ gives the equation for the efficient frontier.
-
-\begin{equation}
-R^* = \lambda_C \bar{C} + 2 \lambda_{\sigma} \bar{\sigma}^2
-\label{eq:rStar}
-\end{equation}
-
-where the asterisk on $R$ indicates that this is the maximum portfolio return given budget constraint $\bar{C}$ and risk tolerance $\bar{\sigma}^2$.
-
-Note, in passing, that equation \ref{eq:rStar} implies that the risk shadow price is proportional to the expected reward to risk ratio.
-
-\begin{equation}
-\lambda_{\sigma} = \frac{\psi}{2\bar{\sigma}^2} \: ; \:\:\: \psi = R^* - \gamma \bar{C}
-\end{equation}
-
-where $\psi = R^* - \gamma \bar{C}$ is the expected reward, i.e., the expected net revenue, adjusted by the budget shadow price $\gamma$.
-
-Now, dotting the first order conditions through by $\Sigma^{-1}$ and rearranging gives an equation for the optimal budget shares.
-
-\begin{equation}
-\mathbf{w}^* = -\frac{1}{2 \lambda_{\sigma}} \Sigma^{-1} \cdot \nabla \psi \: ; \:\:\: \nabla \psi = \boldsymbol{\mu} - \gamma \mathbf{1}
-\label{eq:budgetShares}
-\end{equation}
-
-Note, in passing, that dotting this through by $\nabla \psi$ gives another instructive equation for $\lambda_{\sigma}$.
-
-\begin{equation}
-\lambda_{\sigma} = \frac{d_m^2}{2 \psi} \: ; \:\:\:\:d_m^2 = \nabla \psi \cdot \Sigma^{-1} \cdot \nabla \psi
-\end{equation}
-
-This says that the risk shadow price is inversely proportional to the ratio of the squared Mahalanobis distance ($d_m^2$) of the portfolio net reward gradient to the net reward. In this setting, the Mahalanobis distance reflects how improbable a given portfolio is. Note, then, that portfolio improbability goes to zero (and hence probability is greater) as $\nabla \psi = \mathbf{0}$, which occurs only when every component in the vector of asset returns ($\boldsymbol{\mu}$) equals the budget shadow price ($\gamma$). Moreover, note that this can be combined with the previous expression for $\lambda_{\sigma}$ to obtain
-
-\begin{equation}
-{1 \over d_m} = {\bar{\sigma} \over \psi}
-\end{equation}
-
-which says that the probability of the optimal portfolio equals its risk to reward ratio.
-
-Returning to the task at hand, evaluation of the optimal budget shares or the frontier in equations \ref{eq:rStar} and \ref{eq:budgetShares}, requires first solving for the cost and risk shadow prices $\gamma$ and $\lambda_{\sigma}$.
-
-To do this, first note that the budget shares equation can be rewritten as follows:
-
-\begin{equation}
-\mathbf{w}^* = -\frac{1}{2 \lambda_{\sigma}} \Sigma^{-1} \cdot [\boldsymbol{\mu}, -\mathbf{1}] \left[\begin{matrix} 1 \\ \gamma \end{matrix} \right]
-\end{equation}
-
-Now, dotting through by $[\boldsymbol{\mu}, -\mathbf{1}]$ gives
-
-\begin{equation}
-\left[\begin{matrix}
-R \\
--\bar{C} \\
-\end{matrix} \right]  = -\frac{1}{2 \lambda_{\sigma}} M\left[\begin{matrix}
-1 \\
-\gamma
-\end{matrix} \right]
-\end{equation}
-
-where $M$ has been introduced to stand for the matrix
-
-\begin{equation}
-M = [\boldsymbol{\mu}, \: -\mathbf{1}]' \cdot \Sigma^{-1} \cdot [\boldsymbol{\mu}, \: -\mathbf{1}]
-\end{equation}
-
-Let $M$ be called the "Merton matrix", after the author in whose footsteps I am now following [@merton1972analytic]. Pre-multiplying both sides of the previous equation by the inverse Merton matrix and rearranging gives the following expression: 
-
-\begin{equation}
--2 M^{-1}\left[\begin{matrix}
-R \\
--\bar{C} \\
-\end{matrix} \right]  = \left[\begin{matrix}
-1/\lambda_V \\
-\gamma / \lambda_{\sigma} \\
-\end{matrix} \right]
-\end{equation}
-
-For any given return target $R$ and budget $\bar{C}$, then, the cost and risk shadow prices are given by this equation. With values for $\gamma$ and $\lambda_{\sigma}$ in hand, the budget shares and risk associated with the chosen return target can be evaluated.
-
-The portfolio with the minimum possible risk can be found by differentiating the frontier (\ref{eq:rStar}) with respect to expected return and then setting $\frac{\partial \sigma}{\partial R}=0$. This gives the expected return for the portfolio with minimum possible risk. This corresponds to the portfolio at the vertex of the frontier parabola.
-
-\begin{equation}
-R\Bigr|_{\sigma = \sigma_{min}} = {m_{12} \over m_{22}}C
-\end{equation}
-
-
-An example application of MV Analysis is presented below using daily financial data for `r ncol(mat_pctDiff_eg_train)` securities over the period `r train_start_date` to `r train_stop_date`, downloaded from yahoo finance using the R tidyquant package. These securities were chosen so as to be broadly representative of the U.S. economy. Details can be found in the appendix.
-
-<!-- They are mostly exchange traded funds tracking broad categories of stocks, bonds, markets, and commodities, plus major currency pairs traded on the foreign exchange market. -->
-
-<!-- [Table here detailing the ETF names, what they track, and my category name] -->
-
-The expected returns $\boldsymbol{\mu}$ are calculated from the data as
-
-$$
-\mu_k = \frac{p_{iT} - p_{i1}}{p_{i1}}
-$$
-where $\mathbf{p}_k$ is the $k^{th}$ asset's price time series, and $T$ is the length of the time series. These period returns are presented in the bottom panel of Figure \ref{fig:hReturns}.
-
-The covariance matrix $\Sigma$ is calculated from the data as
-
-$$
-\Sigma=\frac{1}{1 - n} X'X \:\:; \:\:\:\:\:\:X_{it} = r_{it}-\bar{r} \:, \:\:\:\:\: \bar{r} = \frac{1}{T}\sum_{t=1}^Tr_{it}
-$$
-where $n$ is the number of assets, and $r_{it}$ is the $k^{th}$ asset's daily return, calculated
-$$
-r_{it} = \frac{p_{it} - p_{it-1}}{p_{it-1}}
-$$
-for any given day $t$ in the series. As a practical matter, note that the period returns can also be calculated from the daily returns as follows.
-$$
-\mu_k = \prod_{t = 2}^T (1 + r_{it}) - 1
-$$
-Application of MV Analysis to this data yields the optimal frontier and budget shares displayed in Figure \ref{fig:mvConv}.
-
-
-\pagebreak
-
-
-
-
-Note how the budget allocation changes with risk tolerance, and that some budget shares are negative. Negative budget shares mean that the investor should invest in the inverse of the corresponding asset. In the financial context, this is possible through short selling. Even so, many financial managers find negative shares to be something of a nuissance, since they imply borrowing, and thus effectively defeat the purpose of including a budget constraint in the first place ^[see Boyle]. Negative shares also present a somewhat misleading picture of portfolio returns. The high returns along the frontier in Figure \ref{fig:mvConv} are a result not so much of shrewd budget allocation as they are of leveraging. When expressed as a return _on investment_ (ROI), the outlook is more sobering (Figure \ref{fig:mvROI_levg_btest}, left panel).
-
-```{r, fig.show = "hold", fig.width = 6, fig.height=3, fig.align='left', fig.cap="\\label{fig:mvROI_levg_btest}\\textit{(Left)} Optimal portfolio return on investment (ROI) frontier and leveraging; \\textit{(Right)} Backtest.", echo = FALSE}
-df_frontier$Leveraging <- df_frontier$`Tot. investment` - 1
-
-df_frontier_conv <- df_frontier
-df_wStar_conv <- df_wStar
-
-df_plot <- df_frontier_conv
-gg <- ggplot(df_plot, aes(x = `Risk (standard deviation)`, y = `ROI target`))
-gg <- gg + geom_point()
-gg <- gg + theme(axis.title.x = element_blank(),
-                 axis.text.x = element_blank())
-gg_roi <- gg
-
-gg <- ggplot(df_plot, aes(x = `Risk (standard deviation)`, y = Leveraging))
-gg <- gg + geom_area(fill = "coral", alpha = 0.5)
-gg_levg <- gg
-
-gg_roiLevg <- gg_roi + gg_levg + plot_layout(ncol = 1, heights = c(2 / 3, 1 / 3))
-
-gg <- ggplot(df_plot, aes(x = `Risk backtest`, y = `ROI backtest`))
-gg <- gg + geom_point()
-gg_backtest <- gg
-
-gg_roiLevg | gg_backtest
-
-```
-
-Finally, note that the real ROI to the optimized portfolios over the investment period turn out to be much lower than that indicated by the efficient frontier (Figure \ref{fig:mvROI_levg_btest}, right panel). This is a common problem encountered in MV Analysis. Optimal solutions are highly sensitive to noise in the covariance matrix, often resulting in efficient frontiers that overstate returns and/or understate risk [@michaud1989markowitz].
-
-For these reasons, MV Analysis is still a work in progress, even in its native financial context. The task of adaptation thus requires a degree of innovation in redressing longstanding issues.
-
-# Adapting MV analysis to the AR4D context
-
-From the exposition above, it is readily evident that a number of adjustments must be made to the method introduced above for it to be applicable in the AR4D context. To begin with, AR4D proposals do not generate data analogous to price time series found in the financial context. It is thus not possible to calculate an AR4D proposal variance-covariance matrix in a straightforward manner. Secondly, adjustments must be made to the portfolio return function $R$ in order to reflect the diminishing returns to investment in AR4D proposals. And, thirdly, budget shares must be positive in the AR4D context. (Finally, it would also be nice if the resulting solutions more closely resembled the real returns...)
-
-
-
-
-
-
-```{r, fig.width=14, fig.height=14, fig.align='center', echo = FALSE, include = FALSE}
-#options(warn = -1); options(scipen = 999)
-spy_sector_symbs <- c("XLF", "XLC", "XLY", "XLP", "XLV", "XLK", "RWR",
-                      "XLU", "XLI", "XBI", "IYT") #"TTEK"
-spy_sector_detail <- c("Financials", "Communications", "Luxury goods", "Consumer\nGoods",
-                       "Healthcare", "Technology", "Real estate", "Utilities", "Industrial",
-                       "Biotechnology", "Transportation") #"Gov. foreign aid"
-minerals_symbs <- c("GLD", "SLV", "PPLT", "JJC", "JJM") #"XME"
-minerals_detail <- c("Gold", "Silver", "Platinum", "Copper", "Industrial metals") #"US metals and mining"
-agriculture_symbs <- c("JJG", "BAL", "SOYB", "SGG", "JO", "NIB", "DBA")
-agriculture_detail <- c("Grains", "Cotton", "Soybean", "Sugar", "Coffee", "Cacao", "General agriculture")
-energy_symbs <- c("WTI", "FUE", "WOOD", "ICLN", "KOL", "UNG")
-energy_detail <- c("Oil (W&T Offshore Inc.)", "Biofuels", "Timber", "Clean energy", "Coal", "US natural gas")
-#currency_symbs <- c("EMLC", "UUP", "FXE", "FXY", "FXF", "FXC", "FXB", "FXA")
-#currency_detail <- c("Emerging mkt currencies", "USD", "EUR", "JPY", "CHF", "CND", "GBP", "AUD")
-currency_symbs <- c("EURUSD=X", "JPY=X", "CHF=X", "CAD=X",
-                    "GBPUSD=X", "AUDUSD=X", "INR=X")
-currency_detail <- c("EUR/USD", "USD/JPY",
-                     "USD/CHF", "USD/CAD", "GBP/USD", "AUD/USD", "USD/INR")
-emerg_mkt_symbs <- c("EMLC", "ELD", "BKF", "VWOB")
-emerg_mkt_detail <- c("Emerg mkts debt", "Emerg mkts gov. bonds", "BRIC countries", "Emerging mkt currencies")
-crypto_symbs <- c("BLOK", "LEGR", "BCNA")
-crypto_detail <- c("Blockchain tech.", "Blockchain companies", "Blockchain in China")
-Tbond_symbs <- c("IEI", "IEF", "TLT")#, "BIL"
-Tbond_detail <- c("T-bond 3-7 yrs", "T-bond 7-10 yrs", "T-bond 20+ yrs") #"T-bond 1-3 months"
-
-ts_symb_vec <- c(spy_sector_symbs, minerals_symbs, agriculture_symbs, energy_symbs,
-                 currency_symbs, emerg_mkt_symbs, crypto_symbs, Tbond_symbs)
-ts_detail_vec <- c(spy_sector_detail, minerals_detail, agriculture_detail, energy_detail,
-                   currency_detail, emerg_mkt_detail, crypto_detail, Tbond_detail)
-df_symb_detail <- data.frame(symbol = ts_symb_vec, detail = ts_detail_vec)
-#--
-#length(ts_symb_vec)
-#--
-# list_groups <- list(spy_sector_symbs, minerals_symbs, agriculture_symbs, energy_symbs,
-#                      currency_symbs, emerg_mkt_symbs, crypto_symbs, Tbond_symbs)
-#-------------------------------------------
-# Create grouping info for plots (required input into functions)
-list_groups <- list(spy_sector_detail, minerals_detail, agriculture_detail, energy_detail,
-                    currency_detail, emerg_mkt_detail, Tbond_detail) #crypto_detail,
-group_names <- c("US Sectors", "Minerals", "Agriculture", "Energy", "Major Currency Pairs",
-                 "Emerging Markets", "T-Bonds") #"Cryptocurrencies/\nBlockchain"
-n_groups <- length(list_groups)
-#group_colors <- RColorBrewer::brewer.pal(n = n_groups, "Dark2")
-# "Darjeeling"
-# group_colors <- wesanderson::wes_palette("Darjeeling1", n = n_groups, type = "continuous")
-bag_of_colors <- randomcoloR::distinctColorPalette(k = 5 * n_groups)
-group_colors <- sample(bag_of_colors, n_groups)
-#--------------------------------------------------------------
-# Define function to order data by group
-group_fn <- function(group_info){
-  list_groups <- group_info[[1]]
-  group_names <- group_info[[2]]
-  group_colors <- group_info[[3]]
-  varNames_ordered <- do.call(c, list_groups)
-  n_groups <- length(group_names)
-  n_ktems <- length(varNames_ordered)
-  if(is.na(group_colors)){
-    bag_of_colors <- randomcoloR::distinctColorPalette(k = 5 * n_groups)
-    group_colors <- sample(bag_of_colors, n_groups)
-    #group_colors <- viridis::viridis_pal(option = "D")(length(group_names))
-  }
-  #if(reverse_order){group_colors <- rev(group_colors)}
-  #varNames_ordered <- colnames(mat_pctDiff)
-  group_vec <- rep(NA, n_ktems)
-  group_color_vec <- rep(NA, n_ktems)
-  for(i in 1:n_groups){
-    this_group_vec <- list_groups[[i]]
-    this_group_name <- group_names[i]
-    this_group_color <- group_colors[i]
-    group_vec[which(varNames_ordered %in% this_group_vec)] <- this_group_name
-    group_color_vec[which(varNames_ordered %in% this_group_vec)] <- this_group_color
-  }
-  ind_ordered_cols <- order(factor(group_vec))
-  cols_ordered_by_group <- as.character(varNames_ordered[ind_ordered_cols])
-  group_color_vec <- group_color_vec[ind_ordered_cols]
-  group_vec_ordered <- group_vec[ind_ordered_cols]
-  out_list <- list(cols_ordered_by_group, group_color_vec, group_vec_ordered, ind_ordered_cols, group_vec)
-  return(out_list)
-}
-#--------------------------------------------------------------
-group_info <- list(list_groups, group_names, group_colors)
-outlist <- group_fn(group_info)
-cols_ordered_by_group <- outlist[[1]]
-group_color_vec <- outlist[[2]]
-group_vec_ordered <- outlist[[3]]
-ind_ordered_cols <- outlist[[4]]
-df_match_group <- data.frame(Item = cols_ordered_by_group, Group = group_vec_ordered)
-#--------------------------------------------------------------
-#per_ema <- 13
-#fromdate = Sys.Date() - 360
-fromdate = "2018-06-20"
-todate = "2019-08-09"
-tbl_ohlcv <- tq_get(ts_symb_vec, get = "stock.prices", from = fromdate, to = todate)
-df_ohlcv <- as.data.frame(tbl_ohlcv)
-#write.csv(df_ohlcv, "Financial data backup.csv")
-#--
-# Crypto ts can have duplicate date entries sometimes (BTC-USD)
-# Get rid of these duplicates, if any
-# df_ohlcv <- as.data.frame(df_ohlcv %>% group_by(symbol) %>% mutate(dup = duplicated(date)))
-# df_ohlcv <- subset(df_ohlcv, dup == F)
-# df_ohlcv$dup <- NULL
-#--
-
-#df_ohlcv$p <- rowSums(df_ohlcv[, c(4:6)]) / 3
-#--
-#df <- df_ohlcv[, c("date", "symbol", "p")]
-# df <- df_ohlcv %>% group_by(symbol) %>% tq_transmute(select = adjusted, 
-#                      mutate_fun = periodReturn, 
-#                      period     = "monthly")
-#--
-df <- df_ohlcv[, c("date", "symbol", "adjusted")]
-df <- df %>% spread(symbol, adjusted)
-ind_shift <- which(colnames(df) %in% currency_symbs)
-df[, ind_shift] <- rbind(rep(NA, length(ind_shift)), df[-nrow(df), ind_shift])
-df <- df[-c(1, nrow(df)), ]
-date_vec <- df$date
-mat_ts_dy <- na.approx(df[, -1])
-row.names(mat_ts_dy) <- as.character(date_vec)
-#o <- apply(mat_ts_dy, 2, function(x) length(which(is.na(x))))
-#table(o)
-#which(o==1)
-#xts_ts_dy <- xts(mat_ts_dy, date_vec)
-#date_vec <- index(xts_ts_dy)
-#-----
-mat_pctDiff_dy <- diff(mat_ts_dy) / mat_ts_dy[-nrow(mat_ts_dy), ] * 100
-#mat_pctDiff_dy <- diff(log(mat_ts_dy))
-row.names(mat_pctDiff_dy) <- as.character(date_vec[-1])
-ts_avg_dy <- rowMeans(mat_pctDiff_dy)
-mu_ret_dy <- colMeans(mat_pctDiff_dy)
-sd_ret_dy <- apply(mat_pctDiff_dy, 2, sd)
-
-mat_ts_wk <- to.weekly(xts(mat_ts_dy, date_vec), OHLC = F)
-mat_pctDiff_wk <- diff(mat_ts_wk) / mat_ts_wk[-nrow(mat_ts_wk), ] * 100
-mat_pctDiff_wk <- as.matrix(mat_pctDiff_wk[-1, ])
-ts_avg_wk <- rowMeans(mat_pctDiff_wk)
-mu_ret_wk <- colMeans(mat_pctDiff_wk)
-sd_ret_wk <- apply(mat_pctDiff_wk, 2, sd)
-
-mat_ts_mo <- to.monthly(xts(mat_ts_dy, date_vec), OHLC = F)
-mat_pctDiff_mo <- diff(mat_ts_mo) / mat_ts_mo[-nrow(mat_ts_mo), ] * 100
-mat_pctDiff_mo <- as.matrix(mat_pctDiff_mo[-1, ])
-ts_avg_mo <- rowMeans(mat_pctDiff_mo)
-mu_ret_mo <- colMeans(mat_pctDiff_mo)
-sd_ret_mo <- apply(mat_pctDiff_mo, 2, sd)
-#----------------------------------------------
-# mu_pctRet <- apply(10^-2 * mat_pctDiff_dy, 2, function(x) prod(1 + x)) - 1
-# mu_pctRet_check <- (mat_ts_dy[nrow(mat_ts_dy), ] - mat_ts_dy[1, ]) / mat_ts_dy[1, ]
-# mu_pctRet / mu_pctRet_check
-#----------------------------------------------
-# Compare histograms of daily, weekly, and monthly returns
-# df_plot <- data.frame(ts_kd = names(mu_ret_dy), mu_ret_dy, mu_ret_wk, mu_ret_mo)
-# colnames(df_plot)[-1] <- c("Mean Daily Return", "Mean Weekly Return", "Mean Monthly Return")
-# gathercols <- colnames(df_plot)[-1]
-# df_plot <- df_plot %>% gather_("Return Type", "Value", gathercols)
-# #gg <- ggplot(df_plot, aes(Value, fill = `Return Type`))
-# gg <- ggplot(df_plot, aes(Value))
-# gg <- gg + geom_density(alpha = 0.4)
-# gg <- gg + facet_wrap(~`Return Type`, nrow = 1, scales = "free")
-# #gg <- gg + coord_cartesian(xlim = c(-0.02, 0.02))
-# gg
-#----------------------------------------------
-mat_ts <- mat_ts_dy
-colnames(mat_ts) <- as.character(df_symb_detail$detail[order(df_symb_detail$symbol)])
-#----------------------------------------------
-mat_pctDiff <- mat_pctDiff_dy
-#mat_pctDiff <- mat_pctDiff_wk
-date_vec <- row.names(mat_pctDiff)
-#length(date_vec)
-row.names(mat_pctDiff) <- as.character(date_vec)
-colnames(mat_pctDiff) <- as.character(df_symb_detail$detail[order(df_symb_detail$symbol)])
-#----------------------------------------------
-check_on_data <- F
-if(check_on_data){
-  df_plot <- as.data.frame(mat_pctDiff)
-  gathercols <- colnames(df_plot)
-  df_plot$Date <- date_vec
-  df_plot <- df_plot %>% gather_("Security", "Weekly change (%)", gathercols)
-  df_plot$Type <- NA
-  df_plot$Type[which(df_plot$Security %in% spy_sector_detail)] <- "US Sectors"
-  df_plot$Type[which(df_plot$Security %in% minerals_detail)] <- "Minerals"
-  df_plot$Type[which(df_plot$Security %in% agriculture_detail)] <- "Agriculture"
-  df_plot$Type[which(df_plot$Security %in% energy_detail)] <- "Energy"
-  df_plot$Type[which(df_plot$Security %in% currency_detail)] <- "Major Currency Pairs"
-  df_plot$Type[which(df_plot$Security %in% emerg_mkt_detail)] <- "Emerging Markets"
-  df_plot$Type[which(df_plot$Security %in% crypto_detail)] <- "Cryptocurrencies/\nBlockchain"
-  df_plot$Type[which(df_plot$Security %in% Tbond_detail)] <- "T-bonds"
-  #------------------------------------------------------------
-  # gg <- ggplot(df_plot, aes(x = Year, y = Value, group = Security, color = Security))
-  # gg <- gg + geom_line()
-  # gg <- gg + facet_wrap(~ Type, nrow = 3, scales = "free")
-  # gg <- gg + theme(legend.position = "none")
-  # gg
-  #------------------------------------------------------------
-  this_type <- "US Sectors"
-  df_plot2 <- subset(df_plot, Type == this_type)
-  gg <- ggplot(df_plot2, aes(x = Date, y = `Weekly change (%)`, group = Security, color = Security))
-  gg <- gg + geom_line(lwd = 1.1)
-  gg <- gg + geom_point(size = 2)
-  gg <- gg + labs(title = this_type)
-  gg
-  this_type <- "Minerals"
-  df_plot2 <- subset(df_plot, Type == this_type)
-  gg <- ggplot(df_plot2, aes(x = Date, y = `Weekly change (%)`, group = Security, color = Security))
-  gg <- gg + geom_line(lwd = 1.1)
-  gg <- gg + geom_point(size = 2)
-  gg <- gg + labs(title = this_type)
-  gg
-  this_type <- "Agriculture"
-  df_plot2 <- subset(df_plot, Type == this_type)
-  gg <- ggplot(df_plot2, aes(x = Date, y = `Weekly change (%)`, group = Security, color = Security))
-  gg <- gg + geom_line(lwd = 1.1)
-  gg <- gg + geom_point(size = 2)
-  gg <- gg + labs(title = this_type)
-  gg
-  this_type <- "Energy"
-  df_plot2 <- subset(df_plot, Type == this_type)
-  gg <- ggplot(df_plot2, aes(x = Date, y = `Weekly change (%)`, group = Security, color = Security))
-  gg <- gg + geom_line(lwd = 1.1)
-  gg <- gg + geom_point(size = 2)
-  gg <- gg + labs(title = this_type)
-  gg
-  this_type <- "Major Currency Pairs"
-  df_plot2 <- subset(df_plot, Type == this_type)
-  gg <- ggplot(df_plot2, aes(x = Date, y = `Weekly change (%)`, group = Security, color = Security))
-  gg <- gg + geom_line(lwd = 1.1)
-  gg <- gg + geom_point(size = 2)
-  gg <- gg + labs(title = this_type)
-  gg
-  this_type <- "Emerging Markets"
-  df_plot2 <- subset(df_plot, Type == this_type)
-  gg <- ggplot(df_plot2, aes(x = Date, y = `Weekly change (%)`, group = Security, color = Security))
-  gg <- gg + geom_line(lwd = 1.1)
-  gg <- gg + geom_point(size = 2)
-  gg <- gg + labs(title = this_type)
-  gg
-  this_type <- "Cryptocurrencies/Blockchain"
-  df_plot2 <- subset(df_plot, Type == this_type)
-  gg <- ggplot(df_plot2, aes(x = Date, y = `Weekly change (%)`, group = Security, color = Security))
-  gg <- gg + geom_line(lwd = 1.1)
-  gg <- gg + geom_point(size = 2)
-  gg <- gg + labs(title = this_type)
-  gg
-  this_type <- "T-bonds"
-  df_plot2 <- subset(df_plot, Type == this_type)
-  gg <- ggplot(df_plot2, aes(x = Date, y = `Weekly change (%)`, group = Security, color = Security))
-  gg <- gg + geom_line(lwd = 1.1)
-  gg <- gg + geom_point(size = 2)
-  gg <- gg + labs(title = this_type)
-  gg
-}
-
-```
-
-
-```{r, fig.show = 'hold', fig.cap="\\label{fig:hReturns}Historical (top) daily returns and (bottom) period return, financial data.", fig.width=6, fig.height=6, fig.align='left', echo=FALSE}
-#=======================================================================
-# Define function to plot period returns as barchart with colors
-plot_returns_barchart <- function(df_pctRet, group_colors, list_graph_options, graph_on = T){
-  if(is.null(list_graph_options)){
-    fig_title <- NULL
-    legend_position <- NULL
-    ylab <- NULL
-    axisTextX_off <- NULL
-  }else{
-    fig_title <- list_graph_options[["fig_title"]]
-    legend_position <- list_graph_options[["legend_position"]]
-    ylab <- list_graph_options[["ylab"]]
-    axisTextX_off <- list_graph_options[["axisTextX_off"]]
-  }
-  
-  if(is.null(group_colors)){
-    n_groups <- length(unique(df_pctRet$Group))
-    bag_of_colors <- randomcoloR::distinctColorPalette(k = 5 * n_groups)
-    group_colors <- sample(bag_of_colors, n_groups)
-  }
-  
-  colnames(df_pctRet)[1] <- "Period Return"
-  df_plot <- df_pctRet
-  gg <- ggplot(df_plot, aes(x = Item, y = `Period Return`, fill = Group))
-  #gg <- gg + scale_color_brewer(palette = "Dark2")
-  gg <- gg + scale_fill_manual(values = group_colors)
-  gg <- gg + geom_bar(stat = "identity", color = "black", position = "dodge")
-  if("Dataset" %in% colnames(df_plot)){
-    gg <- gg + facet_wrap(~Dataset, ncol = 1)
-  }
-  if(!is.null(fig_title)){
-    gg <- gg + labs(title = fig_title)
-    gg <- gg + theme(plot.title = element_text(face = "bold", size = 9))
-  }
-  if(!is.null(ylab)){
-    gg <- gg + labs(y = ylab)
-  }else{
-    gg <- gg + theme(axis.title.y = element_blank())
-  }
-  if(!is.null(legend_position)){
-    gg <- gg + theme(legend.position = legend_position)
-  }else{
-    gg <- gg + theme(legend.position = "bottom")
-  }
-  if(!is.null(axisTextX_off)){
-    gg <- gg + theme(axis.text.x = element_blank())
-  }else{
-    gg <- gg + theme(axis.text.x = element_text(size = 9, angle = 60, hjust = 1))
-  }
-  gg <- gg + theme(axis.title.x = element_blank(),
-                   axis.text.y = element_text(size = 9),
-                   #axis.title.y = element_text(size = 9),
-                   legend.title = element_blank(),
-                   legend.text = element_text(size = 9))
-  #  gg <- gg + coord_equal()
-  #  gg <- gg + coord_flip()
-  if(graph_on){print(gg)}
-  return(gg)
-  
-}
-
-#=======================================================================
-# Define function to plot daily returns box and whiskers chart 
-# plot_boxchart <- function(df_pctDiff, group_colors, list_graph_options, graph_on = T){
-#   if(is.null(list_graph_options)){
-#     legend_position <- "right" #"none"
-#     axis_titles <- "on" #"off"
-#     axis_text <- "on" #"y only"
-#     fig_title <- NULL
-#   }else{
-#     legend_position <- list_graph_options[["legend_position"]]
-#     axis_titles <- list_graph_options[["axis_titles"]]
-#     axis_text <- list_graph_options[["axis_text"]]
-#     fig_title <- list_graph_options[["fig_title"]]
-#   }
-#   
-#   df_plot <- df_pctDiff
-#     gg <- ggplot(df_plot, aes(x = Item, y = `Daily Returns`, fill = Group))
-#   #gg <- gg + scale_color_brewer(palette = "Dark2")
-#   gg <- gg + scale_fill_manual(values = group_colors)
-#   #gg <- gg + geom_bar(stat = "identity", color = "black", position = "dodge")
-#   gg <- gg + geom_boxplot()
-#   if("Dataset" %in% colnames(df_plot)){
-#     gg <- gg + facet_wrap(~Dataset, ncol = 1)
-#   }
-#   if(!is.null(fig_title)){
-#     gg <- gg + labs(title = fig_title)
-#     gg <- gg + theme(plot.title = element_text(face = "bold", size = 9))
-#   }
-#   if(axis_titles == "off"){
-#     gg <- gg + theme(axis.title = element_blank())
-#   }
-#   if(axis_text == "y only"){
-#     gg <- gg + theme(axis.text.x = element_blank(),
-#                      axis.text.y = element_text(size = 9))
-#   }
-#   if(axis_text == "on"){
-#     gg <- gg + theme(axis.text.y = element_text(size = 9),
-#                      axis.text.x = element_text(size = 9, angle = 60, hjust = 1))
-#   }
-#     gg <- gg + theme(legend.position = legend_position)
-#     if(graph_on){print(gg)}
-#     return(gg)
-# 
-# }
-#=======================================================================
-# Define function to order data frames by group for period returns barchart and daily returns box and whiskers plots
-get_hist_dfs_ready <- function(mat_ts_kn, group_info){
-  #------------------------------------------------------------
-  # Group the vars according to provided group info
-  #varNames_ordered <- do.call(c, group_info[[1]])
-  outlist <- group_fn(group_info)
-  cols_ordered_by_group <- outlist[[1]]
-  group_color_vec <- outlist[[2]]
-  group_vec_ordered <- outlist[[3]]
-  ind_ordered_cols <- outlist[[4]]
-  df_match_group <- data.frame(Item = cols_ordered_by_group, Group = group_vec_ordered)
-  mat_ts_ordered <- mat_ts_kn[, cols_ordered_by_group]
-  #------------------------------------------------------------
-  # Get date info
-  from_date <- row.names(mat_ts_ordered)[1]
-  to_date <- row.names(mat_ts_ordered)[nrow(mat_ts_ordered)]
-  from_date <- gsub("-", "/", from_date)
-  to_date <- gsub("-", "/", to_date)
-  date_knterval <- paste(from_date, to_date, sep = " - ")
-  #------------------------------------------------------------
-  # Get returns barchart df organized by group
-  nab_pctRet <- 100 * (mat_ts_ordered[nrow(mat_ts_ordered), ] - mat_ts_ordered[1, ]) / mat_ts_ordered[1, ]
-  #---
-  # check
-  mat_pctDiff <- 100 * diff(mat_ts) / mat_ts[-nrow(mat_ts), ]
-  nab_pctRet_check <- 100 * apply(10^-2 * mat_pctDiff, 2, function(x) prod(1 + x)) - 1
-  nab_pctRet / nab_pctRet_check
-  #---
-  df_pctRet <- data.frame(Returns = nab_pctRet)
-  df_pctRet$Item <- row.names(df_pctRet)
-  df_pctRet$Group <- factor(group_vec_ordered)
-  df_pctRet$Item <- factor(df_pctRet$Item, levels = cols_ordered_by_group)
-  #------------------------------------------------------------
-  # Get boxplot df organized by group
-  # df_pctDiff <- as.data.frame(mat_pctDiff_ordered)
-  # df_pctDiff <- df_pctDiff %>% gather_("Item", "Daily Returns", colnames(df_pctDiff))
-  # df_match_group <- data.frame(Item = cols_ordered_by_group, Group = group_vec_ordered)
-  # df_pctDiff <- merge(df_pctDiff, df_match_group, by = "Item")
-  # df_pctDiff$Item <- factor(df_pctDiff$Item, levels = cols_ordered_by_group)
-  # df_pctDiff$Group <- factor(df_pctDiff$Group)
-  #------------------------------------------------------------
-  out_list <- list(df_pctRet, date_knterval)
-  return(out_list)
-}
-
-
-#=======================================================================
-# Define function to plot covariance/correlation matrices
-plot_covmat <- function(covmat, fig_title = "Covariance Matrix", graph_on = T){
-  covmat[upper.tri(covmat)] <- NA
-  df_plot <- covmat %>% tbl_df()
-  these_levels <- colnames(df_plot)
-  df_plot$ItemX <- colnames(df_plot)
-  gathercols <- colnames(df_plot)[-ncol(df_plot)]
-  df_plot <- df_plot %>% gather_("ItemY", "Value", gathercols)
-  df_plot$ItemX <- factor(df_plot$ItemX, levels = these_levels)
-  df_plot$ItemY <- factor(df_plot$ItemY, levels = these_levels)
-  
-  #midpoint <- min(covmat) + (max(covmat) - min(covmat)) / 2
-  midpoint <- 0
-  gg <- ggplot(df_plot, aes((ItemX), (ItemY)))
-  gg <- gg + geom_tile(aes(fill = Value))#, width = 4, height = 4)
-  gg <- gg + geom_text(aes(label = round(Value, 2)), size = 3)
-  if(!is.null(fig_title)){
-    gg <- gg + labs(title = fig_title)
-  }
-  gg <- gg + theme_bw()
-  gg <- gg + theme(axis.text.x = element_text(angle = 60, hjust = 1),
-                   axis.title = element_blank(),
-                   legend.title = element_blank(),
-                   plot.title = element_text(face = "bold", size = 9))
-  gg <- gg + scale_fill_gradient2(low = "khaki", mid = "cyan", high = "magenta", midpoint, na.value = "white")
-  if(graph_on){print(gg)}
-  return(gg)
-  
-}
-#=======================================================================
-# End function definition
-#=======================================================================
-# Separate out a reduced matrix for the basic MV Analysis demonstration
-# group_names
-demonstration_group <- c("US Sectors")
-ind_group <- which(group_names %in% demonstration_group)
-these_ktems <- do.call(c, list_groups[ind_group])
-ind_keep <- which(colnames(mat_ts) %in% these_ktems)
-mat_ts_eg <- mat_ts[, ind_keep]
-#-----------------------------------------------------------------------
-# For a good illustrative example of portfolio optimization, select a financial period over which the returns in the portfolio are as varied as possible yet with the minimum return being >= 2%. This can be achieved by adjusting "buffer". Also'd be nice to have all signal period returns > 0, but this does not seem possible in this data set.
-#-----------------------------------------------------------------------
-# ind_train <- 1:round(nrow(mat_pctDiff) * 1 / 2)
-# ind_test <- setdiff(1:nrow(mat_pctDiff), ind_train)
-length_Q <- 67 # Length of a financial quarter (3 months)
-buffer <- 5#36 # Select to give high cv of returns but with min return >=1-2%
-#------------------------------------------------------------
-# min_pctRet <- c()
-# cv_pctRet <- c()
-# buffr <- c()
-# n_negRet_sigs_train <- c()
-# n_negRet_sigs_test <- c()
-# for(i in 1:110){
-# buffer <- 2+i
-#------------------------------------------------------------
-ind_train <- (nrow(mat_ts_eg) - 2 * length_Q - buffer + 1):(nrow(mat_ts_eg) -  length_Q - buffer)
-ind_test <- (nrow(mat_ts_eg) - length_Q - buffer + 1):(nrow(mat_ts_eg) - buffer)
-mat_ts_eg_train <- mat_ts_eg[ind_train, ]
-mat_ts_eg_test <- mat_ts_eg[ind_test, ]
-#------------------------------------------------------------
-# Get returns barchart df organized by group
-nab_decRet_eg_train <- (mat_ts_eg_train[nrow(mat_ts_eg_train), ] - mat_ts_eg_train[1, ]) / mat_ts_eg_train[1, ]
-nab_decRet_eg_test <- (mat_ts_eg_test[nrow(mat_ts_eg_test), ] - mat_ts_eg_test[1, ]) / mat_ts_eg_test[1, ]
-nab_pctRet_eg_train <- 100 * nab_decRet_eg_train
-nab_pctRet_eg_test <- 100 * nab_decRet_eg_test
-#---
-# check
-# mat_pctDiff <- 100 * diff(mat_ts_eg_train) / mat_ts_eg_train[-nrow(mat_ts_eg_train), ]
-# nab_pctRet_check <- 100 * (apply(10^-2 * mat_pctDiff, 2, function(x) prod(1 + x)) - 1)
-# nab_pctRet / nab_pctRet_check
-#------------------------------------------------------------
-mat_decDiff_eg_train <- diff(mat_ts_eg_train) / mat_ts_eg_train[-nrow(mat_ts_eg_train), ]
-mat_decDiff_eg_test <- diff(mat_ts_eg_test) / mat_ts_eg_test[-nrow(mat_ts_eg_test), ]
-mat_pctDiff_eg_train <- 100 * mat_decDiff_eg_train
-mat_pctDiff_eg_test <- 100 * mat_decDiff_eg_test
-covmat_decDiff_train <- cov(mat_decDiff_eg_train)
-covmat_decDiff_test <- cov(mat_decDiff_eg_train)
-covmat_pctDiff_train <- cov(mat_pctDiff_eg_train)
-covmat_pctDiff_test <- cov(mat_pctDiff_eg_train)
-#------------------------------------------------------------
-# mat_P <- eigen(covmat_decDiff_train)$vectors
-# mat_S <- mat_decDiff_eg_train %*% mat_P
-# mat_P_test <- eigen(covmat_decDiff_test)$vectors
-# mat_S_test <- mat_decDiff_eg_test %*% mat_P_test
-# nab_decRet_sigs_train <- (apply(mat_S, 2, function(x) prod(1 + x)) - 1)
-# nab_decRet_sigs_test <- (apply(mat_S_test, 2, function(x) prod(1 + x)) - 1)
-# n_negRet_sigs_train[i] <- length(which(nab_decRet_sigs_train[1:4] < 0))
-# n_negRet_sigs_test[i] <- length(which(nab_decRet_sigs_test[1:4] < 0))
-# min_pctRet[i] <- min(nab_pctRet)
-# cv_pctRet[i] <- sd(nab_pctRet) / mean(nab_pctRet)
-# buffr[i] <- buffer
-# }
-# View(data.frame(buffr, min_pctRet, cv_pctRet, n_negRet_sigs_train, n_negRet_sigs_test))
-#----------------------------------------------------------
-train_start_date <- row.names(mat_pctDiff_eg_train)[1]
-train_stop_date <- row.names(mat_pctDiff_eg_train)[nrow(mat_pctDiff_eg_train)]
-test_start_date <- row.names(mat_pctDiff_eg_test)[1]
-test_stop_date <- row.names(mat_pctDiff_eg_test)[nrow(mat_pctDiff_eg_test)]
-#----------------------------------------------------------
-
-```
-
-
-```{r, fig.show = "hold", fig.width = 5, fig.height=5, fig.align='left', fig.cap="\\label{fig:mvConv}Optimal portfolio returns frontier and budget shares, financial data.", echo = FALSE}
-#=======================================================================
-# Define portfolio optimization function
-optimize_portfolio <- function(M_knv, covmat_knv, covmat, mat_nab, targ_vec,
-                               backtest_info = NULL){
-  #print(M)
-  lambdas <- -2 * M_knv %*% targ_vec
-  # Return shadow price
-  l_R <- lambdas[1]
-  # Budget shadow price
-  l_C <- lambdas[2]
-  # Optimal budget shares
-  wStar <- -1 / 2 * covmat_knv %*% mat_nab %*% lambdas
-  #print(sum(wStar))
-  # Portfolio variance
-  Vtarg <- t(wStar) %*% covmat %*% wStar
-  # Rtarg <- targ_vec[1]
-  Rtarg <- t(wStar) %*% mat_nab[, 1]
-  #----------------------------------------------------
-  # check <- t(lambdas) %*% targ_vec + 2*l_V * V
-  # print(check)
-  #----------------------------------------------------
-  sd_targ <- sqrt(Vtarg)
-  #if(l_V > 0){wStar <- rep(NA, length(wStar))}
-  #----------------------------------------------------
-  if(!is.null(backtest_info)){
-    nab_decRet_test <- backtest_info[["nab_decRet_test"]]
-    covmat_test <- backtest_info[["covmat_test"]]
-    Rtest <- t(wStar) %*% nab_decRet_test
-    Vtest <- t(wStar) %*% covmat_test %*% wStar
-    sd_test <- sqrt(Vtest)
-  }else{
-    Rtest <- NA
-    Vtest <- NA
-    sd_test <- NA
-  }
-  #----------------------------------------------------
-  frontier_vec <- c(Rtarg, sd_targ, l_R, l_C, Rtest, sd_test)
-  list_out <- list(wStar, frontier_vec)
-  return(list_out)
-}
-#=======================================================================
-# Define function for budget shares plot
-plot_budgetShares <- function(df_wStar, group_small = NULL, color_vec = NULL, graph_on = T, list_graph_options = NULL){
-  # Budget shares plot
-  # Note df_w_kn should have just the target risk column (i.e. don't also include the backtest risk column). At any rate, the budget risk column should be the same as the one used in the frontier plot.
-  #df_plot <- df_wStar_prop
-  #------------------------------------
-  if(!is.null(list_graph_options)){
-    legend_position <- list_graph_options[["legend_position"]]
-    fig_title <- list_graph_options[["fig_title"]]
-    axis_titles <- list_graph_options[["axis_titles"]]
-    Xaxis_numbers_off <- list_graph_options[["Xaxis_numbers_off"]]
-  }else{
-    legend_position = "bottom"
-    fig_title = NULL
-    axis_titles = "on"
-    Xaxis_numbers_off = F
-  }
-  
-  #------------------------------------
-  df_plot <- df_wStar
-  gathercols <- colnames(df_plot)[-1]
-  #------------------------------------
-  if(!is.null(group_small)){
-    mat_plot <- as.matrix(df_plot[, -1])
-    mu_vec <- apply(mat_plot, 2, mean)
-    ind_group_small <- which(mu_vec < 10^-2)
-    other_col <- rowSums(mat_plot[, ind_group_small])
-    
-    mat_plot <- mat_plot[, -ind_group_small]
-    df_plot <- as.data.frame(mat_plot)
-    df_plot$Other <- other_col
-    df_plot$`Risk (standard deviation)` <- df_wStar$`Risk (standard deviation)`
-    gathercols <- colnames(df_plot)[-ncol(df_plot)]
-  }
-  #------------------------------------
-  df_plot$portfolio_kd <- 1:nrow(df_wStar)
-  df_match_V <- df_plot[, c(grep("portfolio_kd", colnames(df_plot)), grep("Risk", colnames(df_plot)))]
-  df_plot <- df_plot %>% gather_("Item", "Budget shares", gathercols)
-  df_plot <- df_plot %>% group_by(Item) %>% 
-    mutate(mu = median(`Budget shares`)) %>% 
-    as.data.frame()
-  df_plot <- df_plot[order(df_plot$mu, decreasing = T), ]
-  #ind_order_mu <- order(df_plot$mu, df_plot$Item, decreasing = T)
-  df_plot$Item <- factor(df_plot$Item,
-                         levels = unique(df_plot$Item),
-                         ordered = T)
-  #------------------------------------
-  if(is.null(color_vec)){
-    # Randomly assign a color to each portfolio item if none assigned
-    n_ktems <- ncol(df_wStar) - 1
-    bag_of_colors <- randomcoloR::distinctColorPalette(k = 5 * n_ktems)
-    color_vec <- sample(bag_of_colors, n_ktems)
-  }
-  #------------------------------------
-  #  df_plot$`Risk (standard deviation)` <- as.factor(df_plot$`Risk (standard deviation)`)
-  y_var <- paste0("`", colnames(df_plot)[grep("Budget shares", colnames(df_plot))], "`")
-  x_var <- paste0("`", colnames(df_plot)[grep("Risk", colnames(df_plot))], "`")
-  
-  gg <- ggplot(df_plot, aes_string(x_var, y_var, fill = "`Item`"))
-  #legend_position <- "right"
-  gg <- gg + geom_area(position = "stack")
-  # gg <- gg + geom_bar(stat = "identity")
-  gg <- gg + scale_fill_manual(values = color_vec)
-  
-  gg <- gg + theme(legend.title = element_blank(),
-                   legend.position = legend_position,
-                   legend.text = element_text(size = 8),
-                   axis.title = element_text(size = 8),
-                   axis.text = element_text(size = 8)
-  )
-  if(axis_titles == "off"){
-    gg <- gg + theme(axis.title = element_blank())
-  }
-  if(axis_titles == "x only"){
-    gg <- gg + theme(axis.title.y = element_blank())
-  }
-  if(Xaxis_numbers_off){
-    gg <- gg + theme(axis.text.x = element_blank())
-  }
-  if(!is.null(fig_title)){
-    gg <- gg + labs(title = fig_title)
-    gg <- gg + theme(plot.title = element_text(size = 8))
-  }
-  if(length(unique(df_plot$Item)) > 15){
-    gg <- gg + theme(legend.position = "none")
-  }
-  gg_weights <- gg
-  
-  if(graph_on){print(gg)}
-  
-  return(gg_weights)
-  
-}
-#=========================================================
-plot_frontier <- function(df_frontier, ROI_basis = T, list_graph_options = NULL, graph_on = T){
-  if(!is.null(list_graph_options)){
-    fig_title <- list_graph_options[["fig_title"]]
-  }else{
-    fig_title <- NULL
-  }
-  
-  df_plot <- df_frontier
-  # if(ROI_basis){
-  #   gg <- ggplot(df_plot, aes(x = `Risk (CV)`, y = `ROI target`))
-  # }else{
-  #   gg <- ggplot(df_plot, aes(x = `Risk (CV)`, y = `Return target`))
-  # }
-  y_var <- paste0("`", colnames(df_plot)[1], "`")
-  x_var <- paste0("`", colnames(df_plot)[2], "`")
-  gg <- ggplot(df_plot, aes_string(x_var, y_var))
-  if(!is.null(fig_title)){
-    gg <- gg + labs(title = fig_title)
-    gg <- gg + theme(plot.title = element_text(face = "bold", size = 10))
-  }
-  gg <- gg + theme(axis.title.x = element_blank(),
-                   axis.text.x = element_blank(),
-                   axis.title.y = element_text(size = 8),
-                   axis.text.y = element_text(size = 8))
-  gg <- gg + geom_point()
-  if(graph_on){print(gg)}
-  return(gg)
-}
-#=======================================================================
-get_optimal_frontier <- function(covmat, mat_nab,
-                                 fun_env = NULL){
-  #-------------------------------------------
-  if(is.null(fun_env)){
-    n_points_on_frontier = 50
-    R_range = 0.3
-    backtest_info = NULL
-    C_targ = 1
-    dimRet = F
-  }else{
-    n_points_on_frontier = fun_env[["n_points_on_frontier"]]
-    R_range <- fun_env[["R_range"]]
-    backtest_info = fun_env[["backtest_info"]]
-    C_targ = fun_env[["C_targ"]]
-    dimRet = fun_env[["dimRet"]]
-  }
-  #-------------------------------------------
-  covmat_knv <- solve(covmat)
-  M <- t(mat_nab) %*% covmat_knv %*% mat_nab # Merton matrix
-  M_knv <- solve(M)
-  R_at_minRisk <- M[1, 2] / M[2, 2] * C_targ
-  #minRisk <- 
-  Rtarg_vec <- seq(R_at_minRisk, R_at_minRisk + R_range, length.out = n_points_on_frontier)
-  #-------------------------------------------
-  list_wStar <- list()
-  list_frontier <- list()
-  for(i in 1:length(Rtarg_vec)){
-    this_Rtarg <- Rtarg_vec[i]
-    targ_vec <- c(this_Rtarg, C_targ)
-    #-------------------------------------------
-    list_out <- optimize_portfolio(M_knv, covmat_knv, covmat, mat_nab, targ_vec,
-                                   backtest_info)
-    #-------------------------------------------
-    list_wStar[[i]] <- list_out[[1]]
-    list_frontier[[i]] <- list_out[[2]]
-  }
-  #-------------------------------------------
-  df_frontier <- data.frame(do.call(rbind, list_frontier))
-  colnames(df_frontier) <- c("Return target",
-                             "Risk (standard deviation)",
-                             "Risk shadow price",
-                             "Budget shadow price",
-                             "Return backtest",
-                             "Risk backtest")
-  df_wStar <- data.frame(df_frontier$`Risk (standard deviation)`, t(do.call(cbind, list_wStar)))
-  varNames_ordered <- row.names(mat_nab)
-  colnames(df_wStar) <- c("Risk (standard deviation)", varNames_ordered)
-  
-  df_frontier$`Tot. investment` <- rowSums(abs(df_wStar[, -1]))
-  df_frontier$`ROI target` <- df_frontier$`Return target` / df_frontier$`Tot. investment`
-  df_frontier$`ROI backtest` <- df_frontier$`Return backtest` / df_frontier$`Tot. investment`
-  #--------------------------------------
-  list_out <- list(df_wStar, df_frontier, R_at_minRisk)
-  return(list_out)
-}
-#=======================================================================
-#=======================================================================
-# End function definitions
-#=======================================================================
-#=======================================================================
-# Conventional risk-reward frontier
-n_ktems <- ncol(mat_ts_eg_train)
-C_targ <- 1
-nab_C <- rep(1, n_ktems)
-utility_knterpretation <- F
-#--------------------------------------------------------------
-# Covariance matrix
-covmat_train <- covmat_decDiff_train #diag(eigen(covmat_decDiff_train)$values)
-covmat_test <- covmat_decDiff_test #diag(eigen(covmat_decDiff_test)$values)
-#--------------------------------------------------------------
-# Expected returns vector
-nab_decRet_train <- nab_decRet_eg_train
-nab_decRet_test <- nab_decRet_eg_test
-#---
-# check
-# nab_decRet_train <- (mat_ts_eg_train[nrow(mat_ts_eg_train), ] - mat_ts_eg_train[1, ]) / mat_ts_eg_train[1, ]
-# nab_decRet_test <- (mat_ts_eg_test[nrow(mat_ts_eg_test), ] - mat_ts_eg_test[1, ]) / mat_ts_eg_test[1, ]
-# mat_pctDiff <- 100 * diff(mat_ts_eg_train) / mat_ts_eg_train[-nrow(mat_ts_eg_train), ]
-# nab_pctRet_check <- 100 * (apply(10^-2 * mat_pctDiff, 2, function(x) prod(1 + x)) - 1)
-# nab_pctRet / nab_pctRet_check
-#--------------------------------------------------------------
-mat_nab <- cbind(nab_decRet_train, nab_C)
-n_points_on_frontier <- 50
-R_range <- 0.05
-backtest_info <- list()
-backtest_info[["nab_decRet_test"]] <- nab_decRet_test
-backtest_info[["covmat_test"]] <- covmat_test
-#--------------------------------------------------------------
-fun_env_getOptFront <- list()
-fun_env_getOptFront[["n_points_on_frontier"]] <- n_points_on_frontier
-fun_env_getOptFront[["R_range"]] <- R_range
-fun_env_getOptFront[["backtest_info"]] <- backtest_info
-fun_env_getOptFront[["C_targ"]] <- C_targ
-fun_env_getOptFront[["dimRet"]] <- F
-#--------------------------------------------------------------
-list_out <- get_optimal_frontier(covmat_train, mat_nab,
-                                 fun_env = fun_env_getOptFront)
-df_wStar <- list_out[[1]]
-df_frontier <- list_out[[2]]
-R_at_minRisk <- list_out[[3]]
-#--------------------------------------------------------------
-gg_frontier <- plot_frontier(df_frontier, ROI_basis = F, list_graph_options = NULL, graph_on = F)
-#--------------------------------------------------------------
-# df_wStar_agg <- df_wStar %>% gather_("Item", "Budget Share", colnames(df_wStar)[-1])
-# df_wStar_agg <- merge(df_wStar_agg, df_match_group, by = "Item")
-# df_wStar_agg <- df_wStar_agg %>% group_by(`Risk (standard deviation)`, Group) %>% summarise(`Budget Share` = sum(`Budget Share`)) %>% spread(Group, `Budget Share`)
-#gg_budget <- plot_budgetShares(df_wStar_agg, group_small = NULL, color_vec = group_colors, graph_on = F, list_graph_options = NULL)
-n_ktems <- ncol(df_wStar) - 1
-bag_of_colors <- randomcoloR::distinctColorPalette(k = 5 * n_ktems)
-color_vec_mv_eg <- sample(bag_of_colors, n_ktems)
-gg_budget <- plot_budgetShares(df_wStar, color_vec = color_vec_mv_eg, graph_on = F, list_graph_options = NULL)
-#--------------------------------------------------------------
-gg_frontier + gg_budget + plot_layout(ncol = 1)
-#https://gotellilab.github.io/GotelliLabMeetingHacks/NickGotelli/ggplotPatchwork.html
-#--------------------------------------------------------------
-
-```
-
-
-
-
-
-```{r, fig.show = 'hold', fig.cap="\\label{fig:hReturns}Historical (top) daily returns and (bottom) period return, financial data.", fig.width=6, fig.height=6, fig.align='left', echo=FALSE}
-# Plot historical returns for period and items defined above
-fig_title <- "Period Returns (%)"
-list_graph_options <- list()
-list_graph_options[["fig_title"]] <- fig_title
-list_graph_options[["legend_position"]] <- "none"
-list_graph_options[["ylab"]] <- NULL
-df_pctRet <- data.frame(Value = nab_pctRet_eg_train, Item = names(nab_pctRet_eg_train), Group = demonstration_group)
-gg_barchart <- plot_returns_barchart(df_pctRet, group_colors, list_graph_options, graph_on = F)
-#----------------------------------------------------------
-# Covariance matrix plot
-gg_covmat <- plot_covmat(covmat_pctDiff_train, graph_on = F)
-#----------------------------------------------------------
-#gg_boxplot + gg_barchart + plot_layout(ncol = 1, heights = c(2, 1))
-gg_barchart + gg_covmat + plot_layout(ncol = 1, heights = c(1, 2))
-#----------------------------------------------------------
-
-```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# Discussion and conclusion
-
-The CGIAR is said to "have a long history of good intentions but limited success in developing appropriate approaches for priority setting" [@Birner2016]. In this paper, I have attempted to reduce, in some measure, the methodological premise for this "limited success" by adaptating financial risk-adjusted portfolio optimization to the AR4D context. The proposed method can also be viewed as an AR4D tradoff/synergy assessment tool.
-
-The particular set of equations that constitute the proposed mechanism may vary considerably with assumptions regarding the shape of the AR4D impact probability density and the derivation of the diminishing returns function. One might also explore what happens to optimal solutions if the mean portfolio return is replaced by the mode of the portfolio return. The hypothetical example given above takes place at the program level, but could have also been given at the project, or some other, level, so long as the proposals are scaleable.
-
-Further pursuit of this inquiry implies a more nuanced approach to the ex-ante impact evaluation of individual AR4D proposals in Step 3 of Mills' resource allocation workflow. In particular, to be of real use in risk adjusted optimization of resource allocations, ex-ante impact assessment methods must focus on how AR4D proposal impacts _scale_ with investment, rather than the impact they might have at a given level of funding. They must also include a mature risk assessment method.
-
-The AR4D investor's budget and return shadow prices are revealed as a byproduct of the method proposed here. These shadow prices essentially constitute the investor's bid price for research capital and impact, respectively. If publicized, they could thus help guide investors in search of suitable partners. More broadly, they might also serve to lay some of the demand side groundwork for an AR4D marketplace. At the same time, however, it is important to keep in mind that research proposals are _not_ stocks and bonds. Adaptation of financial tools to the AR4D context requires an open mind, unconditioned by financial tropes.
+<!-- ## A menu of solutions catering to a range of strategic objectives -->
+<!-- Generally speaking, each of the $m$ leading eigenvectors of a covariance matrix of a complex system of variables encode information about a specific aspect of the system. In the financial context, for example, Gopikrishnan et al. [-@gopik2001quant] show that each of the leading eigenvectors of a covariance matrix of hundreds of stock price series is associated with movements in a particular industry or sector, such that each element in the eigenvectors reflects a particular stock's contribution to, or participation in, movements in the respective sector. -->
+<!-- [The authors even suggest this method might be used to classify firms into industries.] -->
+<!-- Schiek extends the logic of Gopikrishnan et al.'s analysis to AR4D correlation matrices [-@schiek2021reverse]. In that extension, Schiek shows that the collective movements associated with each eigenvector may be interpreted as the AR4D institution's (and/or donor's) strategic objectives or policies, such that the elements of the eigenvectors may be interpreted as reflecting each research program's contribution towards the respective policy. -->
+<!-- In technical language, this association between macro and micro level movements results because empirical collective movements (for e.g., sectorial movements) tend to align with the leading principal components of the system. The leading eigenvectors reflect the participation of individual variables (for e.g., stocks) in a particular collective movement because they are very nearly the covariances of variables ($X$) with leading principal components ($S$). -->
+<!-- The exact covariances of variables with leading principal components ($\tilde{\Sigma}_{X, S}$) are given by -->
+<!-- \begin{equation} -->
+<!-- \tilde{\Sigma}_{X, S} = \tilde{P} \tilde{\Gamma} -->
+<!-- \end{equation} -->
+<!-- (Where the tilde "~" indicates that the expression is restricted to the $m$ leading eigenvector-eigenvalue pairs.) -->
+<!-- Correlations between variables and leading principal components ($K_{X, S}$), it follows, are given by  -->
+<!-- \begin{equation} -->
+<!-- K_{X, S} = \tilde{P} \tilde{\Gamma}^{\frac{1}{2}} -->
+<!-- \end{equation} -->
+<!-- (See Schiek [-@schiek2021reverse] or Abdi [-@] for details.) -->
+<!-- Pre-multiplying the correlations by an orthonormal (typically varimax) rotation matrix $B$ can be useful in clarifying which variables are associated with which collective movements. -->
+<!-- <!-- (Note that this is done without loss of generality, since covariance matrices are defined up to an orthonormal rotation of their eigenvectors.) -->
+<!-- \begin{equation} -->
+<!-- K_{X, S}^{\circlearrowright} = B \tilde{P} \tilde{\Gamma}^{\frac{1}{2}} -->
+<!-- \label{eq:Lrot} -->
+<!-- \end{equation} -->
+<!-- In the AR4D context, this may be interpreted as the matrix of correlations between projects and policies, and elicited from expert opinion as such [@schiek2021reverse]. This matrix will become very useful in the next section. -->
+<!-- Because eigenvectors are associated with strategic objectives, by selecting a particular portfolio solution from the optimal menu, the investor effectively commits themselves to a particular strategic objective for the funding cycle. When selecting a budget allocation from the optimal menu, then, the investor must consider not only their risk tolerance, but also the strategic objective they wish to focus on for the funding cycle. -->
+<!-- ## Multi-objective portfolio optimization -->
+<!-- Alternatively, the investor may want to optimize across multiple strategic objectives. In other words, they may want an optimal linear combination of the solution menu. -->
+<!-- \begin{equation} -->
+<!-- \boldsymbol{\mu}^* = Q \boldsymbol{\beta}^* -->
+<!-- \end{equation} -->
+<!-- Where the optimal scaling parameters $\beta_j^*$ are defined as those which maximize policy impact subject to a policy risk tolerance. Formally, this problem can be stated as follows. -->
+<!-- <!-- $\mathcal{E}^p = r^2/2\; \boldsymbol{\mu} {'} \boldsymbol{\mu}$ -->
+<!-- <!-- $\sigma^p = \sqrt{\boldsymbol{\mu}^p ' G_{p,p} \boldsymbol{\mu}^p}$ -->
+<!-- <!-- Which can then be solved for the optimal multi-objective budget allocation.  -->
+<!-- \begin{equation} -->
+<!-- \max_{\boldsymbol{\beta}} \mathcal{E}^p \:\:\:\:s.t.\:\:\: \sigma^p = \bar{\sigma}^p -->
+<!-- \end{equation} -->
+<!-- Where $\mathcal{E}^p$ and $\sigma^p$ are the policy vis viva and risk, defined as the policy level aggregation of the project level solution menu. -->
+<!-- \begin{equation} -->
+<!-- \begin{split} -->
+<!-- \mathcal{E}^p &= \Sigma_{j = 1}^m \mathcal{E}_j^* \;\;;\;\;\; \mathcal{E}_j^* = \frac{1}{2} \mathbf{v}_j^* ' \mathbf{v}_j^* = \frac{r^2}{2} \boldsymbol{\mu}_j^* ' \boldsymbol{\mu}_j^* =  \frac{r^2}{2} \beta_j^2 \\ -->
+<!-- &= \frac{r^2}{2} \boldsymbol{\beta} ' \boldsymbol{\beta} \\ -->
+<!-- \sigma^p &= \mathbf{1} ' \Sigma^p \mathbf{1} = \boldsymbol{\beta} ' G^p \boldsymbol{\beta} -->
+<!-- \end{split} -->
+<!-- \end{equation} -->
+<!-- Where $G^p$ is the policy coefficient of covariation matrix, which can be deduced from the policy NPV covariance matrix $\Sigma^p$, which in turn is obtained as the inner product of the crowdsourced project-policy correlation matrix (Eq \ref{eq:Lrot}) with itself (see Schiek [-@schiek2021reverse] for details). -->
+<!-- \begin{equation} -->
+<!-- \begin{split} -->
+<!-- K_{X, S}^{\circlearrowright} ' K_{X, S}^{\circlearrowright} &= B \tilde{\Gamma} B ' \\ -->
+<!-- &= \Sigma_{S,S} -->
+<!-- \end{split} -->
+<!-- \label{eq:SigSSeig} -->
+<!-- \end{equation} -->
+<!-- <!-- , and where the control variables $\boldsymbol{\mu}^p$ are the expected policy NPVs, whose elements are defined -->
+<!-- <!-- \begin{equation} -->
+<!-- <!-- \mu_j^p = \boldsymbol{\mu}_j^* ' \mathbf{1} -->
+<!-- <!-- \end{equation} -->
+<!-- <!-- But note that, since $\boldsymbol{\mu}_j^* = \mathbf{q}_j$, then $\boldsymbol{\mu}_j^* {'} \mathbf{1}$ equals the eigenvalue scaling constant $\beta_j$ (recall equation \ref{eq:wStarScaled}). Therefore, the control variables can be rewritten -->
+<!-- <!-- \begin{equation} -->
+<!-- <!-- \boldsymbol{\mu}^p = \boldsymbol{\beta} -->
+<!-- <!-- \end{equation} -->
+<!-- <!-- And so the policy optimization problem can be rewritten -->
+<!-- <!-- \begin{equation} -->
+<!-- <!-- \max_{\boldsymbol{\beta}} \mathcal{E}^p \:\:\:\:s.t.\:\:\: \sigma^p = \bar{\sigma}^p -->
+<!-- <!-- \end{equation} -->
+<!-- <!-- Where -->
+<!-- <!-- \begin{equation} -->
+<!-- <!-- \begin{split} -->
+<!-- <!-- \mathcal{E}^p &= \frac{r^2}{2} \boldsymbol{\beta} ' \boldsymbol{\beta} \\ -->
+<!-- <!-- \sigma^p &= \boldsymbol{\beta} ' G_{p,p} \boldsymbol{\beta} -->
+<!-- <!-- \end{split} -->
+<!-- <!-- \end{equation} -->
+<!-- <!-- $K_{X, S}^{\circlearrowright} K_{X, S}^{\circlearrowright}{'}$ gives the approximate program correlation matrix $\tilde{K}_{x, x}$, while the inner product  gives the policy covariance matrix (call this $\Sigma_{S, S}^{\circlearrowright}$). In the absence of time series data by which to estimate program and policy correlations, then, the matrix $K_{X, S}^{\circlearrowright} = B \tilde{P}$ provides a means of deducing them from expert opinion. (See Schiek [-@schiek2021reverse] for details.) -->
+<!-- This is just the project portfolio problem (equation \ref{eq:probStat}) stated at the policy level. The corresponding lagrangian is then -->
+<!-- \begin{equation} -->
+<!-- \begin{split} -->
+<!-- \mathcal{L} &= \mathcal{E}^p - \lambda^p (\sigma^p - \bar{\sigma}^p) \\ -->
+<!-- &= \frac{r^2}{2} \boldsymbol{\beta} ' \boldsymbol{\beta} - \lambda^p (\boldsymbol{\beta} ' G^p \boldsymbol{\beta} - \bar{\sigma}^p) -->
+<!-- \end{split} -->
+<!-- \end{equation} -->
+<!-- And the first order conditions then follow as -->
+<!-- \begin{equation} -->
+<!-- \nabla_{\boldsymbol{\beta}} \mathcal{L} = r^2 \boldsymbol{\beta} - \frac{\lambda^p}{\sigma^p} G^p \boldsymbol{\beta} = \mathbf{0} -->
+<!-- \label{eq:focS} -->
+<!-- \end{equation} -->
+<!-- <!-- Which can be rearranged -->
+<!-- <!-- \begin{equation} -->
+<!-- <!-- \boldsymbol{\beta} - \frac{\lambda^S}{r^2 \sigma^S} G_{S, S} \boldsymbol{\beta} = \mathbf{0} -->
+<!-- <!-- \end{equation} -->
+<!-- The candidate solution $\boldsymbol{\beta}^*$ may thus be any of the eigenvectors of $G^p$, with corresponding policy risk shadow price ($\lambda^p$) given in terms of the respective eigenvalue. Note from equation \ref{eq:SigSSeig} that the matrix of eigenvectors of $\Sigma^p$ is just the orthonormal rotation matrix $B$ that is applied to clarify project-policy correlations; and the respective eigenvalues are just the $m$ leading eigenvalues of the project correlation matrix $K$ (or coefficient of covariation matrix $G$). (See Schiek [-@schiek2021reverse] for details.) -->
+<!-- By definition, $G_{S, S} = D(\boldsymbol{\beta})^{-1} \Sigma_{S, S} D(\boldsymbol{\beta})^{-1}$; and so it follows that the eigenvalues of $G_{S, S}$ are likewise $\tilde{\Gamma}$. Combining this information with the first order conditions (equation \ref{eq:focS}), it follows that $\sigma_j^{p*} = \sqrt{\gamma_j} = \sigma_j^*$, and -->
+<!-- \begin{equation} -->
+<!-- \begin{split} -->
+<!-- \lambda^p_j &= r^2 \frac{\sigma_j^{S*}}{\gamma_j} \\ -->
+<!-- &= \frac{r^2}{\sqrt{\gamma_j}} -->
+<!-- &= \lambda_j -->
+<!-- \end{split} -->
+<!-- \end{equation} -->
+<!-- That is, the optimal policy portfolio risk and risk shadow price are equal to the optimal project portfolio risk and risk shadow price. -->
+<!-- Moreover, the eigenvectors of $G_{S, S}$ and $\Sigma_{S, S}$ are trivially related as follows. Letting $\boldsymbol{\varepsilon}_j$ and $\mathbf{b}_j$ stand for the $j^{th}$ eigenvectors of $G_{S, S}$ and $\Sigma_{S, S}^{\circlearrowright}$, respectively, -->
+<!-- \begin{equation} -->
+<!-- \boldsymbol{\varepsilon}_j = D(\boldsymbol{\beta})^{-1} \mathbf{b}_j -->
+<!-- \end{equation} -->
+<!-- But, when evaluated at the $j^{th}$ solution $\boldsymbol{\beta}_j^* = \boldsymbol{\varepsilon}_j$, this becomes -->
+<!-- \begin{equation} -->
+<!-- \boldsymbol{\varepsilon}_j = \mathbf{b}_j^{\frac{1}{2}} -->
+<!-- \end{equation} -->
+<!-- The $\ell^{th}$ candidate policy budget allocation $\boldsymbol{\beta}_{\ell}^*$ is thus given by -->
+<!-- \begin{equation} -->
+<!-- \boldsymbol{\beta}_{\ell}^* = \mathbf{b}_{\ell}^{\frac{1}{2}} \:\:;\:\:\: \ell \in (1, m) -->
+<!-- \end{equation} -->
+<!-- To avoid complex valued elements in $\boldsymbol{\beta}_{\ell}^*$, recall that negative elements in $\mathbf{b}_{\ell}$ can be made positive by adjusting the program time horizon, as explained in section \ref{sec:cycReal}. -->
+<!-- Deduction of the second order condition for a maximum follows the same procedure as in the project level problem (section \ref{sec:soc}), and results in an analogous conclusion: the investor is presented not with a single optimal linear combination, but with an optimal menu of linear combinations, each corresponding to a particular portfolio risk tolerance (\sqrt{\gamma_{\ell}}). The investor should choose the solution $\boldsymbol{\beta}_{\ell}^*$ with the risk shadow price $\lambda_{\ell}$ that best matches their risk tolerance. -->
+<!-- With the optimal policy weights ($\boldsymbol{\beta}_{\ell}^*$) in hand, the optimal multi-objective impact $\mathcal{E}_{\ell}^{p*}$ then follows as -->
+<!-- \begin{equation} -->
+<!-- \begin{split} -->
+<!-- \mathcal{E}_{\ell}^{p*} &= \frac{r^2}{2} \boldsymbol{\beta}_{\ell}^* ' \boldsymbol{\beta}_{\ell}^* \\ -->
+<!-- &= \mathbf{b}_{\ell}^{\frac{1}{2}} ' \mathbf{b}_{\ell}^{\frac{1}{2}} -->
+<!-- \end{split} -->
+<!-- \end{equation} -->
+<!-- <!-- &= \frac{r^2}{2} \boldsymbol{\mu}_{\ell}^* ' \boldsymbol{\mu}_{\ell}^* \\ -->
+<!-- <!-- &= \frac{r^2}{2} \boldsymbol{\beta}_{\ell}^* Q ' Q \boldsymbol{\beta}_{\ell}^* \\ -->
+<!-- The optimal multi-objective project NPV vector $\boldsymbol{\mu}_{\ell}^*$ follows as the optimal linear combination of the optimal project NPV menu. -->
+<!-- \begin{equation} -->
+<!-- \begin{split} -->
+<!-- \boldsymbol{\mu}_{\ell}^* &= \Sigma_{j = 1}^m \mu_j^* \beta_{j \ell}^* \\ -->
+<!-- \boldsymbol{\mu}_{\ell}^* &= Q \boldsymbol{\beta}_{\ell}^* \\ -->
+<!-- &= D(\tilde{\mathbf{c}}) \tilde{P} \boldsymbol{\beta}_{\ell}^* -->
+<!-- \end{split} -->
+<!-- \end{equation} -->
+<!-- And the optimal multi-objective budget allocation is -->
+<!-- \begin{equation} -->
+<!-- \mathbf{w}_{\ell}^* = C (D(\tilde{\mathbf{x}}(0))^{-1} D(e^{-r \mathbf{T}}) \boldsymbol{\mu}_{\ell}^* )^{\frac{1}{\boldsymbol{\alpha}}} -->
+<!-- \label{eq:wStarPolicy} -->
+<!-- \end{equation} -->
+<!-- Again, the elements in $\mathbf{T}$ are so defined that... (recall Eq \ref{eq:Tk}), complex valued budget allocations, negative elements in $\boldsymbol{\mu}_{\ell}^*$ can be made positive by adjusting the program time horizon, as explained in section \ref{sec:cycReal}. To enforce the budget constraint, the eigenvector matrix $B$ may be scaled by a parameter $\chi_{\ell}$ such that $\mathbf{w}_{\ell}^* {'} \mathbf{1} = C$. The  -->
+<!-- \begin{equation} -->
+<!-- \boldsymbol{\mu}_{\ell}^* = \chi_{\ell} D(\tilde{\mathbf{c}}) \tilde{P} \boldsymbol{\beta}_{\ell}^* -->
+<!-- \end{equation} -->
+<!-- Note that adjustments to $\chi_{\ell}$ also scale the optimal policy portfolio risk $\sigma^p$ and impact $\mathcal{E}^p$. -->
+<!-- The CGIAR is said to "have a long history of good intentions but limited success in developing appropriate approaches for priority setting" [@Birner2016]. In this paper, I have attempted to reduce, in some measure, the methodological premise for this "limited success" by adaptating financial risk-adjusted portfolio optimization to the AR4D context. The proposed method can also be viewed as an AR4D tradoff/synergy assessment tool. -->
+<!-- The particular set of equations that constitute the proposed mechanism may vary considerably with assumptions regarding the shape of the AR4D impact probability density and the derivation of the diminishing returns function. One might also explore what happens to optimal solutions if the mean portfolio return is replaced by the mode of the portfolio return. The hypothetical example given above takes place at the program level, but could have also been given at the project, or some other, level, so long as the proposals are scaleable. -->
+<!-- Further pursuit of this inquiry implies a more nuanced approach to the ex-ante impact evaluation of individual AR4D proposals in Step 3 of Mills' resource allocation workflow. In particular, to be of real use in risk adjusted optimization of resource allocations, ex-ante impact assessment methods must focus on how AR4D proposal impacts _scale_ with investment, rather than the impact they might have at a given level of funding. They must also include a mature risk assessment method. -->
+<!-- The AR4D investor's budget and return shadow prices are revealed as a byproduct of the method proposed here. These shadow prices essentially constitute the investor's bid price for research capital and impact, respectively. If publicized, they could thus help guide investors in search of suitable partners. More broadly, they might also serve to lay some of the demand side groundwork for an AR4D marketplace. At the same time, however, it is important to keep in mind that research proposals are _not_ stocks and bonds. Adaptation of financial tools to the AR4D context requires an open mind, unconditioned by financial tropes. -->
 <!-- *Exploration of the risk adjusted portfolio optimization apparatus introduced in this article suggests that the shape of the risk-reward frontier and budget allocation can vary widely from one set of input values to another. In the hypothetical example above, I arbitrarily set proposal risk to be more or less proportional to proposal return. The shape and extent of the solution frontier vary considerably when risk is assigned in a more random fashion. -->
-
 <!-- In particular, I have introduced adjustments to the existing portfolio optimization method so as to accommodate the diminishing returns, lack of data, and strictly positive budget shares that distinguish the AR4D context from the financial context. -->
-
-
 <!-- In AR4D resource allocation procedures there arises what is known in game theory as a "credible commitment problem" -->
-
 <!-- The problem is not unique to the AR4D context. Researchers in physics and medicine, in particular,   is faced by research institutes across disciplines and scales. -->
-
-
 <!-- * May not be exactly "accurate", but generates an optimal solution that is consistent with what we think we know about the domain. Moreover, it should kept in mind that data are not infallible sources of information. Data of the sort considered here, in particular, are inherently noisy. Under such circumstances, arguably, it may be preferible to build up the covariance matrix from crowdsourced domain knowledge, in the manner shown above, rather than calculate it from data. Hence, domain knowledge of the key dimensions of the problem space, and of how the various moving parts of the problem (i.e. the portfolio items) map onto these dimensions, is a sufficient---and, in noisy contexts, possibly superior---substitute for data. -->
-
 <!-- "long history of good intentions but limited success in developing appropriate approaches for priority setting". An historic effort begun in 2011 to restructure CGIAR financing around Core Research Programs (CRPs) was ad hoc, thereby reinforcing the very institutional inertia it was designed to disrupt [@Birner2016]. ReDonor attempts to establish criteria and methods for a merit-based allocation of ever-scarcer research funds are seen as invasive characterized as  -->
 <!-- "One of the geniuses" of such institutes is said to be their ability to consistently attract "aid funding of long-term research" while keeping "aid professionals from setting research agendas and hiring scientists" (McCalla, 2014). Donor attempts to establish criteria and methods for a merit-based allocation of ever-scarcer research funds are characterized as -->
 <!-- "development at the expense of research" (Birner &amp; Byerlee, 2016) or even the "Balkanization" of research (Petsko, 2011) . -->
-
 <!-- ## Separating signals from noise, identifying main assets contributing to market movements -->
-
 <!-- MV analysis is, in many ways, still a work in progress, with unresolved methodological issues severely limiting its usefulness even in its native financial context. In particular, covariance matrices estimated from price data tend to contain a lot of noise; and the optimal solutions then tend to diverge considerably from reality as a result of this [@michaud1989markowitz]. In my adaptation below, I propose a new approach to this problem by first dimensionally reducing the portfolio from several dozen assets to just a handful of "signals" constructed from the eigenvectors of the correlation matrix that can be meaningfully distinguished from noise. -->
 \pagebreak
 
