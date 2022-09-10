@@ -1253,17 +1253,19 @@ Where $\sigma_j^*$ is the portfolio risk corresponding to the $j^{th}$ solution,
 \sigma_j^* &= \mathbf{q}_j ' G \mathbf{q}_j \\
 &= \upsilon_j
 \end{split}
+\label{eq:riskJraw}
 \end{equation}
 
 Such that $\lambda_j$ reduces to
 
 \begin{equation}
 \lambda_j = \frac{r^2}{\sqrt{\upsilon_j}} = \frac{r^2}{\sigma_j^*}
+\label{eq:lamJraw}
 \end{equation}
 
 The risk shadow price is thus inversely proportional to portfolio risk. As risk increases, the marginal benefit of additional increments in risk decrease.
 
-### Candidate optimal budget allocations
+### The candidate optimal budget allocations
 
 The budget allocations satisfying the first order conditions ($w_{kj}^*$) are given by Eq \ref{eq:wFnmu} evaluated at $\mu_{kj}^*$.
 
@@ -1307,15 +1309,28 @@ Because eigenvectors are defined up to scaling, the optimal solution can be arbi
 
 Where $\mathbf{q}_j {'} \mathbf{q}_j = 1$ and $\beta_j$ is an arbitrary scaling constant, which may be chosen such that $\hat{\mathbf{w}}_j^* {'} \mathbf{1} = C$.
 
-When choosing the scaling constant $\beta_j$ to enforce the budget constraint, the corresponding expected portfolio impact $\hat{\mathcal{E}}_j^*$ and risk $\hat{\sigma}_j^*$ are also defined in the process.
+When choosing the scaling constant $\beta_j$ to enforce the budget constraint, the corresponding expected portfolio impact (vis viva) $\hat{\mathcal{E}}_j^*$ is also thereby defined.
 
 \begin{equation}
 \begin{split}
 \hat{\mathcal{E}}_j^* &= \frac{1}{2} \hat{\mathbf{v}}_j^* ' \hat{\mathbf{v}}_j^* = \frac{r^2}{2} \hat{\boldsymbol{\mu}}_j^* ' \hat{\boldsymbol{\mu}}_j^* \\
-&= \frac{r^2}{2} \beta_j \mathbf{q}_j ' \beta_j \mathbf{q}_j = \frac{r^2}{2} \beta_j^2 \\
-\sigma_j^* &= \sqrt{\boldsymbol{\mu}_j^* ' G \boldsymbol{\mu}_j^*} = \sqrt{(\beta_j \mathbf{q}_j) ' G (\beta_j \mathbf{q}_j}) \\
-&= \beta_j \sqrt{\gamma_j}
+&= \frac{r^2}{2} \beta_j \mathbf{q}_j ' \beta_j \mathbf{q}_j = \frac{r^2}{2} \beta_j^2
 \end{split}
+\end{equation}
+
+Moreover, the portfolio risk $\hat{\sigma}_j^*$ (Eq \ref{eq:riskJraw}) and risk shadow price $\lambda_j$ (Eq {eq:lamJraw}) must also be redefined---or rather defined more carefully---as follows.
+
+\begin{equation}
+\begin{split}
+\sigma_j^* &= \sqrt{\boldsymbol{\mu}_j^* ' G \boldsymbol{\mu}_j^*} = \sqrt{(\beta_j \mathbf{q}_j) ' G (\beta_j \mathbf{q}_j}) \\
+&= \beta_j \sqrt{\upsilon_j}
+\end{split}
+\label{eq:riskJ}
+\end{equation}
+
+\begin{equation}
+\lambda_j = \frac{r^2}{\beta_j \sqrt{\upsilon_j}}
+\label{eq:lamJ}
 \end{equation}
 
 ## Second order condition \label{sec:soc}
@@ -1343,7 +1358,7 @@ To resolve this condition into a more intelligible form, note that $\mathbf{a}$ 
 Z \mathbf{y} = \mathbf{a} \:|\: \nabla_{\boldsymbol{\mu}} \sigma |_{\boldsymbol{\mu} = \boldsymbol{\mu}^*} ' Z = \mathbf{0}
 \end{equation}
 
-Since $\nabla_{\boldsymbol{\mu}} \sigma |_{\boldsymbol{\mu} = \boldsymbol{\mu}^*}$ is any eigenvector of $G$, say the $j^{th}$ eigenvector, then the other eigenvectors constitute a valid basis $Z$. Letting the notation $Q_j$ stand for the matrix of eigenvectors of $G$ excluding the $j^{th}$ column, then $Z = Q_j$. The second order condition can thus be rewritten
+Since $\nabla_{\boldsymbol{\mu}} \sigma |_{\boldsymbol{\mu} = \boldsymbol{\mu}^*}$ is any eigenvector of $G$, say the $j^{th}$ eigenvector, then the other eigenvectors constitute a valid basis $Z$. Letting the notation $Q_j$ stand for the matrix of eigenvectors of $G$ excluding the $j^{th}$ column, and $\boldsymbol{\beta}_j$ stand for the vector of scaling constants $\boldsymbol{\beta}$ excluding the corresponding $j^{th}$ element, then $Z = D(\boldsymbol{\beta}) Q_j$. The second order condition can thus be rewritten
 
 \begin{equation}
 \mathbf{y} ' H_j \mathbf{y} &> 0
@@ -1352,20 +1367,31 @@ Since $\nabla_{\boldsymbol{\mu}} \sigma |_{\boldsymbol{\mu} = \boldsymbol{\mu}^*
 Where $H_j$ is the "projected" Hessian of $\mathcal{L}$ evaluated at the $j^{th}$ solution $\boldsymbol{\mu}_j^*$.
 
 \begin{equation}
-H_j = Q_j ' \nabla_{\boldsymbol{\mu}}^2 \mathcal{L}|_{\boldsymbol{\mu}^ = \boldsymbol{\mu}} Q_j
+H_j = D(\boldsymbol{\beta}) Q_j ' \nabla_{\boldsymbol{\mu}}^2 \mathcal{L}|_{\boldsymbol{\mu}^*} Q_j D(\boldsymbol{\beta})
 \end{equation}
 
-The second order condition is thus fulfilled if and only if $H_j$ is negative definite. This is easy to determine since $H_j$ is a diagonal matrix.
+The second order condition is thus fulfilled if and only if $H_j$ is negative definite. This is easy to determine since $H_j$ is a diagonal matrix. To see this, note that
 
 \begin{equation}
 \begin{split}
-H_j &= Q_j ' (r^2 \boldsymbol{\mu}_j^* - \frac{\lambda_j}{\sigma} G \boldsymbol{\mu}_j^*) Q_j \\
-&= Q_j ' (r^2 \mathbf{q}_j - \frac{r^2}{\upsilon_j} G \mathbf{q}_j) Q_j \\
-&= r^2 (I - \frac{1}{\upsilon_j} U_j)
+\nabla_{\boldsymbol{\mu}}^2 \mathcal{L} &= r^2 I - \frac{r^2}{\sigma} G \\
+\Rightarrow \nabla_{\boldsymbol{\mu}}^2 \mathcal{L}|_{\boldsymbol{\mu}^*} &= r^2 I - \frac{\lambda_j}{\sigma^*_j} G \boldsymbol \\
+&= r^2 I - \frac{r^2}{\beta_j^2 \upsilon_j} G 
 \end{split}
 \end{equation}
 
-Where $U_j$ is the diagonal matrix of eigenvalues of $G$ excluding the $j^{th}$ eigenvalue. Since $G$ is positive definite, its eigenvalues are positive. And since $\upsilon_1 > \upsilon_2 > ... > \upsilon_n$ for a portfolio of $n$ items, it is straightforward to see that $H_1$ is negative definite, $H_n$ is positive definite, and the matrices $H_{1 < k < n}$ are indefinite.
+Substituting the right hand side of this equation for $\nabla_{\boldsymbol{\mu}}^2 \mathcal{L}|_{\boldsymbol{\mu}^*}$ in the previous equation then gives
+
+\begin{equation}
+\begin{split}
+H_j &= D(\boldsymbol{\beta}_j) Q_j ' (r^2 \boldsymbol{\mu}_j^* - \frac{\lambda_j}{\sigma} G \boldsymbol{\mu}_j^*) Q_j D(\boldsymbol{\beta}_j) \\
+&= D(\boldsymbol{\beta}_j) Q_j ' (r^2 \beta_j \mathbf{q}_j - \frac{r^2}{\beta_j^2 \upsilon_j} G \mathbf{q}_j) Q_j D(\boldsymbol{\beta}_j) \\
+&= r^2 (I - \frac{1}{\beta_j^2 \upsilon_j} D(\boldsymbol{\upsilon}_j))
+\end{split}
+\end{equation}
+
+Where $\boldsymbol{\upsilon}_j$ is the vector of eigenvalues of $G$ excluding the $j^{th}$ eigenvalue. 
+...Since $G$ is positive definite, its eigenvalues are positive. And since $\upsilon_1 > \upsilon_2 > ... > \upsilon_n$ for a portfolio of $n$ items, it is straightforward to see that $H_1$ is negative definite, $H_n$ is positive definite, and the matrices $H_{1 < k < n}$ are indefinite.
 <!-- (i.e., the case where $\boldsymbol{\mu}^*$ equals the leading eigenvector of $K$) -->
 <!-- (i.e., the case where \boldsymbol{\mu}^* equals the trailing eigenvector of $G$) -->
 
@@ -1375,9 +1401,9 @@ The leading eigenvector $\mathbf{q}_1$ is thus the solution that satisfies the s
 
 ## Keeping only meaningful solutions
 
-The trailing eigenvectors of a covariance matrix tend to represent noise in the data. The budget allocations associated with these eigenvectors are thus effectively random, and should be discarded from the menu of eligible solutions. To ensure that solutions are meaningful, only the leading $m$ eigenvectors required to explain a high fraction of total portfolio variance should be retained.
+The trailing eigenvectors of a covariance matrix tend to represent noise in the data. The budget allocations associated with these eigenvectors are thus effectively random, and should be discarded from the menu of eligible solutions. To ensure that solutions are meaningful, only the leading $m$ eigenvectors required to explain a high fraction of total portfolio variance should be retained. This is tantamount to the "spectral cut-off" method used in the financial context [@guo2018eigen; @carrasco2011optimal].
 
-The percentage of portfolio variance explained by any given eigenvector $\mathbf{q}_j$ (call this $k_j$) is the corresponding eigenvalue $\upsilon_j$ divided by the sum of all the eigenvalues (See Abdi [-@] for details).
+The fraction of portfolio variance explained by any given eigenvector $\mathbf{q}_j$ (call this $k_j$) is the corresponding eigenvalue $\upsilon_j$ divided by the sum of all the eigenvalues (See Abdi [-@] for details).
 
 \begin{equation}
 k_j = \frac{\upsilon_j}{\sum_{k = 1}^n \upsilon_k}
@@ -1391,17 +1417,17 @@ The cumulative variance captured by a group of $m < n$ leading eigenvectors is t
 
 Such that $\zeta_n = 1$.
 
-The exact value of the integer $m$ is subjective. Practitioners typically retain the $m$ leading eigenvectors required to explain some high percentage of the portfolio variance, such as $95\%$ (corresponding to $\zeta_m \geq 0.95$). This is tantamount to the "spectral cut-off" method used in the financial context [@guo2018eigen; @carrasco2011optimal].
+Again, the number of retained eigenvectors $m$ should be high enough to explain a high fraction of the portfolio variance---such that, for example, $\zeta_m \geq 0.95$---but the exact number is left to the practitioner's discretion.
 
 ## A menu of solutions catering to a range of risk appetites
 
-The "optimal" solution ($\boldsymbol{\mu}_1^*$) is optimal in the sense that it maximizes expected portfolio impact subject to a risk constraint. However, this is the solution that also corresponds to the highest eigenvalue ($\upsilon_1$), and is hence also the riskiest of the candidate solutions (recall equation \ref{eq:gammaRisk}). The other candidate solutions ($\boldsymbol{\mu}_1^*, \boldsymbol{\mu}_2^*,\dots, \boldsymbol{\mu}_m^*$) may correspond to lower expected impacts, but also successively decreasing eigenvalues ($\upsilon_2, \upsilon_3, \dots, \upsilon_m$), and hence successively decreasing risk levels.
+The "optimal" solution ($\boldsymbol{\mu}_1^*$) is optimal in the sense that it maximizes expected portfolio impact subject to a risk constraint. However, this is the solution that also corresponds to the highest eigenvalue ($\upsilon_1$), and is hence also the riskiest of the candidate solutions (recall equation \ref{eq:gammaRisk}). The other candidate solutions ($\boldsymbol{\mu}_2^*, \dots, \boldsymbol{\mu}_m^*$) may correspond to lower expected impacts, but also successively decreasing eigenvalues ($\upsilon_2, \dots, \upsilon_m$), and hence successively decreasing risk levels.
 
-AR4D donors and institutions are thus presented not with a single optimal solution, but an optimal menu of solutions corresponding to a range of risk tolerances. Typically, AR4D donors are guided by a pro-poor mandate which requires them to operate in the gaps left by market failures, and hence to incline towards ambitious research portfolios. Ambition implies risk, which in turn implies that AR4D donors should endeavor to select from among the riskier solutions on the optimal menu. It should be kept in mind, moreover, that higher portfolio risk is not unambiguously bad, as it exposes the investor to an increased probability of both lower and higher portfolio return.
+The AR4D investor is thus presented not with a single optimal solution, but an optimal menu of solutions corresponding to a range of risk tolerances. Typically, AR4D investors are guided by a pro-poor mandate which requires them to operate in the gaps left by market failures, and hence to incline towards ambitious research portfolios. Ambition implies risk, which in turn implies that AR4D donors should endeavor to select from among the riskier solutions on the optimal menu. It should be kept in mind, moreover, that higher portfolio risk is not unambiguously bad, as it exposes the investor to an increased probability of both lower and higher portfolio return.
 
-Nonetheless, selection of a high risk solution from the optimal menu must be justified by a correspondingly high expected impact (vis viva). Obviously, a lower risk solution with higher expected impact should be selected over a higher risk solution with relatively lower vis viva.
+Nonetheless, the expected portfolio impact (vis viva) $\mathcal{E}_j$ must also be taken into consideration when selecting a solution from the menu. Obviously, a lower risk solution with higher expected impact should be selected over a higher risk solution with relatively lower vis viva.
 
-Finally, political considerations come into play. Solutions must be reasonably distributed among projects. Selection of a solution that allocates most of the budget to just one or two projects is bound to create a toxic work environment.
+Finally, political considerations likely come into play. Solutions that allocate most of the budget to just one or two projects are bound to create a toxic work environment.
 <!-- The leading eigenvector of $G$ is the portfolio budget allocation that maximizes portfolio impact subject to a risk constraint. $\overline{\mathcal{E}}$. The other solutions are not necessarily sub-optimal, but rather correspond to lower investor risk tolerances. Here it is important to keep in mind that higher portfolio risk is not unambiguously bad, but rather a matter of ambition. Higher risk exposes the investor to an increased probability of both lower and higher portfolio return. Moreover, if the portfolio items follow a gBm, as assumed here, then returns are lognormally distributed; and so the risk is primarily upside. Moreover, let's not forget that AR4D institutions have a pro-poor mandate to redress market failures; and this can often mean taking on ambitious, higher risk portfolios. -->
 <!-- Note that this is reflected in the corresponding eigenvalues. The leading eigenvalue---which corresponds to the risk maximizing solution---is the largest, indicating the highest risk for a given vis viva target $\overline{\mathcal{E}}$ (recall equation \ref{eq:lambDef}), while the remaining eigenvalues are successively smaller, indicating successively lower risk levels. -->
 ```{r, fig.show = 'hold', fig.width=5, fig.height=2, fig.align='left', fig.cap="\\label{fig:varExplained_barchart}Plot of the individual and cumulative portions of variance explained by each signal in the financial dataset.", echo=F}
