@@ -1232,7 +1232,7 @@ Where $\mathbf{0}$ is a vector of zeros. This can then be rearranged as follows.
 G \boldsymbol{\mu} - \frac{r^2 \sigma}{\lambda} \boldsymbol{\mu} = \mathbf{0}
 \end{equation}
 
-The program NPV vector $\boldsymbol{\mu}^*$ satisfying the first order conditions is thus given by any of the eigenvectors of $G$, with corresponding risk shadow price given in terms of the respective eigenvalue. More specifically, letting $\mathbf{q}_j$ and $\upsilon_j$ stand for the $j^{th}$ eigenvector and eigenvalue of $G$, respectively, then] the $j^{th}$ solution $\boldsymbol{\mu}_j^*$ can be written
+The program NPV vector $\boldsymbol{\mu}^*$ satisfying the first order conditions is thus given by any of the eigenvectors of $G$, with corresponding risk shadow price given in terms of the respective eigenvalue. More specifically, letting $\mathbf{q}_j$ and $\upsilon_j$ stand for the $j^{th}$ eigenvector and eigenvalue of $G$, respectively, then the $j^{th}$ solution $\boldsymbol{\mu}_j^*$ can be written
 <!-- $\frac{r^2 \sigma}{\gamma_j}$ $\lambda$ given by the inverse of the respective eigenvalues, scaled by $r^2$.]  -->
 
 \begin{equation}
@@ -1250,8 +1250,8 @@ Where $\sigma_j^*$ is the portfolio risk corresponding to the $j^{th}$ solution,
 
 \begin{equation}
 \begin{split}
-\sigma_j^* &= \mathbf{q}_j ' G \mathbf{q}_j \\
-&= \upsilon_j
+\sigma_j^* &= \sqrt{\mathbf{q}_j ' G \mathbf{q}_j} \\
+&= \sqrt{\upsilon_j}
 \end{split}
 \label{eq:riskJraw}
 \end{equation}
@@ -1374,28 +1374,41 @@ The second order condition is thus fulfilled if and only if $H_j$ is negative de
 
 \begin{equation}
 \begin{split}
-\nabla_{\boldsymbol{\mu}}^2 \mathcal{L} &= r^2 I - \frac{r^2}{\sigma} G \\
-\Rightarrow \nabla_{\boldsymbol{\mu}}^2 \mathcal{L}|_{\boldsymbol{\mu}^*} &= r^2 I - \frac{\lambda_j}{\sigma^*_j} G \boldsymbol \\
-&= r^2 I - \frac{r^2}{\beta_j^2 \upsilon_j} G 
+\nabla_{\boldsymbol{\mu}}^2 \mathcal{L} &= r^2 I - \frac{\lambda}{\sigma} G \\
+\Rightarrow \nabla_{\boldsymbol{\mu}}^2 \mathcal{L}|_{\boldsymbol{\mu}^*} &= r^2 I - \frac{\lambda_j}{\sigma^*_j} G \\
+&= r^2 \left(I - \frac{1}{\beta_j^2 \upsilon_j} G \right)
 \end{split}
 \end{equation}
 
-Substituting the right hand side of this equation for $\nabla_{\boldsymbol{\mu}}^2 \mathcal{L}|_{\boldsymbol{\mu}^*}$ in the previous equation then gives
+Substituting the right hand side of this equation for $\nabla_{\boldsymbol{\mu}}^2 \mathcal{L}|_{\boldsymbol{\mu}^*}$ in the previous equation thus gives
 
 \begin{equation}
 \begin{split}
-H_j &= D(\boldsymbol{\beta}_j) Q_j ' (r^2 \boldsymbol{\mu}_j^* - \frac{\lambda_j}{\sigma} G \boldsymbol{\mu}_j^*) Q_j D(\boldsymbol{\beta}_j) \\
-&= D(\boldsymbol{\beta}_j) Q_j ' (r^2 \beta_j \mathbf{q}_j - \frac{r^2}{\beta_j^2 \upsilon_j} G \mathbf{q}_j) Q_j D(\boldsymbol{\beta}_j) \\
-&= r^2 (I - \frac{1}{\beta_j^2 \upsilon_j} D(\boldsymbol{\upsilon}_j))
+H_j &= r^2 D(\boldsymbol{\beta}_j) Q_j ' \left(I - \frac{1}{\beta_j^2 \upsilon_j} G \right) Q_j D(\boldsymbol{\beta}_j) \\
+&= r^2 \left( D(\boldsymbol{\beta}_j) Q_j ' Q_j D(\boldsymbol{\beta}_j) - \frac{1}{\beta_j^2 \upsilon_j} D(\boldsymbol{\beta}_j) Q_j ' G Q_j D(\boldsymbol{\beta}_j) \right) \\
+&= r^2 \left( D(\boldsymbol{\beta}_j)^2 - \frac{1}{\beta_j^2 \upsilon_j} D(\boldsymbol{\beta}_j)^4 D(\boldsymbol{\upsilon}_j) \right) \\
+&= r^2 D(\boldsymbol{\beta}_j)^2 \left( I - \frac{1}{\beta_j^2 \upsilon_j} D(\boldsymbol{\beta}_j)^2 D(\boldsymbol{\upsilon}_j) \right)
 \end{split}
 \end{equation}
 
-Where $\boldsymbol{\upsilon}_j$ is the vector of eigenvalues of $G$ excluding the $j^{th}$ eigenvalue. 
-...Since $G$ is positive definite, its eigenvalues are positive. And since $\upsilon_1 > \upsilon_2 > ... > \upsilon_n$ for a portfolio of $n$ items, it is straightforward to see that $H_1$ is negative definite, $H_n$ is positive definite, and the matrices $H_{1 < k < n}$ are indefinite.
+Where $\boldsymbol{\upsilon}_j$ is the vector of eigenvalues of $G$ excluding the $j^{th}$ eigenvalue. Keeping in mind that the eigenvalues of $G$ are positive (because $G$ is positive definite), it follows that the solution $\{\mathbf{q}_a, \upsilon_a, \beta_a \}$ such that
+
+\begin{equation}
+\frac{\beta_j^2 \upsilon_j}{\beta_a^2 \upsilon_a} > 1 \;\;;\;\;\; \text{for all $j \neq a$}
+\end{equation}
+
+is that for which $H_a$ is negative definite, and is hence the solution that satisfies the second order condition (Eq \ref{eq:soc}), and thus maximizes $\mathcal{L}$. By the same token, the solution $\{\mathbf{q}_b, \upsilon_b, \beta_b \}$ such that
+
+\begin{equation}
+\frac{\beta_j^2 \upsilon_j}{\beta_b^2 \upsilon_b} < 1 \;\;;\;\;\; \text{for all $j \neq b$}
+\end{equation}
+
+is that for which $H_{b}$ is positive definite, and hence the solution that minimizes $\mathcal{L}$; and all other solutions $\gamma \notin \{a, b \}$ produce indefinite $H_{\gamma}$, corresponding to saddle point solutions.
+<!-- trailing eigenvector of $\mathbf{q}_n$ is the solution that minimizes $\mathcal{L}$, and the intermediate eigenvectors $(1 < k < n)$ represent saddle point solutions of $\mathcal{L}$ between these two extremes. -->
+<!-- ...Since $G$ is positive definite, its eigenvalues are positive. And since $\upsilon_1 > \upsilon_2 > ... > \upsilon_n$ for a portfolio of $n$ items, it is straightforward to see that $H_1$ is negative definite, $H_n$ is positive definite, and the matrices $H_{1 < k < n}$ are indefinite. -->
 <!-- (i.e., the case where $\boldsymbol{\mu}^*$ equals the leading eigenvector of $K$) -->
 <!-- (i.e., the case where \boldsymbol{\mu}^* equals the trailing eigenvector of $G$) -->
-
-The leading eigenvector $\mathbf{q}_1$ is thus the solution that satisfies the second order condition (Eq \ref{eq:soc}), and thus maximizes $\mathcal{L}$. By the same token, the trailing eigenvector of $\mathbf{q}_n$ is the solution that minimizes $\mathcal{L}$, and the intermediate eigenvectors $(1 < k < n)$ represent saddle point solutions of $\mathcal{L}$ between these two extremes.
+<!-- The leading eigenvector $\mathbf{q}_1$ is thus the solution that satisfies the second order condition (Eq \ref{eq:soc}), and thus maximizes $\mathcal{L}$. By the same token, the trailing eigenvector of $\mathbf{q}_n$ is the solution that minimizes $\mathcal{L}$, and the intermediate eigenvectors $(1 < k < n)$ represent saddle point solutions of $\mathcal{L}$ between these two extremes. -->
 
 # Post-solution considerations
 
