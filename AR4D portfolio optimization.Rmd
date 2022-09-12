@@ -669,12 +669,11 @@ nSig <- length(sigNames)
 sigNames <- paste("Policy", 1:nSig, "\n", sigNames)
 fig_title <- "Project-policy correlations elicited from experts"
 gg_bar <- plot_corrXS_barchart(mat_Lrot, group_info, fig_title, sigNames)
-ggsave("Fig 2.tiff", width = 5, height = 4)
-gg_bar
+#ggsave("Fig 2.tiff", width = 5, height = 4)
+#gg_bar
 #==============================================================
 #D_sdX <- diag(sdX_vec)
 KdxdxTilde <- mat_Lrot %*% t(mat_Lrot)
-# SigdxdxTilde <- diag(sVec) %*% KdxdxTilde %*% diag(sVec)
 # D_sdCorrect <- diag(1 / sqrt(diag(KxxTilde)))
 # KxxTilde <- D_sdCorrect %*% KxxTilde %*% D_sdCorrect
 colnames(KdxdxTilde) <- row.names(mat_Lrot)
@@ -1374,8 +1373,7 @@ The second order condition is thus fulfilled if and only if $H_j$ is negative de
 
 \begin{equation}
 \begin{split}
-\nabla_{\boldsymbol{\mu}}^2 \mathcal{L} &= r^2 I - \frac{\lambda}{\sigma} G \\
-\Rightarrow \nabla_{\boldsymbol{\mu}}^2 \mathcal{L}|_{\boldsymbol{\mu}^*} &= r^2 I - \frac{\lambda_j}{\sigma^*_j} G \\
+\nabla_{\boldsymbol{\mu}}^2 \mathcal{L}|_{\boldsymbol{\mu}^*} &= r^2 I - \frac{\lambda_j}{\sigma^*_j} G \\
 &= r^2 \left(I - \frac{1}{\beta_j^2 \upsilon_j} G \right)
 \end{split}
 \end{equation}
@@ -1387,23 +1385,28 @@ Substituting the right hand side of this equation for $\nabla_{\boldsymbol{\mu}}
 H_j &= r^2 D(\boldsymbol{\beta}_j) Q_j ' \left(I - \frac{1}{\beta_j^2 \upsilon_j} G \right) Q_j D(\boldsymbol{\beta}_j) \\
 &= r^2 \left( D(\boldsymbol{\beta}_j) Q_j ' Q_j D(\boldsymbol{\beta}_j) - \frac{1}{\beta_j^2 \upsilon_j} D(\boldsymbol{\beta}_j) Q_j ' G Q_j D(\boldsymbol{\beta}_j) \right) \\
 &= r^2 \left( D(\boldsymbol{\beta}_j)^2 - \frac{1}{\beta_j^2 \upsilon_j} D(\boldsymbol{\beta}_j)^4 D(\boldsymbol{\upsilon}_j) \right) \\
-&= r^2 D(\boldsymbol{\beta}_j)^2 \left( I - \frac{1}{\beta_j^2 \upsilon_j} D(\boldsymbol{\beta}_j)^2 D(\boldsymbol{\upsilon}_j) \right)
+&= r^2 D(\boldsymbol{\beta}_j)^2 \left( I - \frac{1}{\beta_j^2 \upsilon_j} D(\boldsymbol{\beta}_j)^2 D(\boldsymbol{\upsilon}_j) \right) \\
+&= r^2 D(\boldsymbol{\beta}_j)^2 \left( I - \frac{1}{ \sigma^{*2}_j} D(\boldsymbol{\sigma}^*_j)^2 \right)
 \end{split}
 \end{equation}
 
-Where $\boldsymbol{\upsilon}_j$ is the vector of eigenvalues of $G$ excluding the $j^{th}$ eigenvalue. Keeping in mind that the eigenvalues of $G$ are positive (because $G$ is positive definite), it follows that the solution $\{\mathbf{q}_a, \upsilon_a, \beta_a \}$ such that
+Where $\boldsymbol{\upsilon}_j$ is the vector of eigenvalues of $G$ excluding the $j^{th}$ eigenvalue, and $\boldsymbol{\sigma}^*_j$ is the corresponding vector of portfolio risk levels excluding the $j^{th}$ element $\sigma^*_j$. Keeping in mind that the eigenvalues of $G$ are positive (because $G$ is positive definite), it follows that the solution $\{\mathbf{q}_a, \upsilon_a, \beta_a \}$ such that
 
 \begin{equation}
-\frac{\beta_j^2 \upsilon_j}{\beta_a^2 \upsilon_a} > 1 \;\;;\;\;\; \text{for all $j \neq a$}
+\begin{split}
+\sigma^*_a = \min(\boldsymbol{\sigma^*}) \\
+\rightarrow \frac{\beta_j^2 \upsilon_j}{\beta_a^2 \upsilon_a} > 1 \;\;;\;\;\; \text{for all $j \neq a$}
+\end{split}
 \end{equation}
 
-is that for which $H_a$ is negative definite, and is hence the solution that satisfies the second order condition (Eq \ref{eq:soc}), and thus maximizes $\mathcal{L}$. By the same token, the solution $\{\mathbf{q}_b, \upsilon_b, \beta_b \}$ such that
+is that for which the projected Hessian ($H_a$) is negative definite, and is hence the solution that satisfies the second order condition (Eq \ref{eq:soc}), and thus maximizes $\mathcal{L}$. By the same token, the solution $\{\mathbf{q}_b, \upsilon_b, \beta_b \}$ such that
 
 \begin{equation}
-\frac{\beta_j^2 \upsilon_j}{\beta_b^2 \upsilon_b} < 1 \;\;;\;\;\; \text{for all $j \neq b$}
+\sigma^*_b = \max(\boldsymbol{\sigma^*}) \\
+\rightarrow \frac{\beta_j^2 \upsilon_j}{\beta_a^2 \upsilon_a} < 1 \;\;;\;\;\; \text{for all $j \neq b$}
 \end{equation}
 
-is that for which $H_{b}$ is positive definite, and hence the solution that minimizes $\mathcal{L}$; and all other solutions $\gamma \notin \{a, b \}$ produce indefinite $H_{\gamma}$, corresponding to saddle point solutions.
+is that for which projected Hessian ($H_{b}$) is positive definite, and hence the solution that minimizes $\mathcal{L}$; and all other solutions $\gamma \notin \{a, b \}$ produce indefinite $H_{\gamma}$, corresponding to saddle point solutions.
 <!-- trailing eigenvector of $\mathbf{q}_n$ is the solution that minimizes $\mathcal{L}$, and the intermediate eigenvectors $(1 < k < n)$ represent saddle point solutions of $\mathcal{L}$ between these two extremes. -->
 <!-- ...Since $G$ is positive definite, its eigenvalues are positive. And since $\upsilon_1 > \upsilon_2 > ... > \upsilon_n$ for a portfolio of $n$ items, it is straightforward to see that $H_1$ is negative definite, $H_n$ is positive definite, and the matrices $H_{1 < k < n}$ are indefinite. -->
 <!-- (i.e., the case where $\boldsymbol{\mu}^*$ equals the leading eigenvector of $K$) -->
@@ -1414,7 +1417,7 @@ is that for which $H_{b}$ is positive definite, and hence the solution that mini
 
 ## Keeping only meaningful solutions
 
-The trailing eigenvectors of a covariance matrix tend to represent noise in the data. The budget allocations associated with these eigenvectors are thus effectively random, and should be discarded from the menu of eligible solutions. To ensure that solutions are meaningful, only the leading $m$ eigenvectors required to explain a high fraction of total portfolio variance should be retained. This is tantamount to the "spectral cut-off" method used in the financial context [@guo2018eigen; @carrasco2011optimal].
+The trailing eigenvectors of a covariance matrix tend to represent noise in the data. The budget allocations associated with these eigenvectors are thus effectively random, and should be discarded from the menu of eligible solutions. To ensure that solutions are meaningful, only the leading $m$ eigenvectors required to explain a high fraction of total portfolio variance should be retained. (This is tantamount to the "spectral cut-off" method used in the financial context [@guo2018eigen; @carrasco2011optimal].)
 
 The fraction of portfolio variance explained by any given eigenvector $\mathbf{q}_j$ (call this $k_j$) is the corresponding eigenvalue $\upsilon_j$ divided by the sum of all the eigenvalues (See Abdi [-@] for details).
 
@@ -1430,59 +1433,27 @@ The cumulative variance captured by a group of $m < n$ leading eigenvectors is t
 
 Such that $\zeta_n = 1$.
 
-Again, the number of retained eigenvectors $m$ should be high enough to explain a high fraction of the portfolio variance---such that, for example, $\zeta_m \geq 0.95$---but the exact number is left to the practitioner's discretion.
+The number of retained eigenvectors $m$ should be high enough to explain, for example, $\zeta_m \geq 0.95$, although the exact number is left to the practitioner's discretion.
 
 ## A menu of solutions catering to a range of risk appetites
 
-The "optimal" solution ($\boldsymbol{\mu}_1^*$) is optimal in the sense that it maximizes expected portfolio impact subject to a risk constraint. However, this is the solution that also corresponds to the highest eigenvalue ($\upsilon_1$), and is hence also the riskiest of the candidate solutions (recall equation \ref{eq:gammaRisk}). The other candidate solutions ($\boldsymbol{\mu}_2^*, \dots, \boldsymbol{\mu}_m^*$) may correspond to lower expected impacts, but also successively decreasing eigenvalues ($\upsilon_2, \dots, \upsilon_m$), and hence successively decreasing risk levels.
+The "optimal" solution ($\boldsymbol{\mu}_1^*$) is optimal in the sense that it maximizes expected portfolio impact (vis viva) subject to a risk constraint. However, this is also the solution that corresponds to the lowest portfolio risk ($\min(\boldsymbol{\sigma}^*)$). It may be that the other candidate solutions are higher risk, but also higher reward. ...the optimal thus near the last of the trailing eigenvectors, but because scaled by $\beta_j^2$ not necessarily the last. 
 
 The AR4D investor is thus presented not with a single optimal solution, but an optimal menu of solutions corresponding to a range of risk tolerances. Typically, AR4D investors are guided by a pro-poor mandate which requires them to operate in the gaps left by market failures, and hence to incline towards ambitious research portfolios. Ambition implies risk, which in turn implies that AR4D donors should endeavor to select from among the riskier solutions on the optimal menu. It should be kept in mind, moreover, that higher portfolio risk is not unambiguously bad, as it exposes the investor to an increased probability of both lower and higher portfolio return.
 
 Nonetheless, the expected portfolio impact (vis viva) $\mathcal{E}_j$ must also be taken into consideration when selecting a solution from the menu. Obviously, a lower risk solution with higher expected impact should be selected over a higher risk solution with relatively lower vis viva.
 
-Finally, political considerations likely come into play. Solutions that allocate most of the budget to just one or two projects are bound to create a toxic work environment.
+Finally, political considerations likely come into play. Solutions that allocate most of the budget to just one or two projects are bound to create a toxic work environment. ... adjusting time horizons to avoid this
 <!-- The leading eigenvector of $G$ is the portfolio budget allocation that maximizes portfolio impact subject to a risk constraint. $\overline{\mathcal{E}}$. The other solutions are not necessarily sub-optimal, but rather correspond to lower investor risk tolerances. Here it is important to keep in mind that higher portfolio risk is not unambiguously bad, but rather a matter of ambition. Higher risk exposes the investor to an increased probability of both lower and higher portfolio return. Moreover, if the portfolio items follow a gBm, as assumed here, then returns are lognormally distributed; and so the risk is primarily upside. Moreover, let's not forget that AR4D institutions have a pro-poor mandate to redress market failures; and this can often mean taking on ambitious, higher risk portfolios. -->
 <!-- Note that this is reflected in the corresponding eigenvalues. The leading eigenvalue---which corresponds to the risk maximizing solution---is the largest, indicating the highest risk for a given vis viva target $\overline{\mathcal{E}}$ (recall equation \ref{eq:lambDef}), while the remaining eigenvalues are successively smaller, indicating successively lower risk levels. -->
-```{r, fig.show = 'hold', fig.width=5, fig.height=2, fig.align='left', fig.cap="\\label{fig:varExplained_barchart}Plot of the individual and cumulative portions of variance explained by each signal in the financial dataset.", echo=F}
-c_vec <- eig_values / sum(eig_values)
-ck_vec <- cumsum(c_vec)
-df_plot <- data.frame(Signal = paste("Signal", 1:length(eig_values)), Portion_explained = c_vec, Portion_explained_cumul = ck_vec)
-colnames(df_plot)[2:3] <- c("Individually", "Cumulatively")
-gathercols <- colnames(df_plot)[2:3]
-df_plot <- gather_(df_plot, "Portion explained", "Value", gathercols)
-df_plot$Signal <- factor(df_plot$Signal,
-                         levels = unique(df_plot$Signal),
-                         ordered = T)
-gg <- ggplot(df_plot, aes(x = Signal, y = Value, fill = `Portion explained`))
-gg <- gg + geom_bar(stat = "identity", color = "black", position = "dodge")
-gg <- gg + scale_fill_manual(values = c("wheat3", "paleturquoise"))
-gg <- gg + geom_hline(yintercept = 0.9, color = "coral", size = 1, linetype = "dashed")
-gg <- gg + theme(axis.text.y = element_text(size = 7),
-                 axis.text.x = element_text(size = 7, angle = 60, hjust = 1),
-                 axis.title = element_blank(),
-                 legend.title = element_text(size = 8),
-                 legend.text = element_text(size = 8))
-gg
-ggsave("Fig 4.tiff")
-#====================================================
-nSig <- which(ck_vec > 0.9)[1]
-mat_S <- mat_S_all[, 1:nSig]
-mat_L <- cormat_XS[, 1:nSig]
-eig_values_sigs <- eig_values[1:nSig]
-#====================================================
-```
-
-**Fig 4. Plot of the individual and cumulative portions of variance** explained by each signal in the financial dataset.
-
-&nbsp;
-
-The plot shows that, for the financial data set, the leading `r nSig` signals are sufficient to meet this criterion.
 
 # Hypothetical example
 
 To illustrate the portfolio optimization workflow presented above, here I walk through a step-by-step example of how the method might be applied in an AR4D fund allocation decision.
 
 In this hypothetical example, a donor wants to know the optimal distribution of limited funds over a five year funding cycle across a portfolio of eight AR4D programs. The programs might be defined in terms of major commodity categories (cereals, roots & tubers, legumes, livestock, fruit & vegetables, fish, etc.); or they might be organized around thematic areas (climate smart agriculture, smallholder resilience, digital agriculture, etc.); or they might be some combination thereof. The donor wants to maximize impact for a given risk tolerance ...such that risk is minimized for a given impact target (as represented by the vis viva). As explained in section ..., there are $m$ possible budget allocations that solve the problem, corresponding to the $m$ leading eigenvectors of the program cross coefficient of variation matrix $G$. Each of these 
+
+quarterly rate of return (which works out to an rate of return of... ), funding cycle of 3 years.
 
 The $m$ leading eigenvectors of the project correlation matrix $K_{X, X}$ can be deduced from the crowdsourced rotated project-policy correlation matrix $K_{X,S}^{\circlearrowright}$ as follows.
 
@@ -1522,7 +1493,15 @@ The strategic objective covariance matrix can be calculated as the inner product
 
 time adjustments
 
-```{r, fig.show = 'hold', fig.width=3, fig.height=2, fig.align='left', fig.cap="\\label{fig:rotCorrXSnParams}(Left) Bar chart of hypothetical project-policy correlations, (right) table of hypothetical project parameters."}
+
+
+**Fig 4. Plot of the individual and cumulative portions of variance** explained by each signal in the financial dataset.
+
+&nbsp;
+
+The plot shows that, for the financial data set, the leading `r nSig` signals are sufficient to meet this criterion.
+
+```{r, fig.show = 'hold', fig.width=5, fig.height=3, fig.align='left', fig.cap="\\label{fig:rotCorrXSnParams}(Left) Bar chart of hypothetical project-policy correlations, (right) table of hypothetical project parameters."}
 # RupLoP <- 1.5
 # Tk <- 12 * 4
 # #RupLoP = (1 + rUp)^Tk - 1
@@ -1535,22 +1514,29 @@ rQrtrlyArith <- (1 + rYrlyArith)^(1 / tStep) - 1
 # Convert arithmetic return to log return
 r <- round(log(1 + rQrtrlyArith), 3)
 #--------------------------------------------------------------
+randSeed <- round(runif(1), 4) * 10^4
+#randSeed <- 1622
+#randSeed <- 6807
+randSeed <- 4056
+set.seed(randSeed)
+#--------------------------------------------------------------
 # Project params
 alpha <- c(0.65, 0.65, 0.6, 0.75, 0.65, 0.6, 0.65, 0.8, 0.7, 0.75, 0.7)
 xTilde <- exp(rnorm(nProj, 6, 0.75))
-xTilde <- round(xTilde, 4)
+xTilde <- round(xTilde, 2)
 TvecYrs <- c(18, 14, 8, 15, 12, 14, 10, 5, 4, 7, 12)
 TvecTstep <- TvecYrs * tStep
 tFundCyc <- 3 * tStep # Say 3 year funding cycle
 omega <- r * tFundCyc / (2 * pi)
 TvecFcyc <- round(TvecTstep / tFundCyc, 2) # nu_k
-Tt <- paste(TvecYrs, TvecTstep, TvecFcyc, sep = "/")
+#Tt <- paste(TvecYrs, TvecTstep, TvecFcyc, sep = "/")
 #--------------------------------------------------------------
 # Deduce project risk
 # Arithmetic return upper and lower bounds (95% conf interval)
 # Elicit max return over life of project from ex-ante impact assessment
 ErTkArith <- (1 + rQrtrlyArith)^(TvecTstep) - 1
 rTkArith_max <- ErTkArith + exp(rnorm(nProj, 0.15, 0.75))
+rTkArith_min <- 2 * ErTkArith - rTkArith_max
 # Covert to max return over the judicious time step (quarterly)
 rQrtrlyArith_max <- (1 + rTkArith_max)^(1 / TvecTstep) - 1
 # Deduce min quarterly return based on symmetry of normal distribution
@@ -1558,47 +1544,88 @@ rQrtrlyArith_min <- 2 * rQrtrlyArith - rQrtrlyArith_max
 rQrtrlyArith_max <- round(rQrtrlyArith_max, 4)
 # Deduce s
 zBound <- 1.96
-sVec <- (rQrtrlyArith_max - rQrtrlyArith) / zBound
-sVec <- round(sVec, 4)
+sVecQrtrly <- (rQrtrlyArith_max - rQrtrlyArith) / zBound
+sVecLoP <- sVecQrtrly * sqrt(TvecTstep)
+sVecLoP <- round(sVecLoP, 4)
+sVecQrtrly <- round(sVecQrtrly, 4)
 # Display conf interval
-confInt95 <- paste(round(rQrtrlyArith_min, 4), round(rQrtrlyArith_max, 4), sep = "/")
+confInt95LoP <- paste0("(", round(rTkArith_min, 2), ", ", round(rTkArith_max, 2), ")")
+confInt95qrtrly <- paste0("(", round(rQrtrlyArith_min, 3), ", ", round(rQrtrlyArith_max, 3), ")")
 #--------------------------------------------------------------
 projNames <- df_table$Project
-df_param <- data.frame(proj = projNames, alpha, xTilde,
-                       Tt, confInt95, sVec = sVec)
-df_param <- df_param %>% gather(var, val, alpha:sVec)
-#df_param$val <- factor(df_param$val)
-cNames <- c(expression("Scale\nelasticity\n("*alpha*")"),
-            "Stand. dev.\narithmetic ret.",
-            "Arithmetic return\n95% conf. interval",
-            "Time horizon\n(Years/Quarters/Fund. Cyc.)",
-            expression(tilde(x))
-            )
-gg <- ggplot(df_param, aes(x = var, y = proj,
+df_alphaXtilde <- data.frame(proj = projNames, alpha, xTilde)
+cNames_alphaXtilde <- c(expression("Scale\nelasticity - "*alpha*""), expression("Expected\nmax net benefit\n(millions of USD) - "*tilde(x)*""))
+df_t <- data.frame(proj = projNames, Years = TvecYrs, Quarters = TvecTstep, FundCyc = TvecFcyc)
+cNames_t <- c("Funding\nCycles", "Quarters", "Years")
+df_sDeduce <- data.frame(proj = projNames, confInt95LoP, confInt95qrtrly, sVecQrtrly, sVecLoP)
+cNames_sDeduce <- c("95% Conf. Int.\nLoP Arithmetic Return\n(Elicited)", "95% Conf. Int.\nQuarterly\nArithmetic Return\n(Implied)", "Stand. Dev. of\nQuarterly Return\n(Deduced)", "Stand. Dev. of\nLoP return\n(Deduced)")
+# df_param <- df_param %>% gather(var, val, alpha:sVec)
+# cNames <- c(expression("Scale\nelasticity ("*alpha*")"),
+#             "Qrtrly arith return\n95% conf. interval",
+#             "Stand. dev.of \narithmetic ret.",
+#             "Time horizon\n(Yrs / Qrtrs /\nFunding Cycles)",
+#             expression("E[max impact] ("*tilde(x)*")")
+#             )
+# gg <- ggplot(df_param, aes(x = var, y = proj,
+#                            label = val))
+#--------------------------------------------------------------
+# Define project parameter plot fn
+plotParams <- function(df_plot, theseCnames, thisTitle, yNames = T){
+gg <- ggplot(df_plot, aes(x = var, y = proj,
                            label = val))
 gg <- gg + geom_tile(alpha = 0)
-gg <- gg + scale_x_discrete("var", labels = cNames, position = "top")
+gg <- gg + scale_x_discrete("var", labels = theseCnames, position = "top")
 # gg <- gg + facet_wrap(~var, nrow = 1, labeller = labeller(var = facetTitles))
+gg <- gg + labs(title = thisTitle)
 gg <- gg + geom_text(size = cellText_size)
-#gg <- gg + theme_bw()
+gg <- gg + theme_bw()
 gg <- gg + theme(axis.title = element_blank(),
                  axis.text.y = element_text(size = axisText_size),
                  axis.text.x = element_text(size = axisText_size),
                  panel.grid = element_blank(),
+                 plot.title = element_text(size = title_size),
                  strip.text = element_text(size = facetTitle_size))
-gg_tab <- gg
+if(yNames == F){
+gg <- gg + theme(axis.text.y = element_blank())
+
+}
+
+return(gg)
+}
 #--------------------------------------------------------------
-gg_tab
+gathercols <- colnames(df_alphaXtilde)[-1]
+df_plot <- df_alphaXtilde %>% gather_("var", "val", gathercols)
+gg_alphaXtilde <- plotParams(df_plot,
+                             theseCnames = cNames_alphaXtilde,
+                             thisTitle = "Investment model parameters\nestimated by ex-ante impact assessment",
+                             yNames = T)
 #--------------------------------------------------------------
+gathercols <- colnames(df_t)[-1]
+df_plot <- df_t %>% gather_("var", "val", gathercols)
+gg_t <- plotParams(df_plot,
+                   theseCnames = cNames_t,
+                   thisTitle = "Time horizons",
+                   yNames = F)
+#--------------------------------------------------------------
+gathercols <- colnames(df_sDeduce)[-1]
+df_plot <- df_sDeduce %>% gather_("var", "val", gathercols)
+gg_sDeduce <- plotParams(df_plot,
+                   theseCnames = cNames_sDeduce,
+                   thisTitle = "Deduction of standard deviations",
+                   yNames = F)
+#--------------------------------------------------------------
+
+#wrap_plots(list(gg_alphaXtilde, gg_t, gg_sDeduce))
+gg_alphaXtilde + gg_t + gg_sDeduce + plot_layout(widths = c(1, 1, 2))
 
 ```
 
 
-
 \ref{fig:wStarVecs}
 
-```{r, fig.show = "hold", fig.width = 5, fig.height=3, fig.align="center", fig.cap="\\label{fig:wStarVecs}Optimal budget allocations for each policy/risk tolerance level.", echo = FALSE}
+```{r, fig.show = 'hold', fig.width=5, fig.height=2, fig.align='left', fig.cap="\\label{fig:varExplained_barchart}Plot of the individual and cumulative portions of variance explained by each signal in the financial dataset.", echo=F}
 
+SigdxdxTilde <- diag(sVecLoP) %*% KdxdxTilde %*% diag(sVecLoP)
 G <- exp(SigdxdxTilde) - 1
 ups <- eigen(G)$values
 xx <- cumsum(ups) / sum(ups)
@@ -1616,7 +1643,33 @@ Qtilde <- eigen(G)$vectors[, 1:nSigG]
 # #B <- eigen(SigdSdS)$vectors
 # # L <- mat_Lrot %*% B
 # # Ptilde <- L %*% diag(1 / sqrt(gammaSigdSdS))
-#--------------------------------------------------------------------
+#-------------------------------------------------------------------
+df_plot <- data.frame(Eigvec = paste("Eigvec", 1:length(ups)),
+                      Portion_explained = ups / sum(ups),
+                      Portion_explained_cumul = xx)
+colnames(df_plot)[2:3] <- c("Individually", "Cumulatively")
+gathercols <- colnames(df_plot)[2:3]
+df_plot <- gather_(df_plot, "Portion explained", "Value", gathercols)
+df_plot$Eigvec <- factor(df_plot$Eigvec,
+                         levels = unique(df_plot$Eigvec),
+                         ordered = T)
+gg <- ggplot(df_plot, aes(x = Eigvec, y = Value, fill = `Portion explained`))
+gg <- gg + geom_bar(stat = "identity", color = "black", position = "dodge")
+gg <- gg + scale_fill_manual(values = c("wheat3", "paleturquoise"))
+gg <- gg + geom_hline(yintercept = thresh, color = "coral", size = 1, linetype = "dashed")
+gg <- gg + theme(axis.text.y = element_text(size = 7),
+                 axis.text.x = element_text(size = 7, angle = 60, hjust = 1),
+                 axis.title = element_blank(),
+                 legend.title = element_text(size = 8),
+                 legend.text = element_text(size = 8))
+gg
+#ggsave("Fig 4.tiff")
+
+```
+
+
+```{r, fig.show = "hold", fig.width = 5, fig.height=3, fig.align="center", fig.cap="\\label{fig:wStarVecs}Optimal budget allocations for each policy/risk tolerance level.", echo = FALSE}
+
 # Single objective optimal budget allocation
 TkHat <- 2 * pi * TvecFcyc
 mat_wShareStar <- matrix(NA, nProj, nSigG)
@@ -1628,7 +1681,7 @@ wSlack <- function(beta, Tk, omega, xTilde, muStar, alpha){
   wSlack <- sum(wShare) - 1
   return(wSlack)
 }
-thisInt <- c(0, 10000)
+thisInt <- c(0, 100000)
 for(j in 1:nSigG){
   muStar <- Qtilde[, j]
   ind <- which(muStar < 0)
@@ -1651,14 +1704,16 @@ for(j in 1:nSigG){
 mat_muStar <- round(Qtilde, 4)
 mat_wShareStar <- round(mat_wShareStar, 4)
 #colSums(mat_wShareStar)
-visVivVec <- round(visVivVec, 2)
+visVivVec <- round(visVivVec, 4)
 muStarVec <- colSums(mat_muStar)
-sigVec <- round(upsTilde, 2)
+riskVec <- round(sqrt(upsTilde) * betaStarVec, 4)
+riskPriceVec <- round(r^2 / riskVec, 7)
 betaStarVec <- round(betaStarVec, 4)
 row.names(mat_muStar) <- projNames
-colnames(mat_muStar) <- paste(sigVec, "/", visVivVec)
+solCnames <- paste0("Solution ", c(1:nSigG), "\n", riskVec, " / ", visVivVec)
+colnames(mat_muStar) <- solCnames
 row.names(mat_wShareStar) <- projNames
-colnames(mat_wShareStar) <- paste(sigVec, "/", visVivVec)
+colnames(mat_wShareStar) <- solCnames
 #--------------------------------------------------------------------
 #visVivVec / sigVec
 #--------------------------------------------------------------------
@@ -1681,6 +1736,13 @@ gg <- gg + theme(axis.text = element_text(size = 7),
 gg <- gg + coord_equal()
 gg <- gg + coord_flip()
 gg
+
+```
+
+
+Can pick apart $K^*$ to get a better idea of how the money is being invested...PC-project correlations
+
+```{r}
 #=====================================================================
 muStar <- mat_muStar[, 1]
 SigStar <- diag(muStar) %*% G %*% diag(muStar)
@@ -1689,9 +1751,10 @@ Kstar <- diag(1 / sqrt(diag(SigStar))) %*% SigStar %*% diag(1 / sqrt(diag(SigSta
 e <- eigen(Kstar)$values
 xx <- cumsum(e) / sum(e)
 thresh <- 0.95
+nSigKstar <- which(xx > thresh)[1]
 eTilde <- e[1:nSigKstar]
 nSigKstar <- which(xx > thresh)[1]
-Etilde <- eigen(Kstar)$vectors[, 1:nSigKstar] 
+Etilde <- eigen(Kstar)$vectors[, 1:nSigKstar]
 
 mat_L <- Etilde %*% diag(sqrt(eTilde))
 
@@ -1703,82 +1766,16 @@ mat_R <- varimax(mat_L)[[2]]
 mat_R <- matrix(as.numeric(mat_R),
                 attributes(mat_R)$dim,
                 dimnames = attributes(mat_R)$dimnames)
-bag_of_colors <- randomcoloR::distinctColorPalette(k = 5 * n_groups)
-group_colors <- sample(bag_of_colors, n_groups)
-group_info <- list(list_groups, group_names, group_colors)
-sigNames <- c("GDP Growth", "Economic\nEquality", "Environmental\nSustainability", "Nutritional\nSecurity")
-nSig <- length(sigNames)
-sigNames <- paste("Policy", 1:nSig, "\n", sigNames)
-fig_title <- "Project-policy correlations elicited from experts"
-colnames(mat_Lrot) <- matLcolNames
-row.names(mat_Lrot) <- projNames
-colnames(mat_L) <- matLcolNames
-row.names(mat_L) <- projNames
-gg_bar <- plot_corrXS_barchart(mat_Lrot, group_info, fig_title, sigNames)
-#ggsave("x.png", width = 5, height = 4)
-gg_bar
-#=====================================================================
 
-
-```
-
-
-
-
-
-\ref{fig:wStarVecMO}
-
-```{r, fig.show = "hold", fig.width = 5, fig.height=3, fig.align="center", fig.cap="\\label{fig:wStarVecMO}Multi-objective optimal budget allocations corresponding to each risk tolerance.", echo = FALSE}
-# Multi-objective optimal budget allocation
-#gammaSigSS
-mat_wShareStarMO <- matrix(NA, nProj, nSig)
-mat_muStarMO <- matrix(NA, nProj, nSig)
-visVivMOvec <- c()
-betaStarMOvec <- c()
-for(l in 1:nSig){
-  matWgts <- eVecSigP[, l]
-  muStarMO <- Q %*% matWgts
-  ind <- which(muStar < 0)
-  kappaK <- rep(0, length(TkHat))
-  kappaK[ind] <- 1
-  Tk <- TkHat - kappaK * pi
-  out <- uniroot(wSlack, interval = thisInt,
-                 Tk = Tk, omega = omega, xTilde = xTilde,
-                 muStar = muStarMO, alpha = alpha,
-                 lower = min(thisInt), upper = max(thisInt))
-  betaStarMO <- out$root
-  print(out$f.root)
-  wShareStarMO <- ((diag(exp(-Tk * omega)) %*% diag(1 / xTilde) %*% abs(muStarMO)) * betaStarMO)^(1 / alpha)
-  print(sum(wShareStar))
-  visVivMOvec[l] <- r^2 / 2 * betaStar^2
-  mat_wShareStarMO[, l] <- wShareStarMO
-  mat_muStarMO[, l] <- muStarMO
-  visVivMOvec[l] <- r^2 / 2 * betaStarMO^2
-  betaStarMOvec[l] <- betaStarMO
-}
-mat_muStarMO <- round(mat_muStarMO, 4)
-mat_wShareStarMO <- round(mat_wShareStarMO, 4)
-#colSums(mat_wShareStar)
-visVivMOvec <- round(visVivMOvec, 2)
-muStarMOvec <- colSums(mat_muStarMO)
-sigVecMO <- round(uSigP, 2)
-betaStarMOvec <- round(betaStarMOvec, 2)
-row.names(mat_muStarMO) <- projNames
-colnames(mat_muStarMO) <- paste(sigVecMO, "/", visVivMOvec)
-row.names(mat_wShareStarMO) <- projNames
-colnames(mat_wShareStarMO) <- paste(sigVecMO, "/", visVivMOvec)
-#--------------------------------------------------------------------
-#visVivMOvec / sigVecMO
-#--------------------------------------------------------------------
-df_plot <- as.data.frame(mat_wShareStarMO)
+df_plot <- as.data.frame(mat_Lrot)
 gathercols <- colnames(df_plot)
 df_plot$Project <- projNames
-df_plot <- df_plot %>% gather_("Policy", "Budget share", gathercols)
+df_plot <- df_plot %>% gather_("PC", "Loading", gathercols)
 
-gg <- ggplot(df_plot, aes(x = Project, y = `Budget share`))
+gg <- ggplot(df_plot, aes(x = Project, y = Loading))
 gg <- gg + geom_bar(stat = "identity", color = "black", position = "dodge")
 #gg <- gg + ylim(limits = c(0, 1))
-gg <- gg + facet_wrap(~ Policy, nrow = 1)
+gg <- gg + facet_wrap(~ PC, nrow = 1)
 #gg <- gg + labs(y = xAxis_title)
 gg <- gg + theme(axis.text = element_text(size = 7),
                  axis.title.x = element_text(size = 7),
@@ -1790,12 +1787,101 @@ gg <- gg + coord_equal()
 gg <- gg + coord_flip()
 gg
 
+# bag_of_colors <- randomcoloR::distinctColorPalette(k = 5 * n_groups)
+# group_colors <- sample(bag_of_colors, n_groups)
+# group_info <- list(list_groups, group_names, group_colors)
+# # sigNames <- c("GDP Growth", "Economic\nEquality", "Environmental\nSustainability", "Nutritional\nSecurity")
+# # nSig <- length(sigNames)
+# # sigNames <- paste("Policy", 1:nSig, "\n", sigNames)
+# # fig_title <- "Project-policy correlations elicited from experts"
+# colnames(mat_Lrot) <- as.character(1:nSigKstar)
+# row.names(mat_Lrot) <- projNames
+# colnames(mat_L) <- as.character(1:nSigKstar)
+# row.names(mat_L) <- projNames
+# gg_bar <- plot_corrXS_barchart(mat_Lrot, group_info, fig_title = NULL, sigNames)
+# #ggsave("x.png", width = 5, height = 4)
+# gg_bar
+#=====================================================================
+
+
 ```
+
+
+
+
+
+<!-- \ref{fig:wStarVecMO} -->
+
+<!-- # ```{r, fig.show = "hold", fig.width = 5, fig.height=3, fig.align="center", fig.cap="\\label{fig:wStarVecMO}Multi-objective optimal budget allocations corresponding to each risk tolerance.", echo = FALSE} -->
+<!-- # Multi-objective optimal budget allocation -->
+<!-- #gammaSigSS -->
+<!-- mat_wShareStarMO <- matrix(NA, nProj, nSig) -->
+<!-- mat_muStarMO <- matrix(NA, nProj, nSig) -->
+<!-- visVivMOvec <- c() -->
+<!-- betaStarMOvec <- c() -->
+<!-- for(l in 1:nSig){ -->
+<!--   matWgts <- eVecSigP[, l] -->
+<!--   muStarMO <- Q %*% matWgts -->
+<!--   ind <- which(muStar < 0) -->
+<!--   kappaK <- rep(0, length(TkHat)) -->
+<!--   kappaK[ind] <- 1 -->
+<!--   Tk <- TkHat - kappaK * pi -->
+<!--   out <- uniroot(wSlack, interval = thisInt, -->
+<!--                  Tk = Tk, omega = omega, xTilde = xTilde, -->
+<!--                  muStar = muStarMO, alpha = alpha, -->
+<!--                  lower = min(thisInt), upper = max(thisInt)) -->
+<!--   betaStarMO <- out$root -->
+<!--   print(out$f.root) -->
+<!--   wShareStarMO <- ((diag(exp(-Tk * omega)) %*% diag(1 / xTilde) %*% abs(muStarMO)) * betaStarMO)^(1 / alpha) -->
+<!--   print(sum(wShareStar)) -->
+<!--   visVivMOvec[l] <- r^2 / 2 * betaStar^2 -->
+<!--   mat_wShareStarMO[, l] <- wShareStarMO -->
+<!--   mat_muStarMO[, l] <- muStarMO -->
+<!--   visVivMOvec[l] <- r^2 / 2 * betaStarMO^2 -->
+<!--   betaStarMOvec[l] <- betaStarMO -->
+<!-- } -->
+<!-- mat_muStarMO <- round(mat_muStarMO, 4) -->
+<!-- mat_wShareStarMO <- round(mat_wShareStarMO, 4) -->
+<!-- #colSums(mat_wShareStar) -->
+<!-- visVivMOvec <- round(visVivMOvec, 2) -->
+<!-- muStarMOvec <- colSums(mat_muStarMO) -->
+<!-- sigVecMO <- round(uSigP, 2) -->
+<!-- betaStarMOvec <- round(betaStarMOvec, 2) -->
+<!-- row.names(mat_muStarMO) <- projNames -->
+<!-- colnames(mat_muStarMO) <- paste(sigVecMO, "/", visVivMOvec) -->
+<!-- row.names(mat_wShareStarMO) <- projNames -->
+<!-- colnames(mat_wShareStarMO) <- paste(sigVecMO, "/", visVivMOvec) -->
+<!-- #-------------------------------------------------------------------- -->
+<!-- #visVivMOvec / sigVecMO -->
+<!-- #-------------------------------------------------------------------- -->
+<!-- df_plot <- as.data.frame(mat_wShareStarMO) -->
+<!-- gathercols <- colnames(df_plot) -->
+<!-- df_plot$Project <- projNames -->
+<!-- df_plot <- df_plot %>% gather_("Policy", "Budget share", gathercols) -->
+
+<!-- gg <- ggplot(df_plot, aes(x = Project, y = `Budget share`)) -->
+<!-- gg <- gg + geom_bar(stat = "identity", color = "black", position = "dodge") -->
+<!-- #gg <- gg + ylim(limits = c(0, 1)) -->
+<!-- gg <- gg + facet_wrap(~ Policy, nrow = 1) -->
+<!-- #gg <- gg + labs(y = xAxis_title) -->
+<!-- gg <- gg + theme(axis.text = element_text(size = 7), -->
+<!--                  axis.title.x = element_text(size = 7), -->
+<!--                  axis.title.y = element_blank(), -->
+<!--                  legend.title = element_blank(), -->
+<!--                  legend.text = element_text(size = 7), -->
+<!--                  strip.text = element_text(size = 7)) -->
+<!-- gg <- gg + coord_equal() -->
+<!-- gg <- gg + coord_flip() -->
+<!-- gg -->
+
+<!-- ``` -->
 
 
 # Discussion and conclusion
 
 * Valid insofar as projects are scaleable, etc.... (key assumptions)
+
+* behaves badly i.e. allocates everything to one project when if a project's standard deviation is an order of magnitude greater than the rest.
 
 * ...there was no straightforward explanation or expectation of/for conservation of vis viva (energy)...In an analogous development, financial analysts find that eigenvectors give the best solutions, even though the conventional theory does not .
 
