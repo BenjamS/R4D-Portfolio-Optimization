@@ -596,6 +596,8 @@ colnames(df_Lrot)[2:5] <- gsub("\\.", " ", colnames(df_Lrot)[2:(ncol(df_Lrot) - 
 df_table <- df_Lrot[, c("Proposal", "Group")]
 colnames(df_table)[1] <- "Project"
 
+projNames <- df_table$Project
+
 df_table$Project <- gsub("\n", " ", df_table$Project)
 df_table$Group <- gsub("\n", " ", df_table$Group)
 #========================================================================
@@ -654,7 +656,6 @@ group_colors_arb <- sample(bag_of_colors, n_groups)
 #==============================================================
 df_x <- df_Lrot
 df_x$Group <- NULL
-projNames <- df_x$Proposal
 matLcolNames <- colnames(df_x)
 df_x$Proposal <- NULL
 mat_Lrot <- as.matrix(df_x)
@@ -1552,13 +1553,12 @@ sVecQrtrly <- round(sVecQrtrly, 4)
 confInt95LoP <- paste0("(", round(rTkArith_min, 2), ", ", round(rTkArith_max, 2), ")")
 confInt95qrtrly <- paste0("(", round(rQrtrlyArith_min, 3), ", ", round(rQrtrlyArith_max, 3), ")")
 #--------------------------------------------------------------
-projNames <- df_table$Project
-df_alphaXtilde <- data.frame(proj = projNames, alpha, xTilde)
+df_alphaXtilde <- data.frame(Project = projNames, alpha, xTilde)
 cNames_alphaXtilde <- c(expression("Scale\nelasticity - "*alpha*""), expression("Expected\nmax net benefit\n(millions of USD) - "*tilde(x)*""))
-df_t <- data.frame(proj = projNames, Years = TvecYrs, Quarters = TvecTstep, FundCyc = TvecFcyc)
+df_t <- data.frame(Project = projNames, Years = TvecYrs, Quarters = TvecTstep, FundCyc = TvecFcyc)
 cNames_t <- c("Funding\nCycles", "Quarters", "Years")
-df_sDeduce <- data.frame(proj = projNames, confInt95LoP, confInt95qrtrly, sVecQrtrly, sVecLoP)
-cNames_sDeduce <- c("95% Conf. Int.\nLoP Arithmetic Return\n(Elicited)", "95% Conf. Int.\nQuarterly\nArithmetic Return\n(Implied)", "Stand. Dev. of\nQuarterly Return\n(Deduced)", "Stand. Dev. of\nLoP return\n(Deduced)")
+df_sDeduce <- data.frame(Project = projNames, confInt95LoP, confInt95qrtrly, sVecQrtrly, sVecLoP)
+cNames_sDeduce <- c("95% Conf. Int.\nLoP Arithmetic Return\n(Elicited)", "95% Conf. Int.\nQuarterly\nArithmetic Return\n(Implied)", "Stand. Dev. of\nLoP return\n(Deduced)", "Stand. Dev. of\nQuarterly Return\n(Deduced)")
 # df_param <- df_param %>% gather(var, val, alpha:sVec)
 # cNames <- c(expression("Scale\nelasticity ("*alpha*")"),
 #             "Qrtrly arith return\n95% conf. interval",
@@ -1571,7 +1571,7 @@ cNames_sDeduce <- c("95% Conf. Int.\nLoP Arithmetic Return\n(Elicited)", "95% Co
 #--------------------------------------------------------------
 # Define project parameter plot fn
 plotParams <- function(df_plot, theseCnames, thisTitle, yNames = T){
-gg <- ggplot(df_plot, aes(x = var, y = proj,
+gg <- ggplot(df_plot, aes(x = var, y = Project,
                            label = val))
 gg <- gg + geom_tile(alpha = 0)
 gg <- gg + scale_x_discrete("var", labels = theseCnames, position = "top")
@@ -1593,8 +1593,17 @@ gg <- gg + theme(axis.text.y = element_blank())
 return(gg)
 }
 #--------------------------------------------------------------
+outlist <- group_fn(group_info)
+cols_ordered_by_group <- outlist[[1]]
+group_color_vec <- outlist[[2]]
+group_vec_ordered <- outlist[[3]]
+df_match_group <- data.frame(Project = cols_ordered_by_group, Group = group_vec_ordered)
+#--------------------------------------------------------------
 gathercols <- colnames(df_alphaXtilde)[-1]
 df_plot <- df_alphaXtilde %>% gather_("var", "val", gathercols)
+df_plot <- merge(df_plot, df_match_group, by = "Project")
+df_plot <- df_plot[order(df_plot$Group), ]
+df_plot$Project <- factor(df_plot$Project, levels = unique(df_plot$Project))
 gg_alphaXtilde <- plotParams(df_plot,
                              theseCnames = cNames_alphaXtilde,
                              thisTitle = "Investment model parameters\nestimated by ex-ante impact assessment",
@@ -1602,6 +1611,9 @@ gg_alphaXtilde <- plotParams(df_plot,
 #--------------------------------------------------------------
 gathercols <- colnames(df_t)[-1]
 df_plot <- df_t %>% gather_("var", "val", gathercols)
+df_plot <- merge(df_plot, df_match_group, by = "Project")
+df_plot <- df_plot[order(df_plot$Group), ]
+df_plot$Project <- factor(df_plot$Project, levels = unique(df_plot$Project))
 gg_t <- plotParams(df_plot,
                    theseCnames = cNames_t,
                    thisTitle = "Time horizons",
@@ -1609,6 +1621,9 @@ gg_t <- plotParams(df_plot,
 #--------------------------------------------------------------
 gathercols <- colnames(df_sDeduce)[-1]
 df_plot <- df_sDeduce %>% gather_("var", "val", gathercols)
+df_plot <- merge(df_plot, df_match_group, by = "Project")
+df_plot <- df_plot[order(df_plot$Group), ]
+df_plot$Project <- factor(df_plot$Project, levels = unique(df_plot$Project))
 gg_sDeduce <- plotParams(df_plot,
                    theseCnames = cNames_sDeduce,
                    thisTitle = "Deduction of standard deviations",
@@ -1721,8 +1736,16 @@ df_plot <- as.data.frame(mat_wShareStar)
 gathercols <- colnames(df_plot)
 df_plot$Project <- projNames
 df_plot <- df_plot %>% gather_("Policy", "Budget share", gathercols)
+df_plot <- transform(df_plot,
+                     Policy = factor(Policy, levels = gathercols))
+colnames(df_plot)[ncol(df_plot)] <- "Budget share"
+df_plot <- merge(df_plot, df_match_group, by = "Project")
+df_plot <- df_plot[order(df_plot$Group), ]
+df_plot$Item <- factor(df_plot$Project, levels = unique(df_plot$Project))
 
-gg <- ggplot(df_plot, aes(x = Project, y = `Budget share`))
+gg <- ggplot(df_plot, aes(x = Project, y = `Budget share`,
+                          fill = Group))
+gg <- gg + scale_fill_manual(values = unique(group_color_vec))
 gg <- gg + geom_bar(stat = "identity", color = "black", position = "dodge")
 #gg <- gg + ylim(limits = c(0, 1))
 gg <- gg + facet_wrap(~ Policy, nrow = 1)
@@ -1749,12 +1772,13 @@ SigStar <- diag(muStar) %*% G %*% diag(muStar)
 t(muStar) %*% G %*% muStar
 Kstar <- diag(1 / sqrt(diag(SigStar))) %*% SigStar %*% diag(1 / sqrt(diag(SigStar)))
 e <- eigen(Kstar)$values
+#e <- eigen(G)$values
 xx <- cumsum(e) / sum(e)
 thresh <- 0.95
 nSigKstar <- which(xx > thresh)[1]
 eTilde <- e[1:nSigKstar]
-nSigKstar <- which(xx > thresh)[1]
 Etilde <- eigen(Kstar)$vectors[, 1:nSigKstar]
+#Etilde <- eigen(G)$vectors[, 1:nSigKstar]
 
 mat_L <- Etilde %*% diag(sqrt(eTilde))
 
