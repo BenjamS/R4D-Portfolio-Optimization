@@ -1291,7 +1291,7 @@ Generally speaking, the eigenvectors $\mathbf{q}_j$ may include negative element
 <!-- \hat{\boldsymbol{\mu}}_j^* = (-1)^{1 - 2 \kappa} e^{rT \left(\kappa - \frac{1}{2}\right)} \beta_j \mathbf{q}_j -->
 <!-- \end{equation} -->
 
-### Scaling the solution to enforce constraints
+### Scaling the solution to enforce constraints \label{sec:scaleConst}
 
 Because eigenvectors are defined up to scaling, the optimal solution can be arbitrarily scaled in accordance with any portfolio impact, risk, or budget target/constraint. The budget constraint is usually the most binding of these three. In order to arbitrarily enforce the budget constraint $C$, then, note that the candidate optimal budget allocations may be rewritten
 
@@ -1461,9 +1461,7 @@ Finally, political considerations likely come into play. Solutions that allocate
 
 # Hypothetical use case
 
-In the illustrative example below, a donor uses the method described in the sections above to optimize an investment across the hypothetical AR4D project portfolio referenced in Fig \ref{fig:egProjCorr}. The menu of $m$ eligible optimal budget allocations is calculated using Eq \ref{eq:wStarVec}.
-
-To make this calculation, the donor requires the global parameters $C$ (the budget) and $r$ (the quarterly discount rate). Additionally, for each project, the donor requires the time horizon $T_k$, the current maximum NPV $\tilde{x}_k$ and scale elasticity $\alpha_k$ (revisit section \sec{sec:dimRet} for details), and the standard deviation of the quarterly arithmetic return $s_k$. The $m$ leading eigenvectors of the project NPV coefficient of covariation matrix $G$ are also required.
+In the illustrative example below, the method described in the sections above is applied to optimize an investment across the hypothetical AR4D project portfolio referenced in Fig \ref{fig:egProjCorr}. This calculation requires the global parameters $C$ (the budget) and $r$ (the quarterly discount rate). Additionally, for each project: the current maximum NPV $\tilde{x}_k$ the scale elasticity $\alpha_k$ (revisit section \ref{sec:dimRet} for details), the time horizon $T_k$, and the standard deviation of the quarterly arithmetic return $s_k$. The leading eigenvectors of the project NPV coefficient of covariation matrix $G$ are also required.
 
 ```{r}
 # RupLoP <- 1.5
@@ -1479,11 +1477,11 @@ rQrtrlyArith <- (1 + rYrlyArith)^(1 / tStep) - 1
 r <- round(log(1 + rQrtrlyArith), 3)
 ```
 
-For ease of interpretation, the budget is normalized to $100$. An annual discount rate of `r rYrlyArith` is assumed, which works out to a quarterly discount rate of `r round(rQrtrlyArith, 4)`. The current maximum project NPV $\tilde{x}_k$ is usually reported in ex-ante impact assessments, or can be extrapolated from the information given in such assessments. Estimation of the scale elasticity parameter $\alpha_k$ is not currently a standard part of AR4D ex-ante impact assessments, but can be reasonably elicited through consultation with experts and literature. Given sufficient prior notice, both $\tilde{x}_k$ and $\alpha_k$ could, in principle, be estimated econometrically, using, for example, data gathered during field trials. The hypothetical values for $\tilde{x}_k$ and $\alpha_k$ used in this example are displayed in the left panel of Fig \ref{fig:params}.
+For ease of interpretation, the budget is normalized to $100$. An annual discount rate of `r rYrlyArith` is assumed, which works out to a quarterly discount rate of `r round(rQrtrlyArith, 4)`. The current maximum project NPV $\tilde{x}_k$ is usually reported in ex-ante impact assessments, or can be extrapolated from the information given in such assessments. Estimation of the scale elasticity parameter $\alpha_k$ is not currently a standard part of AR4D ex-ante impact assessments, but can be reasonably elicited through consultation with experts and literature. Given sufficient prior notice, both $\tilde{x}_k$ and $\alpha_k$ could, in principle, be estimated econometrically, using, for example, data gathered during field trials. Hypothetical values for $\tilde{x}_k$ and $\alpha_k$ are assigned to each project in the left panel of Fig \ref{fig:params}.
 
-As discussed in section \ref{sec:cycReal}, project time horizons must be integer multiples of the duration of the funding cycle. In this example, the duration of the funding cycle is 3 years. Hypothetical time horizons are assigned to each project in the central panel of Fig \ref{fig:params}, displayed in terms of funding cycles, years, and quarters. Projects are assumed to be in varying stages of implementation at the time of the present allocation exercise, and so the displayed time horizons do not necessarily indicate the projects' full duration.
+As discussed in section \ref{sec:cycReal}, project time horizons must be integer multiples of the duration of the funding cycle. In this example, the duration of the funding cycle is 3 years. Hypothetical time horizons are assigned to each project in the central panel of Fig \ref{fig:params} in terms of funding cycles, years, and quarters. Projects are assumed to be in varying stages of implementation at the time of the portfolio optimization exercise; and so the displayed time horizons do not necessarily indicate the projects' full duration.
 
-The standard deviation of quarterly arithmetic return $s_k \sqrt{\tau_k}$ is deduced from the upper or lower bound of the 95% confidence interval about the expected arithmetic life of project (LoP) return. The upper or lower bound itself can be deduced from ex-ante impact assessments and/or experts and literature. The hypothetical elicited LoP return 95% confidence interval, implied quarterly return 95% confidence interval, and values of $s_k$ deduced therefrom, are presented in the right panel of Fig \ref{tab:params}.
+The standard deviation of quarterly arithmetic return $s_k \sqrt{\tau_k}$ is deduced from the upper or lower bound of the 95% confidence interval about the expected arithmetic life of project (LoP) return (revisit section \ref{sec:volEst} for details). The upper or lower bound itself can be deduced from ex-ante impact assessments and/or experts and literature. The hypothetical elicited LoP return 95% confidence interval, implied quarterly return 95% confidence interval, and values of $s_k$ deduced therefrom, are presented in the right panel of Fig \ref{fig:params}.
 
 ```{r, fig.show = 'hold', fig.width=5, fig.height=3, fig.align='left', fig.cap="\\label{fig:params}Hypothetical project parameters."}
 #--------------------------------------------------------------
@@ -1492,6 +1490,7 @@ randSeed <- round(runif(1), 4) * 10^4
 #randSeed <- 6807
 #randSeed <- 4056
 #randSeed <- 6529
+#randSeed <- 672
 set.seed(randSeed)
 #--------------------------------------------------------------
 # Project params
@@ -1635,58 +1634,13 @@ Qtilde <- eigen(Gtilde)$vectors[, 1:nSigG]
 
 ```
 
-For purposes of demonstration, the portfolio of projects described in Fig \ref{fig:params} is deliberately diverse in research themes, impact pathways, expected rewards, risk levels, time horizons, and stages of implementation. Real AR4D portfolios may or may not be so heterogeneous.
+To deduce the coefficient of covariation matrix $G$, an approximate project quarterly returns correlation matrix $\tilde{K}_{XX}$ is first "reverse engineered" from expert opinion and/or literature using Schiek's method [-@]. This is the matrix displayed in the right panel of Fig \ref{fig:egProjCorr} (revisit Eq \ref{eq:KXX} for details). The corresponding covariance matrix $\tilde{\Sigma}_{XX}$ then follows from $\tilde{K}_{XX}$ and the deduced $s_k$. An approximate coefficient of covariation matrix $\tilde{G}$ then follows from $\tilde{\Sigma}_{XX}$ and the time horizons $T_k$ (revisit Eqs \ref{eq:SigXX} and \ref{eq:G} for details). The leading eigenvector-eigenvalue pairs $\{\mathbf{q}_j,\upsilon_j\}$ of $\tilde{G}$ accounting for `r 100 * thresh`% of portfolio variance are retained as eligible solutions to the portfolio optimization problem. [In this example, that number works out to `r nSigG`]
 
-To deduce the coefficient of covariation matrix $G$, an approximate project quarterly returns correlation matrix $\tilde{K}_{XX}$ is first "reverse engineered" from expert opinion and/or literature using Schiek's method [-@]. This is the matrix displayed in the right panel of Fig \ref{fig:egProjCorr} (revisit Eq \ref{eq:KXX} for details). The corresponding covariance matrix $\tilde{\Sigma}_{XX}$ then follows from $\tilde{K}_{XX}$ and the deduced $s_k$. An approximate coefficient of covariation matrix $\tilde{G}$ then follows from $\tilde{\Sigma}_{XX}$ and the time horizons $T_k$ (revisit Eqs \ref{eq:SigXX} and \ref{eq:G} for details). The matrix $\tilde{G}$ is displayed in the top panel of Fig \ref{fig:Gtilde}. The individual and cumulative portions of portfolio covariation described by each of the eigenvectors of $\tilde{G}$ are displayed in the bottom panel. The `r nSigG` leading eigenvectors of $\tilde{G}$, accounting for `r 100 * thresh`% of portfolio variance (marked by the dashed line in the figure), are retained as eligible solutions.
+The corresponding menu of optimal budget allocations $\mathbf{w}_j$ is then calculated up to scaling by Eq \ref{eq:wStar}. As explained in section \ref{sec:cycReal}, complex valued elements in $\mathbf{w}_j$ are transformed into real valued elements by extending or shortening the project time horizon by half a funding cycle. In this example, all such adjustments are extensions. The value of $\beta_j$ is chosen so as to enforce the budget constraint, that is, such that $\mathbf{w}_j {'} \mathbf{1} = C$ (revisit section \ref{sec:scaleConst} for details).
 
-**Fig ... (Top) The crowdsourced approximate project NPV coefficient of covariation matrix. (Bottom) Plot of the individual and cumulative portions of portfolio covariation** explained by each of the eigenvectors of the crowdsourced project coefficient of covariation matrix.
 
-&nbsp;
 
-<!-- **Fig .... Plot of the individual and cumulative portions of portfolio covariation** explained by each of the eigenvectors of the crowdsourced project coefficient of covariation matrix. -->
-<!-- &nbsp; -->
-<!-- The plot shows that, for the financial data set, the leading `r nSig` signals are sufficient to meet this criterion. -->
-<!-- \ref{fig:wStarVecs} -->
 
-```{r, fig.show = 'hold', fig.width=4, fig.height=4, fig.align='left', fig.cap="\\label{fig:Gtilde}(Top) The crowdsourced approximate project NPV coefficient of covariation matrix. (Bottom) Plot of the individual and cumulative portions of portfolio covariation explained by each of the eigenvectors of the crowdsourced project coefficient of covariation matrix.", echo=F}
-
-#------------------------------------------------------------------
-# Plot Gtilde
-fig_title <- "Approximate AR4D project NPV coefficient of covariation matrix"
-colnames(Gtilde) <- projNames
-row.names(Gtilde) <- projNames
-ggGtilde <- plot_covmat(Gtilde, fig_title, round_to = 4, graph_on = F)
-#------------------------------------------------------------------
-# Plot individual and cumulative portions of portfolio covariation explained by each eigenvector of G
-df_plot <- data.frame(Eigvec = paste("Eigvec", 1:length(ups)),
-                      Portion_explained = ups / sum(ups),
-                      Portion_explained_cumul = xx)
-colnames(df_plot)[2:3] <- c("Individually", "Cumulatively")
-gathercols <- colnames(df_plot)[2:3]
-df_plot <- gather_(df_plot, "Portion explained", "Value", gathercols)
-df_plot$Eigvec <- factor(df_plot$Eigvec,
-                         levels = unique(df_plot$Eigvec),
-                         ordered = T)
-gg <- ggplot(df_plot, aes(x = Eigvec, y = Value, fill = `Portion explained`))
-gg <- gg + geom_bar(stat = "identity", color = "black", position = "dodge")
-gg <- gg + scale_fill_manual(values = c("wheat3", "paleturquoise"))
-gg <- gg + geom_hline(yintercept = thresh, color = "coral", size = 1, linetype = "dashed")
-gg <- gg + theme(axis.text.y = element_text(size = 7),
-                 axis.text.x = element_text(size = 7, angle = 60, hjust = 1),
-                 axis.title = element_blank(),
-                 legend.title = element_text(size = 8),
-                 legend.text = element_text(size = 8))
-ggExplained <- gg
-#------------------------------------------------------------------
-ggGtilde + ggExplained + plot_layout(ncol = 1, heights = c(2, 1))
-#------------------------------------------------------------------
-#ggsave("Fig ....tiff")
-
-```
-
-Solving for $\beta_j$ using a root finding algorithm. And time adjustments
-
-Up for rebalancing at the end of every funding cycle (3 years). i.e. the allocation is repeated with updated parameters. Some projects may exit while others enter.
 
 Fig \ref{fig:wStarMenu}
 
@@ -1694,14 +1648,14 @@ Fig \ref{fig:wStarMenu}
 ```{r, fig.show = "hold", fig.width = 5, fig.height=3, fig.align="center", fig.cap="\\label{fig:wStarMenu}Menu of eligible optimal budget allocations.", echo = FALSE}
 
 # Single objective optimal budget allocation
-TkHat <- 2 * pi * TvecFcyc
+TkHat <- 2 * pi * TvecFundCyc
 mat_wShareStar <- matrix(NA, nProj, nSigG)
 #mat_muStar <- matrix(NA, nProj, nSig)
 visVivVec <- c()
 betaStarVec <- c()
-wSlack <- function(beta, Tk, omega, xTilde, muStar, alpha){
+wSlack <- function(beta, Tk, omega, xTilde, muStar, alpha, C){
   wShare <- ((diag(exp(-Tk * omega)) %*% diag(1 / xTilde) %*% abs(muStar)) * beta)^(1 / alpha)
-  wSlack <- sum(wShare) - 1
+  wSlack <- sum(wShare) - C
   return(wSlack)
 }
 thisInt <- c(0, 100000)
@@ -1713,7 +1667,7 @@ for(j in 1:nSigG){
   Tk <- TkHat - kappaK * pi
   out <- uniroot(wSlack, interval = thisInt,
                  Tk = Tk, omega = omega, xTilde = xTilde,
-                 muStar = muStar, alpha = alpha,
+                 muStar = muStar, alpha = alpha, C = C,
                  lower = min(thisInt), upper = max(thisInt))
   betaStar <- out$root
   print(out$f.root)
@@ -1770,6 +1724,63 @@ gg <- gg + coord_flip()
 gg
 
 ```
+
+
+
+The matrix $\tilde{G}$ is displayed in the top panel of Fig \ref{fig:Gtilde}. The individual and cumulative portions of portfolio covariation described by each of the eigenvectors of $\tilde{G}$ are displayed in the bottom panel. 
+
+**Fig ... (Top) The crowdsourced approximate project NPV coefficient of covariation matrix. (Bottom) Plot of the individual and cumulative portions of portfolio covariation** explained by each of the eigenvectors of the crowdsourced project coefficient of covariation matrix.
+
+&nbsp;
+
+<!-- **Fig .... Plot of the individual and cumulative portions of portfolio covariation** explained by each of the eigenvectors of the crowdsourced project coefficient of covariation matrix. -->
+<!-- &nbsp; -->
+<!-- The plot shows that, for the financial data set, the leading `r nSig` signals are sufficient to meet this criterion. -->
+<!-- \ref{fig:wStarVecs} -->
+
+```{r, fig.show = 'hold', fig.width=4, fig.height=4, fig.align='left', fig.cap="\\label{fig:Gtilde}(Top) The crowdsourced approximate project NPV coefficient of covariation matrix. (Bottom) Plot of the individual and cumulative portions of portfolio covariation explained by each of the eigenvectors of the crowdsourced project coefficient of covariation matrix.", echo=F}
+
+#------------------------------------------------------------------
+# Plot Gtilde
+fig_title <- "Optimized AR4D project NPV correlation matrix"
+muStar <- mat_muStar[, nSigG]
+SigStar <- diag(muStar) %*% G %*% diag(muStar)
+t(muStar) %*% G %*% muStar
+Kstar <- diag(1 / sqrt(diag(SigStar))) %*% SigStar %*% diag(1 / sqrt(diag(SigStar)))
+# colnames(Gtilde) <- projNames
+# row.names(Gtilde) <- projNames
+colnames(Kstar) <- projNames
+row.names(Kstar) <- projNames
+ggGtilde <- plot_covmat(Kstar, fig_title, round_to = 4, graph_on = F)
+#------------------------------------------------------------------
+# Plot individual and cumulative portions of portfolio covariation explained by each eigenvector of G
+df_plot <- data.frame(Eigvec = paste("Eigvec", 1:length(ups)),
+                      Portion_explained = ups / sum(ups),
+                      Portion_explained_cumul = xx)
+colnames(df_plot)[2:3] <- c("Individually", "Cumulatively")
+gathercols <- colnames(df_plot)[2:3]
+df_plot <- gather_(df_plot, "Portion explained", "Value", gathercols)
+df_plot$Eigvec <- factor(df_plot$Eigvec,
+                         levels = unique(df_plot$Eigvec),
+                         ordered = T)
+gg <- ggplot(df_plot, aes(x = Eigvec, y = Value, fill = `Portion explained`))
+gg <- gg + geom_bar(stat = "identity", color = "black", position = "dodge")
+gg <- gg + scale_fill_manual(values = c("wheat3", "paleturquoise"))
+gg <- gg + geom_hline(yintercept = thresh, color = "coral", size = 1, linetype = "dashed")
+gg <- gg + theme(axis.text.y = element_text(size = 7),
+                 axis.text.x = element_text(size = 7, angle = 60, hjust = 1),
+                 axis.title = element_blank(),
+                 legend.title = element_text(size = 8),
+                 legend.text = element_text(size = 8))
+ggExplained <- gg
+#------------------------------------------------------------------
+ggGtilde + ggExplained + plot_layout(ncol = 1, heights = c(2, 1))
+#------------------------------------------------------------------
+#ggsave("Fig ....tiff")
+
+```
+
+
 
 
 Can pick apart $K^*$ to get a better idea of how the money is being invested...PC-project correlations
@@ -1845,6 +1856,17 @@ gg
 * Valid insofar as projects are scaleable, etc.... (key assumptions)
 
 * behaves badly i.e. allocates everything to one project when if a project's standard deviation is an order of magnitude greater than the rest.
+
+* For purposes of demonstration, the portfolio of projects described in Fig \ref{fig:params} is deliberately diverse in research themes, impact pathways, expected rewards, risk levels, time horizons, and stages of implementation. Real AR4D portfolios may or may not be so heterogeneous.
+
+* can also use for trait portfolio optimization
+
+* In the illustrative example given above, the scale parameters $\beta_j$ are set so as to enforce the budget constraint. They may also be set so as to enforce a specific risk constraint or vis viva target.
+
+* Up for rebalancing at the end of every funding cycle (3 years). i.e. the allocation is repeated with updated parameters. Some projects may exit while others enter.
+
+
+
 
 * ...there was no straightforward explanation or expectation of/for conservation of vis viva (energy)...In an analogous development, financial analysts find that eigenvectors give the best solutions, even though the conventional theory does not .
 
