@@ -9,7 +9,7 @@ address:
   - code: Alliance Bioversity-CIAT
     address: Alliance of Bioversity International and CIAT, Km 17 Recta Cali-Palmira, Valle del Cauca, Colombia, CP 763537
 abstract: |
-  For several decades, efforts to improve quantitative foresight and decision support in agricultural research for development have focused on the development of models to assess the potential impacts of individual research projects (or programs) under a range of future climate and socioeconomic scenarios. However, if the ultimate aim of such exercises is to determine an optimal allocation of research funds across the projects under assessment, then a portfolio level tool is also required in order to translate a set of research impact assessments into a set of optimal budget allocations. Here I present a novel    This tool should take account of the potential risks each project individually, as well as the synergies and tradeoffs (covariances) between projects, and output the risk-minimizing project budget allocation for a given portfolio return target and budget. Here I develop such a tool. 
+  Conventional agricultural research for development project (or program) priority setting procedures lack a portfolio level tool by which to transform project impact assessments and/or rankings into funding allocations. As a result, funding decisions lack transparency and are vulnerable to subjective bias. The conventional funding allocation procedure also takes little account of project risk, and much less of project covariances, both of which are necessary to calculate portfolio risk. As a result, research portfolios are generally unbalanced and quite risky. To redress these issues, here I develop a risk-adjusted portfolio optimization tool to determine the impact maximizing research budget allocation across a portfolio of research alternatives with varying expected impacts, risk, and time horizons, subject to a portfolio risk constraint.
 keywords: 
   - keyword1
   - keyword2
@@ -1384,13 +1384,16 @@ randSeed <- round(runif(1), 4) * 10^4
 #randSeed <- 6529
 #randSeed <- 672
 #randSeed <- 8838
-#ranSeed <- 2854
+#randSeed <- 2854
+#randSeed <- 4692
+#randSeed <- 6457
 set.seed(randSeed)
 #--------------------------------------------------------------
 # Project params
 C <- 100 #Budget
-alpha <- c(0.65, 0.65, 0.6, 0.75, 0.65, 0.6, 0.65, 0.8, 0.7, 0.75, 0.7)
-xTilde <- C * exp(rnorm(nProj, 1.1, 0.3))
+alpha <- c(0.65, 0.65, 0.6, 0.75, 0.65, 0.6, 0.65, 0.8, 0.7, 0.75, 0.7) + 0.1
+#xTilde <- C * exp(rnorm(nProj, 1.1, 0.3))
+xTilde <- C * exp(rnorm(nProj, 1.1, 0.7))
 xTilde <- round(xTilde, 2)
 #TvecYrs <- c(18, 14, 8, 15, 11, 5, 6, 12, 7, 3, 13)
 #TvecTstep <- TvecYrs * tStep
@@ -1602,34 +1605,34 @@ wSlack <- function(beta, Tk, omega, xTilde, muStar, alpha, C){
   wSlack <- sum(wShare) - C
   return(wSlack)
 }
-wSlack2 <- function(beta, Tk, omega, xTilde, muStar, alpha, C){
-  wShare <- C * alpha / (omega * Tk - log(beta * abs(muStar) / xTilde))
-  wSlack <- sum(wShare) - C
-  return(wSlack)
-}
+# wSlack2 <- function(beta, Tk, omega, xTilde, muStar, alpha, C){
+#   wShare <- alpha / (omega * Tk - log(beta * abs(muStar) / xTilde))
+#   wSlack <- sum(wShare) - 1
+#   return(wSlack)
+# }
 thisInt <- c(0, 100000)
-thisInt <- c(0.1, 10)
-beta <- thisInt[1]
-wShare <- C * alpha / (omega * Tk - log(beta * abs(muStar) / xTilde))
-sum(wShare) - C
-beta <- thisInt[2]
-wShare <- C * alpha / (omega * Tk - log(beta * abs(muStar) / xTilde))
-sum(wShare) - C
+# thisInt <- c(0.0001, 100000000000)
+# beta <- thisInt[1]
+# wShare <- alpha / (omega * Tk - log(beta * abs(muStar) / xTilde))
+# sum(wShare) - 1
+# beta <- thisInt[2]
+# wShare <- alpha / (omega * Tk - log(beta * abs(muStar) / xTilde))
+# sum(wShare) - 1
 
 for(j in 1:nSigG){
   muStar <- Qtilde[, j]
   ind <- which(muStar < 0)
   kappaK <- rep(0, length(TkHat))
   kappaK[ind] <- 1
-  Tk <- TkHat - kappaK * pi
-  out <- uniroot(wSlack2, interval = thisInt,
+  Tk <- TkHat + kappaK * pi
+  out <- uniroot(wSlack, interval = thisInt,
                  Tk = Tk, omega = omega, xTilde = xTilde,
                  muStar = muStar, alpha = alpha, C = C,
                  lower = min(thisInt), upper = max(thisInt))
   betaStar <- out$root
   print(out$f.root)
-  wShareStar <- C * alpha / (omega * Tk - log(betaStar * abs(muStar) / xTilde))
-  # wShareStar <- ((diag(exp(-Tk * omega)) %*% diag(1 / xTilde) %*% abs(muStar)) * betaStar)^(1 / alpha)
+  # wShareStar <- alpha / (omega * Tk - log(betaStar * abs(muStar) / xTilde))
+  wShareStar <- ((diag(exp(-Tk * omega)) %*% diag(1 / xTilde) %*% abs(muStar)) * betaStar)^(1 / alpha)
   print(sum(wShareStar))
   #mat_muStar[, j] <- muStar * betaStar
   mat_wShareStar[, j] <- wShareStar
@@ -1640,6 +1643,7 @@ mat_muStar <- round(Qtilde, 4)
 mat_wShareStar <- round(mat_wShareStar, 4)
 #colSums(mat_wShareStar)
 visVivVec <- round(visVivVec, 2)
+omega^2 / 2 * betaStarVec^2
 muStarVec <- colSums(mat_muStar)
 riskVec <- round(sqrt(upsTilde) * betaStarVec, 2)
 visRiskRatio <-  round(r^2 / 2 * abs(betaStar) / sqrt(upsTilde), 2) #visVivVec / riskVec
