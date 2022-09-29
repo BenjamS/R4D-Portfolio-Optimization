@@ -9,7 +9,7 @@ address:
   - code: Alliance Bioversity-CIAT
     address: Alliance of Bioversity International and CIAT, Km 17 Recta Cali-Palmira, Valle del Cauca, Colombia, CP 763537
 abstract: |
-  Conventional agricultural research for development project (or program) priority setting procedures lack a portfolio level tool by which to transform project impact assessments and/or rankings into funding allocations. As a result, funding decisions lack transparency and are vulnerable to subjective bias. The conventional funding allocation procedure also takes little account of project risk, and much less of project covariances, both of which are necessary to calculate portfolio risk. As a result, research portfolios are generally unbalanced and quite risky. To redress these issues, here I develop a risk-adjusted portfolio optimization tool to determine the impact maximizing research budget allocation across a portfolio of research alternatives with varying expected impacts, risk, and time horizons, subject to a portfolio risk constraint.
+  Conventional agricultural research for development project (or program) priority setting procedures lack a portfolio level tool by which to transform project impact assessments into funding allocations. As a result, funding decisions lack transparency and are vulnerable to subjective bias. The conventional funding allocation procedure also takes little account of project risk, and much less of project covariances, both of which are necessary to calculate portfolio risk. As a result, research portfolios are generally unbalanced and quite risky. To redress these issues, here I develop a risk-adjusted portfolio optimization tool to determine the impact maximizing research budget allocation across a portfolio of research alternatives, subject to a portfolio risk constraint.
 keywords: 
   - keyword1
   - keyword2
@@ -100,7 +100,7 @@ plot_covmat <- function(covmat, fig_title = "Covariance Matrix", round_to = 2, g
 
 For several decades, efforts to improve quantitative foresight and decision support in agricultural research for development (AR4D) have focused on the development of models to assess the potential impacts of individual research projects under a range of future climate and socioeconomic scenarios. However, if the ultimate aim of such exercises is to determine an optimal allocation of research funds across the projects under assessment, then a portfolio level tool is also required in order to translate research impact assessments into optimal budget allocations.
 
-Mills clearly identified and articulated the need for such a tool long ago [-@Mills1998], and yet work in this direction has not yet begun in earnest. Instead of portfolio optimization, AR4D institutions hold "priority setting exercises", which Mills breaks down into 4 steps, as follows [-@Mills1998].
+Mills clearly identified and articulated the need for such a tool long ago [-@Mills1998], and yet work in this direction has not yet begun in earnest. Instead of portfolio optimization, AR4D institutions hold "priority setting exercises", which Mills breaks down into four steps, as follows [-@Mills1998].
 <!-- Mills articulated the four steps of priority setting in agricultural research for development (AR4D) as follows : -->
 
 >Step one is the development of an information base. Step two is the establishment of research alternatives. Step three is the evaluation of the potential impact of research alternatives. Step four, often considered the final output of a priority-setting exercise, is the ranking of alternatives into research priorities.
@@ -119,15 +119,19 @@ knitr::include_graphics("Mills_missing_step5.png")
 <!-- whereby research programs are ranked in order of importance based on their respective impact assessments. These rankings are then translated into research budget allocations in a highly subjective and ad hoc manner. -->
 <!-- objective rigor in the translation of project rankings into project budget allocations  -->
 
-The persistent absence of Mill's fifth step has left AR4D funding decision-making mechanisms vulnerable to institutional inertia, stakeholder politics, and other forms of subjective bias [@Birner2016; @mccalla2014cgiar]. The Consultative Group on International Agricultural Research (CGIAR), in particular, is said to "have a long history of good intentions but limited success in developing appropriate approaches for priority setting" [@Birner2016]. The historic effort begun in 2011 to restructure CGIAR financing around a research program (CRP) portfolio model proved emblematic of this "limited success", when the results of an extensive priority setting exercise were summarily rejected by the board of directors in favor of a highly subjective, opaque, and ad hoc resource allocation [@Birner2016]. Earlier attempts at reform likewise devolved into a political melee [@mccalla2014cgiar]; and the current reform effort towards a "One CGIAR", begun in 2019, is headed in the same direction at the time of writing.
-<!-- Such recurring episodes are symptomatic of a longstanding, deeply entrenched distrust of budget allocation procedures among research communities, across disciplines. [which is increasingly aggravated by steadily deteriorating fiscal outlooks.] Attempts to align funding with impact are condemned as "development at the expense of research" [@Birner2016], or even the "Balkanization" of research [@Petsko2011]. "One of the geniuses" of the CGIAR was once said to be its ability to consistently attract "aid funding of long-term research" while keeping "aid professionals from setting research agendas" [@mccalla2014cgiar]. At odds with the pro-poor mandate...at many points in history has proven to be responsive to demand and criticism. ...it is because of the lack of a mechanism...credible commitment problem -->
+The persistent absence of Mill's fifth step has left AR4D funding decision-making mechanisms vulnerable to institutional inertia, stakeholder politics, and other forms of subjective bias [@Birner2016; @mccalla2014cgiar]. The Consultative Group on International Agricultural Research (CGIAR), in particular, is said to "have a long history of good intentions but limited success in developing appropriate approaches for priority setting" [@Birner2016]. The historic effort begun in 2011 to restructure CGIAR financing around a research program (CRP) portfolio model proved emblematic of this "limited success", when the results of an extensive priority setting exercise were summarily rejected by the board of directors in favor of a highly subjective, opaque, and ad hoc resource allocation [@Birner2016]. Earlier attempts at reform likewise devolved into politically driven processes [@mccalla2014cgiar]; and the current reform effort towards a "One CGIAR", begun in 2019, now appears to be headed in the same direction.
 
-More importantly, the classical 4 step method of priority setting articulated by Mills takes little or no account of portfolio risk. Emeritus scientists at the International Center for Tropical Agriculture recall implementing an informal technique to balance research risk against expected impact when allocating funds in the early years of the Center's existence [@JCock_perscomm; @lynam2017forever]; but the technique was never formalized, and subsequently fell into disuse. Alston and Norton acknowledged in 1995 that the treatment of risk in impact assessment models "is rudimentary and in need of further refinement" [-@Alston1995]; but work has not yet begun on this "refinement". The estimation of project covariances---or synergies and tradeoffs, if you like---which is also necessary for the calculation of portfolio risk, has received even less attention (none, to my knowledge). Research portfolios funded on the basis of the classical four step priority setting method are thus, de facto, severely unbalanced, and hence potentially quite risky.
+The resulting malaise of "ever growing distrust" between aid donors and research communities [@leeuwis2018reforming] has come to resemble what game theorists call a "credible commitment problem" [@north1993institutions]: Researchers cannot trust donors to allocate funds accurately and/or impartially, and thus have little incentive to cooperate with allocation protocols in good faith. Donors, meanwhile, cannot trust researchers to provide accurate and/or honest impact assessments of their projects. In such a game, cynical attitudes and hardening research silos are optimal strategies. Researchers bristle at priority setting exercises as a sort of ham-handed bureaucratic meddling, or "development at the expense of research" [@Birner2016], or "post-academic science" [@Moriarty2008], or even the "Balkanization" of research [@Petsko2011]. "One of the geniuses of the founders of the CGIAR," writes McCalla, "was to craft a system that encouraged aid funding of long-term research institutes but kept aid professionals from setting research agendas..." [@mccalla2014cgiar].
+
+More problematic, perhaps, the classic four step method of priority setting articulated by Mills takes little or no account of portfolio risk. Emeritus scientists at the Alliance of Bioversity International and CIAT recall implementing an informal technique to balance research risk against expected impact when allocating funds in the early years of the CIAT's existence [@JCock_perscomm; @lynam2017forever]; but the technique was never formalized, and subsequently fell into disuse. Alston and Norton acknowledged in 1995 that the treatment of risk in impact assessment models "is rudimentary and in need of further refinement" [-@Alston1995]; but work has not yet begun on this "refinement". The estimation of project covariances---or synergies and tradeoffs, if you like---which is also necessary for the calculation of portfolio risk, has received even less attention (none, to my knowledge). Research portfolios funded on the basis of the classical four step priority setting method are thus, de facto, unbalanced, and hence potentially quite risky.
 <!-- By neglecting research correlations, the priority setting method misses out on an opportunity to hedge research portfolio risk by balancing positive and negative correlations against each other. -->
+
+In this article, I redress these issues by developing a risk-adjusted research portfolio optimization method. The proposed method solves for the impact maximizing, risk minimizing budget allocation across a portfolio of research alternatives (projects or programs), with varying expected impacts, risk, and time horizons. In terms of Mills' schematic, the method translates impact assessments (Mills' step three) directly into optimal budget allocations (the missing step five), bypassing the priority ranking in Mills' step four. A research priority ranking may be inferred post hoc from the optimal budget allocation, if so desired.
+
+The proposed method is valid for portfolios of projects whose respective net present values 1) evolve as a geometric Brownian movement (gBm), and 2) exhibit marginally diminishing returns to investment. Moreover, the work presented here rests on three novel methodological propositions:
 
 A key challenge hindering work in this direction is the lack of data by which to estimate research synergies and tradeoffs. Schiek recently redressed this problem by developing a method to "crowdsource" research correlation matrices based solely on expert opinion [-@schiek2021reverse]. Here I build upon that work to devise an AR4D risk-adjusted portfolio optimization workflow.
 
-The proposed method solves for the impact maximizing budget allocation subject to a risk constraint, and is valid for portfolios of projects whose respective net present values 1) evolve as a geometric Brownian movement (gBm), and 2) exhibit marginally diminishing returns to investment. Moreover, the proposed method rests on three novel methodological propositions:
 
 Firstly, the proposed method combines the assumption of gBm project net present values (NPV) with Schiek's crowdsourced research synergy-tradeoff matrix to define portfolio risk in terms of a "coefficient of variation-covariation" matrix, whose diagonal elements are the squared project NPV coefficients of variation, and whose off-diagonal elements are "coefficients of covariation" (an extension of the coefficient of variation in the way that covariance is an extension of variance).
 
@@ -135,9 +139,9 @@ Secondly, I show how project impact may be conceived in terms of a quantity anal
 
 Thirdly, I model the project funding cycle in terms of rotations in the complex plane. While this may seem outlandish at first, I argue that it is more realistic than the conventional notion of project value as something which is always positive. It also provides a meaningful framework by which to interpret the negative or complex values that often turn up in optimal budget allocations, and to transform them into real, positive values.
 
-The proposed workflow is partly inspired by the portfolio optimization method originally devised in the financial context [markowitz, merton], but differs from that convention in a few key respects, especially as regards the methodological novelties just mentioned above. In passing, it is interesting to note that, empirically, financial "eigenportfolios" (i.e., portfolios balanced in accordance with one of the financial covariance matrix eigenvectors) perform relatively well, even though such budget allocations are generally not solutions to the classical financial portfolio optimization problem []. Efforts to devise a theoretical explanation for the empirical success of eigenportfolios are ongoing []. The present work is effectively one such explanation, and may thus be viewed as a contribution to that conversation.
+The proposed workflow is partly inspired by the portfolio optimization method originally devised in the financial context [@markowitz1952portfolio, @merton1972analytic], but differs from that convention in a few key respects, especially as regards the methodological novelties just mentioned above. In passing, it is interesting to note that, empirically, financial "eigenportfolios" (i.e., portfolios balanced in accordance with one of the financial covariance matrix eigenvectors) perform relatively well, even though such budget allocations are generally not solutions to the classical financial portfolio optimization problem [@partovi2004principal; @steele1995eigen; @avellaneda2010statistical]. Efforts to devise a theoretical explanation for the empirical success of eigenportfolios are ongoing [@guo2018eigen]. The present work is effectively one such explanation, and may thus be viewed as a contribution to that conversation.
 
-Efforts are also underway to guarantee strictly positive budget allocations based upon the eigenportfolio approach. (Negative budget shares have a valid interpretation in the financial context in terms of short selling, but are problematic for other reasons [].) However, these efforts focus on extensions of the Perron-Frobenius theorem [see, for example, @...; @], and thus apply only to the leading eigenvector. This is problematic because---as I show below---the leading eigenvector is associated with the risk-maximizing budget allocation, while the trailing (retained) eigenvector is optimal. The method of guaranteeing positive budget shares proposed here, via rotations in the complex plane, applies to all eigenvectors.
+Efforts are also underway to guarantee strictly positive budget allocations based upon the eigenportfolio approach. (Negative budget shares have a valid interpretation in the financial context in terms of short selling, but are problematic for other reasons [@jagannathan2003risk; @michaud1989markowitz].) However, these efforts focus on extensions of the Perron-Frobenius theorem [see @boyle2014positive and references], and thus apply only to the leading eigenvector. This is problematic because---as I show below---the leading eigenvector is associated with the risk-maximizing budget allocation, while the trailing (retained) eigenvector is optimal. The method of guaranteeing positive budget shares proposed here, via rotations in the complex plane, applies to all eigenvectors.
 <!-- Because of the correspondence between solutions and eigenvectors, the proposed method offers not one, but rather a menu of optimal budget allocations. I show that each budget allocation on this menu corresponds to a different risk tolerance. Building on my earlier work [], I also show how each solution may be interpreted as corresponding to a particular strategic objective or policy. (In the financial context, the eigenvectors correspond to market sectors [@Gopishka, @schiek].) The proposed method thus allows the investor to choose, from a menu of solutions, the budget allocation that best matches their risk tolerance and/or strategic focus for the funding cycle. -->
 <!-- [In addition to exposing the investor to higher-than-necessary levels of risk, the ps approach leaves a great deal up to subjective...vulnerable to political pressures...bad blood. led to frustrations...] -->
 
@@ -1369,9 +1373,9 @@ rQrtrlyArith <- (1 + rYrlyArith)^(1 / tStep) - 1
 r <- round(log(1 + rQrtrlyArith), 3)
 ```
 
-For ease of interpretation, the budget is normalized to $100$. An annual discount rate of `r rYrlyArith` is assumed, which works out to a quarterly discount rate of `r round(rQrtrlyArith, 4)`. The current maximum project NPV $\tilde{x}_k$ is usually reported in ex-ante impact assessments, or can be extrapolated from the information given in such assessments. Estimation of the scale elasticity parameter $\alpha_k$ is not currently a standard part of AR4D ex-ante impact assessments, but can be reasonably elicited through consultation with experts and literature. Given sufficient prior notice, both $\tilde{x}_k$ and $\alpha_k$ could, in principle, be estimated econometrically, using, for example, data gathered during field trials. Hypothetical values for $\tilde{x}_k$ and $\alpha_k$ are assigned to each project in the left panel of Fig \ref{fig:params}.
+For ease of interpretation, the budget is normalized to $100$. An annual discount rate of `r rYrlyArith` is assumed, which works out to a quarterly discount rate of `r round(rQrtrlyArith, 4)`. The current maximum project NPV $\tilde{x}_k$ is usually reported in ex-ante impact assessments, or can be extrapolated from the information given in such assessments. Estimation of the scale elasticity parameter $\alpha_k$ is not currently a standard part of AR4D ex-ante impact assessments, but can be reasonably elicited through consultation with experts and literature. For commodity projects, given sufficient prior notice, both $\tilde{x}_k$ and $\alpha_k$ could, in principle, be estimated econometrically, using, for example, data gathered during field trials. Hypothetical values for $\tilde{x}_k$ and $\alpha_k$ are assigned to each project in the left panel of Fig \ref{fig:params}.
 
-As discussed in section \ref{sec:cycReal}, project time horizons must be integer multiples of the duration of the funding cycle. In this example, the duration of the funding cycle is 3 years. Hypothetical time horizons are assigned to each project in the central panel of Fig \ref{fig:params} in terms of funding cycles, years, and quarters. Projects are assumed to be in varying stages of implementation at the time of the portfolio optimization exercise; and so the displayed time horizons do not necessarily indicate the projects' full duration.
+As discussed in section \ref{sec:cycReal}, project time horizons should be integer multiples of the duration of the funding cycle. In this example, the duration of the funding cycle is 3 years. Hypothetical time horizons are assigned to each project in the central panel of Fig \ref{fig:params} in terms of funding cycles, years, and quarters. Projects are assumed to be in varying stages of implementation at the time of the portfolio optimization exercise; and so the displayed time horizons do not necessarily indicate the projects' full duration.
 
 The standard deviation of the LoP arithmetic returns is deduced from either the upper or lower bound of the 95% confidence interval about the expected arithmetic life of project (LoP) return (revisit section \ref{sec:volEst} for details). The upper or lower bound is deduced from ex-ante impact assessments and/or experts and literature. The standard deviations of the LoP log returns $s_k \sqrt{\tau_k}$ are then deduced from this information by Eq .... The implied opposite bound is then also computed. hypothetical elicited LoP return 95% confidence interval, implied quarterly return 95% confidence interval, and values of $s_k$ deduced therefrom, are presented in the right panel of Fig \ref{fig:params}.
 
@@ -1387,13 +1391,16 @@ randSeed <- round(runif(1), 4) * 10^4
 #randSeed <- 2854
 #randSeed <- 4692
 #randSeed <- 6457
-set.seed(randSeed)
+randSeed <- 6433
+#set.seed(randSeed)
 #--------------------------------------------------------------
 # Project params
 C <- 100 #Budget
-alpha <- c(0.65, 0.65, 0.6, 0.75, 0.65, 0.6, 0.65, 0.8, 0.7, 0.75, 0.7) + 0.1
+#alpha <- c(0.65, 0.65, 0.6, 0.75, 0.65, 0.6, 0.65, 0.8, 0.7, 0.75, 0.7)
+alpha <- runif(nProj, 0.65, 0.95)
+alpha <- round(alpha, 2)
 #xTilde <- C * exp(rnorm(nProj, 1.1, 0.3))
-xTilde <- C * exp(rnorm(nProj, 1.1, 0.7))
+xTilde <- C * exp(rnorm(nProj, 1.1, 0.25))
 xTilde <- round(xTilde, 2)
 #TvecYrs <- c(18, 14, 8, 15, 11, 5, 6, 12, 7, 3, 13)
 #TvecTstep <- TvecYrs * tStep
@@ -1606,12 +1613,12 @@ wSlack <- function(beta, Tk, omega, xTilde, muStar, alpha, C){
   return(wSlack)
 }
 # wSlack2 <- function(beta, Tk, omega, xTilde, muStar, alpha, C){
-#   wShare <- alpha / (omega * Tk - log(beta * abs(muStar) / xTilde))
-#   wSlack <- sum(wShare) - 1
+#   wShare <- C * alpha / (omega * Tk - log(beta * abs(muStar) / xTilde))
+#   wSlack <- sum(wShare) - C
 #   return(wSlack)
 # }
 thisInt <- c(0, 100000)
-# thisInt <- c(0.0001, 100000000000)
+# thisInt <- c(0.01, 10000)
 # beta <- thisInt[1]
 # wShare <- alpha / (omega * Tk - log(beta * abs(muStar) / xTilde))
 # sum(wShare) - 1
@@ -1693,13 +1700,15 @@ optRatio <- visRiskRatio[nSigG]
 #====================================================================
 
 ```
+Of these, only the $\hat{n}^{th}$ allocation satisfies the second order condition, and is thus optimal. The optimal portfolio vis viva is thus `r optVis` dollars squared per annual quarter squared (or "project-joules", if you like), with a risk (standard deviation) of `r optRisk`, and thus a vis viva-to-risk ratio of `r optRatio`. The optimal solution minimizes risk and maximizes the vis viva-to-risk ratio. A closer look at the optimal budget allocation is presented in Fig \ref{fig:wStarDetail} for a budget of USD $100 million. The budget allocation is presented in percentage terms (which may also be read as million USD over the life of the project), as well as terms of million USD per funding cycle. The actual apportionment of a given project budget across its funding cycles will typically not be in equal amounts, but rather decided by project managers based on the technical requirements arising in each cycle. The allocation should be recalculated at the end of every funding cycle based on updated parameter values. Allocations may vary from one funding cycle to another and as some projects exit and others enter the portfolio.
 
-Of these, only the $\hat{n}^{th}$ allocation satisfies the second order condition, and is thus optimal. The optimal portfolio vis viva is thus `r optVis` dollars squared per annual quarter squared (or project-joules), with a risk (standard deviation) of `r optRisk`, and thus a vis viva-to-risk ratio of `r optRatio`. A closer look at the optimal budget allocation is presented in Fig ... given in both percentage and dollar terms for a budget of USD $100 million.
+```{r, fig.show = "hold", fig.width = 2, fig.height=2, fig.align="center", fig.cap="\\label{fig:wStarDetail}The optimal budget allocation. Time horizons include the half cycle extension, where necessary, to ensure real valued budget allocations.", echo = FALSE}
 
-```{r, fig.show = "hold", fig.width = 2, fig.height=2, fig.align="center", fig.cap="\\label{fig:wStarMenu}Menu of eligible optimal budget allocations.", echo = FALSE}
-
+TvecFundCycStar <- Tk / (2 * pi)
 df_plot <- data.frame(Percent = round(mat_wShareStar[, nSigG], 2),
-                      USD = mat_wShareStar[, nSigG] * 10^6)
+                      fundCycs = TvecFundCycStar,
+                      USD = round(mat_wShareStar[, nSigG] / TvecFundCycStar, 4))
+colnames(df_plot)[2:3] <- c("Time horizon\n(funding cycles)", "Million USD per\nfunding cycle")
 gathercols <- colnames(df_plot)
 df_plot$Project <- projNames
 df_plot <- df_plot %>% gather_("Type", "Value", gathercols)
@@ -1707,7 +1716,7 @@ df_plot <- merge(df_plot, df_match_group, by = "Project")
 df_plot <- df_plot[order(df_plot$Group), ]
 df_plot$Project <- factor(df_plot$Project, levels = unique(df_plot$Project))
 theseCnames <- gathercols
-thisTitle <- "Budget: $100 million over 3 years"
+thisTitle <- "Budget: $100 million"
 gg <- ggplot(df_plot, aes(x = Type, y = Project, label = Value))
 gg <- gg + geom_tile(alpha = 0)
 gg <- gg + scale_x_discrete("Type", labels = theseCnames, position = "top")
@@ -1812,9 +1821,26 @@ gg
 <!-- #===================================================================== -->
 <!-- ``` -->
 
+As discussed in section \ref{sec:dimRet}, the portion of project budget in excess of the funds covering project implementation at a minimum pilot level are spent on up- and out-scaling of impact---i.e. on expanding the size and number of target populations and environments, and/or impact efficiency within populations (via extension services, infrastructural improvements, microfinancing, and so forth). Such expenditures typically come in the last funding cycle.
+
+On the other hand, it may be that the project budget allocation falls short of covering basic technical requirements over the entire life of the project. This raises the difficult question of whether or not to remove the project from the portfolio (and to recalculate the optimal budget allocation without it). If the amount allocated is at least enough to fund the minimum technical requirements of one or two funding cycles, while leaving the subsequent cycles unfunded, it may be worthwhile to retain the project, especially if the project has abandonment value. Subsequent rounds of portfolio optimization may end up covering the unfunded cycles as project NPVs and other parameters are updated, and as projects exit and enter the portfolio.
+
 # Discussion and conclusion
 
-AR4D project ranking and budget allocation procedures tend to be opaque and politically driven...leaving project funding decisions vulnerable to politics, institutional inertia, and other forms of subjective bias. The Consultative Group on International Agricultural Research, in particular, is said to "have a long history of good intentions but limited success in developing appropriate approaches for priority setting" [@Birner2016]. In the sections above I have attempted to remove the methodological premise for this "limited success" by introducing a risk adjusted AR4D portfolio optimization method to determine optimal budget allocations.
+<!-- [O]ur conviction is that CGIAR researchers have indeed a genuine commitment to achieving development impact, and that they are seriously looking for ways to address critiques that the pre-reform CGIAR operated in an isolated and unaccountable manner (see the left column of Table 1) and largely ignored the social and political dimensions of agricultural development" [@leeuwis2018reforming]. -->
+While the scientists' current attitude of distrust and, in some cases, disdain, towards donor attempts to align funding with development impact may seem callous and rooted in vain self-interest, such a caricature is at odds with the CGIAR's long history of responding to criticism in order to enhance impact. This is especially true since the 2011 reforms, when mandatory accountability protocols were implemented [@leeuwis2018reforming]; but was also true prior. Plan Puebla, IR20 rice, the Bean and Cassava Programs, to name only a few examples, were all in some measure born of criticism in order to better align research objectives with the agroclimatic and socioeconomic needs of resource-poor smallholders. One may say without controversy that scientists in general are happy to align research with impact.
+
+The cynical attitudes arise, rather, as a rational response to the credible commitment problem in which the AR4D community finds itself. Individual researchers have little incentive to cooperate with funding allocation procedures in good faith because of the high risk that other participants---i.e. donors, other researchers and stakeholders---will fail to honor their commitments to impartiality---whether through accidental errors of judgment (due to institutional inertia, for example), or rent seeking behavior (resulting from conflicts of interest, for example), or some combination thereof.
+<!-- subjective bias that undermines fund allocation decisions in the absence of an impartial third party fund allocation mechanism trusted by both donors and researchers.-->
+
+The standard solution to the credible commitment problem is recourse to an independent, impartial, third party tribunal mechanism trusted by all participants [@north1993institutions]. The portfolio optimization method proposed here is designed to fulfill or at least support this role. Whereas budget allocations generated under the current, highly subjective decision-making protocol are essentially a matter of opinion, and hence optimal from some points of view but sub-optimal from others, the mathematical solution presented here is not subject to this criticism. Subjective bias may still creep into the process at the information gathering and impact assessment stages (Mills' steps 2 and 3), but the proposed budget allocation mechanism itself guarantees an optimal solution insofar as this information is accurate.
+<!-- The veracity of the information on which the solution is based may be criticized, but the solution... -->
+<!-- by replacing subjective, politically driven, seat-of-your-pants decision making, with an objective, transparent, mathematical solutionly rigorous, risk-minimizing budget allocation mechanism. Whereas subjectively determined budget allocations may always be perceived as poorly judged, or skewed, -->
+<!-- Donors, on the one hand, face increasingly austere fiscal outlooks, and thus pressure research communities for evidence of return on investment. Researchers, on the other hand, bristle at such pressure  -->
+<!-- "One of the geniuses" of the original CGIAR structure is said to be its ability to consistently attract "aid funding of long-term research" while keeping "aid professionals from setting research agendas" -->
+<!-- The bristling attitudes arise, rather, -->
+
+scale with investment...may be better to programs...
 
 * key methodological challenges in this ... were ensuring real, positive valued budget allocations.
 
