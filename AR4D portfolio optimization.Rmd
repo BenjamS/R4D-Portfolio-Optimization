@@ -654,7 +654,7 @@ Eq \ref{eq:npvFnW} is an ansatz. Practitioners may design other functional forms
 In the broadest terms, a project may be said to intervene in, or operate upon, an existing net benefit stream $\Delta u/\Delta t$ with the aim of raising it to a higher value by the end of the project, such that
 
 \begin{equation}
-\frac{\Delta u}{\Delta t}\bigr_{t = T} > \frac{\Delta u}{\Delta t}\bigr_{t = 0}
+\frac{\Delta u}{\Delta t} \bigr|_{t = T} > \frac{\Delta u}{\Delta t} \bigr|_{t = 0}
 \end{equation}
 
 This implies an acceleration $\Delta^2 u / \Delta t^2$ which comes as a result of the skilled, concerted, applied efforts that comprise the project intervention. Letting $F$ stand for these applied efforts and $a$ for the acceleration, this axiomatic relation can be expressed $F \sim a$, or
@@ -731,6 +731,7 @@ Note, moreover, that the cumulative net benefit over the interval $\Delta t$ is 
 \Delta u &= v(0) \Delta t + \int_0^T v dt \\
 &= A_0 + \Delta A \\
 &= \frac{1}{2} (v(T) + v(0)) \Delta t
+\end{split}
 \end{equation}
 
 And a third "kinematic" expression, soon to come in handy, can be obtained by multiplying the previous two as follows.
@@ -760,7 +761,7 @@ But, by equation \ref{eq:kinema3},
 Finally, note that the same analysis can be reformulated in terms of project NPV---that is to say, in terms of the difference between the net benefit stream _with_ the project intervention versus the net benefit stream _without_ it (the counter-factual). Formally, this means $v$ is redefined
 
 \begin{equation}
-v = \frac{\Delta u}{\Delta t}\bigr_{*} - \frac{\Delta u}{\Delta t}
+v = \frac{\Delta u}{\Delta t}\bigr|_{*} - \frac{\Delta u}{\Delta t}
 \end{equation}
 
 (Where the "$*$" indicates the "with project intervention" scenario.)
@@ -778,7 +779,7 @@ In the motivating context of the present article, the displacement $\Delta u_k$ 
 
 \begin{equation}
 \begin{split}
-\Delta u_k = \int_{\hat{t}}^T_k v_k dt &= u_k(\tau_k)|_{*} - u_k(\tau_k) \\
+\Delta u_k = \int_{\hat{t}}^{T_k} v_k dt &= u_k(\tau_k)|_{*} - u_k(\tau_k) \\
 &= E[x_k(T)]\bigr|_{t = \hat{t}}
 \end{split}
 \end{equation}
@@ -788,7 +789,7 @@ The displacement $\Delta u_k$ is thus expressed in units of value. Since the pro
 Assuming $x_k(t)$ follows a gBm,
 
 \begin{equation}
-\Delta u_k |_{t = \hat{t}} = \mu_k(\hat{t}) = x_k(\hat{t}) e^{r \tau_k} \bigr|_{t = \hat{t}}
+\Delta u_k \bigr|_{t = \hat{t}} = \mu_k(\hat{t}) = x_k(\hat{t}) e^{r \tau_k} \bigr|_{t = \hat{t}}
 \end{equation}
 
 The corresponding velocity thus works out to
@@ -869,7 +870,7 @@ The velocity and vis viva of an entire portfolio may be expressed
 
 \begin{equation}
 \begin{split}
-v_p = \sqrt{\Sigma_k \left( \frac{\Delta u_k}{\Delta t}} \right)^2 &= r \sqrt{ \Sigma_k \mu_k^2} \\
+v_p = \sqrt{\Sigma_k \left( \frac{\Delta u_k}{\Delta t} \right)^2} &= r \sqrt{ \Sigma_k \mu_k^2} \\
 &= r \sqrt{\boldsymbol{\mu} ' \boldsymbol{\mu}} \\
 \end{split}
 \end{equation}
@@ -943,6 +944,7 @@ Extension to all angles $\theta \in (0, 2 \kappa \pi)$ in the complex plane then
 \begin{split}
 \mu_k(\theta) &= x_k(\theta) e^{(2 \nu_k \pi - \theta)(\omega + i)} \\
 &= \tilde{x}_k(\theta) \left(\frac{w_k}{C} \right)^{\alpha_k} e^{(T_k - \theta)(\omega + i)}
+\end{split}
 \label{eq:muFnwComp}
 \end{equation}
 <!-- [graphic? $\mu_k(\hat{\theta}) / x_k(\hat{\theta})$ decay---ratio of E[x(T)]|_t / x(t)] -->
@@ -983,6 +985,7 @@ T_k = 2 \pi \left(\nu_k \mp \frac{1}{2} \kappa_k \right)
 \end{equation}
 
 Where
+
 \begin{equation}
 \kappa_k =
 \begin{cases}
@@ -1216,7 +1219,7 @@ Where $\mathbf{q}_j {'} \mathbf{q}_j = 1$ and $\beta_j$ is an arbitrary scaling 
 In vector notation,
 
 \begin{equation}
-\mathbf{w}_j^* = C ( \beta_j D(\mathbf{q}_j) D(\tilde{\mathbf{x}(0)})^{-1} D(e^{\mathbf{T}})^{-\omega - i}} )^{\frac{1}{\boldsymbol{\alpha}}}
+\mathbf{w}_j^* = C ( \beta_j D(\mathbf{q}_j) D(\tilde{\mathbf{x}(0)})^{-1} D(e^{\mathbf{T}})^{-\omega - i} )^{\frac{1}{\boldsymbol{\alpha}}}
 \label{eq:wStarVec}
 \end{equation}
 
@@ -1702,7 +1705,7 @@ optRatio <- visRiskRatio[nSigG]
 #====================================================================
 
 ```
-Of these, only the $\hat{n}^{th}$ allocation satisfies the second order condition, and is thus optimal. The optimal portfolio vis viva is thus `r optVis` dollars squared per annual quarter squared (or "project-joules", if you like), with a risk (standard deviation) of `r optRisk`, and thus a vis viva-to-risk ratio of `r optRatio`. The optimal solution minimizes risk and maximizes the vis viva-to-risk ratio. A closer look at the optimal budget allocation is presented in Fig \ref{fig:wStarDetail} for a budget of USD $100 million. The budget allocation is presented in percentage terms (which may also be read as million USD over the life of the project), as well as terms of million USD per funding cycle. The actual apportionment of a given project budget across its funding cycles will typically not be in equal amounts, but rather decided by project managers based on the technical requirements arising in each cycle. The allocation should be recalculated at the end of every funding cycle based on updated parameter values. Allocations may vary from one funding cycle to another and as some projects exit and others enter the portfolio.
+Of these, only the $\hat{n}^{th}$ allocation satisfies the second order condition, and is thus optimal. The optimal portfolio vis viva is thus `r optVis` dollars squared per annual quarter squared (or "project-joules", if you like), with a risk (standard deviation) of `r optRisk`, and thus a vis viva-to-risk ratio of `r optRatio`. The optimal solution minimizes risk and maximizes the vis viva-to-risk ratio. A closer look at the optimal budget allocation is presented in Fig \ref{fig:wStarDetail} for a budget of USD $100 million. The budget allocation is presented in percentage terms (which may also be read as million USD over the life of the project), as well as terms of million USD per funding cycle. The actual apportionment of a given project budget across its funding cycles will typically not be in equal amounts, but rather decided by project managers based on the technical requirements arising in each cycle. The allocation should be recalculated at the end of every funding cycle based on updated parameter values. Allocations may vary from one funding cycle to another based on these updates, and as some projects exit and others enter the portfolio.
 
 ```{r, fig.show = "hold", fig.width = 2, fig.height=2, fig.align="center", fig.cap="\\label{fig:wStarDetail}The optimal budget allocation. Time horizons include the half cycle extension, where necessary, to ensure real valued budget allocations.", echo = FALSE}
 
