@@ -119,7 +119,7 @@ knitr::include_graphics("Mills_missing_step5.png")
 <!-- whereby research programs are ranked in order of importance based on their respective impact assessments. These rankings are then translated into research budget allocations in a highly subjective and ad hoc manner. -->
 <!-- objective rigor in the translation of project rankings into project budget allocations  -->
 
-The persistent absence of Mill's fifth step has left AR4D funding decision-making mechanisms vulnerable to institutional inertia, stakeholder politics, and other forms of subjective bias [@Birner2016; @mccalla2014cgiar]. The Consultative Group on International Agricultural Research (CGIAR), in particular, is said to "have a long history of good intentions but limited success in developing appropriate approaches for priority setting" [@Birner2016]. The historic effort begun in 2011 to restructure CGIAR financing around a research program (CRP) portfolio model proved emblematic of this "limited success", when the results of an extensive priority setting exercise were summarily rejected by the board of directors in favor of a highly subjective, opaque, and ad hoc resource allocation [@Birner2016]. Earlier attempts at reform likewise devolved into politically driven processes [@mccalla2014cgiar]; and the current reform effort towards a "One CGIAR", begun in 2019, now appears to be headed in the same direction.
+The persistent absence of Mill's fifth step has left AR4D funding decision-making mechanisms vulnerable to institutional inertia, stakeholder politics, and other forms of subjective bias [@Birner2016; @mccalla2014cgiar]. The Consultative Group on International Agricultural Research (CGIAR), in particular, is said to "have a long history of good intentions but limited success in developing appropriate approaches for priority setting" [@Birner2016]. The historic effort begun in 2011 to restructure CGIAR financing around a research program (CRP) portfolio model proved emblematic of this "limited success", when the results of an extensive priority setting exercise were summarily rejected by donors and stakeholders in favor of a subjective, opaque, and ad hoc resource allocation [@Birner2016]. Earlier attempts at reform likewise devolved into politically driven processes [@mccalla2014cgiar]; and the current reform effort towards a "One CGIAR", begun in 2019, now appears to be headed in the same direction.
 
 The resulting malaise of "ever growing distrust" between aid donors and research communities [@leeuwis2018reforming] has come to resemble what game theorists call a "credible commitment problem" [@north1993institutions]: Researchers cannot trust donors to allocate funds accurately and/or impartially, and thus have little incentive to cooperate with allocation protocols in good faith. Donors, meanwhile, cannot trust researchers to provide accurate and/or honest impact assessments of their projects. In such a game, cynical attitudes and hardening research silos are optimal strategies. Researchers bristle at priority setting exercises as a sort of ham-handed bureaucratic meddling, or "development at the expense of research" [@Birner2016], or "post-academic science" [@Moriarty2008], or even the "Balkanization" of research [@Petsko2011]. "One of the geniuses of the founders of the CGIAR," writes McCalla, "was to craft a system that encouraged aid funding of long-term research institutes but kept aid professionals from setting research agendas..." [@mccalla2014cgiar].
 
@@ -268,7 +268,7 @@ Where the elements of the vector $\boldsymbol{\tau}$ are the project time horizo
 
 ## Deducing program NPV means, variances, and covariances in minimum data contexts \label{sec:volEst}
 <!-- ## Deducing the program correlation matrix in minimum data contexts -->
-
+...Mills' steps 2 and 3...
 It is all very well to theorize and deduce formal expressions, but how are these things to be estimated in practice? In the financial context, means, variances, and covariances can be estimated from time series data in a straightforward manner. As mentioned earlier, however, no analogous data exists in the AR4D context.
 
 Project NPV at the start of the funding cycle ($x_k(0)$) can be estimated based on ex-ante impact assessment. Given values for $r$ and $T_k$, it is then possible to calculate $\mu_k(0)$ by Eq \ref{eq:ExTraw}.
@@ -1833,129 +1833,51 @@ While the scientists' current attitude of distrust and, in some cases, disdain, 
 The cynical attitudes arise, rather, as a rational response to the credible commitment problem in which the AR4D community finds itself. Individual researchers have little incentive to cooperate with funding allocation procedures in good faith because of the high risk that other participants---i.e. donors, other researchers and stakeholders---will fail to honor their commitments to impartiality---whether through accidental errors of judgment (due to institutional inertia, for example), or rent seeking behavior (resulting from conflicts of interest, for example), or some combination thereof.
 <!-- subjective bias that undermines fund allocation decisions in the absence of an impartial third party fund allocation mechanism trusted by both donors and researchers.-->
 
-The standard solution to the credible commitment problem is recourse to an independent, impartial, third party tribunal mechanism trusted by all participants [@north1993institutions]. The portfolio optimization method proposed here is designed to fulfill or at least support this role. Whereas budget allocations generated under the current, highly subjective decision-making protocol are essentially a matter of opinion, and hence optimal from some points of view but sub-optimal from others, the mathematical solution presented here is not subject to this criticism. Subjective bias may still creep into the process at the information gathering and impact assessment stages (Mills' steps 2 and 3), but the proposed budget allocation mechanism itself guarantees an optimal solution insofar as this information is accurate.
+The standard solution to the credible commitment problem is recourse to an independent, impartial, third party tribunal mechanism trusted by all participants [@north1993institutions]. The portfolio optimization method proposed here is designed to fulfill or at least support this role. In every budget allocation exercise there are inevitably participants who are frustrated with the result. While the method proposed here does not change that, it does transfer the focus of frustration from subjective biases underpinning the allocation mechanism itself to more technical biases associated with the underlying assumptions (that project NPV follows a gBm and scales sublinearly with investment) or with the information gathering and impact assessment stages (Mills' steps 2 and 3), based on which the allocation mechanism is parameterized. Insofar as the assumptions are correct and the parameterization is accurate, the allocation mechanism itself, in stark contrast to the status quo, guarantees an optimal budget allocation.
 <!-- The veracity of the information on which the solution is based may be criticized, but the solution... -->
 <!-- by replacing subjective, politically driven, seat-of-your-pants decision making, with an objective, transparent, mathematical solutionly rigorous, risk-minimizing budget allocation mechanism. Whereas subjectively determined budget allocations may always be perceived as poorly judged, or skewed, -->
 <!-- Donors, on the one hand, face increasingly austere fiscal outlooks, and thus pressure research communities for evidence of return on investment. Researchers, on the other hand, bristle at such pressure  -->
 <!-- "One of the geniuses" of the original CGIAR structure is said to be its ability to consistently attract "aid funding of long-term research" while keeping "aid professionals from setting research agendas" -->
 <!-- The bristling attitudes arise, rather, -->
 
-scale with investment...may be better to programs...
-
-* key methodological challenges in this ... were ensuring real, positive valued budget allocations.
-
-* suboptimal solutions
-
-* The portfolio of projects described in Fig \ref{fig:params} is diverse in research themes, impact pathways, expected rewards, risk levels, time horizons, and stages of implementation. Real AR4D portfolios may or may not be so heterogeneous.
-
-* In the illustrative example given above, the scale parameters $\beta_j$ are set so as to enforce the budget constraint. They may also be set so as to enforce a specific risk constraint or vis viva target.
-
-* The proposed method is applicable for projects whose impacts scale with investment. This is not always true for projects. The investment model in section ... does not account for a minimum required amount, beneath which it makes no sense to invest. only way is to increase the budget size  It may make more sense to apply the method at a program level.
-
-* can also use for trait portfolio optimization ...not limited to the AR4D...but applicable to any multi-objective portfolio optimization workflow.
-
-<!-- ## A menu of solutions catering to a range of risk appetites -->
-may choose a suboptimal solution to aim for higher vis viva if willing to take on higher risk; however note that the higher reward higher risk solutions in Fig ... are poorly distributed may cause riots.
-The "optimal" solution ($\boldsymbol{\mu}_{\hat{n}}^*$) is optimal in the sense that it maximizes expected portfolio impact (vis viva) subject to a risk constraint. However, this is usually also the solution that corresponds to the lowest portfolio vis viva. It may be that the other candidate solutions are higher risk, but also higher reward.
-<!-- ...the optimal thus near the last of the trailing eigenvectors, but because scaled by $\beta_j^2$ not necessarily the last. -->
-
-The AR4D investor is thus presented not with a single optimal solution, but an optimal menu of solutions corresponding to a range of risk tolerances. Typically, AR4D investors are guided by a pro-poor mandate which requires them to operate in the gaps left by market failures, and hence to incline towards ambitious research portfolios. Ambition implies risk, which in turn implies that AR4D donors should endeavor to select from among the riskier solutions on the optimal menu. It should be kept in mind, moreover, that higher portfolio risk is not unambiguously bad, as it exposes the investor to an increased probability of both lower and higher portfolio return.
-
-At the same time, investors must consider how evenly the solution allocates the budget across projects. While the In any budget allocation exercise, there are winners and losers. Solutions that allocate all of the budget to just one or two projects may cause a riot among the researchers.... amounts too low to be of any use.
-
-Should make decision based on 
-
-Nonetheless, the expected portfolio impact (vis viva) $\mathcal{E}_j$ must also be taken into consideration when selecting a solution from the menu. Obviously, a lower risk solution with higher expected impact should be selected over a higher risk solution with relatively lower vis viva.
-<!-- The leading eigenvector of $G$ is the portfolio budget allocation that maximizes portfolio impact subject to a risk constraint. $\overline{\mathcal{E}}$. The other solutions are not necessarily sub-optimal, but rather correspond to lower investor risk tolerances. Here it is important to keep in mind that higher portfolio risk is not unambiguously bad, but rather a matter of ambition. Higher risk exposes the investor to an increased probability of both lower and higher portfolio return. Moreover, if the portfolio items follow a gBm, as assumed here, then returns are lognormally distributed; and so the risk is primarily upside. Moreover, let's not forget that AR4D institutions have a pro-poor mandate to redress market failures; and this can often mean taking on ambitious, higher risk portfolios. -->
-<!-- Note that this is reflected in the corresponding eigenvalues. The leading eigenvalue---which corresponds to the risk maximizing solution---is the largest, indicating the highest risk for a given vis viva target $\overline{\mathcal{E}}$ (recall equation \ref{eq:lambDef}), while the remaining eigenvalues are successively smaller, indicating successively lower risk levels. -->
-
-
-
-
-
-
-
-* Up for rebalancing at the end of every funding cycle (3 years). i.e. the allocation is repeated with updated parameters. Some projects may exit while others enter.
-
-* behaves badly i.e. allocates everything to one project when if a project's standard deviation is an order of magnitude greater than the rest.
-
-* ...there was no straightforward explanation or expectation of/for conservation of vis viva (energy)...In an analogous development, financial analysts find that eigenvectors give the best solutions, even though the conventional theory does not .
-
-
-Above I have presented a novel portfolio optimization method which... offers a menu of budget allocations depending upon risk tolerance... multiple strategic objectives or policies ... novelty comes from the novel inclusion of the vis viva constraint....parallel development in physics...positive budget allocations.
-
-* In physics one might also apply the naive budget constraint approach---can only move so far in the three spatial dimensions.---it was only through empirical observation that physicists realized that a much less intuitive constraint was the one they should pay attention to, that of energy, one which practitioners still puzzle over to this day.---In finance, the naive approach has been pretty useless, led mostly to frustration. Leibniz did not reason that the quantity $v^2$ was conserved, but rather arrived at this conclusion through empirical observation...even today the rationale is not clear---ask your local physicist what energy is. In a parallel manner, portfolio managers sense that the eigenvectors of the covariance matrix are the proper solutions to the portfolio optimization problem, and have moved ahead with this idea even though the rationale for doing so is not clear.
-
-* Can also get these results using the Euler condition -> equations of motion. Acceleration is proportional to the gradient of the potential energy
-
-\begin{equation}
-\nabla_{\boldsymbol{\mu}} \mathcal{L} = \frac{d}{dt} \nabla_{\dot{\boldsymbol{\mu}}} \mathcal{L}
-\end{equation}
-
-\begin{equation}
-\nabla \sigma = \lambda \ddot{\boldsymbol{\mu}}
-\end{equation}
-
-* Might also formulate as a synergy max problem (using correlation matrix)
-
-
-
-
-
-
-
-
-
-
-
-
-* Negative weights problem. Different approaches: linear combination of portfolios; scaling of eigenvectors; shrinkage estimate; lastly, figure out a practical interpretation of negative weights (and/or get comfortable with complex weights).
-
-
-* No problem if not invertible
-
-* Connection with my PCA method of deducing eigenvectors
-
-* Can explore $\Delta u / \Delta l$ or $\Delta u / \Delta(investment)$ instead of $\Delta u / \Delta t$
-
-* "Imaginary" (cyclic) interest rate -- log spiral
-
-* The data by which to calculate the covariance matrix are non-existent. Elsewhere I have shown how the leading eigenvectors of the project covariance matrix effectively encode each project's contribution to distinct policy objectives (the principle component scores); and how these can be deduced from expert knowledge when data are not available [@]. The approximate covariance matrix is approximate in the sense... but insofar as it filters out noise, may actually be more accurate with respect to the true process that generates the data. Better to call it the filtered covariance matrix, then.  The eigenvectors of $K$ are just the eigenvectors of the covariance matrix premultiplied by a diagonal matrix of the inverse means $\mu_k$. ...This also precludes the problem of using too small an eigenvalue. ...It would not be possible to use this approch in the conventional approach as that way involves inverting the covariance matrix, which would no be possible since the filtered covariance matrix has $n - m$ eigenvalues equal to zero. 
-
-* If expected growth rates differ, then positive weights cannot be guaranteed. Likewise, time horizons can differ from project to project, but this may introduce negative budget allocations.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+The portfolio of projects described in Fig \ref{fig:params} is diverse in research themes, impact pathways, expected rewards, risk levels, time horizons, and stages of implementation. Real AR4D portfolios may or may not be so heterogeneous. In some decision-making contexts, the assumption that projects scale with investment may be too strong, in which case the practitioner might consider applying the method at a more aggregate level, say over a portfolio of programs, each of which consists of numerous projects and complementary activities in various stages of implementation. Applications are not limited to project portfolios. AR4D breeding programs might consider using the method to optimize allocation of resources across a portfolio of genotypes, for example.
+
+In fortuitous cases, the optimal (risk-minimizing) solution is also the solution with the highest expected impact (vis viva). More often than not, however, the risk minimizing solution is not associated with the highest expected impact. In such cases, ambitious investors willing to trade increased risk for a higher expected impact might consider choosing a budget allocation associated with one of the sub-optimal eigenvectors. In the hypothetical use case examined above, for example, they might choose Solution... (Fig ...), which offers higher vis viva than the optimal solution in exchange for higher risk. But, note that riskier portfolios tend to be considerably less diversified. Solution ... allocates ...% of the budget to a single project. The benefits of higher vis viva portfolios must be balanced not only against the increased risk, but also the increased frustration that such an uneven allocation will generate in the researcher community.
+
+
+
+<!-- * In the illustrative example given above, the scale parameters $\beta_j$ are set so as to enforce the budget constraint. They may also be set so as to enforce a specific risk constraint or vis viva target. -->
+<!-- <!-- ## A menu of solutions catering to a range of risk appetites -->
+<!-- may choose a suboptimal solution to aim for higher vis viva if willing to take on higher risk; however note that the higher reward higher risk solutions in Fig ... are poorly distributed may cause riots. -->
+<!-- The "optimal" solution ($\boldsymbol{\mu}_{\hat{n}}^*$) is optimal in the sense that it maximizes expected portfolio impact (vis viva) subject to a risk constraint. However, this is usually also the solution that corresponds to the lowest portfolio vis viva. It may be that the other candidate solutions are higher risk, but also higher reward. -->
+<!-- <!-- ...the optimal thus near the last of the trailing eigenvectors, but because scaled by $\beta_j^2$ not necessarily the last. --> 
+<!-- The AR4D investor is thus presented not with a single optimal solution, but an optimal menu of solutions corresponding to a range of risk tolerances. Typically, AR4D investors are guided by a pro-poor mandate which requires them to operate in the gaps left by market failures, and hence to incline towards ambitious research portfolios. Ambition implies risk, which in turn implies that AR4D donors should endeavor to select from among the riskier solutions on the optimal menu. It should be kept in mind, moreover, that higher portfolio risk is not unambiguously bad, as it exposes the investor to an increased probability of both lower and higher portfolio return. -->
+<!-- At the same time, investors must consider how evenly the solution allocates the budget across projects. While the In any budget allocation exercise, there are winners and losers. Solutions that allocate all of the budget to just one or two projects may cause a riot among the researchers.... amounts too low to be of any use. -->
+
+<!-- Should make decision based on  -->
+
+<!-- Nonetheless, the expected portfolio impact (vis viva) $\mathcal{E}_j$ must also be taken into consideration when selecting a solution from the menu. Obviously, a lower risk solution with higher expected impact should be selected over a higher risk solution with relatively lower vis viva. -->
+<!-- <!-- The leading eigenvector of $G$ is the portfolio budget allocation that maximizes portfolio impact subject to a risk constraint. $\overline{\mathcal{E}}$. The other solutions are not necessarily sub-optimal, but rather correspond to lower investor risk tolerances. Here it is important to keep in mind that higher portfolio risk is not unambiguously bad, but rather a matter of ambition. Higher risk exposes the investor to an increased probability of both lower and higher portfolio return. Moreover, if the portfolio items follow a gBm, as assumed here, then returns are lognormally distributed; and so the risk is primarily upside. Moreover, let's not forget that AR4D institutions have a pro-poor mandate to redress market failures; and this can often mean taking on ambitious, higher risk portfolios. --> 
+<!-- <!-- Note that this is reflected in the corresponding eigenvalues. The leading eigenvalue---which corresponds to the risk maximizing solution---is the largest, indicating the highest risk for a given vis viva target $\overline{\mathcal{E}}$ (recall equation \ref{eq:lambDef}), while the remaining eigenvalues are successively smaller, indicating successively lower risk levels. -->
+<!-- * behaves badly i.e. allocates everything to one project when if a project's standard deviation is an order of magnitude greater than the rest. -->
+<!-- * ...there was no straightforward explanation or expectation of/for conservation of vis viva (energy)...In an analogous development, financial analysts find that eigenvectors give the best solutions, even though the conventional theory does not . -->
+<!-- Above I have presented a novel portfolio optimization method which... offers a menu of budget allocations depending upon risk tolerance... multiple strategic objectives or policies ... novelty comes from the novel inclusion of the vis viva constraint....parallel development in physics...positive budget allocations. -->
+<!-- * In physics one might also apply the naive budget constraint approach---can only move so far in the three spatial dimensions.---it was only through empirical observation that physicists realized that a much less intuitive constraint was the one they should pay attention to, that of energy, one which practitioners still puzzle over to this day.---In finance, the naive approach has been pretty useless, led mostly to frustration. Leibniz did not reason that the quantity $v^2$ was conserved, but rather arrived at this conclusion through empirical observation...even today the rationale is not clear---ask your local physicist what energy is. In a parallel manner, portfolio managers sense that the eigenvectors of the covariance matrix are the proper solutions to the portfolio optimization problem, and have moved ahead with this idea even though the rationale for doing so is not clear. -->
+<!-- * Can also get these results using the Euler condition -> equations of motion. Acceleration is proportional to the gradient of the potential energy -->
+<!-- \begin{equation} -->
+<!-- \nabla_{\boldsymbol{\mu}} \mathcal{L} = \frac{d}{dt} \nabla_{\dot{\boldsymbol{\mu}}} \mathcal{L} -->
+<!-- \end{equation} -->
+<!-- \begin{equation} -->
+<!-- \nabla \sigma = \lambda \ddot{\boldsymbol{\mu}} -->
+<!-- \end{equation} -->
+<!-- * Might also formulate as a synergy max problem (using correlation matrix) -->
+<!-- * The data by which to calculate the covariance matrix are non-existent. Elsewhere I have shown how the leading eigenvectors of the project covariance matrix effectively encode each project's contribution to distinct policy objectives (the principle component scores); and how these can be deduced from expert knowledge when data are not available [@]. The approximate covariance matrix is approximate in the sense... but insofar as it filters out noise, may actually be more accurate with respect to the true process that generates the data. Better to call it the filtered covariance matrix, then.  The eigenvectors of $K$ are just the eigenvectors of the covariance matrix premultiplied by a diagonal matrix of the inverse means $\mu_k$. ...This also precludes the problem of using too small an eigenvalue. ...It would not be possible to use this approch in the conventional approach as that way involves inverting the covariance matrix, which would no be possible since the filtered covariance matrix has $n - m$ eigenvalues equal to zero.  -->
+<!-- * If expected growth rates differ, then positive weights cannot be guaranteed. Likewise, time horizons can differ from project to project, but this may introduce negative budget allocations. -->
+<!-- ================================================================= -->
+<!-- ================================================================= -->
+<!-- ================================================================= -->
+<!-- ================================================================= -->
+<!-- ================================================================= -->
 <!-- The task of deciding how to optimally allocate a limited budget across a portfolio of research proposals that are all, in one way or another, vitally important, is never an easy one. However, the problem articulated by Mills over twenty years ago at once suggests its solution: An impartial, transparent resource allocation mechanism, at the portfolio level, could substantially reduce the pain involved in such decisions. In this paper, I explore the possibility of developing such a tool based on risk-adjusted portfolio optimization techniques developed in the financial context. -->
 <!-- Repeated efforts to reform the CGIAR have made some progress in getting researchers to think carefully about the the "theory of change" surrounding their research, but no progress on the portfolio front... tend to reinforce the very institutional inertia that the reform effort had intended to disrupt (Birner &amp; Byerlee, 2016). The aim of the present paper is to reduce the methodological basis for such failures as much as possible. -->
 <!-- discussion/motivation: -->
@@ -1975,18 +1897,7 @@ Above I have presented a novel portfolio optimization method which... offers a m
 <!-- Since the matrix $K$ is symmetric, then its leading eigenvector generally has, or can be modified to have, only positive entries [@noutsos2006perron]. -->
 <!-- Tricks for modifying the covariance matrix so that it is effectively coerced into being an eventually positive matrix. -->
 <!-- Transformations of covmat [@carrasco2011optimal; ledoit2004well] -->
-
-
-
-
-
-
-
-
-
-
 <!-- \ref{fig:wStarVecMO} -->
-
 <!-- # ```{r, fig.show = "hold", fig.width = 5, fig.height=3, fig.align="center", fig.cap="\\label{fig:wStarVecMO}Multi-objective optimal budget allocations corresponding to each risk tolerance.", echo = FALSE} -->
 <!-- # Multi-objective optimal budget allocation -->
 <!-- #gammaSigSS -->
@@ -2033,7 +1944,6 @@ Above I have presented a novel portfolio optimization method which... offers a m
 <!-- gathercols <- colnames(df_plot) -->
 <!-- df_plot$Project <- projNames -->
 <!-- df_plot <- df_plot %>% gather_("Policy", "Budget share", gathercols) -->
-
 <!-- gg <- ggplot(df_plot, aes(x = Project, y = `Budget share`)) -->
 <!-- gg <- gg + geom_bar(stat = "identity", color = "black", position = "dodge") -->
 <!-- #gg <- gg + ylim(limits = c(0, 1)) -->
@@ -2048,11 +1958,7 @@ Above I have presented a novel portfolio optimization method which... offers a m
 <!-- gg <- gg + coord_equal() -->
 <!-- gg <- gg + coord_flip() -->
 <!-- gg -->
-
 <!-- ``` -->
-
-
-
 <!-- ## A menu of solutions catering to a range of strategic objectives -->
 <!-- Generally speaking, each of the $m$ leading eigenvectors of a covariance matrix of a complex system of variables encode information about a specific aspect of the system. In the financial context, for example, Gopikrishnan et al. [-@gopik2001quant] show that each of the leading eigenvectors of a covariance matrix of hundreds of stock price series is associated with movements in a particular industry or sector, such that each element in the eigenvectors reflects a particular stock's contribution to, or participation in, movements in the respective sector. -->
 <!-- [The authors even suggest this method might be used to classify firms into industries.] -->
@@ -2205,30 +2111,21 @@ Above I have presented a novel portfolio optimization method which... offers a m
 <!-- "development at the expense of research" (Birner &amp; Byerlee, 2016) or even the "Balkanization" of research (Petsko, 2011) . -->
 <!-- ## Separating signals from noise, identifying main assets contributing to market movements -->
 <!-- MV analysis is, in many ways, still a work in progress, with unresolved methodological issues severely limiting its usefulness even in its native financial context. In particular, covariance matrices estimated from price data tend to contain a lot of noise; and the optimal solutions then tend to diverge considerably from reality as a result of this [@michaud1989markowitz]. In my adaptation below, I propose a new approach to this problem by first dimensionally reducing the portfolio from several dozen assets to just a handful of "signals" constructed from the eigenvectors of the correlation matrix that can be meaningfully distinguished from noise. -->
-\pagebreak
+<!-- \pagebreak -->
 
 # References {-}
-
-<div id="refs"></div>
-
-# Appendix: Securities appearing in the financial example {-}
-
-# Figures and tables
-
-Figure \ref{fig2} is generated using an R chunk.
-
-```{r fig2, fig.width = 5, fig.height = 5, fig.align='center', out.width="50%", fig.cap = "\\label{fig2}A meaningless scatterplot.", echo = FALSE}
-plot(runif(25), runif(25))
-```
-
-# Tables coming from R
-
-Tables can also be generated using R chunks, as shown in Table \ref{tab1} for example.
-
-```{r tab1, echo = TRUE}
-knitr::kable(head(mtcars)[,1:4], 
-             caption = "\\label{tab1}Caption centered above table"
-)
-```
-
-# References {-}
+<!-- <div id="refs"></div> -->
+<!-- # Appendix: Securities appearing in the financial example {-} -->
+<!-- # Figures and tables -->
+<!-- Figure \ref{fig2} is generated using an R chunk. -->
+<!-- ```{r fig2, fig.width = 5, fig.height = 5, fig.align='center', out.width="50%", fig.cap = "\\label{fig2}A meaningless scatterplot.", echo = FALSE} -->
+<!-- plot(runif(25), runif(25)) -->
+<!-- ``` -->
+<!-- # Tables coming from R -->
+<!-- Tables can also be generated using R chunks, as shown in Table \ref{tab1} for example. -->
+<!-- ```{r tab1, echo = TRUE} -->
+<!-- knitr::kable(head(mtcars)[,1:4],  -->
+<!--              caption = "\\label{tab1}Caption centered above table" -->
+<!-- ) -->
+<!-- ``` -->
+<!-- # References {-} -->
