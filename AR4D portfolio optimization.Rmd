@@ -14,8 +14,10 @@ bibliography: AR4D Portfolio Optimization.bib
 output: rticles::plos_article
 # plos.csl can be download and used locally
 csl: http://www.zotero.org/styles/plos
+# csl: plos.csl
 header-includes:
   # - \numberwithin{equation}{section}
+  # - \usepackage{mathrsfs}
   - \usepackage{float}
   - \floatplacement{figure}{H}
   # - \usepackage[nolists]{endfloat}
@@ -38,55 +40,13 @@ library(pracma)
 
 label_size <- 2.5
 smallLabel_size <- 2
-title_size <- 8
-subtitle_size <- 7
-legendText_size <- 7
+title_size <- 6
+#subtitle_size <- 7
+legendText_size <- 6
 axisText_size <- 6
 axisTitle_size <- 7
 facetTitle_size <- 7
-cellText_size <- 3
-#==============================================================
-# Define function to plot covariance/correlation matrices
-plot_covmat <- function(covmat, fig_title = "Covariance Matrix", round_to = 2, graph_on = T, legend_position = NULL, num_size = NULL){
-  covmat[upper.tri(covmat)] <- NA
-  df_plot <- covmat %>% tbl_df()
-  these_levels <- colnames(df_plot)
-  df_plot$ItemX <- colnames(df_plot)
-  gathercols <- colnames(df_plot)[-ncol(df_plot)]
-  df_plot <- df_plot %>% gather_("ItemY", "Value", gathercols)
-  df_plot$ItemX <- factor(df_plot$ItemX, levels = these_levels)
-  df_plot$ItemY <- factor(df_plot$ItemY, levels = these_levels)
-  
-  #midpoint <- min(covmat) + (max(covmat) - min(covmat)) / 2
-  midpoint <- 0
-  gg <- ggplot(df_plot, aes((ItemX), (ItemY)))
-  gg <- gg + geom_tile(aes(fill = Value))#, width = 4, height = 4)
-  if(!is.null(num_size)){
-    gg <- gg + geom_text(aes(label = round(Value, round_to)), size = num_size)
-  }else{
-    gg <- gg + geom_text(aes(label = round(Value, round_to)), size = 2.5)
-  }
-  if(!is.null(fig_title)){
-    gg <- gg + labs(title = fig_title)
-  }
-  gg <- gg + theme_bw()
-  gg <- gg + theme(axis.text.x = element_text(size = 7, angle = 60, hjust = 1),
-                   axis.text.y = element_text(size = 7),
-                   axis.title = element_blank(),
-                   legend.title = element_blank(),
-                   plot.title = element_text(face = "bold", size = 8))
-  if(!is.null(legend_position)){
-    gg <- gg + theme(legend.position = legend_position)
-  }
-  gg <- gg + scale_fill_gradient2(low = "magenta", mid = "khaki", high = "cyan", midpoint, na.value = "white")
-  if(graph_on){print(gg)}
-  return(gg)
-  
-}
-#===============================================================
-# End function definition
-#===============================================================
-
+cellText_size <- 2
 
 ```
 
@@ -111,7 +71,7 @@ knitr::include_graphics("Mills_missing_step5.png")
 
 ```
 <!-- whereby research programs are ranked in order of importance based on their respective impact assessments. These rankings are then translated into research budget allocations in a highly subjective and ad hoc manner. -->
-<!-- objective rigor in the translation of project rankings into project budget allocations  -->
+<!-- objective rigor in the translation of project rankings into project budget allocations -->
 
 The persistent absence of Mill's fifth step has left AR4D funding decision-making mechanisms vulnerable to institutional inertia, stakeholder politics, and other forms of subjective bias [@Birner2016; @mccalla2014cgiar]. The Consultative Group on International Agricultural Research (CGIAR), in particular, is said to "have a long history of good intentions but limited success in developing appropriate approaches for priority setting" [@Birner2016]. The historic effort begun in 2011 to restructure CGIAR financing around a research program (CRP) portfolio model proved emblematic of this "limited success", when the results of an extensive priority setting exercise were summarily rejected by donors and stakeholders in favor of an opaque and ad hoc resource allocation [@Birner2016]. Earlier attempts at reform likewise devolved into politically driven processes [@mccalla2014cgiar]; and the current reform effort towards a "One CGIAR", begun in 2019, now appears to be headed in the same direction.
 
@@ -321,11 +281,16 @@ Deduction of the quarterly arithmetic return covariances $s_{kj}$ in the absence
 This matrix is approximate insofar as it diverges from the data-based correlation matrix $K_{XX}$---i.e., the correlation matrix calculated from the (unobserved) data [@schiek2021reverse]. $\tilde{K}_{XX}$ may prove to be more accurate than $K_{XX}$ with respect to the true process generating the data insofar as the data are contaminated. Schiek's hypothetical example of a project-policy correlation matrix elicited from experts, and the corresponding approximate project returns correlation matrix deduced therefrom [-@schiek2021reverse], are reproduced in Fig \ref{fig:egProjCorr}.
 <!-- See Schiek [-@] for details. -->
 
-```{r, fig.show = 'hold', fig.width=3, fig.height=2, fig.align='left', fig.cap="\\label{fig:Lrot}Bar chart of hypothetical project-policy correlations elicited from experts, reproduced with permission from Schiek (2021)."}
+```{r, fig.show = 'hold', fig.width=5, fig.height=6, fig.align='left', fig.cap="\\label{fig:egProjCorr}(Top) Bar chart of hypothetical project-policy correlations elicited from experts; (Bottom) approximate project returns correlation matrix deduced as the outer product of the project-policy correlation matrix with itself, reproduced from Schiek (2021)."}
 #====================================================================
 # Define function(s)
 # Barchart of variable-signal correlations
-plot_corrXS_barchart <- function(mat_L, group_info = NULL, fig_title = NULL, sigNames = NULL){
+plot_corrXS_barchart <- function(mat_L, group_info = NULL,
+                                 fig_title = NULL, sigNames = NULL,
+                                 legendPosition = NULL,
+                                 axisText_size, axisTitle_size,
+                                 legendText_size,
+                                 facetTitle_size, title_size){
   
   nSig <- ncol(mat_L)
   df_plot <- data.frame(Item = row.names(mat_L), mat_L)
@@ -366,14 +331,17 @@ plot_corrXS_barchart <- function(mat_L, group_info = NULL, fig_title = NULL, sig
   if(!is.null(fig_title)){
     gg <- gg + labs(title = fig_title)
   }
-  gg <- gg + theme(axis.text = element_text(size = 7),
-                   axis.title.x = element_text(size = 7),
+  gg <- gg + theme(axis.text = element_text(size = axisText_size),
+                   axis.title.x = element_text(size = axisTitle_size),
                    axis.title.y = element_blank(),
                    legend.title = element_blank(),
-                   legend.text = element_text(size = 7),
-                   legend.position = "bottom",
-                   strip.text = element_text(size = 7),
-                   plot.title = element_text(face = "bold", size = 8))
+                   legend.text = element_text(size = legendText_size),
+                   legend.key.size = unit(0.4, "cm"),
+                   strip.text = element_text(size = facetTitle_size),
+                   plot.title = element_text(face = "bold", size = title_size))
+  if(!is.null(legendPosition)){
+    gg <- gg + theme(legend.position = legendPosition)
+  }
   gg <- gg + coord_equal()
   gg <- gg + coord_flip()
   gg
@@ -415,7 +383,8 @@ group_fn <- function(group_info){
 
 #--------------------------------------------------------------
 # Define function to plot covariance/correlation matrices
-plot_covmat <- function(covmat, fig_title = "Covariance Matrix", round_to = 2, graph_on = T, legend_position = NULL, num_size = NULL){
+plot_covmat <- function(covmat, fig_title = "Covariance Matrix", round_to = 2, graph_on = T, legendPosition = NULL, num_size = NULL,
+                        axisText_size, title_size, legendText_size){
   covmat[upper.tri(covmat)] <- NA
   df_plot <- covmat %>% tbl_df()
   these_levels <- colnames(df_plot)
@@ -438,13 +407,14 @@ plot_covmat <- function(covmat, fig_title = "Covariance Matrix", round_to = 2, g
     gg <- gg + labs(title = fig_title)
   }
   gg <- gg + theme_bw()
-  gg <- gg + theme(axis.text.x = element_text(size = 7, angle = 60, hjust = 1),
-                   axis.text.y = element_text(size = 7),
+  gg <- gg + theme(axis.text.x = element_text(size = axisText_size, angle = 60, hjust = 1),
+                   axis.text.y = element_text(size = axisText_size),
                    axis.title = element_blank(),
                    legend.title = element_blank(),
-                   plot.title = element_text(face = "bold", size = 8))
-  if(!is.null(legend_position)){
-    gg <- gg + theme(legend.position = legend_position)
+                   legend.text = element_text(size = legendText_size),
+                   plot.title = element_text(face = "bold", size = title_size))
+  if(!is.null(legendPosition)){
+    gg <- gg + theme(legend.position = legendPosition)
   }
   gg <- gg + scale_fill_gradient2(low = "magenta", mid = "khaki", high = "cyan", midpoint, na.value = "white")
   if(graph_on){print(gg)}
@@ -564,7 +534,11 @@ sigNames <- c("GDP Growth", "Economic\nEquality", "Environmental\nSustainability
 nSig <- length(sigNames)
 sigNames <- paste("Policy", 1:nSig, "\n", sigNames)
 fig_title <- "Project-policy correlations elicited from experts"
-gg_bar <- plot_corrXS_barchart(mat_Lrot, group_info, fig_title, sigNames)
+gg_bar <- plot_corrXS_barchart(mat_Lrot, group_info, fig_title, sigNames,
+                               legendPosition = "right",
+                               axisText_size, axisTitle_size,
+                                legendText_size,
+                              facetTitle_size, title_size)
 #ggsave("Fig 2.tiff", width = 5, height = 4)
 #gg_bar
 #==============================================================
@@ -574,20 +548,17 @@ KdxdxTilde <- mat_Lrot %*% t(mat_Lrot)
 # KxxTilde <- D_sdCorrect %*% KxxTilde %*% D_sdCorrect
 colnames(KdxdxTilde) <- row.names(mat_Lrot)
 fig_title <- "Approximate AR4D project correlation matrix"
-gg_Kdxdx <- plot_covmat(KdxdxTilde, fig_title, round_to = 2, graph_on = F)
+gg_Kdxdx <- plot_covmat(KdxdxTilde, fig_title, round_to = 2, graph_on = F, legendPosition = NULL, num_size = cellText_size, axisText_size, title_size, legendText_size)
 #ggsave("Fig 3.tiff")
 #==============================================================
-# gg_bar + gg_Kdxdx + plot_layout(nrow = 1)
+gg_bar + gg_Kdxdx + plot_layout(ncol = 1)
 #==============================================================
 nProj <- nrow(df_table)
 
 ```
-
-```{r, fig.show = 'hold', out.width="10cm", fig.cap="\\label{fig:egProjCorr}(Left) Bar chart of hypothetical project-policy correlations elicited from experts; (Right) approximate project returns correlation matrix deduced as the outer product of the project-policy correlation matrix with itself, reproduced from Schiek (2021).", fig.align='center'}
-
-knitr::include_graphics("Fig2ProjCorr.png")
-
-```
+<!-- # ```{r, fig.show = 'hold', out.width="10cm", fig.cap="\\label{fig:egProjCorr}(Left) Bar chart of hypothetical project-policy correlations elicited from experts; (Right) approximate project returns correlation matrix deduced as the outer product of the project-policy correlation matrix with itself, reproduced from Schiek (2021).", fig.align='center'} -->
+<!-- knitr::include_graphics("Fig2ProjCorr.png") -->
+<!-- ``` -->
 
 An approximate project quarterly arithmetic returns covariance matrix then follows as 
 
@@ -646,24 +617,24 @@ Eq \ref{eq:npvFnW} is an ansatz. Practitioners may design other functional forms
 
 # Project kinematics and vis viva
 
-In the broadest terms, a project may be said to intervene in, or operate upon, an existing net benefit stream $\Delta u/\Delta t$ with the aim of raising it to a higher value by the end of the project, such that
+In the broadest terms, a project may be said to intervene in, or operate upon, an existing net benefit stream $\Delta \text{u}_k / \Delta t$ with the aim of raising it to a higher value by the end of the project, such that
 
 \begin{equation}
-\frac{\Delta u}{\Delta t} \bigr|_{t = T} > \frac{\Delta u}{\Delta t} \bigr|_{t = 0}
+\frac{\Delta \text{u}_k}{\Delta t} \Bigr|_{t = T} > \frac{\Delta \text{u}_k}{\Delta t} \Bigr|_{t = 0}
 \end{equation}
 
-This implies an acceleration $\Delta^2 u / \Delta t^2$ which comes as a result of the skilled, concerted, applied efforts that comprise the project intervention. Letting $F$ stand for these applied efforts and $a$ for the acceleration, this axiomatic relation can be expressed $F \sim a$, or
+This implies an acceleration $\Delta^2 \text{u}_k / \Delta t^2$ which comes as a result of the skilled, concerted, applied efforts that comprise the project intervention. Letting $F_k$ stand for these applied efforts and $a_k$ for the acceleration, this axiomatic relation can be expressed $F_k \sim a_k$, or
 
 \begin{equation}
-F = \rho a
+F_k = \rho a_k
 \label{eq:Newt2}
 \end{equation}
 
 Where $\rho$ is a proportionality constant to be defined based on context.
 
-For sufficiently small time intervals $\Delta t$, it may be said that $F$ is effectively constant, resulting in a similarly constant acceleration of the net benefit stream. This is illustrated in Figure \ref{fig:kinema}, where the shorthand $v = \Delta u/\Delta t$ has been introduced to reduce clutter.
+For sufficiently small time intervals $\Delta t$, it may be said that $F_k$ is effectively constant, resulting in a similarly constant acceleration of the net benefit stream. This is illustrated in Figure \ref{fig:kinema}, where the shorthand $\text{v}_k = \Delta \text{u}_k/\Delta t$ has been introduced to reduce clutter.
 
-```{r, fig.show = "hold", fig.width = 3, fig.height=3, fig.align="center", fig.cap="\\label{fig:kinema}Generic example of an acceleration of a net benefit stream.", echo = FALSE}
+```{r, fig.show = "hold", fig.width = 4, fig.height=3, fig.align="center", fig.cap="\\label{fig:kinema}Generic example of an acceleration of a net benefit stream.", echo = FALSE}
 
 t <- seq(0, 1, length.out = 10)
 slope <- 1
@@ -687,15 +658,15 @@ gg <- gg + annotate("text", x = 2 / 3, y = yint * 1.75,
                     label = expression(italic(Delta*A)))
 gg <- gg + annotate("text", x = 2 / 3, y = yint * 0.5,
                     label = expression(italic(A["0"])))
-gg <- gg + annotate("text", x = -0.06, y = yint,
+gg <- gg + annotate("text", x = -0.09, y = yint,
                     label = expression(italic("v(t)")), size = label_size)
-gg <- gg + annotate("text", x = -0.06, y = ymax,
+gg <- gg + annotate("text", x = -0.09, y = ymax,
                     label = expression(italic("v(t + "*Delta*t*")")), size = label_size)
 gg <- gg + annotate("text", x = 0, y = -0.07,
                     label = "0", size = label_size)
 gg <- gg + annotate("text", x = 1, y = -0.07,
                     label = expression(italic(T)), size = label_size)
-#gg <- gg + coord_cartesian(ylim = c(0, 2))
+gg <- gg + coord_cartesian(xlim = c(-0.11, 1.2))
 # gg <- gg + labs(x = expression(Delta~t),
 #                 y = expression(Delta*u~"/"~Delta*t))
 gg <- gg + theme_bw()
@@ -710,22 +681,22 @@ gg
 Note that the slope of the line in this plot is just the acceleration. That is,
 
 \begin{equation}
-\frac{\Delta v}{\Delta t} = \frac{\Delta^2 u}{\Delta t^2} = a
+\frac{\Delta \text{v}_k}{\Delta t} = \frac{\Delta^2 \text{u}_k}{\Delta t^2} = a_k
 \end{equation}
 
 Which can be rearranged as follows,
 
 \begin{equation}
-a \Delta t = v(T) - v(0)
+a_k \Delta t = \text{v}_k(T) - \text{v}_k(0)
 \end{equation}
 
 Note, moreover, that the cumulative net benefit over the interval $\Delta t$ is the sum of the areas $A_0 + \Delta A$.
 
 \begin{equation}
 \begin{split}
-\Delta u &= v(0) \Delta t + \int_0^T v dt \\
+\Delta \text{u}_k &= \text{v}_k(0) \Delta t + \int_0^T \text{v}_k dt \\
 &= A_0 + \Delta A \\
-&= \frac{1}{2} (v(T) + v(0)) \Delta t
+&= \frac{1}{2} (\text{v}_k(T) + \text{v}_k(0)) \Delta t
 \end{split}
 \end{equation}
 
@@ -733,81 +704,81 @@ And a third "kinematic" expression, soon to come in handy, can be obtained by mu
 
 \begin{equation}
 \begin{split}
-a \Delta t \Delta u &= \frac{1}{2} (v(T) - v(0)) (v(T) + v(0)) \Delta t \\
-a \Delta u &= \frac{1}{2} (v(T)^2 - v(0)^2)
+a_k \Delta t \Delta \text{u}_k &= \frac{1}{2} (\text{v}_k(T) - \text{v}_k(0)) (\text{v}_k(T) + \text{v}_k(0)) \Delta t \\
+a_k \Delta \text{u}_k &= \frac{1}{2} (\text{v}_k(T)^2 - \text{v}_k(0)^2)
 \end{split}
 \label{eq:kinema3}
 \end{equation}
 
 <!-- Now, since the project has a limited budget, the amount of skilled, concerted, applied effort ($F$) it can exert along the net benefit displacement $\Delta u$ is also limited. That is, the quantity $F \Delta u$ is limited. Let this quantity be denoted $\mathcal{E}$. By equation \ref{eq:Newt2}, $\mathcal{E}$ can be rewritten as follows. -->
-Now, consider that, for a given budget and risk tolerance, the project aims to maximize the amount of skilled, concerted, applied effort ($F$) exerted along the "displacement" $\Delta u$. That is to say, the aim is to maximize the quantity $F \Delta u$, subject to a budget and risk constraint. Let this quantity be denoted $\mathcal{E}$, and note that, by equation \ref{eq:Newt2},
+Now, consider that, for a given budget and risk tolerance, the project aims to maximize the amount of skilled, concerted, applied effort ($F_k$) exerted along the "displacement" $\Delta \text{u}_k$. That is to say, the aim is to maximize the quantity $F_k \Delta \text{u}_k$, subject to a budget and risk constraint. Let this quantity be denoted $\mathcal{E}_k$, and note that, by equation \ref{eq:Newt2},
 
 \begin{equation}
-\mathcal{E} = \rho a \Delta u 
+\mathcal{E}_k = \rho a_k \Delta \text{u}_k 
 \end{equation}
 
 But, by equation \ref{eq:kinema3},
 
 \begin{equation}
-\mathcal{E} = \frac{\rho}{2} (v(T)^2 - v(0)^2)
+\mathcal{E}_k = \frac{\rho}{2} (\text{v}_k(T)^2 - \text{v}_k(0)^2)
 \label{eq:Eraw}
 \end{equation}
 
-Finally, note that the same analysis can be reformulated in terms of project NPV---that is to say, in terms of the difference between the net benefit stream _with_ the project intervention versus the net benefit stream _without_ it (the counter-factual). Formally, this means $v$ is redefined
+Finally, note that the same analysis can be reformulated in terms of project NPV---that is to say, in terms of the difference between the net benefit stream _with_ the project intervention versus the net benefit stream _without_ it (the counter-factual). Formally, this means $\text{v}_k$ is redefined
 
 \begin{equation}
-v = \frac{\Delta u}{\Delta t}\bigr|_{*} - \frac{\Delta u}{\Delta t}
+\text{v}_k = \frac{\Delta \text{u}_k}{\Delta t}\Bigr|_{*} - \frac{\Delta \text{u}_k}{\Delta t}
 \end{equation}
 
 (Where the "$*$" indicates the "with project intervention" scenario.)
 
-Then $v(0) = 0$, and so equation \ref{eq:Eraw} becomes
+Then $\text{v}_k(0) = 0$, and so equation \ref{eq:Eraw} becomes
 
 \begin{equation}
-\mathcal{E} = \frac{\rho}{2} v(T)^2
+\mathcal{E}_k = \frac{\rho}{2} \text{v}_k(T)^2
 \label{eq:Enpv}
 \end{equation}
 
-In physics, this is analogous to the expression for the kinetic energy of a moving object with mass $\rho$, where the $u$ stands for a spatial dimension. To discourage practitioners from getting too cozy with this analogy, $\mathcal{E}$ is henceforth referred to using Gottfried Leibniz's more archaic, and now largely abandoned, term, "vis viva" (which means "living force" in Latin; for a reference, see [@iltis1971leibniz]). Pragmatically, the vis viva may be interpreted as a quadratic expression of expected program impact.
+In physics, this is analogous to the expression for the kinetic energy of a moving object with mass $\rho$, where the $\text{u}_k$ stands for a spatial dimension. To discourage practitioners from getting too cozy with this analogy, $\mathcal{E}_k$ is henceforth referred to using Gottfried Leibniz's more archaic, and now largely abandoned, term, "vis viva" (which means "living force" in Latin; for a reference, see [@iltis1971leibniz]). Pragmatically, the vis viva may be interpreted as a quadratic expression of expected program impact.
 
-In the motivating context of the present article, the displacement $\Delta u_k$ corresponds to the $k^{th}$ expected project NPV at $t = \hat{t}$. More precisely,
+Note, moreover, that the displacement $\Delta \text{u}_k$ corresponds to the $k^{th}$ expected project NPV at $t = \hat{t}$. More precisely,
 
 \begin{equation}
 \begin{split}
-\Delta u_k = \int_{\hat{t}}^{T_k} v_k dt &= u_k(\tau_k)|_{*} - u_k(\tau_k) \\
+\Delta \text{u}_k = \int_{\hat{t}}^{T_k} \text{v}_k dt &= \text{u}_k(\tau_k)|_{*} - \text{u}_k(\tau_k) \\
 &= E[x_k(T)]\bigr|_{t = \hat{t}}
 \end{split}
 \end{equation}
 
-The displacement $\Delta u_k$ is thus expressed in units of value. Since the project effort $F_k$ is expressed in units of value per unit time squared, it follows that vis viva has units of value squared per unit time squared. Conversely, $F_k$ may be thought of as the effort required to achieve a certain NPV acceleration, say 1 unit of value per unit time squared. Defining this quantity of effort as 1 "project-Newton", vis viva can be measured in units of "project-joules"---i.e. in units of total effort expended, or work done, over the displacement $\Delta u_k$.
+The displacement $\Delta \text{u}_k$ is thus expressed in units of value. Since the project effort $F_k$ is expressed in units of value per unit time squared, it follows that vis viva has units of value squared per unit time squared. Conversely, $F_k$ may be thought of as the effort required to achieve a certain NPV acceleration, say 1 unit of value per unit time squared. Defining this quantity of effort as 1 "project-Newton", vis viva can be measured in units of "project-joules"---i.e. in units of total effort expended, or work done, over the displacement $\Delta \text{u}_k$.
 
 Assuming $x_k(t)$ follows a gBm,
 
 \begin{equation}
-\Delta u_k \bigr|_{t = \hat{t}} = \mu_k(\hat{t}) = x_k(\hat{t}) e^{r \tau_k} \bigr|_{t = \hat{t}}
+\Delta \text{u}_k \bigr|_{t = \hat{t}} = \mu_k(\hat{t}) = x_k(\hat{t}) e^{r \tau_k} \bigr|_{t = \hat{t}}
 \end{equation}
 
 The corresponding velocity thus works out to
 
 \begin{equation}
-\frac{\Delta u_k}{\Delta t} \bigr|_{t = \hat{t}} = -r x_k(\hat{t}) e^{r \tau_k}
+\frac{\Delta \text{u}_k}{\Delta t} \Bigr|_{t = \hat{t}} = -r x_k(\hat{t}) e^{r \tau_k}
 \end{equation}
 
 With starting and finishing values of
 
 \begin{equation}
-\frac{\Delta u_k}{\Delta t} \bigr|_{t = 0} = -r x_k(0) e^{r \tau_k}
+\frac{\Delta \text{u}_k}{\Delta t} \Bigr|_{t = 0} = -r x_k(0) e^{r \tau_k}
 \end{equation}
 
 and
 
 \begin{equation}
-\frac{\Delta u_k}{\Delta t} \bigr|_{t = T_k} = -r x_k(T_k)
+\frac{\Delta \text{u}_k}{\Delta t} \Bigr|_{t = T_k} = -r x_k(T_k)
 \end{equation}
 
 The velocity is negative because time progression in the definition of $\mu_k$ is expressed not in terms of the number of time steps transpired, but rather in terms of the number of time steps that have yet to transpire until the time horizon $T_k$. Nonetheless, the velocity is monotonically increasing in time (Fig \ref{fig:kinema2}).
 
-```{r, fig.show = "hold", fig.width = 3, fig.height=3, fig.align="center", fig.cap="\\label{fig:kinema2}Acceleration of a net benefit stream.", echo = FALSE}
+```{r, fig.show = "hold", fig.width = 4, fig.height=3, fig.align="center", fig.cap="\\label{fig:kinema2}Acceleration of a net benefit stream.", echo = FALSE}
 
 t <- seq(0, 1, length.out = 10)
 slope <- 1
@@ -832,15 +803,15 @@ gg <- gg + annotate("text", x = 1 / 3, y = yint * 0.5,
                     label = expression(italic(Delta*A)))
 # gg <- gg + annotate("text", x = 2 / 3, y = yint * 0.5,
 #                     label = expression(italic(A["0"])))
-gg <- gg + annotate("text", x = -0.06, y = yint,
+gg <- gg + annotate("text", x = -0.09, y = yint,
                     label = expression(italic("v(t)")), size = label_size)
-gg <- gg + annotate("text", x = -0.06, y = ymax,
+gg <- gg + annotate("text", x = -0.09, y = ymax,
                     label = expression(italic("v(t + "*Delta*t*")")), size = label_size)
 gg <- gg + annotate("text", x = 0, y = 0.07,
                     label = "t", size = label_size)
 gg <- gg + annotate("text", x = 1, y = 0.07,
                     label = expression(italic("t + "*Delta*t)), size = label_size)
-#gg <- gg + coord_cartesian(ylim = c(0, 2))
+gg <- gg + coord_cartesian(xlim = c(-0.11, 1.2))
 # gg <- gg + labs(x = expression(Delta~t),
 #                 y = expression(Delta*u~"/"~Delta*t))
 gg <- gg + theme_bw()
@@ -856,16 +827,16 @@ The vis viva, meanwhile, works out to
 
 \begin{equation}
 \begin{split}
-\mathcal{E}_k(\hat{t}) &= \frac{\rho r^2}{2} x_k(\hat{t})^2 e^{2r \tau_k} \\
-&= \frac{\rho r^2}{2} \mu_k(\hat{t})^2
+\mathcal{E}_k(\hat{t}) &= \rho \frac{r^2}{2} x_k(\hat{t})^2 e^{2r \tau_k} \\
+&= \rho \frac{r^2}{2} \mu_k(\hat{t})^2
 \end{split}
 \end{equation}
 
-The velocity and vis viva of an entire portfolio may be expressed
+Portfolio velocity $\text{v}$ and vis viva $\mathcal{E}$ may be expressed
 
 \begin{equation}
 \begin{split}
-v_p = \sqrt{\Sigma_k \left( \frac{\Delta u_k}{\Delta t} \right)^2} &= r \sqrt{ \Sigma_k \mu_k^2} \\
+\text{v} = \sqrt{\Sigma_k \left( \frac{\Delta \text{u}_k}{\Delta t} \right)^2} &= r \sqrt{ \Sigma_k \mu_k^2} \\
 &= r \sqrt{\boldsymbol{\mu} ' \boldsymbol{\mu}} \\
 \end{split}
 \end{equation}
@@ -873,7 +844,8 @@ v_p = \sqrt{\Sigma_k \left( \frac{\Delta u_k}{\Delta t} \right)^2} &= r \sqrt{ \
 and
 
 \begin{equation}
-\mathcal{E} = \frac{\rho}{2} v_p^2 = \frac{\rho r^2}{2} \boldsymbol{\mu} ' \boldsymbol{\mu}
+\mathcal{E} = \frac{\rho}{2} \text{v}^2 = \rho \frac{r^2}{2} \boldsymbol{\mu} ' \boldsymbol{\mu}
+\label{eq:ErawPort}
 \end{equation}
 <!-- Note, finally, that the vis viva per unit project expenditure may be expressed -->
 <!-- \begin{equation} -->
@@ -898,7 +870,7 @@ The project funding cycle may be broadly defined as the process by which value i
 
 ## Project time horizons are measured in terms of funding cycles
 
-The duration of a funding cycle is thus, by definition, the time elapsed between the disbursement of funds and the transformation of those funds into the realization of an agreed upon, tangible set of project impacts or "deliverables". Projects are usually designed so that this transformation occurs in a specific period of time. Let $T$ stand for the duration of the funding cycle expressed in terms of the judiciously chosen time step $\Delta t$. A typical AR4D funding cycle currently lasts 1-5 years. For the sake of argument, say it is 3 years. If the judicious time step $\Delta t$ is defined as an annual quarter, then, $T = 4$, in this case.
+The duration of a funding cycle is thus, by definition, the time elapsed between the disbursement of funds and the transformation of those funds into the realization of an agreed upon, tangible set of project impacts or "deliverables". Projects are usually designed so that this transformation occurs in a specific period of time. Let $T$ stand for the duration of the funding cycle expressed in terms of the judiciously chosen time step $\Delta t$. A typical AR4D funding cycle currently lasts 1-5 years. For the sake of argument, say it is 3 years. If the judicious time step $\Delta t$ is defined as an annual quarter, then, $T = 12$, in this case.
 
 Assuming that projects cannot begin or end in the middle of a funding cycle, it follows that AR4D project time horizons must be measured as a positive integer multiple of $T$. That is, $T_k = T\nu_k \;;\;\; \nu_k \in \mathbb{Z}^+$.
 
@@ -993,7 +965,7 @@ In this modified definition of the time horizon, a half cycle phase correction i
 
 \begin{equation}
 \begin{split}
-w_k &= C \left( \frac{\mu_k(0)}{\tilde{x}_k(0)} e^{-T_k (\omega + i)} \right)^{\frac{1}{\alpha_k}} \\
+w_k &= C \left( \frac{\mu_k(0)}{\tilde{x}_k(0)} e^{-T_k (\omega + i)} \right)^{\frac{1}{\alpha_k}} \;\; \mu_k(0) < 0\\
 &= C \left( \frac{e^{ \pm i \pi} |\mu_k(0)|}{\tilde{x}_k(0)} e^{-2 \pi \left(\nu_k \mp \frac{1}{2} \right) (\omega + i)} \right)^{\frac{1}{\alpha_k}} \\
 &= C \left(\frac{|\mu_k(0)|}{\tilde{x}_k(0)} e^{-2 \pi \left(\nu_k \mp \frac{1}{2} \right) (\omega + i) \pm i \pi} \right)^{\frac{1}{\alpha_k}} \\
 &= C \left(\frac{|\mu_k(0)|}{\tilde{x}_k(0)} e^{-2 \pi \omega \left( \nu_k \mp \frac{1}{2} \right) + 2 i \pi \left( \nu_k \mp \frac{1}{2} \right) \pm i \pi} \right)^{\frac{1}{\alpha_k}} \\
@@ -1088,7 +1060,7 @@ w_k &= C \left( \frac{\mu_k(0)}{\tilde{x}_k(0)} e^{-T_k (\omega + i)} \right)^{\
 
 ## First order conditions
 
-On the groundwork laid out above, vis viva may be interpreted as a proxy for expected impact; and the portfolio optimization problem may now be formulated and solved in terms of portfolio vis viva maximization subject to a risk tolerance threshold.
+Given the groundwork laid out above, the portfolio optimization problem may now be formulated and solved in terms of portfolio vis viva maximization subject to a risk tolerance threshold.
 
 \begin{equation}
 \max_{\mathbf{w}}{\mathcal{E}} \:\:\: s.t. \:\:\: \sigma = \overline{\sigma}
@@ -1217,6 +1189,7 @@ In vector notation,
 \end{equation}
 
 When choosing the scaling constant $\beta_j$ to enforce the budget constraint, the corresponding expected portfolio impact (vis viva) $\hat{\mathcal{E}}_j^*$ is also thereby defined.
+<!-- Eq \ref{eq:ErawPort} -->
 
 \begin{equation}
 \begin{split}
@@ -1371,13 +1344,13 @@ rQrtrlyArith <- (1 + rYrlyArith)^(1 / tStep) - 1
 r <- round(log(1 + rQrtrlyArith), 3)
 ```
 
-For ease of interpretation, the budget is normalized to 100, and the project maximum NPVs are expressed in the same units. An annual discount rate of `r rYrlyArith` is assumed, which works out to a quarterly discount rate of `r round(rQrtrlyArith, 4)`. The current maximum project NPV $\tilde{x}_k$ is usually reported in ex-ante impact assessments, or can be extrapolated from the information given in such assessments. Estimation of the scale elasticity parameter $\alpha_k$ is not currently a standard part of AR4D ex-ante impact assessments, but can be reasonably elicited through consultation with experts and literature. For commodity projects, given sufficient prior notice, both $\tilde{x}_k$ and $\alpha_k$ could, in principle, be estimated econometrically, using, for example, data gathered during field trials. Hypothetical values for $\tilde{x}_k$ and $\alpha_k$ are assigned to each project in the left panel of Fig \ref{fig:params}.
+For ease of interpretation, the budget is normalized to 100, and the project maximum NPVs are expressed in the same units. An annual discount rate of `r rYrlyArith` is assumed, which works out to a quarterly discount rate of `r round(rQrtrlyArith, 3)`. The current maximum project NPV $\tilde{x}_k$ is usually reported in ex-ante impact assessments, or can be extrapolated from the information given in such assessments. Estimation of the scale elasticity parameter $\alpha_k$ is not currently a standard part of AR4D ex-ante impact assessments, but can be reasonably elicited through consultation with experts and literature. For commodity projects, given sufficient prior notice, both $\tilde{x}_k$ and $\alpha_k$ could, in principle, be estimated econometrically, using, for example, data gathered during field trials. Hypothetical values for $\tilde{x}_k$ and $\alpha_k$ are assigned to each project in the left panel of Fig \ref{fig:params}.
 
 As discussed in section \ref{sec:cycReal}, project time horizons should be integer multiples of the duration of the funding cycle. In this example, the duration of the funding cycle is 3 years. Hypothetical time horizons are assigned to each project in the central panel of Fig \ref{fig:params} in terms of funding cycles, years, and quarters. Projects are assumed to be in varying stages of implementation at the time of the portfolio optimization exercise; and so the displayed time horizons do not necessarily indicate the projects' full duration.
 
-The standard deviation of the LoP arithmetic returns is deduced from either the upper or lower bound of the 95% confidence interval about the expected arithmetic life of project (LoP) return (revisit section \ref{sec:volEst} for details). The upper or lower bound is deduced from ex-ante impact assessments and/or experts and literature. The standard deviations of the LoP log returns $s_k \sqrt{\tau_k}$ are then deduced from this information by Eq .... The implied opposite bound is then also computed. hypothetical elicited LoP return 95% confidence interval, implied quarterly return 95% confidence interval, and values of $s_k$ deduced therefrom, are presented in the right panel of Fig \ref{fig:params}.
+The standard deviation of the LoP arithmetic returns is deduced from either the upper or lower bound of the 95% confidence interval about the expected arithmetic life of project (LoP) return (revisit section \ref{sec:volEst} for details). The upper or lower bound is deduced from ex-ante impact assessments and/or experts and literature. The standard deviations of the LoP log returns $s_k \sqrt{\tau_k}$ are then deduced from this information by Eq \ref{eq:sk}. The implied opposite bound is then also computed. The hypothetical elicited LoP return 95% confidence interval, implied quarterly return 95% confidence interval, and values of $s_k$ deduced therefrom, are presented in the right panel of Fig \ref{fig:params}.
 
-```{r, fig.show = 'hold', fig.width=5, fig.height=3, fig.align='left', fig.cap="\\label{fig:params}Hypothetical project parameters."}
+```{r, fig.show = 'hold', fig.width=5, fig.height=4, fig.align='left', fig.cap="\\label{fig:params}Hypothetical project parameters."}
 #--------------------------------------------------------------
 randSeed <- round(runif(1), 4) * 10^4
 #randSeed <- 1622
@@ -1445,11 +1418,11 @@ confInt95LoP <- paste0("(", round(rTkArith_min, 2), ", ", round(rTkArith_max, 2)
 # confInt95qrtrly <- paste0("(", round(rQrtrlyArith_min, 3), ", ", round(rQrtrlyArith_max, 3), ")")
 #--------------------------------------------------------------
 df_alphaXtilde <- data.frame(Project = projNames, alpha, xTilde)
-cNames_alphaXtilde <- c(expression("Scale\nelasticity - "*alpha*""), expression("Expected\nmax net benefit\n(% of budget) - "*tilde(x)*""))
+cNames_alphaXtilde <- c(expression("Scale\nElast. "*alpha*""), expression("Expected Max\nNet Benefit "*tilde(x)*""))
 df_t <- data.frame(Project = projNames, Years = TvecYrs, Quarters = TvecTstep, FundCyc = TvecFundCyc)
-cNames_t <- c("Funding\nCycles", "Quarters", "Years")
+cNames_t <- c("Fund.\nCycles", "Qrtrs", "Yrs")
 df_sDeduce <- data.frame(Project = projNames, confInt95LoP, round(sVecQrtrly, 4), round(sVecLoP, 4))
-cNames_sDeduce <- c("95% Conf. Int. \nLoP Arithmetic Return\n(Elicited)", "Stand. Dev. of\nLoP return\n(Deduced)", "Stand. Dev. of\nQuarterly Return\n(Deduced)")
+cNames_sDeduce <- c("95% Conf. Int.\nLoP Arith. Ret.\n(Elicited)", "Stand. Dev.\nLoP Ret.\n(Deduced)", "Stand. Dev.\nQrtrly Ret.\n(Deduced)")
 # df_param <- df_param %>% gather(var, val, alpha:sVec)
 # cNames <- c(expression("Scale\nelasticity ("*alpha*")"),
 #             "Qrtrly arith return\n95% conf. interval",
@@ -1461,7 +1434,9 @@ cNames_sDeduce <- c("95% Conf. Int. \nLoP Arithmetic Return\n(Elicited)", "Stand
 #                            label = val))
 #--------------------------------------------------------------
 # Define project parameter plot fn
-plotParams <- function(df_plot, theseCnames, thisTitle, yNames = T){
+plotParams <- function(df_plot, theseCnames, thisTitle, yNames = T,
+                       axisText_size, title_size, facetTitle_size,
+                       cellText_size){
 gg <- ggplot(df_plot, aes(x = var, y = Project,
                            label = val))
 gg <- gg + geom_tile(alpha = 0)
@@ -1497,8 +1472,9 @@ df_plot <- df_plot[order(df_plot$Group), ]
 df_plot$Project <- factor(df_plot$Project, levels = unique(df_plot$Project))
 gg_alphaXtilde <- plotParams(df_plot,
                              theseCnames = cNames_alphaXtilde,
-                             thisTitle = "Investment model parameters\nestimated by ex-ante impact assessment",
-                             yNames = T)
+                             thisTitle = "Investment model params\n(Ex-ante impact assessment)",
+                             yNames = T,                        axisText_size, title_size, facetTitle_size,
+                       cellText_size)
 #--------------------------------------------------------------
 gathercols <- colnames(df_t)[-1]
 df_plot <- df_t %>% gather_("var", "val", gathercols)
@@ -1508,7 +1484,8 @@ df_plot$Project <- factor(df_plot$Project, levels = unique(df_plot$Project))
 gg_t <- plotParams(df_plot,
                    theseCnames = cNames_t,
                    thisTitle = "Time horizons",
-                   yNames = F)
+                   yNames = F,                        axisText_size, title_size, facetTitle_size,
+                       cellText_size)
 #--------------------------------------------------------------
 gathercols <- colnames(df_sDeduce)[-1]
 df_plot <- df_sDeduce %>% gather_("var", "val", gathercols)
@@ -1518,11 +1495,12 @@ df_plot$Project <- factor(df_plot$Project, levels = unique(df_plot$Project))
 gg_sDeduce <- plotParams(df_plot,
                    theseCnames = cNames_sDeduce,
                    thisTitle = "Deduction of standard deviations",
-                   yNames = F)
+                   yNames = F,                        axisText_size, title_size, facetTitle_size,
+                       cellText_size)
 #--------------------------------------------------------------
 
 #wrap_plots(list(gg_alphaXtilde, gg_t, gg_sDeduce))
-gg_alphaXtilde + gg_t + gg_sDeduce + plot_layout(widths = c(1, 1, 1.5))
+gg_alphaXtilde + gg_t + gg_sDeduce + plot_layout(widths = c(1, 1, 1.65))
 
 #===================================================================
 #===================================================================
@@ -1561,14 +1539,16 @@ To deduce the coefficient of covariation matrix $G$, an approximate project quar
 <!-- The plot shows that, for the financial data set, the leading `r nSig` signals are sufficient to meet this criterion. -->
 <!-- \ref{fig:wStarVecs} -->
 
-```{r, fig.show = 'hold', fig.width=4, fig.height=4, fig.align='left', fig.cap="\\label{fig:Gtilde}(Top) The crowdsourced approximate project NPV coefficient of covariation matrix. (Bottom) Plot of the individual and cumulative portions of portfolio covariation explained by each of the eigenvectors of the crowdsourced project coefficient of covariation matrix.", echo=F}
+```{r, fig.show = 'hold', fig.width=5, fig.height=5, fig.align='left', fig.cap="\\label{fig:Gtilde}(Top) The crowdsourced approximate project NPV coefficient of covariation matrix. (Bottom) Plot of the individual and cumulative portions of portfolio covariation explained by each of the eigenvectors of the crowdsourced project coefficient of covariation matrix.", echo=F}
 
 #------------------------------------------------------------------
 # Plot Gtilde
 fig_title <- "Elicited AR4D project NPV coefficient of covariation matrix"
 colnames(Gtilde) <- projNames
 row.names(Gtilde) <- projNames
-ggGtilde <- plot_covmat(Gtilde, fig_title, round_to = 3, graph_on = F)
+ggGtilde <- plot_covmat(Gtilde, fig_title, round_to = 3, graph_on = F,
+                        legendPosition = NULL, num_size = cellText_size,
+                        axisText_size, title_size, legendText_size)
 #------------------------------------------------------------------
 # Plot individual and cumulative portions of portfolio covariation explained by each eigenvector of G
 df_plot <- data.frame(Eigvec = paste("Eigvec", 1:length(ups)),
@@ -1584,11 +1564,14 @@ gg <- ggplot(df_plot, aes(x = Eigvec, y = Value, fill = `Portion explained`))
 gg <- gg + geom_bar(stat = "identity", color = "black", position = "dodge")
 gg <- gg + scale_fill_manual(values = c("wheat3", "paleturquoise"))
 gg <- gg + geom_hline(yintercept = thresh, color = "coral", size = 1, linetype = "dashed")
-gg <- gg + theme(axis.text.y = element_text(size = 7),
-                 axis.text.x = element_text(size = 7, angle = 60, hjust = 1),
+gg <- gg + theme(axis.text.y = element_text(size = axisText_size),
+                 axis.text.x = element_text(size = axisText_size,
+                                            angle = 60, hjust = 1),
                  axis.title = element_blank(),
-                 legend.title = element_text(size = 8),
-                 legend.text = element_text(size = 8))
+                 legend.position = "top",
+                 legend.key.size = unit(0.4, "cm"),
+                 legend.title = element_text(size = legendText_size),
+                 legend.text = element_text(size = legendText_size))
 ggExplained <- gg
 #------------------------------------------------------------------
 ggGtilde + ggExplained + plot_layout(ncol = 1, heights = c(2, 1))
@@ -1597,9 +1580,9 @@ ggGtilde + ggExplained + plot_layout(ncol = 1, heights = c(2, 1))
 
 ```
 
-The corresponding candidate budget allocations are then calculated up to scaling by Eq \ref{eq:wStar}. As explained in section \ref{sec:cycReal}, complex valued elements in $\mathbf{w}_j$ are transformed into real valued elements by extending or shortening the project time horizon by half a funding cycle. In this example, all such adjustments are half cycle extensions. The value of $\beta_j$ is chosen so as to enforce the budget constraint, that is, such that $\mathbf{w}_j {'} \mathbf{1} = C$ (revisit section \ref{sec:scaleConst} for details). The $\hat{n}$ candidate solutions are presented in Fig \ref{fig:wStarMenu} together with their respective risk, vis viva, and vis viva-to-risk ratios (revisit Eqs \ref{eq:riskJ}, \ref{eq:visViva}, and \ref{eq:visToRisk} for details).
+The corresponding candidate budget allocations are then calculated up to scaling by Eq \ref{eq:wStar}. As explained in section \ref{sec:cycReal}, complex valued elements in $\mathbf{w}_j$ are transformed into real valued elements by extending or shortening the project time horizon by half a funding cycle. In this example, all such adjustments are half cycle extensions. The value of $\beta_j$ is chosen so as to enforce the budget constraint, that is, such that $\mathbf{w}_j {'} \mathbf{1} = C$ (revisit section \ref{sec:scaleConst} for details). The $\hat{n}$ candidate solutions are presented in Fig \ref{fig:wStarMenu} together with their respective risk, vis viva, and vis viva-to-risk ratios (revisit Eqs \ref{eq:visViva}, \ref{eq:riskJ}, and \ref{eq:visToRisk} for details).
 
-```{r, fig.show = "hold", fig.width = 5, fig.height=3, fig.align="center", fig.cap="\\label{fig:wStarMenu}Menu of eligible optimal budget allocations.", echo = FALSE}
+```{r, fig.show = "hold", fig.width = 5, fig.height=4, fig.align="center", fig.cap="\\label{fig:wStarMenu}Candidate budget allocations corresponding to each of the retained eigenvectors of the project NPV coefficient of covariation matrix. All of these solutions satisfy the first order conditions for the risk minimizing solution, but only the last solution satisfies the second order condition, and is thus optimal.", echo = FALSE}
 
 # Single objective optimal budget allocation
 TkHat <- 2 * pi * TvecFundCyc
@@ -1637,10 +1620,10 @@ for(j in 1:nSigG){
                  muStar = muStar, alpha = alpha, C = C,
                  lower = min(thisInt), upper = max(thisInt))
   betaStar <- out$root
-  print(out$f.root)
+  # print(out$f.root)
   # wShareStar <- alpha / (omega * Tk - log(betaStar * abs(muStar) / xTilde))
   wShareStar <- ((diag(exp(-Tk * omega)) %*% diag(1 / xTilde) %*% abs(muStar)) * betaStar)^(1 / alpha)
-  print(sum(wShareStar))
+  # print(sum(wShareStar))
   #mat_muStar[, j] <- muStar * betaStar
   mat_wShareStar[, j] <- wShareStar
   visVivVec[j] <- r^2 / 2 * betaStar^2
@@ -1682,12 +1665,14 @@ gg <- gg + geom_bar(stat = "identity", color = "black", position = "dodge")
 #gg <- gg + ylim(limits = c(0, 1))
 gg <- gg + facet_wrap(~ Solution, nrow = 1)
 #gg <- gg + labs(y = xAxis_title)
-gg <- gg + theme(axis.text = element_text(size = 7),
-                 axis.title.x = element_text(size = 7),
+gg <- gg + theme(axis.text = element_text(size = axisText_size),
+                 axis.title.x = element_text(size = axisTitle_size),
                  axis.title.y = element_blank(),
                  legend.title = element_blank(),
-                 legend.text = element_text(size = 7),
-                 strip.text = element_text(size = 7))
+                 legend.position = "bottom",
+                 legend.key.size = unit(0.4, "cm"),
+                 legend.text = element_text(size = legendText_size),
+                 strip.text = element_text(size = facetTitle_size))
 gg <- gg + coord_equal()
 gg <- gg + coord_flip()
 gg
@@ -1700,9 +1685,9 @@ optRatio <- visRiskRatio[nSigG]
 #====================================================================
 
 ```
-Of these, only the $\hat{n}^{th}$ allocation satisfies the second order condition, and is thus optimal. The optimal portfolio vis viva is thus `r optVis` dollars squared per annual quarter squared (or "project-joules", if you like), with a risk (standard deviation) of `r optRisk`, and thus a vis viva-to-risk ratio of `r optRatio`. The optimal solution minimizes risk and maximizes the vis viva-to-risk ratio. A closer look at the optimal budget allocation is presented in Fig \ref{fig:wStarDetail} for a budget of USD $100 million. The budget allocation is presented in percentage terms (which may also be read as million USD over the life of the project), as well as terms of million USD per funding cycle. The actual apportionment of a given project budget across its funding cycles will typically not be in equal amounts, but rather decided by project managers based on the technical requirements arising in each cycle. The allocation should be recalculated at the end of every funding cycle based on updated parameter values. Allocations may vary from one funding cycle to another based on these updates, and as some projects exit and others enter the portfolio.
+Of these, only the $\hat{n}^{th}$ allocation satisfies the second order condition, and is thus optimal. The optimal portfolio vis viva is thus `r optVis` dollars squared per annual quarter squared (or "project-joules", if you like), with a risk (standard deviation) of `r optRisk`, and thus a vis viva-to-risk ratio of `r optRatio`. The optimal solution minimizes risk and maximizes the vis viva-to-risk ratio. A closer look at the optimal budget allocation is presented in Fig \ref{fig:wStarDetail} for a budget of USD $100 million. The budget allocation is presented in percentage terms (which may also be read as million USD over the life of the project), and in terms of million USD per funding cycle. The actual apportionment of a given project budget across its funding cycles will typically not be in equal amounts, but rather decided by project managers based on the technical requirements arising in each cycle. The allocation should be recalculated at the end of every funding cycle based on updated parameter values. Allocations may vary from one funding cycle to another based on these updates, and as some projects exit and others enter the portfolio.
 
-```{r, fig.show = "hold", fig.width = 2, fig.height=2, fig.align="center", fig.cap="\\label{fig:wStarDetail}The optimal budget allocation. Time horizons include the half cycle extension, where necessary, to ensure real valued budget allocations.", echo = FALSE}
+```{r, fig.show = "hold", fig.width = 5, fig.height=2, fig.align="center", fig.cap="\\label{fig:wStarDetail}The optimal budget allocation in the hypothetical use case. Time horizons include the half cycle extension, where necessary, to ensure real valued budget allocations.", echo = FALSE}
 
 TvecFundCycStar <- Tk / (2 * pi)
 df_plot <- data.frame(Percent = round(mat_wShareStar[, nSigG], 2),
@@ -1714,21 +1699,25 @@ df_plot$Project <- projNames
 df_plot <- df_plot %>% gather_("Type", "Value", gathercols)
 df_plot <- merge(df_plot, df_match_group, by = "Project")
 df_plot <- df_plot[order(df_plot$Group), ]
+theseRnames <- unique(df_plot$Project)
 df_plot$Project <- factor(df_plot$Project, levels = unique(df_plot$Project))
-theseCnames <- c("Million USD per\nFunding Cycle", "Percent\nof Budget", "Time horizon\n(Funding Cycles)")
+theseCnames <- c("Million USD per\nFunding Cycle", "Budget Share (%)", "Time horizon\n(Funding Cycles)")
 thisTitle <- "Budget: 100 million USD"
 gg <- ggplot(df_plot, aes(x = Type, y = Project, label = Value))
 gg <- gg + geom_tile(alpha = 0)
-gg <- gg + scale_x_discrete("Type", labels = theseCnames, position = "top")
+gg <- gg + scale_x_discrete("Type", labels = theseCnames, position = "bottom")
+gg <- gg + scale_y_discrete("Project", labels = theseRnames, position = "right")
 gg <- gg + geom_text(size = cellText_size)
 gg <- gg + labs(title = thisTitle)
 gg <- gg + theme_bw()
 gg <- gg + theme(axis.title = element_blank(),
                  axis.text.y = element_text(size = axisText_size),
-                 axis.text.x = element_text(size = axisText_size),
+                 #axis.text.x = element_text(size = axisText_size),
+                 axis.text.x = element_text(size = axisText_size, angle = 60, hjust = 0),
                  panel.grid = element_blank(),
                  plot.title = element_text(size = title_size),
                  strip.text = element_text(size = facetTitle_size))
+gg <- gg + coord_flip()
 gg
 # table_title <- "Optimal budget allocation"
 # 
@@ -1829,7 +1818,7 @@ On the other hand, it may be that the project budget allocation falls short of c
 
 The portfolio of projects appearing in the hypothetical use case examined above is diverse in research themes, impact pathways, expected rewards, risk levels, time horizons, and stages of implementation. Real AR4D portfolios may or may not be so heterogeneous. In some decision-making contexts, the assumption that projects scale with investment may be too strong, in which case the practitioner might consider applying the method at a more aggregate level, say over a portfolio of programs, each consisting of numerous projects and complementary activities in various stages of implementation. Applications are not limited to project portfolios. AR4D breeding programs might consider using the method to optimize allocation of resources across a portfolio of genotypes, for example.
 
-In the hypothetical example above, the optimal (risk-minimizing) solution is also the solution with the highest expected impact (vis viva). However, this is not necessarily always so. In cases where the risk minimizing solution does not align with the impact maximizing solution, ambitious investors might consider choosing one of the sub-optimal budget allocations with higher expected impact in exchange for higher risk. The benefits of any particular portfolio must also be weighed against how evenly distributed the allocation is. A solution allocating 60% or more of the budget to just one or two projects is likely to generate toxic discontent in the research community.
+In the hypothetical example above, the optimal (risk-minimizing) solution is also the solution with the highest expected impact (vis viva). However, this is not necessarily always so. In cases where the risk minimizing solution does not align with the impact maximizing solution, ambitious investors might consider choosing one of the sub-optimal budget allocations with higher expected impact in exchange for higher risk. The benefits of any particular portfolio must also be weighed against how evenly distributed the allocation is. A solution allocating most of the budget to just one or two projects is likely to generate toxic discontent in the research community.
 
 <!-- [O]ur conviction is that CGIAR researchers have indeed a genuine commitment to achieving development impact, and that they are seriously looking for ways to address critiques that the pre-reform CGIAR operated in an isolated and unaccountable manner (see the left column of Table 1) and largely ignored the social and political dimensions of agricultural development" [@leeuwis2018reforming]. -->
 While the scientists' current attitude of distrust and, in some cases, disdain, towards donor attempts to align funding with development impact may seem callous and rooted in vain self-interest, such a caricature is at odds with the CGIAR's long history of constructive response to criticism. This is especially true since the 2011 reforms, when mandatory accountability protocols were implemented [@leeuwis2018reforming]; but was also true prior. Plan Puebla, IR20 rice, the Bean and Cassava Programs, to name only a few examples, were all in some measure born of criticism in order to better align research objectives with the agroclimatic and socioeconomic needs of resource-poor smallholders. One may say without controversy that scientists in general are happy to align research with impact.
