@@ -3,41 +3,35 @@ title: Risk-adjusted optimization of agricultural research for development portf
 author:
   - name: Benjamin Schiek
     email: b.schiek@cgiar.org
-    affiliation: Alliance Bioversity-CIAT
+    affiliation: CIAT
     corresponding: b.schiek@cgiar.org
 address:
-  - code: Alliance Bioversity-CIAT
+  - code: CIAT
     address: Alliance of Bioversity International and CIAT, Km 17 Recta Cali-Palmira, Valle del Cauca, Colombia, CP 763537
 abstract: |
   Conventional agricultural research for development project (or program) priority setting procedures lack a portfolio level tool by which to transform project impact assessments into funding allocations. As a result, funding decisions lack transparency and are vulnerable to subjective bias. The conventional funding allocation procedure also takes little account of project risk, and much less of project covariances, both of which are necessary to calculate portfolio risk. As a result, research portfolios are generally unbalanced and quite risky. To redress these issues, here I develop a risk-adjusted portfolio optimization tool to determine the impact maximizing research budget allocation across a portfolio of research alternatives, subject to a portfolio risk constraint.
-keywords: 
-  - keyword1
-  - keyword2
-journal: "Research Policy"
-date: "`r Sys.Date()`"
-classoption: preprint, 3p, authoryear
 bibliography: AR4D Portfolio Optimization.bib
-linenumbers: false
-numbersections: true
-# Use a CSL with `citation_package = "default"`
-# csl: https://www.zotero.org/styles/elsevier-harvard
-output: 
-  rticles::elsevier_article:
-    keep_tex: true
-    citation_package: natbib
+output: rticles::plos_article
+# plos.csl can be download and used locally
+csl: http://www.zotero.org/styles/plos
+header-includes:
+  # - \numberwithin{equation}{section}
+  - \usepackage{float}
+  - \floatplacement{figure}{H}
+  # - \usepackage[nolists]{endfloat}
+  # - \usepackage{caption}
 ---
-
 <!-- Conventional agricultural research for development (AR4D) priority setting exercises have long been implemented to build insight and consensus around the strengths and weaknesses of individual agricultural research proposals in a given portfolio, but stop short of providing tools that can translate collective insights into optimal resource allocation shares. They also generally exclude from the allocation decision any rigorous accounting of the risk involved in each proposal, or of tradeoffs and synergies between proposals. These methodological lacunae have repeatedly exposed resource allocation processes to ad hoc, politically driven decisionmaking, thereby contributing to growing toxicity in donor-researcher relations. Here I explore the possibility of removing the methodological basis for this discord by introducing a rigorous allocation method, adapted from financial contexts, that allocates precise, optimal budget shares to each proposal based on its expected scalability, risk, and synergies/tradeoffs with the other proposals in the portfolio. -->
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE,
                       message = FALSE,
-                      warning = FALSE)
-#devtools::install_github("thomasp85/patchwork")
+                      warning = FALSE,
+                      dev = c("png", "tiff"),
+                      dpi = 300)
+
 library(plyr)
 library(tidyverse)
-# library(zoo)
-# library(tidyquant)
 library(patchwork)
 library(kableExtra)
 library(pracma)
@@ -293,6 +287,7 @@ Where $z = 1.96$ is the standard score corresponding to the 95% confidence inter
 
 \begin{equation}
 s_k \sqrt{\tau_k} = \frac{1}{2}(\sqrt{z^2 - 2 (r \tau_k - \bar{\ell}_k)} - z)
+\label{eq:sk}
 \end{equation}
 
 Whence the standard deviation of the project quarterly arithmetic return $s_k$ may be extracted. Note also that, with $s_k \sqrt{\tau_k}$ in hand, the implied opposite bound is given by Eq \ref{eq:confInt}. As a reality check on assumptions (that project NPV follows a gBm, and that NPV is accurately calculated), it may be of interest to elicit both bounds on the confidence interval, and to compare these against the implicit bounds.
@@ -603,7 +598,7 @@ An approximate project quarterly arithmetic returns covariance matrix then follo
 (Where the elements of the vector $\mathbf{s}$ are the project volatility parameters $s_k$ deduced in Eq \ref{eq:sk}.) And an approximate project LoP log returns covariance matrix follows as
 
 \begin{equation}
-\tilde{\Sigma}_{\ell X} = D(\boldsymbol{\tau})^{\frac{1}{2}} \tilde{\Sigma}_{\Delta X} D(\boldsymbol{\tau})^{\frac{1}{2}}  \label{eq:SigXX}
+\tilde{\Sigma}_{\ell X} = D(\boldsymbol{\tau})^{\frac{1}{2}} \tilde{\Sigma}_{\Delta X} D(\boldsymbol{\tau})^{\frac{1}{2}}  \label{eq:SigXXlop}
 \end{equation}
 
 (Where the elements $\boldsymbol{\tau}$ are the respective project time horizons.) Having deduced $\tilde{\Sigma}_{\ell X}$, an approximate coefficient of covariation matrix $\tilde{G}$ then follows from Eq \ref{eq:G}.
@@ -1174,13 +1169,11 @@ The risk shadow price is thus inversely proportional to portfolio risk. As risk 
 
 ### The candidate optimal budget allocations
 
-The budget allocations satisfying the first order conditions ($w_{kj}^*$) are given by Eq \ref{eq:wFnmu} evaluated at $\mu_{kj}^*$.
-
-\begin{equation}
-\mathbf{w}_{kj}^* = C \left(\frac{\mu_{kj}^*}{\tilde{x_k(0)}}e^{- r T_k } \right)^{\frac{1}{\alpha_k}}
-\end{equation}
-
-But recall that this has the following equivalent expression in the complex plane.
+The budget allocations satisfying the first order conditions ($w_{kj}^*$) are given by Eq \ref{eq:wFnmuComp} evaluated at $\mu_{kj}^*$.
+<!-- \begin{equation} -->
+<!-- \mathbf{w}_{kj}^* = C \left(\frac{\mu_{kj}^*}{\tilde{x_k(0)}}e^{- r T_k } \right)^{\frac{1}{\alpha_k}} -->
+<!-- \end{equation} -->
+<!-- But recall that this has the following equivalent expression in the complex plane. -->
 
 \begin{equation}
 \mathbf{w}_{kj}^* = C \left(\frac{\mu_{kj}^*}{\tilde{x_k(0)}}e^{- T_k (\omega + i)} \right)^{\frac{1}{\alpha_k}}
@@ -1227,8 +1220,8 @@ When choosing the scaling constant $\beta_j$ to enforce the budget constraint, t
 
 \begin{equation}
 \begin{split}
-\hat{\mathcal{E}}_j^* &= \frac{1}{2} \hat{\mathbf{v}}_j^* ' \hat{\mathbf{v}}_j^* = \frac{r^2}{2} \hat{\boldsymbol{\mu}}_j^* ' \hat{\boldsymbol{\mu}}_j^* \\
-&= \frac{r^2}{2} \beta_j \mathbf{q}_j ' \beta_j \mathbf{q}_j = \frac{r^2}{2} \beta_j^2
+\hat{\mathcal{E}}_j^* &= \frac{1}{2} \hat{\mathbf{v}}_j^* {'} \hat{\mathbf{v}}_j^* = \frac{r^2}{2} \hat{\boldsymbol{\mu}}_j^* {'} \hat{\boldsymbol{\mu}}_j^* \\
+&= \frac{r^2}{2} \beta_j \mathbf{q}_j {'} \beta_j \mathbf{q}_j = \frac{r^2}{2} \beta_j^2
 \end{split}
 \label{eq:visViva}
 \end{equation}
@@ -1239,7 +1232,7 @@ Moreover, the portfolio risk $\hat{\sigma}_j^*$ (Eq \ref{eq:riskJraw}) and risk 
 
 \begin{equation}
 \begin{split}
-\sigma_j^* &= \sqrt{\boldsymbol{\mu}_j^* ' G \boldsymbol{\mu}_j^*} = \sqrt{(\beta_j \mathbf{q}_j) ' G (\beta_j \mathbf{q}_j}) \\
+\sigma_j^* &= \sqrt{\boldsymbol{\mu}_j^* {'} G \boldsymbol{\mu}_j^*} = \sqrt{(\beta_j \mathbf{q}_j) {'} G (\beta_j \mathbf{q}_j)} \\
 &= \beta_j \sqrt{\upsilon_j}
 \end{split}
 \label{eq:riskJ}
@@ -1253,7 +1246,7 @@ Moreover, the portfolio risk $\hat{\sigma}_j^*$ (Eq \ref{eq:riskJraw}) and risk 
 Finally, note that the vis viva to risk ratio may be expressed as follows.
 
 \begin{equation}
-\frac{\mathcal{E}_j^*}{\sigma_j^*} = \frac{r^2 \abs{\beta_j}{2 \sqrt{\upsilon_j}}
+\frac{\mathcal{E}_j^*}{\sigma_j^*} = \frac{r^2 |\beta_j|}{2 \sqrt{\upsilon_j}}
 \label{eq:visToRisk}
 \end{equation}
 
@@ -1285,7 +1278,7 @@ Z \mathbf{y} = \mathbf{a} \:|\: \nabla_{\boldsymbol{\mu}} \sigma |_{\boldsymbol{
 Since $\nabla_{\boldsymbol{\mu}} \sigma |_{\boldsymbol{\mu} = \boldsymbol{\mu}^*}$ is any eigenvector of $G$, say the $j^{th}$ eigenvector, then the other eigenvectors constitute a valid basis $Z$. Letting the notation $Q_j$ stand for the matrix of eigenvectors of $G$ excluding the $j^{th}$ column, and $\boldsymbol{\beta}_j$ stand for the vector of scaling constants $\boldsymbol{\beta}$ excluding the corresponding $j^{th}$ element, then $Z = D(\boldsymbol{\beta}) Q_j$. The second order condition can thus be rewritten
 
 \begin{equation}
-\mathbf{y} ' H_j \mathbf{y} &> 0
+\mathbf{y} ' H_j \mathbf{y} > 0
 \end{equation}
 
 Where $H_j$ is the "projected" Hessian of $\mathcal{L}$ evaluated at the $j^{th}$ solution $\boldsymbol{\mu}_j^*$.
@@ -1319,16 +1312,18 @@ Where $\boldsymbol{\upsilon}_j$ is the vector of eigenvalues of $G$ excluding th
 
 \begin{equation}
 \begin{split}
-\sigma^*_a = \min(\boldsymbol{\sigma^*}) \\
-\rightarrow \frac{\beta_j^2 \upsilon_j}{\beta_a^2 \upsilon_a} > 1 \;\;;\;\;\; \text{for all $j \neq a$}
+\sigma^*_a &= \min(\boldsymbol{\sigma^*}) \\
+&\rightarrow \frac{\beta_j^2 \upsilon_j}{\beta_a^2 \upsilon_a} > 1 \;\;;\;\;\; \text{for all $j \neq a$}
 \end{split}
 \end{equation}
 
 is that for which the projected Hessian ($H_a$) is negative definite, and is hence the solution that satisfies the second order condition (Eq \ref{eq:soc}), and thus maximizes $\mathcal{L}$. By the same token, the solution $\{\mathbf{q}_b, \upsilon_b, \beta_b \}$ such that
 
 \begin{equation}
-\sigma^*_b = \max(\boldsymbol{\sigma^*}) \\
-\rightarrow \frac{\beta_j^2 \upsilon_j}{\beta_a^2 \upsilon_a} < 1 \;\;;\;\;\; \text{for all $j \neq b$}
+\begin{split}
+\sigma^*_b &= \max(\boldsymbol{\sigma^*}) \\
+&\rightarrow \frac{\beta_j^2 \upsilon_j}{\beta_a^2 \upsilon_a} < 1 \;\;;\;\;\; \text{for all $j \neq b$}
+\end{split}
 \end{equation}
 
 is that for which projected Hessian ($H_{b}$) is positive definite, and hence the solution that minimizes $\mathcal{L}$; and all other solutions $\gamma \notin \{a, b \}$ produce indefinite $H_{\gamma}$, corresponding to saddle point solutions.
