@@ -66,7 +66,7 @@ After a brief contextualization of the present work rooted in the relevant liter
 
 # Literature review
 
-## Mill's missing fifth step
+## Mills' missing fifth step
 
 For decades, efforts to improve AR4D quantitative foresight and decision support have focused on the development of models to assess the potential impacts of individual research projects under a range of future climate and socioeconomic scenarios. However, if the ultimate aim of such exercises is to determine an optimal allocation of research funds across the projects under assessment, then a portfolio level tool is also required in order to translate research impact assessments into optimal budget allocations.
 
@@ -89,9 +89,9 @@ knitr::include_graphics("Mills_missing_step5.png")
 <!-- whereby research programs are ranked in order of importance based on their respective impact assessments. These rankings are then translated into research budget allocations in a highly subjective and ad hoc manner. -->
 <!-- objective rigor in the translation of project rankings into project budget allocations -->
 
-The persistent absence of Mill's fifth step has left AR4D funding decision-making mechanisms vulnerable to institutional inertia, stakeholder politics, and other forms of subjective bias [@Birner2016; @mccalla2014cgiar]. The Consultative Group on International Agricultural Research (CGIAR), in particular, is said to "have a long history of good intentions but limited success in developing appropriate approaches for priority setting" [@Birner2016]. The historic effort begun in 2011 to restructure CGIAR financing around a research program (CRP) portfolio model proved emblematic of this "limited success", when the results of an extensive priority setting exercise were summarily rejected by donors and stakeholders in favor of an opaque and ad hoc resource allocation [@Birner2016]. Earlier attempts at reform likewise devolved into politically driven processes [@mccalla2014cgiar]; and the current reform effort towards a "One CGIAR", begun in 2019, now appears to be headed in the same direction.
+The persistent absence of Mills' fifth step has left AR4D funding decision-making mechanisms vulnerable to institutional inertia, stakeholder politics, and other forms of subjective bias [@Birner2016; @mccalla2014cgiar]. The Consultative Group on International Agricultural Research (CGIAR), in particular, is said to "have a long history of good intentions but limited success in developing appropriate approaches for priority setting" [@Birner2016]. The historic effort begun in 2011 to restructure CGIAR financing around a research program (CRP) portfolio model proved emblematic of this "limited success", when the results of an extensive priority setting exercise were summarily rejected by donors and stakeholders in favor of an opaque and ad hoc resource allocation [@Birner2016]. Earlier attempts at reform likewise devolved into politically driven processes [@mccalla2014cgiar]; and the current reform effort towards a "One CGIAR", begun in 2019, now appears to be headed in the same direction.
 
-These recurring episodes are both root and branch of a longstanding malaise of "ever growing distrust" between aid donors and research communities [@leeuwis2018reforming]. Donors, facing increasingly austere fiscal outlooks, require evidence of return on investment. Researchers, on the other hand, bristle at the pressure to produce this evidence as a sort of ham-handed bureaucratic meddling, or "development at the expense of research" [@Birner2016], or "post-academic science" [@Moriarty2008], or even the "Balkanization" of research [@Petsko2011]. "One of the geniuses of the founders of the CGIAR," writes McCalla, "was to craft a system that encouraged aid funding of long-term research institutes but kept aid professionals from setting research agendas..." [@mccalla2014cgiar].
+These recurring episodes are both root and branch of a longstanding malaise of "ever growing distrust" between aid donors and research communities [@leeuwis2018reforming]. Donors, facing increasingly austere fiscal outlooks, require evidence of return on investment. Researchers, in turn, bristle at the pressure to produce this evidence as a sort of ham-handed bureaucratic meddling, or "development at the expense of research" [@Birner2016], or "post-academic science" [@Moriarty2008], or even the "Balkanization" of research [@Petsko2011]. "One of the geniuses of the founders of the CGIAR," writes McCalla, "was to craft a system that encouraged aid funding of long-term research institutes but kept aid professionals from setting research agendas..." [@mccalla2014cgiar].
 
 At face value, such disdain for the eminently reasonable request to align research with impact may seem callous and rooted in vain self-interest. However, such a caricature is at odds with the CGIAR's long history of constructive response to criticism. This is especially true since the 2011 reforms, when mandatory accountability protocols were implemented [@leeuwis2018reforming]; but was also true prior. Plan Puebla, IR20 rice, the Bean and Cassava Programs, to name only a few examples, were all in some measure born of criticism in order to better align research objectives with the agroclimatic and socioeconomic needs of resource-poor smallholders. One may say without controversy that scientists across disciplines are happy to align research with impact.
 
@@ -105,7 +105,7 @@ The standard solution to the credible commitment problem is recourse to an indep
 ## Balancing research synergies and tradeofs to hedge portfolio risk
 
 <!-- The four step priority setting method articulated by Mills takes little or no account of portfolio risk. -->
-The absence of a mature portfolio resource allocation protocol has also left research portfolios exposed to high levels of risk, as the classical priority setting method takes little or no account of the uncertainty surrounding expected project impacts. Emeritus scientists at the Alliance of Bioversity International and CIAT recall implementing an informal technique to balance research risk against expected impact when allocating core funds in the early years of CIAT's existence [@JCock_perscomm; @lynam2017forever]; but the technique was never formalized, and subsequently fell into disuse. Alston and Norton acknowledged in 1995 that the treatment of risk in impact assessment models "is rudimentary and in need of further refinement" [-@Alston1995]; but work has not yet begun on this "refinement". The estimation of project correlations---or synergies and tradeoffs, if you like---which is also necessary for the calculation of portfolio risk, has received even less attention.
+The absence of a mature portfolio resource allocation protocol has also left research portfolios exposed to high levels of risk, as the classical priority setting method takes little or no account of the uncertainty surrounding expected project impacts. Emeritus scientists at the Alliance of Bioversity International and CIAT recall implementing an informal technique to balance research risk against expected impact when allocating core funds in the early years of CIAT's existence [@JCock_perscomm; @lynam2017forever]; but the technique was never formalized, and subsequently fell into disuse. Alston and Norton acknowledged in 1995 that the treatment of risk in impact assessment models "is rudimentary and in need of further refinement" [-@Alston1995]; but work has not yet begun on this "refinement". The estimation of project correlations, which is also necessary for the calculation of portfolio risk, has received even less attention.
 
 By neglecting research correlations, the priority setting method misses out on an opportunity to hedge research portfolio risk by balancing positive and negative correlations against each other. A key challenge hindering work in this direction is the lack of data by which to estimate such correlations. In the financial context, correlations between portfolio assets can be estimated based on abundant time series data. In the AR4D context, such data does not exist. Schiek recently redressed this problem by developing a method to "crowdsource" or "reverse engineer" research correlation matrices based solely on expert opinion [-@schiek2021reverse]. Here I draw on that work in order to deduce a formal expression for portfolio risk in the AR4D context.
 <!-- In this article, I redress these issues by developing a risk-adjusted research portfolio optimization method. The proposed method solves for the impact maximizing budget allocation subject to a risk constraint, across a portfolio of research alternatives (projects or programs) with varying expected impacts, time horizons, risk, synergies, and tradeoffs. In terms of Mills' schematic, the method translates impact assessments (Mills' step three) directly into optimal budget allocations (the missing step five), bypassing the priority ranking in Mills' step four. A research priority ranking may be inferred post hoc from the optimal budget allocation, if so desired. -->
@@ -293,7 +293,7 @@ Having deduced $s_k$ and $\mu_k$, it is then straightforward to compute the vari
 Deduction of the quarterly arithmetic return covariances $s_{kj}$ in the absence of data is considerably more complicated, but can be achieved using the "reverse engineering" method recently developed by Schiek [-@schiek2021reverse]. To briefly summarize the method: 1) correlations between project quarterly arithmetic returns ($\Delta x_k / x_k(\hat{t})$) and policy quarterly arithmetic returns ($\Delta S_j / S_j(\hat{t})$) are elicited from expert opinion. 2) Policies are interpreted as the $\hat{n}$ retained principal components of the unobserved project returns data (where $\hat{n} < n$), orthonormally rotated for clarity. 3) Given this interpretation, and letting the matrix of project-policy correlations be denoted $L_{\circlearrowright}$, an approximate project quarterly arithmetic returns correlation matrix $\tilde{K}_{XX}$ can be obtained as the outer product
 
 \begin{equation}
-\tilde{K}_{XX} = L_{\circlearrowright} L_{\circlearrowright} ' \;\;;\;\;\; [\tilde{K}_{XX}]_{kj} \approx \rho_{kj} = \text{cor}(\Delta x_k / x_k(\hat{t}), \Delta x_j / x_j(\hat{t}))
+\tilde{K}_{XX} = L_{\circlearrowright} L_{\circlearrowright} ' \;\;;\;\;\; [\tilde{K}_{XX}]_{kj} \approx \text{cor}(\Delta x_k / x_k(\hat{t}), \Delta x_j / x_j(\hat{t}))
 \label{eq:KXX}
 \end{equation}
 
@@ -607,7 +607,7 @@ x_k(\hat{t}) = \tilde{x}_k(\hat{t}) \left(\frac{w_k}{C} \right)^{\alpha_k}
 Where $C$ is the portfolio budget, $\tilde{x}_k(\hat{t})$ is the maximum financially feasible NPV---i.e., the NPV if the entire budget were invested in the project (the case where $w_k = C$)---and the exponent $\alpha_k$ is the elasticity of project NPV with respect to funding. That is,
 
 \begin{equation}
-\frac{\partial \ln(x_k(\hat{t}))}{\partial \ln(w_k)} = \alpha_k
+\alpha_k = \frac{\partial \ln(x_k(\hat{t}))}{\partial \ln(w_k)}
 \end{equation}
 
 And $\alpha_k$ lies between $0$ and $1$, reflecting marginally diminishing returns to investment.
@@ -639,7 +639,7 @@ Eq \ref{eq:npvFnW} is an ansatz. Practitioners may design other functional forms
 In the broadest terms, a project may be said to intervene in, or operate upon, an existing net benefit stream $\Delta \text{u}_k / \Delta t$ with the aim of raising it to a higher value by the end of the project, such that
 
 \begin{equation}
-\frac{\Delta \text{u}_k}{\Delta t} \Bigr|_{t = T} > \frac{\Delta \text{u}_k}{\Delta t} \Bigr|_{t = 0}
+\frac{\Delta \text{u}_k}{\Delta t} \Bigr|_{t = T_k} > \frac{\Delta \text{u}_k}{\Delta t} \Bigr|_{t = 0}
 \end{equation}
 
 This implies an acceleration $\Delta^2 \text{u}_k / \Delta t^2$ which comes as a result of the skilled, concerted, applied efforts that comprise the project intervention. Letting $F_k$ stand for these applied efforts and $a_k$ for the acceleration, this axiomatic relation can be expressed $F_k \sim a_k$, or
@@ -676,15 +676,15 @@ gg <- gg + geom_ribbon(aes(ymin = 0, ymax = yint), fill = "orange", alpha = .5)
 gg <- gg + annotate("text", x = 2 / 3, y = yint * 1.75,
                     label = expression(italic(Delta*A)))
 gg <- gg + annotate("text", x = 2 / 3, y = yint * 0.5,
-                    label = expression(italic(A["0"])))
+                    label = expression(italic(A)*"("*hat(t)*")"))
 gg <- gg + annotate("text", x = -0.09, y = yint,
-                    label = expression(italic("v(t)")), size = label_size)
+                    label = expression(italic(v)*"("*hat(t)*")"), size = label_size)
 gg <- gg + annotate("text", x = -0.09, y = ymax,
-                    label = expression(italic("v(t + "*Delta*t*")")), size = label_size)
+                    label = expression(italic(v)*"("*hat(t)*"+"*Delta*t*")"), size = label_size)
 gg <- gg + annotate("text", x = 0, y = -0.07,
-                    label = "0", size = label_size)
+                    label = expression(hat(t)), size = label_size)
 gg <- gg + annotate("text", x = 1, y = -0.07,
-                    label = expression(italic(T)), size = label_size)
+                    label = expression(hat(t)*"+"*Delta*t), size = label_size)
 gg <- gg + coord_cartesian(xlim = c(-0.11, 1.2))
 # gg <- gg + labs(x = expression(Delta~t),
 #                 y = expression(Delta*u~"/"~Delta*t))
@@ -706,16 +706,15 @@ Note that the slope of the line in this plot is just the acceleration. That is,
 Which can be rearranged as follows,
 
 \begin{equation}
-a_k \Delta t = \text{v}_k(T) - \text{v}_k(0)
+a_k \Delta t = \text{v}_k(\hat{t} + \Delta t) - \text{v}_k(\hat{t})
 \end{equation}
 
-Note, moreover, that the cumulative net benefit over the interval $\Delta t$ is the sum of the areas $A_0 + \Delta A$.
+Note, moreover, that the area $\Delta A$ is equal to the project NPV over the interval $\Delta t$.
 
 \begin{equation}
 \begin{split}
-\Delta \text{u}_k &= \text{v}_k(0) \Delta t + \int_0^T \text{v}_k dt \\
-&= A_0 + \Delta A \\
-&= \frac{1}{2} (\text{v}_k(T) + \text{v}_k(0)) \Delta t
+\Delta A &= \frac{1}{2} (\text{v}_k(\hat{t} + \Delta t) - \text{v}_k(\hat{t})) \Delta t \\
+&= \frac{1}{2} (\Delta \text{u}_k |_{\hat{t} + \Delta t} - \Delta \text{u}_k |_{\hat{t}})
 \end{split}
 \end{equation}
 
@@ -723,8 +722,8 @@ And a third "kinematic" expression, soon to come in handy, can be obtained by mu
 
 \begin{equation}
 \begin{split}
-a_k \Delta t \Delta \text{u}_k &= \frac{1}{2} (\text{v}_k(T) - \text{v}_k(0)) (\text{v}_k(T) + \text{v}_k(0)) \Delta t \\
-a_k \Delta \text{u}_k &= \frac{1}{2} (\text{v}_k(T)^2 - \text{v}_k(0)^2)
+a_k \Delta t \Delta \text{u}_k &= \frac{1}{2} (\text{v}_k(T_k) - \text{v}_k(0)) (\text{v}_k(T_k) + \text{v}_k(0)) \Delta t \\
+a_k \Delta \text{u}_k &= \frac{1}{2} (\text{v}_k(T_k)^2 - \text{v}_k(0)^2)
 \end{split}
 \label{eq:kinema3}
 \end{equation}
@@ -739,7 +738,7 @@ Now, consider that, for a given budget and risk tolerance, the project aims to m
 But, by equation \ref{eq:kinema3},
 
 \begin{equation}
-\mathcal{E}_k = \frac{\rho}{2} (\text{v}_k(T)^2 - \text{v}_k(0)^2)
+\mathcal{E}_k = \frac{\rho}{2} (\text{v}_k(T_k)^2 - \text{v}_k(0)^2)
 \label{eq:Eraw}
 \end{equation}
 
@@ -754,7 +753,7 @@ Finally, note that the same analysis can be reformulated in terms of project NPV
 Then $\text{v}_k(0) = 0$, and so equation \ref{eq:Eraw} becomes
 
 \begin{equation}
-\mathcal{E}_k = \frac{\rho}{2} \text{v}_k(T)^2
+\mathcal{E}_k = \frac{\rho}{2} \text{v}_k(T_k)^2
 \label{eq:Enpv}
 \end{equation}
 
@@ -855,7 +854,7 @@ Portfolio velocity $\text{v}$ and vis viva $\mathcal{E}$ may be expressed
 
 \begin{equation}
 \begin{split}
-\text{v} = \sqrt{\Sigma_k \left( \frac{\Delta \text{u}_k}{\Delta t} \right)^2} &= r \sqrt{ \Sigma_k \mu_k^2} \\
+\text{v} = \sqrt{\sum_k \left( \frac{\Delta \text{u}_k}{\Delta t} \right)^2} &= r \sqrt{ \sum_k \mu_k^2} \\
 &= r \sqrt{\boldsymbol{\mu} ' \boldsymbol{\mu}} \\
 \end{split}
 \end{equation}
@@ -889,7 +888,7 @@ The project funding cycle may be broadly defined as the process by which value i
 
 ## Project time horizons are measured in terms of funding cycles
 
-The duration of a funding cycle is thus, by definition, the time elapsed between the disbursement of funds and the transformation of those funds into the realization of an agreed upon, tangible set of project impacts or "deliverables". Projects are usually designed so that this transformation occurs in a specific period of time. Let $T$ stand for the duration of the funding cycle expressed in terms of the judiciously chosen time step $\Delta t$. A typical AR4D funding cycle currently lasts 1-5 years. For the sake of argument, say it is 3 years. If the judicious time step $\Delta t$ is defined as an annual quarter, then, $T = 12$, in this case.
+The duration of a funding cycle is thus, by definition, the time elapsed between the disbursement of funds and the transformation of those funds into the realization of an agreed upon, tangible set of project impacts or "deliverables". Projects are usually designed so that this transformation occurs in a specific period of time. Henceforth, let $T$ stand for the duration of the funding cycle expressed in terms of the judiciously chosen time step $\Delta t$. A typical AR4D funding cycle currently lasts 1-5 years. For the sake of argument, say it is 3 years. If the judicious time step $\Delta t$ is defined as an annual quarter, then, $T = 12$, in this case.
 
 Assuming that projects cannot begin or end in the middle of a funding cycle, it follows that AR4D project time horizons must be measured as a positive integer multiple of $T$. That is, $T_k = T\nu_k \;;\;\; \nu_k \in \mathbb{Z}^+$.
 
@@ -991,6 +990,7 @@ w_k &= C \left( \frac{\mu_k(0)}{\tilde{x}_k(0)} e^{-T_k (\omega + i)} \right)^{\
 &= C \left(\frac{|\mu_k(0)|}{\tilde{x}_k(0)} e^{-2 \pi \omega \left( \nu_k \mp \frac{1}{2} \right) + 2 i \pi \nu_k \mp i \pi  \pm i \pi} \right)^{\frac{1}{\alpha_k}} \\
 &= C \left(\frac{|\mu_k(0)|}{\tilde{x}_k(0)} e^{-2 \pi \omega \left( \nu_k \mp \frac{1}{2} \right)} \right)^{\frac{1}{\alpha_k}}
 \end{split}
+\label{eq:wRotate}
 \end{equation}
 <!-- # ```{r, fig.show = "hold", fig.width = 6, fig.height=3, fig.align="center", fig.cap="\\label{fig:logSpiral}Log spiral in (left) polar and (right) complex coordinates over 0 \\geq \\theta \\geq 2 \\pi.", echo = FALSE} -->
 <!-- theta <- seq(0, 2 * pi, length.out = 50) -->
@@ -1156,7 +1156,7 @@ Such that $\lambda_j$ reduces to
 \label{eq:lamJraw}
 \end{equation}
 
-The risk shadow price is thus inversely proportional to portfolio risk. As risk increases, the marginal benefit of additional increments in risk decrease.
+The risk shadow price is thus inversely proportional to portfolio risk. This makes sense. As risk increases, the marginal benefit of additional increments in risk decrease.
 
 ### The candidate optimal budget allocations
 
@@ -1167,7 +1167,7 @@ The budget allocations satisfying the first order conditions ($w_{kj}^*$) are gi
 <!-- But recall that this has the following equivalent expression in the complex plane. -->
 
 \begin{equation}
-\mathbf{w}_{kj}^* = C \left(\frac{\mu_{kj}^*}{\tilde{x_k(0)}}e^{- T_k (\omega + i)} \right)^{\frac{1}{\alpha_k}}
+\mathbf{w}_{kj}^* = C \left(\frac{\mu_{kj}^*}{\tilde{x}_k(0)}e^{- T_k (\omega + i)} \right)^{\frac{1}{\alpha_k}}
 \label{eq:wStarRaw}
 \end{equation}
 <!-- \begin{equation} -->
@@ -1175,7 +1175,8 @@ The budget allocations satisfying the first order conditions ($w_{kj}^*$) are gi
 <!-- \label{eq:wStar} -->
 <!-- \end{equation} -->
 
-Generally speaking, the eigenvectors $\mathbf{q}_j$ may include negative elements, which in turn implies negative project NPV $\mu_{kj}^*$. As explained in \ref{sec:cycReal}, a negative expected NPV may be interpreted as the project value at the sunk cost point in the funding cycle. Negative project NPV is problematic for portfolio optimization since it implies a complex valued budget allocation (Eq \ref{eq:wStarRaw}). The project time horizon $T_k$ is defined in Eq \ref{eq:Tk} so as to automatically extend or contract the time horizon by half a funding cycle, such that the budget allocations $\mathbf{w}_{kj}^*$ are guaranteed to be real valued. Note, moreover, that all of the terms in Eq \ref{eq:wStarRaw} are positive, whereby it is guaranteed that $\mathbf{w}_{kj}^*$ is also positive.
+<!-- in \ref{sec:cycReal} -->
+Generally speaking, the eigenvectors $\mathbf{q}_j$ may include negative elements, which in turn implies negative project NPV $\mu_{kj}^*$. As explained above, a negative expected NPV may be interpreted as the project value at the sunk cost point in the funding cycle. Negative project NPV is problematic for portfolio optimization since it implies a complex valued budget allocation (Eq \ref{eq:wStarRaw}). The project time horizon $T_k$ is defined in Eq \ref{eq:Tk} so as to automatically extend or contract the time horizon by half a funding cycle, such that the budget allocations $\mathbf{w}_{kj}^*$ are guaranteed to be real valued. Note, moreover, that all of the terms in Eq \ref{eq:wStarRaw} are positive, whereby it is guaranteed that $\mathbf{w}_{kj}^*$ is also positive.
 <!-- And in vector notation, -->
 <!-- \begin{equation} -->
 <!-- \hat{\mathbf{w}}_j^* = \Sigma_{j = 1}^m C_j (D(\tilde{\mathbf{x}}(0))^{-1} \mathbf{q}_j (-1)^{2 \kappa - 1} e^{-r T \left(\frac{1}{2} + \kappa \right)})^{\frac{1}{\boldsymbol{\alpha}}} -->
@@ -1190,7 +1191,7 @@ Generally speaking, the eigenvectors $\mathbf{q}_j$ may include negative element
 Because eigenvectors are defined up to scaling, the optimal solution can be arbitrarily scaled in accordance with any portfolio impact, risk, or budget target/constraint. The budget constraint is usually the most binding of these three. In order to arbitrarily enforce the budget constraint $C$, then, note that the candidate optimal budget allocations may be rewritten
 
 \begin{equation}
-w_{kj}^* = C \left(\frac{\beta_j q_{kj}}{\tilde{x_k(0)}} e^{-T_k (\omega + i)} \right)^{\frac{1}{\alpha_k}}
+w_{kj}^* = C \left(\frac{\beta_j q_{kj}}{\tilde{x}_k(0)} e^{-T_k (\omega + i)} \right)^{\frac{1}{\alpha_k}}
 \label{eq:wStar}
 \end{equation}
 <!-- \begin{equation} -->
@@ -1203,16 +1204,16 @@ Where $\mathbf{q}_j {'} \mathbf{q}_j = 1$ and $\beta_j$ is an arbitrary scaling 
 In vector notation,
 
 \begin{equation}
-\mathbf{w}_j^* = C ( \beta_j D(\mathbf{q}_j) D(\tilde{\mathbf{x}(0)})^{-1} D(e^{\mathbf{T}})^{-\omega - i} )^{\frac{1}{\boldsymbol{\alpha}}}
+\mathbf{w}_j^* = C ( \beta_j D(\mathbf{q}_j) D(\tilde{\mathbf{x}}(0))^{-1} D(e^{\mathbf{T}})^{-\omega - i} )^{\frac{1}{\boldsymbol{\alpha}}}
 \label{eq:wStarVec}
 \end{equation}
 
-When choosing the scaling constant $\beta_j$ to enforce the budget constraint, the corresponding expected portfolio impact (vis viva) $\hat{\mathcal{E}}_j^*$ is also thereby defined.
+When choosing the scaling constant $\beta_j$ to enforce the budget constraint, the corresponding optimal vis viva $\hat{\mathcal{E}}_j^*$ is also thereby defined.
 <!-- Eq \ref{eq:ErawPort} -->
 
 \begin{equation}
 \begin{split}
-\hat{\mathcal{E}}_j^* &= \frac{1}{2} \hat{\mathbf{v}}_j^* {'} \hat{\mathbf{v}}_j^* = \frac{r^2}{2} \hat{\boldsymbol{\mu}}_j^* {'} \hat{\boldsymbol{\mu}}_j^* \\
+\mathcal{E}_j^* &= \frac{1}{2} \hat{\mathbf{v}}_j^* {'} \hat{\mathbf{v}}_j^* = \frac{r^2}{2} \hat{\boldsymbol{\mu}}_j^* {'} \hat{\boldsymbol{\mu}}_j^* \\
 &= \frac{r^2}{2} \beta_j \mathbf{q}_j {'} \beta_j \mathbf{q}_j = \frac{r^2}{2} \beta_j^2
 \end{split}
 \label{eq:visViva}
@@ -1220,7 +1221,7 @@ When choosing the scaling constant $\beta_j$ to enforce the budget constraint, t
 
 Note that $\beta_j^2$ corresponds to the constant $\rho$ in Eq \ref{eq:Newt2}.
 
-Moreover, the portfolio risk $\hat{\sigma}_j^*$ (Eq \ref{eq:riskJraw}) and risk shadow price $\lambda_j$ (Eq \ref{eq:lamJraw}) must also be redefined---or rather defined more carefully---as follows.
+Moreover, the optimal portfolio risk $\sigma_j^*$ (Eq \ref{eq:riskJraw}) and risk shadow price $\lambda_j$ (Eq \ref{eq:lamJraw}) must also be redefined---or rather defined more carefully---as follows.
 
 \begin{equation}
 \begin{split}
@@ -1244,30 +1245,30 @@ Finally, note that the vis viva to risk ratio may be expressed as follows.
 
 ## Second order condition \label{sec:soc}
 
-The second order condition guaranteeing that the solution is a maximizer of $\mathcal{L}$ is
+The second order condition guaranteeing that the solution $\boldsymbol{\mu}_j^*$ is a maximizer of $\mathcal{L}$ is
 
 \begin{equation}
 \mathbf{a} ' H \mathbf{a} < 0 \:|\: \mathbf{a} ' \nabla \mathcal{E} = 0
 \label{eq:soc}
 \end{equation}
 
-Where $H$ is the Hessian of $\mathcal{L}$ evaluated at the solution $\boldsymbol{\mu}^*$, that is,
+Where $H$ is the Hessian of $\mathcal{L}$ evaluated at the solution $\boldsymbol{\mu}_j^*$, that is,
 
 \begin{equation}
 H = \nabla_{\boldsymbol{\mu}}^2 \mathcal{L}|_{\boldsymbol{\mu}^*}
 \end{equation}
 
-And $a$ is any nonzero, real valued vector in the null space of the constraint gradient evaluated at the solution, i.e. $\nabla_{\boldsymbol{\mu}} \sigma |_{\boldsymbol{\mu} = \boldsymbol{\mu}^*}$.
+And $\mathbf{a}$ is any nonzero, real valued vector in the null space of the constraint gradient evaluated at the solution, (i.e. $\nabla_{\boldsymbol{\mu}} \sigma |_{\boldsymbol{\mu} = \boldsymbol{\mu}_j^*}$).
 
 In other words, the second order condition is fulfilled if and only if $H$ is negative definite.
 
 To resolve this condition into a more intelligible form, note that $\mathbf{a}$ can be rewritten in terms of any arbitrary, nonzero, real valued vector $\mathbf{y}$ multiplied by a basis $Z$ whose columns are in the null space of $\nabla_{\boldsymbol{\mu}} \sigma |_{\boldsymbol{\mu} = \boldsymbol{\mu}^*}$.
 
 \begin{equation}
-Z \mathbf{y} = \mathbf{a} \:|\: \nabla_{\boldsymbol{\mu}} \sigma |_{\boldsymbol{\mu} = \boldsymbol{\mu}^*} ' Z = \mathbf{0}
+Z \mathbf{y} = \mathbf{a} \:|\: \nabla_{\boldsymbol{\mu}} \sigma |_{\boldsymbol{\mu} = \boldsymbol{\mu}_j^*} ' Z = \mathbf{0}
 \end{equation}
 
-Since $\nabla_{\boldsymbol{\mu}} \sigma |_{\boldsymbol{\mu} = \boldsymbol{\mu}^*}$ is any eigenvector of $G$, say the $j^{th}$ eigenvector, then the other eigenvectors constitute a valid basis $Z$. Letting the notation $Q_j$ stand for the matrix of eigenvectors of $G$ excluding the $j^{th}$ column, and $\boldsymbol{\beta}_j$ stand for the vector of scaling constants $\boldsymbol{\beta}$ excluding the corresponding $j^{th}$ element, then $Z = D(\boldsymbol{\beta}) Q_j$. The second order condition can thus be rewritten
+Since $\nabla_{\boldsymbol{\mu}} \sigma |_{\boldsymbol{\mu} = \boldsymbol{\mu}_j^*}$ is any eigenvector of $G$, say the $j^{th}$ eigenvector, then the other eigenvectors constitute a valid basis $Z$. Letting the notation $Q_j$ stand for the matrix of eigenvectors of $G$ excluding the $j^{th}$ column, and $\boldsymbol{\beta}_j$ stand for the vector of scaling constants $\boldsymbol{\beta}$ excluding the corresponding $j^{th}$ element, then $Z = D(\boldsymbol{\beta}) Q_j$. The second order condition can thus be rewritten
 
 \begin{equation}
 \mathbf{y} ' H_j \mathbf{y} > 0
@@ -1276,10 +1277,10 @@ Since $\nabla_{\boldsymbol{\mu}} \sigma |_{\boldsymbol{\mu} = \boldsymbol{\mu}^*
 Where $H_j$ is the "projected" Hessian of $\mathcal{L}$ evaluated at the $j^{th}$ solution $\boldsymbol{\mu}_j^*$.
 
 \begin{equation}
-H_j = D(\boldsymbol{\beta}) Q_j ' \nabla_{\boldsymbol{\mu}}^2 \mathcal{L}|_{\boldsymbol{\mu}^*} Q_j D(\boldsymbol{\beta})
+H_j = D(\boldsymbol{\beta}_j) Q_j ' \nabla_{\boldsymbol{\mu}}^2 \mathcal{L}|_{\boldsymbol{\mu}_j^*} Q_j D(\boldsymbol{\beta}_j)
 \end{equation}
 
-The second order condition is thus fulfilled if and only if $H_j$ is negative definite. This is easy to determine since $H_j$ is a diagonal matrix. To see this, note that
+It is easy to determine whether $H_j$ is negative definite or not since it is a diagonal matrix. To see this, note that
 
 \begin{equation}
 \begin{split}
@@ -1288,7 +1289,7 @@ The second order condition is thus fulfilled if and only if $H_j$ is negative de
 \end{split}
 \end{equation}
 
-Substituting the right hand side of this equation for $\nabla_{\boldsymbol{\mu}}^2 \mathcal{L}|_{\boldsymbol{\mu}^*}$ in the previous equation thus gives
+Substituting the right hand side of this equation for $\nabla_{\boldsymbol{\mu}}^2 \mathcal{L}|_{\boldsymbol{\mu}_j^*}$ in the previous equation thus gives
 
 \begin{equation}
 \begin{split}
@@ -1318,7 +1319,7 @@ is that for which the projected Hessian ($H_a$) is negative definite, and is hen
 \end{split}
 \end{equation}
 
-is that for which projected Hessian ($H_{b}$) is positive definite, and hence the solution that minimizes $\mathcal{L}$; and all other solutions $\gamma \notin \{a, b \}$ produce indefinite $H_{\gamma}$, corresponding to saddle point solutions.
+is that for which the projected Hessian ($H_{b}$) is positive definite, and hence the solution that minimizes $\mathcal{L}$; and all other solutions $\gamma \notin \{a, b \}$ produce indefinite $H_{\gamma}$, corresponding to saddle point solutions.
 <!-- trailing eigenvector of $\mathbf{q}_n$ is the solution that minimizes $\mathcal{L}$, and the intermediate eigenvectors $(1 < k < n)$ represent saddle point solutions of $\mathcal{L}$ between these two extremes. -->
 <!-- ...Since $G$ is positive definite, its eigenvalues are positive. And since $\upsilon_1 > \upsilon_2 > ... > \upsilon_n$ for a portfolio of $n$ items, it is straightforward to see that $H_1$ is negative definite, $H_n$ is positive definite, and the matrices $H_{1 < k < n}$ are indefinite. -->
 <!-- (i.e., the case where $\boldsymbol{\mu}^*$ equals the leading eigenvector of $K$) -->
@@ -1329,7 +1330,7 @@ is that for which projected Hessian ($H_{b}$) is positive definite, and hence th
 
 The trailing eigenvectors of a covariance matrix tend to represent noise in the data. The budget allocations associated with these eigenvectors are thus effectively random, and should be discarded from the menu of eligible solutions. To ensure that solutions are meaningful, only the leading $\hat{n}$ eigenvectors required to explain a high fraction of total portfolio variance should be retained. (This is tantamount to the "spectral cut-off" method used in the financial context [@guo2018eigen; @carrasco2011optimal].)
 
-The fraction of portfolio variance explained by any given eigenvector $\mathbf{q}_j$ (call this $k_j$) is the corresponding eigenvalue $\upsilon_j$ divided by the sum of all the eigenvalues (See Abdi [-@] for details).
+The fraction of portfolio variance explained by any given eigenvector $\mathbf{q}_j$ (call this $k_j$) is the corresponding eigenvalue $\upsilon_j$ divided by the sum of all the eigenvalues (see Abdi [-@abdi2010principal] for details).
 
 \begin{equation}
 k_j = \frac{\upsilon_j}{\sum_{k = 1}^n \upsilon_k}
@@ -1343,11 +1344,11 @@ The cumulative variance captured by a group of $\hat{n} < n$ leading eigenvector
 
 Such that $\zeta_n = 1$.
 
-The number of retained eigenvectors $\hat{n}$ should be high enough to explain, for example, $\zeta_m \geq 0.95$, although the exact number is left to the practitioner's discretion.
+The number of retained eigenvectors $\hat{n}$ should be high enough to explain, for example, $\zeta_m \geq 0.98$, although the exact threshold is left to the practitioner's discretion.
 
 # Hypothetical use case
 
-In the illustrative example below, the method described in the sections above is applied to optimize an investment across the hypothetical AR4D project portfolio referenced in Fig \ref{fig:egProjCorr}. This calculation requires the global parameters $C$ (the budget) and $r$ (the quarterly discount rate). Additionally, for each project: the current maximum NPV $\tilde{x}_k$ the scale elasticity $\alpha_k$ (revisit section \ref{sec:dimRet} for details), the time horizon $T_k$, and the standard deviation of the quarterly arithmetic return $s_k$. The leading eigenvectors of the project NPV coefficient of covariation matrix $G$ are also required.
+In the illustrative example below, the method described in the sections above is applied to optimize an investment across the hypothetical AR4D project portfolio referenced in Fig \ref{fig:egProjCorr}. This calculation requires the global parameters $C$ (the budget) and $r$ (the quarterly discount rate); and, for each project, the current maximum NPV $\tilde{x}_k$ and scale elasticity $\alpha_k$ (revisit Eq \ref{eq:npvFnW} for details), the time horizon $T_k$, and the standard deviation of the quarterly arithmetic return $s_k$. The leading eigenvectors of the project NPV coefficient of covariation matrix $G$ are also required.
 
 ```{r}
 # RupLoP <- 1.5
@@ -1363,11 +1364,13 @@ rQrtrlyArith <- (1 + rYrlyArith)^(1 / tStep) - 1
 r <- round(log(1 + rQrtrlyArith), 3)
 ```
 
-For ease of interpretation, the budget is normalized to 100, and the project maximum NPVs are expressed in the same units. An annual discount rate of `r rYrlyArith` is assumed, which works out to a quarterly discount rate of `r round(rQrtrlyArith, 3)`. The current maximum project NPV $\tilde{x}_k$ is usually reported in ex-ante impact assessments, or can be extrapolated from the information given in such assessments. Estimation of the scale elasticity parameter $\alpha_k$ is not currently a standard part of AR4D ex-ante impact assessments, but can be reasonably elicited through consultation with experts and literature. For commodity projects, given sufficient prior notice, both $\tilde{x}_k$ and $\alpha_k$ could, in principle, be estimated econometrically, using, for example, data gathered during field trials. Hypothetical values for $\tilde{x}_k$ and $\alpha_k$ are assigned to each project in the left panel of Fig \ref{fig:params}.
+For ease of interpretation, the budget is normalized to 100, and the current maximum project NPVs ($\tilde{x}_k$) are expressed in the same units. An annual discount rate of `r rYrlyArith` is assumed, which works out to a quarterly discount rate of `r round(rQrtrlyArith, 3)`. The $\tilde{x}_k$ are usually reported in ex-ante impact assessments, or can be extrapolated from the information given in such assessments. Estimation of the scale elasticity parameter $\alpha_k$ is not currently a standard part of AR4D ex-ante impact assessments, but can be reasonably elicited through consultation with experts and literature. For commodity projects, given sufficient prior notice, both $\tilde{x}_k$ and $\alpha_k$ could, in principle, be estimated econometrically, using, for example, data gathered during field trials. Hypothetical values for $\tilde{x}_k$ and $\alpha_k$ are assigned to each project in the left panel of Fig \ref{fig:params}.
 
-As discussed in section \ref{sec:cycReal}, project time horizons should be integer multiples of the duration of the funding cycle. In this example, the duration of the funding cycle is 3 years. Hypothetical time horizons are assigned to each project in the central panel of Fig \ref{fig:params} in terms of funding cycles, years, and quarters. Projects are assumed to be in varying stages of implementation at the time of the portfolio optimization exercise; and so the displayed time horizons do not necessarily indicate the projects' full duration.
+<!-- in section \ref{sec:cycReal} -->
+As discussed above, project time horizons should be integer multiples of the duration of the funding cycle. In this example, the duration of the funding cycle is 3 years. Hypothetical time horizons are assigned to each project in the central panel of Fig \ref{fig:params} in terms of funding cycles, years, and quarters. Projects are assumed to be in varying stages of implementation at the time of the portfolio optimization exercise; and so the displayed time horizons do not necessarily indicate the projects' full duration from inception to finish.
 
-The standard deviation of the LoP arithmetic returns is deduced from either the upper or lower bound of the 95% confidence interval about the expected arithmetic life of project (LoP) return (revisit section \ref{sec:volEst} for details). The upper or lower bound is deduced from ex-ante impact assessments and/or experts and literature. The standard deviations of the LoP log returns $s_k \sqrt{\tau_k}$ are then deduced from this information by Eq \ref{eq:sk}. The implied opposite bound is then also computed. The hypothetical elicited LoP return 95% confidence interval, implied quarterly return 95% confidence interval, and values of $s_k$ deduced therefrom, are presented in the right panel of Fig \ref{fig:params}.
+<!-- section \ref{sec:volEst} -->
+The standard deviation of the LoP arithmetic returns is deduced from either the upper or lower bound of the 95% confidence interval about the expected arithmetic LoP return, which is elicited from ex-ante impact assessments and/or experts and literature. The standard deviations of the LoP log returns $s_k \sqrt{\tau_k}$ are then deduced from this information by Eq \ref{eq:sk}. The implied opposite bound is then also computed. The hypothetical elicited LoP return 95% confidence interval, implied quarterly return 95% confidence interval, and values of $s_k$ deduced therefrom, are presented in the right panel of Fig \ref{fig:params}.
 
 ```{r, fig.show = 'hold', fig.width=5, fig.height=4, fig.align='left', fig.cap="\\label{fig:params}Hypothetical project parameters."}
 #--------------------------------------------------------------
@@ -1546,7 +1549,7 @@ Qtilde <- eigen(Gtilde)$vectors[, 1:nSigG]
 
 ```
 
-To deduce the coefficient of covariation matrix $G$, an approximate project quarterly returns correlation matrix $\tilde{K}_{XX}$ is first "reverse engineered" from expert opinion and/or literature using Schiek's method [-@schiek2021reverse]. This is the matrix displayed in the right panel of Fig \ref{fig:egProjCorr} (revisit Eq \ref{eq:KXX} for details). The corresponding covariance matrix $\tilde{\Sigma}_{XX}$ then follows from $\tilde{K}_{XX}$ and the deduced $s_k$. An approximate coefficient of covariation matrix $\tilde{G}$ then follows from $\tilde{\Sigma}_{XX}$ and the time horizons $T_k$ (revisit Eqs \ref{eq:SigXX} and \ref{eq:G} for details). The leading eigenvector-eigenvalue pairs $\{\mathbf{q}_j,\upsilon_j\}$ of $\tilde{G}$ accounting for `r 100 * thresh`% of portfolio variance are retained as the $\hat{n}$ candidate solutions to the portfolio optimization problem. In this example, $\hat{n}$ works out to `r nSigG` (Fig \ref{fig:Gtilde}).
+To deduce the coefficient of covariation matrix $G$, an approximate project quarterly returns correlation matrix $\tilde{K}_{XX}$ is first "reverse engineered" from expert opinion and/or literature using Schiek's method [-@schiek2021reverse]. This is the matrix displayed in the right panel of Fig \ref{fig:egProjCorr} (revisit Eq \ref{eq:KXX} for details). The corresponding covariance matrix $\tilde{\Sigma}_{XX}$ then follows from $\tilde{K}_{XX}$ and the deduced $s_k$. An approximate coefficient of covariation matrix $\tilde{G}$ then follows from $\tilde{\Sigma}_{XX}$ and the time horizons $T_k$ (revisit Eqs \ref{eq:SigXX} and \ref{eq:G} for details). The leading eigenvector-eigenvalue pairs $\{\mathbf{q}_j,\upsilon_j\}$ of $\tilde{G}$ accounting for `r 100 * thresh`% of portfolio variance are retained as the $\hat{n}$ candidate solutions to the portfolio optimization problem. In this example, $\hat{n} = `r nSigG`$ (Fig \ref{fig:Gtilde}).
 <!-- The matrix $\tilde{G}$ is displayed in the top panel of Fig \ref{fig:Gtilde}. The individual and cumulative portions of portfolio covariation described by each of the eigenvectors of $\tilde{G}$ are displayed in the bottom panel.  -->
 
 <!-- **Fig ... (Top) The crowdsourced approximate project NPV coefficient of covariation matrix. (Bottom) Plot of the individual and cumulative portions of portfolio covariation** explained by each of the eigenvectors of the crowdsourced project coefficient of covariation matrix. -->
@@ -1599,9 +1602,11 @@ ggGtilde + ggExplained + plot_layout(ncol = 1, heights = c(2, 1))
 
 ```
 
-The corresponding candidate budget allocations are then calculated up to scaling by Eq \ref{eq:wStar}. As explained in section \ref{sec:cycReal}, complex valued elements in $\mathbf{w}_j$ are transformed into real valued elements by extending or shortening the project time horizon by half a funding cycle. In this example, all such adjustments are half cycle extensions. The value of $\beta_j$ is chosen so as to enforce the budget constraint, that is, such that $\mathbf{w}_j {'} \mathbf{1} = C$ (revisit section \ref{sec:scaleConst} for details). The $\hat{n}$ candidate solutions are presented in Fig \ref{fig:wStarMenu} together with their respective risk, vis viva, and vis viva-to-risk ratios (revisit Eqs \ref{eq:visViva}, \ref{eq:riskJ}, and \ref{eq:visToRisk} for details).
+<!-- As explained in section \ref{sec:cycReal}, -->
+<!-- (revisit section \ref{sec:scaleConst} for details) -->
+The corresponding candidate budget allocations are then calculated up to scaling by Eq \ref{eq:wStar}. Complex valued elements in $\mathbf{w}_j$ are transformed into real valued elements by extending or shortening the project time horizon by half a funding cycle (revisit Eqs \ref{eq:Tk} and \ref{eq:wRotate} for details). In this example, all such adjustments are half cycle extensions (as opposed to contractions). The value of $\beta_j$ is chosen so as to enforce the budget constraint, that is, such that $\mathbf{w}_j {'} \mathbf{1} = C$. The $\hat{n}$ candidate solutions are presented in Fig \ref{fig:wStarMenu} together with their respective risk, vis viva, and vis viva-to-risk ratios (revisit Eqs \ref{eq:visViva}, \ref{eq:riskJ}, and \ref{eq:visToRisk} for details).
 
-```{r, fig.show = "hold", fig.width = 5, fig.height=4, fig.align="center", fig.cap="\\label{fig:wStarMenu}Candidate budget allocations corresponding to each of the retained eigenvectors of the project NPV coefficient of covariation matrix. All of these solutions satisfy the first order conditions for the risk minimizing solution, but only the last solution satisfies the second order condition, and is thus optimal.", echo = FALSE}
+```{r, fig.show = "hold", fig.width = 5, fig.height=4, fig.align="center", fig.cap="\\label{fig:wStarMenu}Candidate budget allocations corresponding to each of the retained eigenvectors of the project NPV coefficient of covariation matrix. All of these solutions satisfy the first order conditions for the risk minimizing solution, but only the last solution satisfies the second order condition.", echo = FALSE}
 
 # Single objective optimal budget allocation
 TkHat <- 2 * pi * TvecFundCyc
@@ -1652,7 +1657,7 @@ mat_muStar <- round(Qtilde, 4)
 mat_wShareStar <- round(mat_wShareStar, 4)
 #colSums(mat_wShareStar)
 visVivVec <- round(visVivVec, 2)
-omega^2 / 2 * betaStarVec^2
+#omega^2 / 2 * betaStarVec^2
 muStarVec <- colSums(mat_muStar)
 riskVec <- round(sqrt(upsTilde) * betaStarVec, 2)
 visRiskRatio <-  round(r^2 / 2 * abs(betaStar) / sqrt(upsTilde), 2) #visVivVec / riskVec
@@ -1704,7 +1709,9 @@ optRatio <- visRiskRatio[nSigG]
 #====================================================================
 
 ```
-Of these, only the $\hat{n}^{th}$ allocation satisfies the second order condition, and is thus optimal. The optimal portfolio vis viva is thus `r optVis` dollars squared per annual quarter squared (or "project-joules", if you like), with a risk (standard deviation) of `r optRisk`, and thus a vis viva-to-risk ratio of `r optRatio`. The optimal solution minimizes risk and maximizes the vis viva-to-risk ratio. A closer look at the optimal budget allocation is presented in Fig \ref{fig:wStarDetail} for a budget of USD $100 million. The budget allocation is presented in percentage terms (which may also be read as million USD over the life of the project), and in terms of million USD per funding cycle. The actual apportionment of a given project budget across its funding cycles will typically not be in equal amounts, but rather decided by project managers based on the technical requirements arising in each cycle. The allocation should be recalculated at the end of every funding cycle based on updated parameter values. Allocations may vary from one funding cycle to another based on these updates, and as some projects exit and others enter the portfolio.
+Of these, only the $\hat{n}^{th}$ allocation satisfies the second order condition, and is thus optimal. The optimal portfolio vis viva is thus `r optVis` dollars squared per annual quarter squared (or "project-joules", if you like), with a risk (standard deviation) of `r optRisk`, and thus a vis viva-to-risk ratio of `r optRatio`.
+
+A closer look at the optimal budget allocation is presented in Fig \ref{fig:wStarDetail} for a budget of USD $100 million. The budget allocation is presented in percentage terms (which may also be read as million USD over the life of the project), and in terms of million USD per funding cycle. The actual apportionment of a given project budget across its funding cycles will typically not be in equal amounts, but rather decided by project managers based on the technical requirements arising in each cycle. The allocation should be recalculated at the end of every funding cycle based on updated parameter values. Allocations may vary from one funding cycle to another based on these updates, and as some projects exit and others enter the portfolio.
 
 ```{r, fig.show = "hold", fig.width = 5, fig.height=2, fig.align="center", fig.cap="\\label{fig:wStarDetail}The optimal budget allocation in the hypothetical use case. Time horizons include the half cycle extension, where necessary, to ensure real valued budget allocations.", echo = FALSE}
 
@@ -1840,12 +1847,13 @@ On the other hand, it may be that the project budget allocation falls short of c
 
 # Discussion and conclusion
 
-The portfolio of projects appearing in the hypothetical use case examined above is diverse in research themes, impact pathways, expected rewards, risk levels, time horizons, and stages of implementation. Real AR4D portfolios may or may not be so heterogeneous. In some decision-making contexts, the assumption that projects scale with investment may be too strong, in which case the practitioner might consider applying the method at a more aggregate level, say over a portfolio of programs, each consisting of numerous projects and complementary activities in various stages of implementation. ...Portfolio optimization at the program level has the advantage that can set a common time horizon. Can set scale parameter so as to enforce the budget constraint for the funding cycle in question... Applications are not limited to project portfolios. AR4D breeding programs might consider using the method to optimize allocation of resources across a portfolio of genotypes, for example.
+The portfolio of projects appearing in the hypothetical use case examined above is diverse in research themes, impact pathways, expected rewards, risk levels, time horizons, and stages of implementation. Real AR4D portfolios may or may not be so heterogeneous. In some decision-making contexts, the assumption that projects scale with investment may be too strong, in which case the practitioner might consider applying the method at a more aggregate level, say over a portfolio of programs, each consisting of numerous projects and complementary activities in various stages of implementation. Applications are not limited to project portfolios. AR4D breeding programs might consider using the method to optimize allocation of resources across a portfolio of genotypes, for example.
+<!-- ...Portfolio optimization at the program level has the advantage that can set a common time horizon. Can set scale parameter so as to enforce the budget constraint for the funding cycle in question... -->
 
 In the hypothetical example above, the optimal (risk-minimizing) solution is also the solution with the highest expected impact (vis viva). However, this is not necessarily always so. In cases where the risk minimizing solution does not align with the impact maximizing solution, ambitious investors might consider choosing one of the sub-optimal budget allocations with higher expected impact in exchange for higher risk. The benefits of any particular portfolio must also be weighed against how evenly distributed the allocation is. A solution allocating most of the budget to just one or two projects is likely to generate toxic discontent in the research community.
 
 <!-- [O]ur conviction is that CGIAR researchers have indeed a genuine commitment to achieving development impact, and that they are seriously looking for ways to address critiques that the pre-reform CGIAR operated in an isolated and unaccountable manner (see the left column of Table 1) and largely ignored the social and political dimensions of agricultural development" [@leeuwis2018reforming]. -->
-In every budget allocation exercise there are inevitably participants who are frustrated with the result. The method proposed here does not change that, but it does transfer the focus of frustration from subjective biases underpinning the allocation mechanism itself to more technical biases associated with the underlying assumptions (that project NPV follows a gBm and scales sublinearly with investment) or with the information gathering and impact assessment stages (Mills' steps 1-3), based on which the allocation mechanism is parameterized. Insofar as the assumptions are correct and the parameterization is accurate, the allocation mechanism itself, in stark contrast to the status quo, guarantees an optimal budget allocation.
+In every budget allocation exercise there will be participants who are disappointed with the result. The method proposed here does not change that, but it does transfer the focus of frustration from subjective biases underpinning the allocation mechanism itself to more technical biases associated with the underlying assumptions (that project NPV follows a gBm and scales sublinearly with investment) or with the information gathering and impact assessment stages (Mills' steps 1-3), based on which the allocation mechanism is parameterized. Insofar as the assumptions are correct and the parameterization is accurate, the allocation mechanism itself, in stark contrast to status quo resource allocation procedures, guarantees an optimal budget allocation.
 <!-- The veracity of the information on which the solution is based may be criticized, but the solution... -->
 <!-- by replacing subjective, politically driven, seat-of-your-pants decision making, with an objective, transparent, mathematical solutionly rigorous, risk-minimizing budget allocation mechanism. Whereas subjectively determined budget allocations may always be perceived as poorly judged, or skewed, -->
 <!-- Donors, on the one hand, face increasingly austere fiscal outlooks, and thus pressure research communities for evidence of return on investment. Researchers, on the other hand, bristle at such pressure  -->
