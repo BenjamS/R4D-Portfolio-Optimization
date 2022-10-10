@@ -636,23 +636,23 @@ Eq \ref{eq:npvFnW} is an ansatz. Practitioners may design other functional forms
 
 # Project kinematics and vis viva
 
-The utility $u_k(t)$ of a project intervention over a single time step $\Delta t$ may be defined as the difference between project NPV at the end of the interval and NPV at the start of the interval. That is,
+The utility $\text{u}_k(t)$ of a project intervention over a single time step $\Delta t$ may be defined as the difference between project NPV at the end of the interval and NPV at the start of the interval. That is,
 
 \begin{equation}
-u_k(t) = x_k(t + \Delta t) - x_k(t) = \Delta x_k
+\text{u}_k(t) = x_k(t + \Delta t) - x_k(t) = \Delta x_k
 \end{equation}
 
 The rate of utility, then, is the NPV "velocity".
 
 \begin{equation}
-\frac{u_k(t)}{\Delta t} = \frac{\Delta x_k}{\Delta t} = v_k(t)
+\frac{\text{u}_k(t)}{\Delta t} = \frac{\Delta x_k}{\Delta t} = \text{v}_k(t)
 \end{equation}
 <!-- (If $\Delta t$ is defined as the unit, then the previous two expressions are equivalent.) -->
 
 Consider, moreover, that positive or negative changes in the rate of utility result from the project "impetus"---i.e., the skilled, concerted, applied efforts that comprise the project intervention, plus good or bad luck---i.e. plus more or less random developments in the enabling environment---and that such changes imply a project NPV acceleration, as follows.
 
 \begin{equation}
-\frac{\Delta}{\Delta t} \left( \frac{u_k}{\Delta t} \right) = \frac{\Delta v_k}{\Delta t} = \frac{\Delta^2 x_k}{\Delta t^2}
+\frac{\Delta}{\Delta t} \left( \frac{\text{u}_k}{\Delta t} \right) = \frac{\Delta \text{v}_k}{\Delta t} = \frac{\Delta^2 x_k}{\Delta t^2}
 \end{equation}
 
 Over the judiciously small time interval $\Delta t$, it may be assumed that this acceleration is effectively constant, as in Fig \ref{fig:kinema}. Note that the area of the triangle is proportional to the change in utility over the interval.
@@ -703,8 +703,8 @@ gg
 
 \begin{equation}
 \begin{split}
-\Delta A_k &= \frac{1}{2} \Delta v_k \Delta t \\
-&= \frac{1}{2} \Delta \left( \frac{u_k(t)}{\Delta t} \right) \Delta t = \frac{1}{2} \Delta u_k
+\Delta A_k &= \frac{1}{2} \Delta \text{v}_k \Delta t \\
+&= \frac{1}{2} \Delta \left( \frac{\text{u}_k(t)}{\Delta t} \right) \Delta t = \frac{1}{2} \Delta \text{u}_k
 \end{split}
 \end{equation}
 <!-- The change in utility over the interval $\Delta t$ may thus be expressed -->
@@ -715,36 +715,36 @@ gg
 The project impetus (plus luck) over the interval $\Delta t$ may be quantified either as
 
 \begin{equation}
-\frac{\Delta v_k}{\Delta t} \Delta t = \Delta v_k = \frac{\Delta u_k}{\Delta t}
+\frac{\Delta \text{v}_k}{\Delta t} \Delta t = \Delta \text{v}_k = \frac{\Delta \text{u}_k}{\Delta t}
 \end{equation}
 
 Or
 
 \begin{equation}
 \begin{split}
-\frac{\Delta v_k}{\Delta t} \Delta A_k &= \frac{\Delta v_k}{\Delta t} \frac{1}{2} \Delta v_k \Delta t = \frac{1}{2} (\Delta v_k)^2 \\
-&= \frac{1}{2} \left( \frac{\Delta u_k}{\Delta t} \right)^2
+\frac{\Delta \text{v}_k}{\Delta t} \Delta A_k &= \frac{\Delta \text{v}_k}{\Delta t} \frac{1}{2} \Delta \text{v}_k \Delta t = \frac{1}{2} (\Delta \text{v}_k)^2 \\
+&= \frac{1}{2} \left( \frac{\Delta \text{u}_k}{\Delta t} \right)^2
 \end{split}
 \end{equation}
 
 Insofar as project impetus is analogous to the Newtonian force in physics, then the former measure is analogous to the momentum, while the latter is analogous to the work done or kinetic energy.
 
-Now, if $t$ is the present time step, then $u_k(t)$ must be expressed in terms of _expected_ NPV. That is,
+Now, if $t$ is the present time step, then $\text{u}_k(t)$ must be expressed in terms of _expected_ NPV. That is,
 
 \begin{equation}
-u_k(t; t + \Delta t) = E[\Delta x_k] = \mu_k(t; t + \Delta t) - x_k(t)
+\text{u}_k(t; t + \Delta t) = E[\Delta x_k] = \mu_k(t; t + \Delta t) - x_k(t)
 \end{equation}
 
-By analytical continuation, this may be extended to any time horizon $T_k$.
+By analytic continuation, this may be extended to any time horizon $T_k$.
 
 \begin{equation}
-u_k(t; T_k) = E[x_k(T_k) - x_k(t)] = \mu_k(t; T_k) - x_k(t)
+\text{u}_k(t; T_k) = E[x_k(T_k) - x_k(t)] = \mu_k(t; T_k) - x_k(t)
 \end{equation}
 
 Such that
 
 \begin{equation}
-\frac{\Delta u_k}{\Delta t} = - r \mu_k(t; t + \Delta t)
+\frac{\Delta \text{u}_k}{\Delta t} = - r \mu_k(t; t + \Delta t)
 \end{equation}
 
 And so the project "kinetic energy" over the time horizon $T_k$ (call this $\mathcal{E}_k(t; T_k)$) becomes
