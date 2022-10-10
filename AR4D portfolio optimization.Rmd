@@ -121,7 +121,7 @@ It is also worth noting, in passing, that efforts are underway in the financial 
 
 # Project NPV as a geometric Brownian movement
 
-Ex-ante impact assessment and scenario analysis are designed to quantify research project impacts at a specific point in time, usually in terms of NPV, based on assumptions about the future trajectory of numerous random processes, both research and non-research related. (To facilitate the process, assumptions regarding non-research random processes, particularly future climate and socioeconomic processes, have been conveniently packaged in a set Representative Carbon Pathways (RCPs) and Shared Socioeconomic Pathways (SSPs) [@o2014new; @van2011representative].)
+Ex-ante impact assessment and scenario analysis are designed to quantify research project impacts at a specific point in time, usually in terms of NPV, based on assumptions about the future trajectory of numerous random processes, both research and non-research related. (To facilitate the process, assumptions regarding non-research random processes, particularly future climate and socioeconomic processes, have been conveniently packaged in pre-defined Representative Carbon Pathways (RCPs) and Shared Socioeconomic Pathways (SSPs) [@o2014new; @van2011representative].)
 
 Because it is a function of numerous random processes, project NPV is itself a stochastic variable. The first step in portfolio analysis is to select a reasonable model of the stochastic evolution of project NPV over its life cycle. In other contexts, this choice is often aided by the availability of time series data. In the AR4D context, project NPV time series generally do not exist; and so the choice must be made based on certain assumed characteristics of the unobserved data. In particular, one must assume a certain size distribution of changes in the stochastic variable. That is to say, one must assume a distribution for the change in program NPV $\Delta x$ with respect to a judiciously small increment in time $\Delta t$. If the arithmetic return $\Delta x / x$ over a judiciously small time step $\Delta t$ is normally distributed, then the stochastic process is accurately modeled as a gBm, defined as follows.
 
@@ -154,8 +154,8 @@ Geometric Brownian movement implies, furthermore, that the log return $\ln(x(\ta
 
 \begin{equation}
 \begin{split}
-E \left[\frac{\ln(x(\tau)}{x(\hat{t})} \right] \bigr|_{t = \hat{t}} &= \left(m + \frac{s^2}{2} \right) \tau \\
-Var \left[\frac{\ln(x(\tau)}{x(\hat{t})} \right] \bigr|_{t = \hat{t}} &= s^2 \tau
+E \left[\frac{\ln(x(\tau))}{x(\hat{t})} \right] \Bigr|_{t = \hat{t}} &= \left(m + \frac{s^2}{2} \right) \tau \\
+Var \left[\frac{\ln(x(\tau))}{x(\hat{t})} \right] \Bigr|_{t = \hat{t}} &= s^2 \tau
 \end{split}
 \label{eq:EVarlogRet}
 \end{equation}
@@ -636,22 +636,26 @@ Eq \ref{eq:npvFnW} is an ansatz. Practitioners may design other functional forms
 
 # Project kinematics and vis viva
 
-In the broadest terms, a project may be said to intervene in, or operate upon, an existing net benefit stream $\Delta \text{u}_k / \Delta t$ with the aim of raising it to a higher value by the end of the project, such that
+The utility $u_k(t)$ of a project intervention over a single time step $\Delta t$ may be defined as the difference between project NPV at the end of the interval and NPV at the start of the interval. That is,
 
 \begin{equation}
-\frac{\Delta \text{u}_k}{\Delta t} \Bigr|_{t = T_k} > \frac{\Delta \text{u}_k}{\Delta t} \Bigr|_{t = 0}
+u_k(t) = x_k(t + \Delta t) - x_k(t) = \Delta x_k
 \end{equation}
 
-This implies an acceleration $\Delta^2 \text{u}_k / \Delta t^2$ which comes as a result of the skilled, concerted, applied efforts that comprise the project intervention. Letting $F_k$ stand for these applied efforts and $a_k$ for the acceleration, this axiomatic relation can be expressed $F_k \sim a_k$, or
+The rate of utility, then, is the NPV "velocity".
 
 \begin{equation}
-F_k = \rho a_k
-\label{eq:Newt2}
+\frac{u_k(t)}{\Delta t} = \frac{\Delta x_k}{\Delta t} = v_k(t)
+\end{equation}
+<!-- (If $\Delta t$ is defined as the unit, then the previous two expressions are equivalent.) -->
+
+Consider, moreover, that positive or negative changes in the rate of utility result from the project "impetus"---i.e., the skilled, concerted, applied efforts that comprise the project intervention, plus good or bad luck---i.e. plus more or less random developments in the enabling environment---and that such changes imply a project NPV acceleration, as follows.
+
+\begin{equation}
+\frac{\Delta}{\Delta t} \left( \frac{u_k}{\Delta t} \right) = \frac{\Delta v_k}{\Delta t} = \frac{\Delta^2 x_k}{\Delta t^2}
 \end{equation}
 
-Where $\rho$ is a proportionality constant to be defined based on context.
-
-For sufficiently small time intervals $\Delta t$, it may be said that $F_k$ is effectively constant, resulting in a similarly constant acceleration of the net benefit stream. This is illustrated in Figure \ref{fig:kinema}, where the shorthand $\text{v}_k = \Delta \text{u}_k/\Delta t$ has been introduced to reduce clutter.
+Over the judiciously small time interval $\Delta t$, it may be assumed that this acceleration is effectively constant, as in Fig \ref{fig:kinema}. Note that the area of the triangle is proportional to the change in utility over the interval.
 
 ```{r, fig.show = "hold", fig.width = 4, fig.height=3, fig.align="center", fig.cap="\\label{fig:kinema}Generic example of an acceleration of a net benefit stream.", echo = FALSE}
 
@@ -697,24 +701,149 @@ gg
 
 ```
 
+\begin{equation}
+\begin{split}
+\Delta A_k &= \frac{1}{2} \Delta v_k \Delta t \\
+&= \frac{1}{2} \Delta \left( \frac{u_k(t)}{\Delta t} \right) \Delta t = \frac{1}{2} \Delta u_k
+\end{split}
+\end{equation}
+<!-- The change in utility over the interval $\Delta t$ may thus be expressed -->
+<!-- \begin{equation} -->
+<!-- \Delta u_k = 2 \Delta A_k -->
+<!-- \end{equation} -->
+
+The project impetus (plus luck) over the interval $\Delta t$ may be quantified either as
+
+\begin{equation}
+\frac{\Delta v_k}{\Delta t} \Delta t = \Delta v_k = \frac{\Delta u_k}{\Delta t}
+\end{equation}
+
+Or
+
+\begin{equation}
+\begin{split}
+\frac{\Delta v_k}{\Delta t} \Delta A_k &= \frac{\Delta v_k}{\Delta t} \frac{1}{2} \Delta v_k \Delta t = \frac{1}{2} (\Delta v_k)^2 \\
+&= \frac{1}{2} \left( \frac{\Delta u_k}{\Delta t} \right)^2
+\end{split}
+\end{equation}
+
+Insofar as project impetus is analogous to the Newtonian force in physics, then the former measure is analogous to the momentum, while the latter is analogous to the kinetic energy.
+
+Now, if $t$ is the present time step, then $u_k(t)$ must be expressed in terms of _expected_ NPV. That is,
+
+\begin{equation}
+u_k(t) = E[\Delta x_k] = \mu_k(t; t + \Delta t) - x_k(t)
+\end{equation}
+
+Such that
+
+\begin{equation}
+\frac{\Delta u_k}{\Delta t} = - r \mu_k(t; t + \Delta t)
+\end{equation}
+
+And so the project "kinetic energy" over $\Delta t$ (call this $\mathcal{E}_k(t;t+\Delta t)$) becomes
+
+\begin{equation}
+\mathcal{E}_k(t;t+\Delta t) = r^2 \mu_k(t; t + \Delta t)^2
+\end{equation}
+
+To discourage the present audience from getting too cozy with this analogy, $\mathcal{E}_k$ is henceforth referred to using Gottfried Leibniz's more archaic, and now largely abandoned, term, "vis viva" (which means "living force" in Latin; for a reference, see [@iltis1971leibniz]). This latter expression is adopted here because it is effectively a quadratic measure of project impetus, which proves methodologically expedient in the formulation of the portfolio optimization problem below.
+
+
+Such that
+
+The latter expression effectively gives us a quadratic expression for utility
+
+
+
+
+
+
+
+
+
+The expected utility over the immediately future interval is thus
+
+\begin{equation}
+E[u_k(t)] &= E[\Delta x] = \mu_k(t; t + \Delta t) - x_k(t)
+\end{equation}
+
+
+
+Such that the expected NPV "velocity" $E[v]$ is the rate of utility.
+
+\begin{equation}
+E[v] = E\left[ \frac{\Delta x}{\Delta t} \right] = \frac{u(t)}{\Delta t}
+\end{equation}
+
+Here it is 
+
+The change in utility over the interval $\Delta t$ is 
+
+\begin{equation}
+\begin{split}
+\Delta A &= \frac{1}{2} \Delta v \Delta t \\
+&= \frac{1}{2} \Delta \frac{u(t)}{\Delta t} \Delta t \\
+&= \frac{1}{2}\Delta u(t)
+\end{split}
+\end{equation}
+
+
+
+
+
+Project NPV 
+In the broadest terms, a project may be said to intervene in, or operate upon, an existing net benefit stream $\Delta \text{u}_k / \Delta t$ with the aim of raising it to a higher value by the end of the project, such that
+
+\begin{equation}
+\frac{\Delta \text{u}_k}{\Delta t} \Bigr|_{t = T_k} - \frac{\Delta \text{u}_k}{\Delta t} \Bigr|_{t = 0} > 0
+\end{equation}
+
+<!-- $\Delta^2 \text{u}_k / \Delta t^2$ -->
+This implies a positive acceleration which comes as a result of the skilled, concerted, applied efforts that comprise the project intervention. The net impact of the project---i.e. the left hand side of the expression above---may be expressed as the integral of this acceleration over the project's lifetime.
+
+\begin{equation}
+\int_{0}^{T_k} \frac{\Delta^2 \text{u}_k}{\Delta t^2} \Delta t =
+\frac{\Delta \text{u}_k}{\Delta t} \Bigr|_{t = T_k} - \frac{\Delta \text{u}_k}{\Delta t} \Bigr|_{t = 0}
+\end{equation}
+
+This
+
+<!-- Letting $F_k$ stand for these applied efforts and $a_k$ for the acceleration, this axiomatic relation can be expressed $F_k \sim a_k$, or -->
+<!-- \begin{equation} -->
+<!-- F_k = \rho a_k -->
+<!-- \label{eq:Newt2} -->
+<!-- \end{equation} -->
+<!-- Where $\rho$ is a proportionality constant to be defined based on context. -->
+
+For sufficiently small time intervals $\Delta t$, it may be said that $F_k$ is effectively constant, resulting in a similarly constant acceleration of the net benefit stream. This is illustrated in Figure \ref{fig:kinema}, where the shorthand $\text{v}_k = \Delta \text{u}_k/\Delta t$ has been introduced to reduce clutter.
+
+
+
+
 Note that the slope of the line in this plot is just the acceleration. That is,
 
 \begin{equation}
-\frac{\Delta \text{v}_k}{\Delta t} = \frac{\Delta^2 \text{u}_k}{\Delta t^2} = a_k
+\frac{\Delta \text{v}_k}{\Delta t} = a_k
 \end{equation}
 
 Which can be rearranged as follows,
 
 \begin{equation}
-a_k \Delta t = \text{v}_k(\hat{t} + \Delta t) - \text{v}_k(\hat{t})
+\begin{split}
+a_k \Delta t &= \Delta \text{v}_k \\
+&= \text{v}_k(\hat{t} + \Delta t) - \text{v}_k(\hat{t})
+\end{split}
 \end{equation}
 
-Note, moreover, that the area $\Delta A$ is equal to the project NPV over the interval $\Delta t$.
+Note, moreover, that the area $\Delta A$ is equal to the project impact over the interval $\Delta t$.
 
 \begin{equation}
 \begin{split}
 \Delta A &= \frac{1}{2} (\text{v}_k(\hat{t} + \Delta t) - \text{v}_k(\hat{t})) \Delta t \\
-&= \frac{1}{2} (\Delta \text{u}_k |_{\hat{t} + \Delta t} - \Delta \text{u}_k |_{\hat{t}})
+&= \frac{1}{2} (\Delta \text{u}_k |_{\hat{t} + \Delta t} - \Delta \text{u}_k |_{\hat{t}}) \\
+&= \frac{1}{2} \Delta (\text{u}_k |_{\hat{t} + \Delta t} - \text{u}_k |_{\hat{t}}) = \Delta (\Delta \text{u}_k) \\
+&= \Delta^2 \text{u}_k
 \end{split}
 \end{equation}
 
