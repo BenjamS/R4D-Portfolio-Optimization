@@ -9,7 +9,7 @@ address:
   - code: CIAT
     address: Alliance of Bioversity International and CIAT, Km 17 Recta Cali-Palmira, Valle del Cauca, Colombia, CP 763537
 abstract: |
-  Conventional agricultural research for development project (or program) priority setting procedures lack a portfolio level tool by which to transform project impact assessments into funding allocations. As a result, funding decisions lack transparency and are vulnerable to subjective bias. The default funding allocation procedure also takes little account of project risk, and much less of project covariances, both of which are necessary to calculate portfolio risk. As a result, research portfolios are generally unbalanced and quite risky. To redress these issues, here I develop a risk-adjusted portfolio optimization method to determine the impact maximizing research budget allocation, subject to a portfolio risk constraint, across a portfolio of research alternatives.
+  Conventional agricultural research for development project (or program) priority setting procedures lack a portfolio level tool by which to transform project impact assessments into funding allocations. As a result, funding decisions lack transparency and are vulnerable to subjective bias. The default funding allocation procedure also takes little account of project risk, and much less still of project covariances, both of which are necessary to calculate portfolio risk. As a result, research portfolios are generally unbalanced and quite risky. To redress these issues, here I develop a risk-adjusted portfolio optimization method to determine the risk minimizing allocation of funds across a portfolio of research alternatives.
 bibliography: AR4D Portfolio Optimization.bib
 output: rticles::plos_article
 # plos.csl can be download and used locally
@@ -53,11 +53,11 @@ cellText_size <- 2
 
 Conventional agricultural research for development (AR4D) priority setting exercises have long been implemented to build insight and consensus around the strengths and weaknesses of individual agricultural research alternatives (usually projects or programs) in a given portfolio, but stop short of providing tools that can translate collective insights into optimal budget allocation shares. They also generally exclude from the allocation decision any rigorous accounting of the risk involved in each project, much less of covariances (tradeoffs and synergies) between projects---both of which are required to estimate risk at the portfolio level. As a result, AR4D budget allocations are vulnerable to multiple forms of subjective bias, and are, de facto, badly unbalanced in terms of risk minimization.
 
-In this article, I propose a risk-adjusted portfolio optimization method to redress these issues. The proposed method solves for the impact maximizing budget allocation, subject to a risk constraint, across a portfolio of research projects (or programs), each of which may have varying expected impacts, scaleability, time horizons, risk, synergies, and tradeoffs. The method is built upon the assumptions that 1) project net present values evolve as a geometric Brownian motion and 2) scale with investment, but exhibit marginally diminishing returns to investment. The work presented here also rests on three novel methodological propositions:
+In this article, I propose a risk-adjusted portfolio optimization method to redress these issues. The proposed method solves for the risk minimizing allocation of funds, subject to a level of effort constraint, across a portfolio of research projects (or programs), each of which may have varying expected impacts, scaleability, time horizons, risk, synergies, and tradeoffs. The method is built upon the assumptions that 1) project net present values evolve as a geometric Brownian motion and 2) scale with investment, but exhibit marginally diminishing returns to investment. The work presented here also rests on three novel methodological propositions:
 
 Firstly, project synergies and tradeoffs are "reverse engineered" from expert opinion using a method recently developed by Schiek [-@schiek2021reverse]; and these are then combined with the assumption of project net present value as a geometric Brownian movement to define portfolio risk in terms of a "coefficient of variation-covariation" matrix, whose diagonal elements are the squared project NPV coefficients of variation, and whose off-diagonal elements are "coefficients of covariation" (an extension of the coefficient of variation in the way that covariance is an extension of variance).
 
-Secondly, I show how project impact may be conceived in terms of a quantity analogous to kinetic energy in physics, which I label the "vis viva", adopting the archaic term from physics. This effectively results in a quadratic definition of project impact, which in turn results in a correspondence between optimal budget allocations and the eigenvectors of the project NPV coefficient of covariation matrix. A budget constraint is not explicitly included in the formal statement of the risk-adjusted optimization problem, but can be arbitrarily enforced since eigenvectors are defined up to scaling. Only eigenvectors explaining a substantial fraction of portfolio variance are retained.
+Secondly, I show how project effort or impetus may be conceived in terms of a quantity analogous to kinetic energy or vis viva in physics. This effectively results in a quadratic definition of project impetus, which in turn results in a correspondence between optimal budget allocations and the eigenvectors of the project NPV coefficient of covariation matrix. A budget constraint is not explicitly included in the formal statement of the risk-adjusted optimization problem, but can be arbitrarily enforced since eigenvectors are defined up to scaling. Only eigenvectors explaining a substantial fraction of portfolio variance are retained.
 
 Thirdly, I model the project funding cycle in terms of rotations in the complex plane. While this may seem outlandish at first, I argue that it is more realistic than the conventional notion of project value as something which is always positive. This effectively provides a meaningful framework by which to interpret negative or complex valued budget allocations, and to transform them into real, positive values.
 
@@ -727,12 +727,18 @@ Or
 \end{split}
 \end{equation}
 
-Insofar as project impetus is analogous to the Newtonian force in physics, then the former measure is analogous to the momentum, while the latter is analogous to the kinetic energy.
+Insofar as project impetus is analogous to the Newtonian force in physics, then the former measure is analogous to the momentum, while the latter is analogous to the work done or kinetic energy.
 
 Now, if $t$ is the present time step, then $u_k(t)$ must be expressed in terms of _expected_ NPV. That is,
 
 \begin{equation}
-u_k(t) = E[\Delta x_k] = \mu_k(t; t + \Delta t) - x_k(t)
+u_k(t; t + \Delta t) = E[\Delta x_k] = \mu_k(t; t + \Delta t) - x_k(t)
+\end{equation}
+
+By analytical continuation, this may be extended to any time horizon $T_k$.
+
+\begin{equation}
+u_k(t; T_k) = E[x_k(T_k) - x_k(t)] = \mu_k(t; T_k) - x_k(t)
 \end{equation}
 
 Such that
@@ -741,259 +747,168 @@ Such that
 \frac{\Delta u_k}{\Delta t} = - r \mu_k(t; t + \Delta t)
 \end{equation}
 
-And so the project "kinetic energy" over $\Delta t$ (call this $\mathcal{E}_k(t;t+\Delta t)$) becomes
+And so the project "kinetic energy" over the time horizon $T_k$ (call this $\mathcal{E}_k(t; T_k)$) becomes
 
 \begin{equation}
-\mathcal{E}_k(t;t+\Delta t) = r^2 \mu_k(t; t + \Delta t)^2
+\mathcal{E}_k(t; T_k) = \frac{r^2}{2} \mu_k(t; T_k)^2
 \end{equation}
 
-To discourage the present audience from getting too cozy with this analogy, $\mathcal{E}_k$ is henceforth referred to using Gottfried Leibniz's more archaic, and now largely abandoned, term, "vis viva" (which means "living force" in Latin; for a reference, see [@iltis1971leibniz]). This latter expression is adopted here because it is effectively a quadratic measure of project impetus, which proves methodologically expedient in the formulation of the portfolio optimization problem below.
+In the present context, $\mathcal{E}_k(t; T_k)$ is effectively a quadratic expression for the expected project level of effort expended over the course of the time horizon, expressed in units of value squared per unit time squared. To discourage the present audience from getting too cozy with the physics analogy, $\mathcal{E}_k(t; T_k)$ is henceforth referred to using Gottfried Leibniz's more archaic, and now largely abandoned, term, "vis viva" (which means "living force" in Latin; for a reference, see [@iltis1971leibniz]).
+<!-- The vis viva is adopted here because a quadratic measure for project effort proves methodologically expedient in the formulation of the portfolio optimization problem farther below. -->
+<!-- As in physics, it may also be teleologically defined as the amount of project impetus required to accelerate a NPV to a  -->
 
-
-Such that
-
-The latter expression effectively gives us a quadratic expression for utility
-
-
-
-
-
-
-
-
-
-The expected utility over the immediately future interval is thus
-
-\begin{equation}
-E[u_k(t)] &= E[\Delta x] = \mu_k(t; t + \Delta t) - x_k(t)
-\end{equation}
-
-
-
-Such that the expected NPV "velocity" $E[v]$ is the rate of utility.
-
-\begin{equation}
-E[v] = E\left[ \frac{\Delta x}{\Delta t} \right] = \frac{u(t)}{\Delta t}
-\end{equation}
-
-Here it is 
-
-The change in utility over the interval $\Delta t$ is 
-
-\begin{equation}
-\begin{split}
-\Delta A &= \frac{1}{2} \Delta v \Delta t \\
-&= \frac{1}{2} \Delta \frac{u(t)}{\Delta t} \Delta t \\
-&= \frac{1}{2}\Delta u(t)
-\end{split}
-\end{equation}
-
-
-
-
-
-Project NPV 
-In the broadest terms, a project may be said to intervene in, or operate upon, an existing net benefit stream $\Delta \text{u}_k / \Delta t$ with the aim of raising it to a higher value by the end of the project, such that
-
-\begin{equation}
-\frac{\Delta \text{u}_k}{\Delta t} \Bigr|_{t = T_k} - \frac{\Delta \text{u}_k}{\Delta t} \Bigr|_{t = 0} > 0
-\end{equation}
-
-<!-- $\Delta^2 \text{u}_k / \Delta t^2$ -->
-This implies a positive acceleration which comes as a result of the skilled, concerted, applied efforts that comprise the project intervention. The net impact of the project---i.e. the left hand side of the expression above---may be expressed as the integral of this acceleration over the project's lifetime.
-
-\begin{equation}
-\int_{0}^{T_k} \frac{\Delta^2 \text{u}_k}{\Delta t^2} \Delta t =
-\frac{\Delta \text{u}_k}{\Delta t} \Bigr|_{t = T_k} - \frac{\Delta \text{u}_k}{\Delta t} \Bigr|_{t = 0}
-\end{equation}
-
-This
-
-<!-- Letting $F_k$ stand for these applied efforts and $a_k$ for the acceleration, this axiomatic relation can be expressed $F_k \sim a_k$, or -->
+Portfolio vis viva $\mathcal{E}$ is defined as the sum of project vis vivas.
 <!-- \begin{equation} -->
-<!-- F_k = \rho a_k -->
-<!-- \label{eq:Newt2} -->
+<!-- \begin{split} -->
+<!-- \text{v} = \sqrt{\sum_k \left( \frac{\Delta \text{u}_k}{\Delta t} \right)^2} &= r \sqrt{ \sum_k \mu_k^2} \\ -->
+<!-- &= r \sqrt{\boldsymbol{\mu} ' \boldsymbol{\mu}} \\ -->
+<!-- \end{split} -->
 <!-- \end{equation} -->
-<!-- Where $\rho$ is a proportionality constant to be defined based on context. -->
+<!-- and -->
 
-For sufficiently small time intervals $\Delta t$, it may be said that $F_k$ is effectively constant, resulting in a similarly constant acceleration of the net benefit stream. This is illustrated in Figure \ref{fig:kinema}, where the shorthand $\text{v}_k = \Delta \text{u}_k/\Delta t$ has been introduced to reduce clutter.
-
-
-
-
-Note that the slope of the line in this plot is just the acceleration. That is,
-
+<!-- \frac{\rho}{2} \text{v}^2 =  -->
 \begin{equation}
-\frac{\Delta \text{v}_k}{\Delta t} = a_k
-\end{equation}
-
-Which can be rearranged as follows,
-
-\begin{equation}
-\begin{split}
-a_k \Delta t &= \Delta \text{v}_k \\
-&= \text{v}_k(\hat{t} + \Delta t) - \text{v}_k(\hat{t})
-\end{split}
-\end{equation}
-
-Note, moreover, that the area $\Delta A$ is equal to the project impact over the interval $\Delta t$.
-
-\begin{equation}
-\begin{split}
-\Delta A &= \frac{1}{2} (\text{v}_k(\hat{t} + \Delta t) - \text{v}_k(\hat{t})) \Delta t \\
-&= \frac{1}{2} (\Delta \text{u}_k |_{\hat{t} + \Delta t} - \Delta \text{u}_k |_{\hat{t}}) \\
-&= \frac{1}{2} \Delta (\text{u}_k |_{\hat{t} + \Delta t} - \text{u}_k |_{\hat{t}}) = \Delta (\Delta \text{u}_k) \\
-&= \Delta^2 \text{u}_k
-\end{split}
-\end{equation}
-
-And a third "kinematic" expression, soon to come in handy, can be obtained by multiplying the previous two as follows.
-
-\begin{equation}
-\begin{split}
-a_k \Delta t \Delta \text{u}_k &= \frac{1}{2} (\text{v}_k(T_k) - \text{v}_k(0)) (\text{v}_k(T_k) + \text{v}_k(0)) \Delta t \\
-a_k \Delta \text{u}_k &= \frac{1}{2} (\text{v}_k(T_k)^2 - \text{v}_k(0)^2)
-\end{split}
-\label{eq:kinema3}
-\end{equation}
-
-<!-- Now, since the project has a limited budget, the amount of skilled, concerted, applied effort ($F$) it can exert along the net benefit displacement $\Delta u$ is also limited. That is, the quantity $F \Delta u$ is limited. Let this quantity be denoted $\mathcal{E}$. By equation \ref{eq:Newt2}, $\mathcal{E}$ can be rewritten as follows. -->
-Now, consider that, for a given budget and risk tolerance, the project aims to maximize the amount of skilled, concerted, applied effort ($F_k$) exerted along the "displacement" $\Delta \text{u}_k$. That is to say, the aim is to maximize the quantity $F_k \Delta \text{u}_k$, subject to a budget and risk constraint. Let this quantity be denoted $\mathcal{E}_k$, and note that, by equation \ref{eq:Newt2},
-
-\begin{equation}
-\mathcal{E}_k = \rho a_k \Delta \text{u}_k 
-\end{equation}
-
-But, by equation \ref{eq:kinema3},
-
-\begin{equation}
-\mathcal{E}_k = \frac{\rho}{2} (\text{v}_k(T_k)^2 - \text{v}_k(0)^2)
-\label{eq:Eraw}
-\end{equation}
-
-Finally, note that the same analysis can be reformulated in terms of project NPV---that is to say, in terms of the difference between the net benefit stream _with_ the project intervention versus the net benefit stream _without_ it (the counter-factual). Formally, this means $\text{v}_k$ is redefined
-
-\begin{equation}
-\text{v}_k = \frac{\Delta \text{u}_k}{\Delta t}\Bigr|_{*} - \frac{\Delta \text{u}_k}{\Delta t}
-\end{equation}
-
-(Where the "$*$" indicates the "with project intervention" scenario.)
-
-Then $\text{v}_k(0) = 0$, and so equation \ref{eq:Eraw} becomes
-
-\begin{equation}
-\mathcal{E}_k = \frac{\rho}{2} \text{v}_k(T_k)^2
-\label{eq:Enpv}
-\end{equation}
-
-In physics, this is analogous to the expression for the kinetic energy of a moving object with mass $\rho$, where the $\text{u}_k$ stands for a spatial dimension. To discourage practitioners from getting too cozy with this analogy, $\mathcal{E}_k$ is henceforth referred to using Gottfried Leibniz's more archaic, and now largely abandoned, term, "vis viva" (which means "living force" in Latin; for a reference, see [@iltis1971leibniz]). Pragmatically, the vis viva may be interpreted as a quadratic expression of expected program impact.
-
-Note, moreover, that the displacement $\Delta \text{u}_k$ corresponds to the $k^{th}$ expected project NPV at $t = \hat{t}$. More precisely,
-
-\begin{equation}
-\begin{split}
-\Delta \text{u}_k = \int_{\hat{t}}^{T_k} \text{v}_k dt &= \text{u}_k(\tau_k)|_{*} - \text{u}_k(\tau_k) \\
-&= E[x_k(T)]\bigr|_{t = \hat{t}}
-\end{split}
-\end{equation}
-
-The displacement $\Delta \text{u}_k$ is thus expressed in units of value. Since the project effort $F_k$ is expressed in units of value per unit time squared, it follows that vis viva has units of value squared per unit time squared. Conversely, $F_k$ may be thought of as the effort required to achieve a certain NPV acceleration, say 1 unit of value per unit time squared. Defining this quantity of effort as 1 "project-Newton", vis viva can be measured in units of "project-joules"---i.e. in units of total effort expended, or work done, over the displacement $\Delta \text{u}_k$.
-
-Assuming $x_k(t)$ follows a gBm,
-
-\begin{equation}
-\Delta \text{u}_k \bigr|_{t = \hat{t}} = \mu_k(\hat{t}) = x_k(\hat{t}) e^{r \tau_k} \bigr|_{t = \hat{t}}
-\end{equation}
-
-The corresponding velocity thus works out to
-
-\begin{equation}
-\frac{\Delta \text{u}_k}{\Delta t} \Bigr|_{t = \hat{t}} = -r x_k(\hat{t}) e^{r \tau_k}
-\end{equation}
-
-With starting and finishing values of
-
-\begin{equation}
-\frac{\Delta \text{u}_k}{\Delta t} \Bigr|_{t = 0} = -r x_k(0) e^{r \tau_k}
-\end{equation}
-
-and
-
-\begin{equation}
-\frac{\Delta \text{u}_k}{\Delta t} \Bigr|_{t = T_k} = -r x_k(T_k)
-\end{equation}
-
-The velocity is negative because time progression in the definition of $\mu_k$ is expressed not in terms of the number of time steps transpired, but rather in terms of the number of time steps that have yet to transpire until the time horizon $T_k$. Nonetheless, the velocity is monotonically increasing in time (Fig \ref{fig:kinema2}).
-
-```{r, fig.show = "hold", fig.width = 4, fig.height=3, fig.align="center", fig.cap="\\label{fig:kinema2}Acceleration of a net benefit stream.", echo = FALSE}
-
-t <- seq(0, 1, length.out = 10)
-slope <- 1
-yint <- -4 / 3
-v <- slope * t + yint
-df <- data.frame(t, v)
-ymax <- max(v)
-ymin <- min(v)
-
-gg <- ggplot(df, aes(x = t, y = v))
-gg <- gg + geom_line()
-gg <- gg + geom_segment(aes(x = 0, xend = 1, y = ymax, yend = ymax), linetype = 1)
-# gg <- gg + geom_segment(aes(x = 0, xend = 1, y = ymax, yend = ymax), linetype = 2)
-gg <- gg + geom_segment(aes(x = 1, xend = 1, y = ymax, yend = 0), linetype = 2)
-gg <- gg + geom_segment(aes(x = 0, xend = 1.2, y = 0, yend = 0),
-                        arrow=arrow(length=unit(0.2,"cm")), linetype = 1)
-gg <- gg + geom_segment(aes(x = 0, xend = 0, y = 0, yend = -2),
-                        arrow=arrow(length=unit(0.2,"cm")), linetype = 1)
-gg <- gg + geom_ribbon(aes(ymin = v, ymax = ymax), fill = "blue", alpha = .5)
-# gg <- gg + geom_ribbon(aes(ymin = 0, ymax = yint), fill = "orange", alpha = .5)
-gg <- gg + annotate("text", x = 1 / 3, y = yint * 0.5,
-                    label = expression(italic(Delta*A)))
-# gg <- gg + annotate("text", x = 2 / 3, y = yint * 0.5,
-#                     label = expression(italic(A["0"])))
-gg <- gg + annotate("text", x = -0.09, y = yint,
-                    label = expression(italic("v(t)")), size = label_size)
-gg <- gg + annotate("text", x = -0.09, y = ymax,
-                    label = expression(italic("v(t + "*Delta*t*")")), size = label_size)
-gg <- gg + annotate("text", x = 0, y = 0.07,
-                    label = "t", size = label_size)
-gg <- gg + annotate("text", x = 1, y = 0.07,
-                    label = expression(italic("t + "*Delta*t)), size = label_size)
-gg <- gg + coord_cartesian(xlim = c(-0.11, 1.2))
-# gg <- gg + labs(x = expression(Delta~t),
-#                 y = expression(Delta*u~"/"~Delta*t))
-gg <- gg + theme_bw()
-gg <- gg + theme(axis.text = element_blank(),
-                 axis.ticks = element_blank(),
-                 axis.title = element_text(size = axisTitle_size))
-gg
-
-
-```
-
-The vis viva, meanwhile, works out to
-
-\begin{equation}
-\begin{split}
-\mathcal{E}_k(\hat{t}) &= \rho \frac{r^2}{2} x_k(\hat{t})^2 e^{2r \tau_k} \\
-&= \rho \frac{r^2}{2} \mu_k(\hat{t})^2
-\end{split}
-\end{equation}
-
-Portfolio velocity $\text{v}$ and vis viva $\mathcal{E}$ may be expressed
-
-\begin{equation}
-\begin{split}
-\text{v} = \sqrt{\sum_k \left( \frac{\Delta \text{u}_k}{\Delta t} \right)^2} &= r \sqrt{ \sum_k \mu_k^2} \\
-&= r \sqrt{\boldsymbol{\mu} ' \boldsymbol{\mu}} \\
-\end{split}
-\end{equation}
-
-and
-
-\begin{equation}
-\mathcal{E} = \frac{\rho}{2} \text{v}^2 = \rho \frac{r^2}{2} \boldsymbol{\mu} ' \boldsymbol{\mu}
+\mathcal{E} = \rho \frac{r^2}{2} \boldsymbol{\mu} ' \boldsymbol{\mu}
 \label{eq:ErawPort}
 \end{equation}
+<!-- In the broadest terms, a project may be said to intervene in, or operate upon, an existing net benefit stream $\Delta \text{u}_k / \Delta t$ with the aim of raising it to a higher value by the end of the project, such that -->
+<!-- \begin{equation} -->
+<!-- \frac{\Delta \text{u}_k}{\Delta t} \Bigr|_{t = T_k} - \frac{\Delta \text{u}_k}{\Delta t} \Bigr|_{t = 0} > 0 -->
+<!-- \end{equation} -->
+<!-- <!-- $\Delta^2 \text{u}_k / \Delta t^2$ -->
+<!-- This implies a positive acceleration which comes as a result of the skilled, concerted, applied efforts that comprise the project intervention. The net impact of the project---i.e. the left hand side of the expression above---may be expressed as the integral of this acceleration over the project's lifetime. -->
+<!-- \begin{equation} -->
+<!-- \int_{0}^{T_k} \frac{\Delta^2 \text{u}_k}{\Delta t^2} \Delta t = -->
+<!-- \frac{\Delta \text{u}_k}{\Delta t} \Bigr|_{t = T_k} - \frac{\Delta \text{u}_k}{\Delta t} \Bigr|_{t = 0} -->
+<!-- \end{equation} -->
+<!-- <!-- Letting $F_k$ stand for these applied efforts and $a_k$ for the acceleration, this axiomatic relation can be expressed $F_k \sim a_k$, or -->
+<!-- <!-- \begin{equation} -->
+<!-- <!-- F_k = \rho a_k -->
+<!-- <!-- \label{eq:Newt2} -->
+<!-- <!-- \end{equation} -->
+<!-- <!-- Where $\rho$ is a proportionality constant to be defined based on context. -->
+<!-- For sufficiently small time intervals $\Delta t$, it may be said that $F_k$ is effectively constant, resulting in a similarly constant acceleration of the net benefit stream. This is illustrated in Figure \ref{fig:kinema}, where the shorthand $\text{v}_k = \Delta \text{u}_k/\Delta t$ has been introduced to reduce clutter. -->
+<!-- Note that the slope of the line in this plot is just the acceleration. That is, -->
+<!-- \begin{equation} -->
+<!-- \frac{\Delta \text{v}_k}{\Delta t} = a_k -->
+<!-- \end{equation} -->
+<!-- Which can be rearranged as follows, -->
+<!-- \begin{equation} -->
+<!-- \begin{split} -->
+<!-- a_k \Delta t &= \Delta \text{v}_k \\ -->
+<!-- &= \text{v}_k(\hat{t} + \Delta t) - \text{v}_k(\hat{t}) -->
+<!-- \end{split} -->
+<!-- \end{equation} -->
+<!-- Note, moreover, that the area $\Delta A$ is equal to the project impact over the interval $\Delta t$. -->
+<!-- \begin{equation} -->
+<!-- \begin{split} -->
+<!-- \Delta A &= \frac{1}{2} (\text{v}_k(\hat{t} + \Delta t) - \text{v}_k(\hat{t})) \Delta t \\ -->
+<!-- &= \frac{1}{2} (\Delta \text{u}_k |_{\hat{t} + \Delta t} - \Delta \text{u}_k |_{\hat{t}}) \\ -->
+<!-- &= \frac{1}{2} \Delta (\text{u}_k |_{\hat{t} + \Delta t} - \text{u}_k |_{\hat{t}}) = \Delta (\Delta \text{u}_k) \\ -->
+<!-- &= \Delta^2 \text{u}_k -->
+<!-- \end{split} -->
+<!-- \end{equation} -->
+<!-- And a third "kinematic" expression, soon to come in handy, can be obtained by multiplying the previous two as follows. -->
+<!-- \begin{equation} -->
+<!-- \begin{split} -->
+<!-- a_k \Delta t \Delta \text{u}_k &= \frac{1}{2} (\text{v}_k(T_k) - \text{v}_k(0)) (\text{v}_k(T_k) + \text{v}_k(0)) \Delta t \\ -->
+<!-- a_k \Delta \text{u}_k &= \frac{1}{2} (\text{v}_k(T_k)^2 - \text{v}_k(0)^2) -->
+<!-- \end{split} -->
+<!-- \label{eq:kinema3} -->
+<!-- \end{equation} -->
+<!-- <!-- Now, since the project has a limited budget, the amount of skilled, concerted, applied effort ($F$) it can exert along the net benefit displacement $\Delta u$ is also limited. That is, the quantity $F \Delta u$ is limited. Let this quantity be denoted $\mathcal{E}$. By equation \ref{eq:Newt2}, $\mathcal{E}$ can be rewritten as follows. --> <!-- Now, consider that, for a given budget and risk tolerance, the project aims to maximize the amount of skilled, concerted, applied effort ($F_k$) exerted along the "displacement" $\Delta \text{u}_k$. That is to say, the aim is to maximize the quantity $F_k \Delta \text{u}_k$, subject to a budget and risk constraint. Let this quantity be denoted $\mathcal{E}_k$, and note that, by equation \ref{eq:Newt2}, -->
+<!-- \begin{equation} -->
+<!-- \mathcal{E}_k = \rho a_k \Delta \text{u}_k  -->
+<!-- \end{equation} -->
+<!-- But, by equation \ref{eq:kinema3}, -->
+<!-- \begin{equation} -->
+<!-- \mathcal{E}_k = \frac{\rho}{2} (\text{v}_k(T_k)^2 - \text{v}_k(0)^2) -->
+<!-- \label{eq:Eraw} -->
+<!-- \end{equation} -->
+<!-- Finally, note that the same analysis can be reformulated in terms of project NPV---that is to say, in terms of the difference between the net benefit stream _with_ the project intervention versus the net benefit stream _without_ it (the counter-factual). Formally, this means $\text{v}_k$ is redefined -->
+<!-- \begin{equation} -->
+<!-- \text{v}_k = \frac{\Delta \text{u}_k}{\Delta t}\Bigr|_{*} - \frac{\Delta \text{u}_k}{\Delta t} -->
+<!-- \end{equation} -->
+<!-- (Where the "$*$" indicates the "with project intervention" scenario.) -->
+<!-- Then $\text{v}_k(0) = 0$, and so equation \ref{eq:Eraw} becomes -->
+<!-- \begin{equation} -->
+<!-- \mathcal{E}_k = \frac{\rho}{2} \text{v}_k(T_k)^2 -->
+<!-- \label{eq:Enpv} -->
+<!-- \end{equation} -->
+<!-- In physics, this is analogous to the expression for the kinetic energy of a moving object with mass $\rho$, where the $\text{u}_k$ stands for a spatial dimension. To discourage practitioners from getting too cozy with this analogy, $\mathcal{E}_k$ is henceforth referred to using Gottfried Leibniz's more archaic, and now largely abandoned, term, "vis viva" (which means "living force" in Latin; for a reference, see [@iltis1971leibniz]). Pragmatically, the vis viva may be interpreted as a quadratic expression of expected program impact. -->
+<!-- Note, moreover, that the displacement $\Delta \text{u}_k$ corresponds to the $k^{th}$ expected project NPV at $t = \hat{t}$. More precisely, -->
+<!-- \begin{equation} -->
+<!-- \begin{split} -->
+<!-- \Delta \text{u}_k = \int_{\hat{t}}^{T_k} \text{v}_k dt &= \text{u}_k(\tau_k)|_{*} - \text{u}_k(\tau_k) \\ -->
+<!-- &= E[x_k(T)]\bigr|_{t = \hat{t}} -->
+<!-- \end{split} -->
+<!-- \end{equation} -->
+<!-- The displacement $\Delta \text{u}_k$ is thus expressed in units of value. Since the project effort $F_k$ is expressed in units of value per unit time squared, it follows that vis viva has units of value squared per unit time squared. Conversely, $F_k$ may be thought of as the effort required to achieve a certain NPV acceleration, say 1 unit of value per unit time squared. Defining this quantity of effort as 1 "project-Newton", vis viva can be measured in units of "project-joules"---i.e. in units of total effort expended, or work done, over the displacement $\Delta \text{u}_k$. -->
+<!-- Assuming $x_k(t)$ follows a gBm, -->
+<!-- \begin{equation} -->
+<!-- \Delta \text{u}_k \bigr|_{t = \hat{t}} = \mu_k(\hat{t}) = x_k(\hat{t}) e^{r \tau_k} \bigr|_{t = \hat{t}} -->
+<!-- \end{equation} -->
+<!-- The corresponding velocity thus works out to -->
+<!-- \begin{equation} -->
+<!-- \frac{\Delta \text{u}_k}{\Delta t} \Bigr|_{t = \hat{t}} = -r x_k(\hat{t}) e^{r \tau_k} -->
+<!-- \end{equation} -->
+<!-- With starting and finishing values of -->
+<!-- \begin{equation} -->
+<!-- \frac{\Delta \text{u}_k}{\Delta t} \Bigr|_{t = 0} = -r x_k(0) e^{r \tau_k} -->
+<!-- \end{equation} -->
+<!-- and -->
+<!-- \begin{equation} -->
+<!-- \frac{\Delta \text{u}_k}{\Delta t} \Bigr|_{t = T_k} = -r x_k(T_k) -->
+<!-- \end{equation} -->
+<!-- The velocity is negative because time progression in the definition of $\mu_k$ is expressed not in terms of the number of time steps transpired, but rather in terms of the number of time steps that have yet to transpire until the time horizon $T_k$. Nonetheless, the velocity is monotonically increasing in time (Fig \ref{fig:kinema2}). -->
+
+<!-- # ```{r, fig.show = "hold", fig.width = 4, fig.height=3, fig.align="center", fig.cap="\\label{fig:kinema2}Acceleration of a net benefit stream.", echo = FALSE} -->
+<!-- t <- seq(0, 1, length.out = 10) -->
+<!-- slope <- 1 -->
+<!-- yint <- -4 / 3 -->
+<!-- v <- slope * t + yint -->
+<!-- df <- data.frame(t, v) -->
+<!-- ymax <- max(v) -->
+<!-- ymin <- min(v) -->
+<!-- gg <- ggplot(df, aes(x = t, y = v)) -->
+<!-- gg <- gg + geom_line() -->
+<!-- gg <- gg + geom_segment(aes(x = 0, xend = 1, y = ymax, yend = ymax), linetype = 1) -->
+<!-- # gg <- gg + geom_segment(aes(x = 0, xend = 1, y = ymax, yend = ymax), linetype = 2) -->
+<!-- gg <- gg + geom_segment(aes(x = 1, xend = 1, y = ymax, yend = 0), linetype = 2) -->
+<!-- gg <- gg + geom_segment(aes(x = 0, xend = 1.2, y = 0, yend = 0), -->
+<!--                         arrow=arrow(length=unit(0.2,"cm")), linetype = 1) -->
+<!-- gg <- gg + geom_segment(aes(x = 0, xend = 0, y = 0, yend = -2), -->
+<!--                         arrow=arrow(length=unit(0.2,"cm")), linetype = 1) -->
+<!-- gg <- gg + geom_ribbon(aes(ymin = v, ymax = ymax), fill = "blue", alpha = .5) -->
+<!-- # gg <- gg + geom_ribbon(aes(ymin = 0, ymax = yint), fill = "orange", alpha = .5) -->
+<!-- gg <- gg + annotate("text", x = 1 / 3, y = yint * 0.5, -->
+<!--                     label = expression(italic(Delta*A))) -->
+<!-- # gg <- gg + annotate("text", x = 2 / 3, y = yint * 0.5, -->
+<!-- #                     label = expression(italic(A["0"]))) -->
+<!-- gg <- gg + annotate("text", x = -0.09, y = yint, -->
+<!--                     label = expression(italic("v(t)")), size = label_size) -->
+<!-- gg <- gg + annotate("text", x = -0.09, y = ymax, -->
+<!--                     label = expression(italic("v(t + "*Delta*t*")")), size = label_size) -->
+<!-- gg <- gg + annotate("text", x = 0, y = 0.07, -->
+<!--                     label = "t", size = label_size) -->
+<!-- gg <- gg + annotate("text", x = 1, y = 0.07, -->
+<!--                     label = expression(italic("t + "*Delta*t)), size = label_size) -->
+<!-- gg <- gg + coord_cartesian(xlim = c(-0.11, 1.2)) -->
+<!-- # gg <- gg + labs(x = expression(Delta~t), -->
+<!-- #                 y = expression(Delta*u~"/"~Delta*t)) -->
+<!-- gg <- gg + theme_bw() -->
+<!-- gg <- gg + theme(axis.text = element_blank(), -->
+<!--                  axis.ticks = element_blank(), -->
+<!--                  axis.title = element_text(size = axisTitle_size)) -->
+<!-- gg -->
+<!-- ``` -->
+<!-- The vis viva, meanwhile, works out to -->
+<!-- \begin{equation} -->
+<!-- \begin{split} -->
+<!-- \mathcal{E}_k(\hat{t}) &= \rho \frac{r^2}{2} x_k(\hat{t})^2 e^{2r \tau_k} \\ -->
+<!-- &= \rho \frac{r^2}{2} \mu_k(\hat{t})^2 -->
+<!-- \end{split} -->
+<!-- \end{equation} -->
 <!-- Note, finally, that the vis viva per unit project expenditure may be expressed -->
 <!-- \begin{equation} -->
 <!-- \begin{split} -->
@@ -1347,10 +1262,9 @@ When choosing the scaling constant $\beta_j$ to enforce the budget constraint, t
 \end{split}
 \label{eq:visViva}
 \end{equation}
+<!-- Note that $\beta_j^2$ corresponds to the constant $\rho$ in Eq \ref{eq:Newt2}. -->
 
-Note that $\beta_j^2$ corresponds to the constant $\rho$ in Eq \ref{eq:Newt2}.
-
-Moreover, the optimal portfolio risk $\sigma_j^*$ (Eq \ref{eq:riskJraw}) and risk shadow price $\lambda_j$ (Eq \ref{eq:lamJraw}) must also be redefined---or rather defined more carefully---as follows.
+Moreover, the optimal portfolio risk $\sigma_j^*$ (Eq \ref{eq:riskJraw}) and risk shadow price $\lambda_j$ (Eq \ref{eq:lamJraw}) must also be redefined more carefully as follows.
 
 \begin{equation}
 \begin{split}
@@ -1979,9 +1893,11 @@ On the other hand, it may be that the project budget allocation falls short of c
 The portfolio of projects appearing in the hypothetical use case examined above is diverse in research themes, impact pathways, expected rewards, risk levels, time horizons, and stages of implementation. Real AR4D portfolios may or may not be so heterogeneous. In some decision-making contexts, the assumption that projects scale with investment may be too strong, in which case the practitioner might consider applying the method at a more aggregate level, say over a portfolio of programs, each consisting of numerous projects and complementary activities in various stages of implementation. Applications are not limited to project portfolios. AR4D breeding programs might consider using the method to optimize allocation of resources across a portfolio of genotypes, for example.
 <!-- ...Portfolio optimization at the program level has the advantage that can set a common time horizon. Can set scale parameter so as to enforce the budget constraint for the funding cycle in question... -->
 
-In the hypothetical example above, the optimal (risk-minimizing) solution is also the solution with the highest expected impact (vis viva). However, this is not necessarily always so. In cases where the risk minimizing solution does not align with the impact maximizing solution, ambitious investors might consider choosing one of the sub-optimal budget allocations with higher expected impact in exchange for higher risk. The benefits of any particular portfolio must also be weighed against how evenly distributed the allocation is. A solution allocating most of the budget to just one or two projects is likely to generate toxic discontent in the research community.
+In the hypothetical example above, the optimal (risk-minimizing) solution is also the solution with the highest vis viva. However, this is not necessarily always so. In cases where the risk minimizing solution does not align with the vis viva maximizing solution, ambitious investors might consider choosing one of the sub-optimal budget allocations with higher vis viva in exchange for higher risk. The benefits of any particular portfolio must also be weighed against how evenly distributed the allocation is. A solution allocating most of the budget to just one or two projects is likely to generate toxic discontent in the research community.
 
+In this article, the risk adjusted portfolio optimization problem is formulated in terms of vis viva maximization subject to a risk constraint. It is straightforward to show that the problem can just as well be formulated in terms of risk minimization subject to a vis viva constraint. The reader is also encouraged to verify that the first order conditions derived above satisfy the Euler-Lagrange condition for stationary action.
 <!-- [O]ur conviction is that CGIAR researchers have indeed a genuine commitment to achieving development impact, and that they are seriously looking for ways to address critiques that the pre-reform CGIAR operated in an isolated and unaccountable manner (see the left column of Table 1) and largely ignored the social and political dimensions of agricultural development" [@leeuwis2018reforming]. -->
+
 In every budget allocation exercise there will be participants who are disappointed with the result. The method proposed here does not change that, but it does transfer the focus of frustration from subjective biases underpinning the allocation mechanism itself to more technical biases associated with the underlying assumptions (that project NPV follows a gBm and scales sublinearly with investment) or with the information gathering and impact assessment stages (Mills' steps 1-3), based on which the allocation mechanism is parameterized. Insofar as the assumptions are correct and the parameterization is accurate, the allocation mechanism itself, in stark contrast to status quo resource allocation procedures, guarantees an optimal budget allocation.
 <!-- The veracity of the information on which the solution is based may be criticized, but the solution... -->
 <!-- by replacing subjective, politically driven, seat-of-your-pants decision making, with an objective, transparent, mathematical solutionly rigorous, risk-minimizing budget allocation mechanism. Whereas subjectively determined budget allocations may always be perceived as poorly judged, or skewed, -->
