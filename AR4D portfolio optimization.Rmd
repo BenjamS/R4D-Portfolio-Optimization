@@ -1375,7 +1375,7 @@ is that for which the projected Hessian ($H_{b}$) is positive definite, and henc
 
 ## Keeping only meaningful solutions
 
-The trailing eigenvectors of a covariance matrix tend to represent noise in the data. The budget allocations associated with these eigenvectors are thus effectively random, and should be discarded from the menu of eligible solutions. To ensure that solutions are meaningful, only the leading $\hat{n}$ eigenvectors required to explain a high fraction of total portfolio variance should be retained. (This is tantamount to the "spectral cut-off" method used in the financial context [@guo2018eigen; @carrasco2011optimal].)
+The trailing eigenvectors of a synergy-tradeoff matrix (i.e., a covariance or correlation or coefficient of covariation matrix) tend to represent noise in the data. The budget allocations associated with these eigenvectors are thus effectively random, and should be discarded from the menu of eligible solutions. To ensure that solutions are meaningful, only the leading $\hat{n}$ eigenvectors required to explain a high fraction of total portfolio variance should be retained. (This is tantamount to the "spectral cut-off" method used in the financial context [@guo2018eigen; @carrasco2011optimal].)
 
 The fraction of portfolio variance explained by any given eigenvector $\mathbf{q}_j$ (call this $\psi_j$) is the corresponding eigenvalue $\upsilon_j$ divided by the sum of all the eigenvalues (see Abdi [-@abdi2010principal] for details).
 
