@@ -1,0 +1,2235 @@
+---
+title: "The real option value of multi-stage, far-from-market agricultural research"
+author:
+  - name: Benjamin Schiek
+    email: b.schiek@cgiar.org
+    affiliation: CIAT
+    correspondingauthor: true
+address:
+  - code: CIAT
+    address: Performance, Innovation, and Strategic Analysis for Impact (PISA4Impact), Alliance of Bioversity International and CIAT, Km 17 Recta Cali-Palmira, Palmira, 763537
+abstract: |
+  Agricultural research for development scientists are increasingly required to valuate the promising, but uncertain and distant, impacts of their research. Existing approaches to this task are ill-suited to the multi-stage, high risk, far-from-market nature of such research. The resulting frustration has contributed to growing tension in funder-researcher relations. To alleviate the tension, here I adapt real options valuation to multi-stage, far-from-market projects. To prepare the ground, first I adapt the key assumption of lognormally distributed project returns to the agricultural research for development context. Second, I argue that the commonplace assumption of risk-neutral valuation is inappropriate in far-from-market real options contexts; but demonstrate how the same ends are achieved by assuming instead that project NPV is accurately estimated. Based on this groundwork, I then derive a multi-stage, far-from-market real option value model. For the reader's convenience, these main results are prefaced by an introduction to the basics of real options valuation, including an extension to projects with abandonment value. Finally, as an illustrative example, I apply the derived model to valuate a real, 4-stage potato research project.
+keywords: 
+  - Real option value
+  - Agricultural research for development
+  - Risk neutral valuation
+  - Abandonment value
+  - Far-from-market
+journal: "European Journal of Operational Research"
+date: "`r Sys.Date()`"
+classoption: preprint, 3p, authoryear
+bibliography: AR4Drealoptions.bib
+linenumbers: false
+numbersections: true
+# Use a CSL with `citation_package = "default"`
+# csl: https://www.zotero.org/styles/elsevier-harvard
+output: 
+  rticles::elsevier_article:
+    keep_tex: true
+    citation_package: natbib
+header-includes:
+  - \numberwithin{equation}{section}
+  - \usepackage{float}
+  #- \usepackage[nomarkers,tablesonly]{endfloat}
+  #- \usepackage[printfigures]{figcaps}
+  - \floatplacement{figure}{H}
+  - \usepackage[nolists]{endfloat}
+  - \usepackage{caption}
+---
+
+<!-- Manuscript contribution to the field -->
+<!-- (In 200 words, describe the contribution of your manuscript to the research field. You should frame the research question(s) addressed in your work in the context of current knowledge, highlighting how the findings contribute to progress in your research discipline.) -->
+<!-- Funding for agricultural research for development (AR4D) projects is set up in stages, such that the funding of any single stage can only move forward upon successful completion of the prior stages. When the project donor agrees to fund a research stage, then, they effectively buy the option, but not the obligation, to fund the subsequent stage. The donor’s investment therefore has option value, which can be considerable if there is high uncertainty (risk) surrounding the expected impact of the research. Conventional methods of AR4D project appraisal fail to account for option value, effectively underestimating the value of risky projects. Real option valuation (ROV) is a potential mechanism by which to price in option value, but adaptation of ROV to the AR4D context is complicated by the multi-stage, far-from-market-nature of AR4D projects. Here I address these challenges to develop a closed form, multi-stage ROV model. (I also introduce an elementary extension to account for abandonment value.) By explicitly accounting for risk and the option to abandon, the proposed model offers a more complete picture of AR4D project value as compared to conventional appraisal methods--potentially facilitating donor commitment to the long time horizons of agricultural research. -->
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,
+                      message = FALSE,
+                      warning = FALSE,
+                      dev = c("png", "tiff"),
+                      dpi = 300)
+library(tidyverse)
+library(flextable)
+library(patchwork)
+
+label_size <- 2.5
+smallLabel_size <- 2
+title_size <- 8
+subtitle_size <- 7
+legendText_size <- 6
+axisText_size <- 6
+axisTitle_size <- 7
+facetTitle_size <- 7
+
+```
+
+# Introduction
+
+<!-- Agricultural research for development (AR4D) scientists are under ever increasing pressure from donors to put a defensible monetary value on their proposed projects. However,  -->
+Agricultural research for development (AR4D) projects tend to be high risk (if high reward) propositions with long time horizons, such that project net present value is likely to fluctuate considerably over the life of the project. Donors, meanwhile, face increasingly austere fiscal outlooks that restrict their ability to commit to the long time horizons of agricultural research.
+
+<!-- They are also (d) far-from-market, or even unfold in the midst of market failures, such that project value and/or changes in value may not be deduced or projected based on movements in the prices of commodities or financial securities. -->
+<!-- Properties (a)-(d) make it extremely difficult to valuate AR4D projects in a way that is meaningfully different from a wild, if educated, guess. With good reason, then, AR4D researchers generally resent the mounting pressure to quantify promising, but distant and uncertain, impacts [@leeuwis2018reforming]. The resentment is evident across other scientific disciplines as well [@Petsko2011; @Moriarty2008]. AR4D donors, meanwhile, have grown disillusioned with the crudeness of research project appraisals---even to the point of disbelief, and a commensurate global decline in AR4D funding levels [@hurley2016returns; @hurley2014re; @pardey2018shifting]. The frustration of scientists and donors alike is compounded by increasingly austere fiscal restrictions on donors' ability to commit to the long time horizons of agricultural research. The upshot is an atmosphere of "ever growing distrust" between donors and research communities [@leeuwis2018reforming]. -->
+Real options valuation [@trigeorgis1993real; @mcgrath2000assessing] presents a potential mechanism by which researchers can secure long term funding while providing fiscally constrained donors with the flexibility they require to justify long term commitments. The notion of real options valuation is born of the analogous concept of European call options in the financial context. The holder of a European call option on an underlying security (a stock, for example) has the right, but not the obligation, to purchase the security for a predetermined price at the end of a certain time period. If the predetermined price is higher than the security price at the end of the time period, it is in the investor's best interest to exercise their right. If not, they are under no obligation to do so. The predetermined price at which the investor agrees to buy the security if they so choose is called the "strike price" or "exercise price".
+
+Analogously, investors who "buy a real option" commit to funding a real project for a certain time period, at the end of which they have the right, but not the obligation, to continue funding the subsequent stage of the project. In research contexts, the subsequent stage in question is usually the launch and scaling up of a proof of concept developed during the main stage of the project. ... [], for example, evaluate the real option value of a project to develop a new consumer electronics product at a private sector tech firm. The exercise price, in this case, is the cost of establishing the plant capacity required to manufacture the new product at scale, plus advertising and any other marketing costs.
+
+
+
+[Real options valuation has been applied to numerous research and non-research private sector project contexts. (For a taxonomy, see Trigeorgis [-@].)] In the present article, we extend real options valuation to AR4D projects.    Donors effectively have and exercise this option anyway, as AR4D project funding agreements are usually up for renewal/cancelation every 3-5 years. Somewhat unfairly for researchers, default methods of project appraisal fail to price in this option value.
+
+AR4D projects differ from other real options   producing     The focus of the present article is on AR4D projects  unfolding in the space of market failures.    the real option context Funding the project up until the launch and scaling phase is thus effectively analogous to buying an option on launch and scaling.   does this by building in an option for the donor to discontinue project funding after a certain amount of time if the project is underperforming. 
+<!-- can 1) provide meaningful, risk-adjusted project appraisals, 2) secure long term commitments from donors, while at the same time 3) giving donors the flexibility they require to maintain solvent fiscal outlooks. -->
+
+ When adapting financial option models to real options contexts real options differ from their financial counterparts in many key respects. 
+
+The application of real option valuation (ROV) to the AR4D context is complicated by the multi-stage structure of most AR4D projects. The ROV concept was originally created for one stage processes, at the end of which there arises a natural opportunity for the investor to withhold part of the funding if progress up until that point falls below expectations. AR4D projects, on the other hand, unfold in a series of stages, each of which may be viewed as the option to withhold funding of the subsequent stage.
+<!-- , if progress up until that point falls below expectations. -->
+
+In the pharmaceutical context, Cassimon et al. [-@cassimon2004valuation] extend ROV to multi-stage projects, building on the "compound option" model developed by Geske in the financial context [-@geske1979valuation]. Both Geske and Cassimon et al. derive their models from the Black-Scholes partial differentiation equation [@black1973valuation]. Here we present an alternative derivation and formulation of the multi-stage, or "$n$-fold", real option value model based on straightforward integration, which some may find more intuitive and instructive---especially if they are unfamiliar with the financial origins of Geske's model.
+
+
+
+I then apply the derived model to appraise a real 4-stage AR4D potato project.
+<!-- An R script of the model is included in the Appendix. -->
+<!-- Cassimons et al. coin the phrase "$n$-fold option" to refer to such models.  -->
+<!-- (where $n$ is the number of project stages) -->
+
+It is first necessary to preface this derivation with a defense of the key assumption of lognormally distributed random changes in project value, which is sometimes eschewed as unrealistic or otherwise naive. To further prepare the ground for the main derivation, it is also necessary to redress some confusion in the ROV literature regarding the interpretation of an artifact inherited from financial contexts known as "risk-neutral valuation".
+<!-- More specifically, I show that, in far-from-market contexts where the Black-Scholes "no arbitrage" argument does not apply, the Black-Scholes partial differentiation equation -->
+
+Since much of the target audience is probably unfamiliar with the real options literature, I build up to these results incrementally, starting with an introduction to the basic concept, intuition, and formal expression for 1-stage projects, and elementary extension to projects with abandonment value. The relevant literature is engaged throughout the article as needed. While AR4D is the motivating context for the present work, the $n$-fold ROV model derived here is broadly applicable to any multi-stage, far-from-market, real option context.
+<!-- The first part of the Method section, introducing the basic concept, is effectively also a literature review... although the literature review is also distributive...the relevant literature is engaged with as needed throughout. -->
+
+# Method
+
+## Real option value basics
+
+### What is real option value?
+
+In the default approach to project funding decisions, the net present value (NPV) of the project's future impacts is compared against the investment required to implement the project. If the NPV (also sometimes referred to as discounted future cash flow) is less than the investment, then the project proposal is rejected. In other words, letting $x(0)$ represent project NPV as evaluated at time $t = 0$ (the start of the project) and $I$ the required investment,
+
+\begin{equation}
+x(0) < I \:\: \rightarrow \:\: \text{reject project}
+\label{eq:convCBA}
+\end{equation}
+
+However, oftentimes the investment $I$ can be decomposed into an upfront sunk cost $S$ required to initiate and sustain project activities, and a subsequent outlay $K$ required a considerable time later, after certain intermediate project goals have been met. The cost-benefit analysis (CBA) criterion can thus be formulated more realistically as follows.
+
+\begin{equation}
+e^{-rT} (E[x(T)] - K) < S \:\: \rightarrow \:\: \text{reject project}
+\label{eq:npvIneq1}
+\end{equation}
+
+Where $r$ is the discount rate, and $T$ the time at which the subsequent outlay $K$ is required (usually the same as the project time horizon).
+
+If $x(t)$ $(0 < t \leq T)$ follows a geometric Brownian motion (gBm) described by the equation
+
+\begin{equation}
+\begin{split}
+\Delta x &= x(t + \Delta t) - x(t) \\
+&= x(t) m \Delta t + x(t) s \epsilon \sqrt{\Delta t}
+\end{split}
+\label{eq:gbmEq}
+\end{equation}
+
+Where $\epsilon$ is a normally distributed random variable with mean $0$ and variance $1$, such that
+
+\begin{equation}
+\begin{split}
+m \Delta t &= E \left[\frac{\Delta x(T)}{x(T)} \right] \\
+s^2 \Delta t &= Var \left[\frac{\Delta x(T)}{x(T)} \right]
+\end{split}
+\end{equation}
+
+Then
+
+\begin{equation}
+E[x(T)]\bigr|_{t = 0} = e^{m T} x(0)
+\label{eq:ExT}
+\end{equation}
+
+(See Hull [-@hull9thEdition] for details.)
+
+And the CBA criterion (inequality \ref{eq:npvIneq1}) simplifies as follows.
+
+\begin{equation}
+e^{(m - r) T} x(0) - e^{-rT} K < S \:\: \rightarrow \:\: \text{reject project}
+\label{eq:npvIneq2}
+\end{equation}
+
+Moreover, project managers and stakeholders usually have the option to cancel the subsequent outlay $K$ if critical intermediate project goals are not met. More specifically, they can choose to cancel the outlay if the project NPV evaluated at time $T$ is less than the outlay $K$. The decision criterion may thus be expressed even more realistically as follows.
+
+\begin{equation}
+e^{-rT} E[\max(x(T) - K, 0)] < S \:\: \rightarrow \:\: \text{reject project}
+\label{eq:rovRaw}
+\end{equation}
+
+The left hand side of this inequality is what authors, starting with Myers [-@myers1977determinants], refer to as the "real option value"--- because it is analogous to the value of a European call option in financial markets. Since the term was first coined, the real options literature has become vast. See, for example, Trigeorgis [-@trigeorgis1993real], Hayes and Garvin [-@hayes1982managing], McGrath and MacMillan [-@mcgrath2000assessing], and references for introductions to, extensions of, and variations on the subject. For a special focus on research projects as real options, see Doctor, Newton, and Pearson [-@doctor2001managing], and Newton, Paxson, and Widdicks [-@newton2004real]. K{\"o}ppl-Turyna and K{\"o}ppl [-@koppl2013real] survey the relatively scant literature on ROV approaches to agricultural investments.
+<!-- Omitted from this survey is an exploratory assessment of the potential usefulness of an ROV approach to agricultural venture capital decisions by Wang and Tang [-@wang2010research]. IF of 0.5 so don't mention it-->
+
+In this literature, the real option value (ROV) approach to project valuation (Inequality \ref{eq:rovRaw}) is often construed as an alternative to the "NPV approach". This is misleading insofar as it gives the impression that the ROV approach exempts one from the need to estimate project NPV. On the contrary, the formal exposition so far demonstrates that ROV is a function of NPV, and thus involves its estimation (and this becomes clearer as the formal exposition continues, below). For this reason, the conventional or default approach to project funding decisions characterized in Inequality \ref{eq:convCBA}, against which the ROV approach is distinguished, is henceforth referred to as the "conventional CBA criterion"---and not the "NPV approach".
+
+It follows, moreover, that the same challenges faced in the estimation of project NPV---such as non-market valuation of "intangible" costs and benefits (environmental and public health outcomes, for example), or the estimation of technology adoption rates, and so forth---are faced in the estimation of ROV. To avoid raising false hopes, the reader is advised up front that the many important open problems in the field of NPV estimation fall outside the scope of the present article.
+
+Inequality \ref{eq:rovRaw} describes the ROV approach for a 1-stage project. The focus of the present article is the extension of this approach to multi-stage projects. The first step in this task is to develop the closed form expression for 1-stage ROV.
+<!-- mention low uptake of ROV here? -->
+<!-- So, what does the present article focus on?...As mentioned in the Introduction, ...1-stage. and no focus on AR4D -->
+
+### Closed form expression of (1-stage) real option value
+
+For a constant $C$ and a lognormally distributed random variable $q$ such that $\ln(q)$ is normally distributed with variance $\omega^2$, it can be shown through straightforward integration that
+
+\begin{equation}
+E[\max(q - C, 0)] = E[q] \Phi \left(\frac{\ln \left(\frac{E[q]}{C}\right) + \frac{\omega^2}{2}}{\omega} \right) - C \Phi \left(-\frac{\ln \left(\frac{E[q]}{C}\right) - \frac{\omega^2}{2}}{\omega} \right)
+\label{eq:part1}
+\end{equation}
+
+Where $\Phi(\zeta)$ is the standard normal cumulative distribution function.
+
+\begin{equation}
+\Phi(\zeta) = \frac{1}{\sqrt{2 \pi}} \int^{\zeta}_{-\infty} e^{-\frac{\zeta^2}{2}}
+\end{equation}
+
+See Appendix for proof.
+
+If $x(t)$ is the gBm described above, then it is lognormally distributed. More specifically, $\ln(x(t))$ is normally distributed with mean $\ln(x(\hat{t})) + (m - s^2 / 2 ) \tau$ and variance $s^2 \tau$, where $\hat{t}$ is the time at which the evaluation is made and $\tau = T - \hat{t}$. Hence, by equation \ref{eq:part1},
+
+\begin{equation}
+E[\max(x(T) - K, 0)]\bigr|_{t = \hat{t}} = e^{m \tau} x(\hat{t}) \Phi \left(\frac{\ln \left(\frac{x(\hat{t})}{K} \right) + \left(m + \frac{s^2}{2} \right) \tau}{s \sqrt{\tau}} \right) - K \Phi \left(\frac{\ln \left( \frac{x(\hat{t})}{K} \right) + \left(m - \frac{s^2}{2} \right) \tau}{s \sqrt{\tau}} \right)
+\end{equation}
+
+Or, more compactly,
+
+\begin{equation}
+E[\max(x(T) - K, 0)] \bigr|_{t = \hat{t}} = e^{m \tau} x(\hat{t}) \Phi(\delta + s \sqrt{\tau}) - K \Phi(\delta)
+\label{eq:EmaxTK}
+\end{equation}
+
+Where
+
+\begin{equation}
+\delta = \frac{\ln \left(\frac{x(\hat{t})}{K} \right) + \left(m - \frac{s^2}{2} \right) \tau}{s \sqrt{\tau}}
+\end{equation}
+<!-- \begin{equation} -->
+<!-- E[v(T)] \bigr|_{t = \hat{t}} = v(\hat{t}) e^{\alpha \tau} -->
+<!-- \end{equation} -->
+<!-- \begin{equation} -->
+<!-- Var[\ln(v(T))] \bigr|_{t = \hat{t}} = \beta^2 \tau -->
+<!-- \end{equation} -->
+<!-- Where $\alpha = 1 / \tau \: E[\Delta v / v]$, and $\beta^2 = 1 / \tau \:Var[\Delta v / v]$. -->
+<!-- (See Hull [@hull9thEdition] for details.) -->
+<!-- Substituting $v(T)$ for $q$, $E[v(T)]\bigr|_{t = \hat{t}}$ for $E[q]$, and $Var[\ln(v(T))] \bigr|_{t = \hat{t}}$ for $\omega$, -->
+
+Multiplying this through by the discount factor then gives the following closed form expression for ROV, evaluated at some time $t = \hat{t}$.
+
+\begin{equation}
+\begin{split}
+ROV &= e^{-r\tau} E[\max(x(T) - K, 0)]\bigr|_{t = \hat{t}} \\
+&= e^{(m - r) \tau} x(\hat{t}) \Phi(\delta + s \sqrt{\tau}) - e^{-r \tau} K \Phi(\delta)
+\end{split}
+\end{equation}
+
+In the ROV literature, $m$ is usually set equal to $r$ due to an artifact inherited from the financial context called "risk neutral valuation". Farther below, I demonstrate that there is no theoretical premise for the assumption of risk neutral valuation in the AR4D context. Nonetheless, $m$ may be set equal to $r$ on the basis that project NPV must, by definition, be expected to appreciate at the rate of $r$.
+<!-- Setting $m$ to a value other than $r$ implies that project NPV is inaccurately estimated. Assuming project NPV is accurately estimated, then, it must be that $m = r$, and the ROV expression simplifies to -->
+
+\begin{equation}
+\begin{split}
+ROV &= e^{-r\tau} E[\max(x(T) - K, 0)]\bigr|_{t = \hat{t}} \\
+&= x(\hat{t}) \Phi(\delta + s \sqrt{\tau}) - e^{-r \tau} K \Phi(\delta)
+\end{split}
+\label{eq:rov}
+\end{equation}
+
+Where
+
+\begin{equation}
+\delta = \frac{\ln \left(\frac{x(\hat{t})}{K} \right) + \left(r - \frac{s^2}{2} \right) \tau}{s \sqrt{\tau}}
+\end{equation}
+
+### Developing real options intuition in the AR4D context
+
+To build intuition, it is instructive to compare graphs of ROV (equation \ref{eq:rov}) and NPV (left-hand side of inequality \ref{eq:npvIneq2}) with respect to the NPV-to-cost ratio $x(0)/K$. In the financial context, this ratio is known as the "moneyness". The option is said to be "in the money" if the ratio is greater than one, "out of the money" if the ratio is less than one, and "at the money" if the ratio equals one. Options with a moneyness ratio well in excess of one are said to be "deep in the money". A generic example is given in the top panel of Figure \ref{fig:rovIllust}. Note that the difference between ROV and NPV shrinks as moneyness is higher. And note that deep in the money ROV does not differ significantly from NPV unless project risk, reflected in the volatility parameter $s$, is sufficiently high.
+
+It is also instructive to keep an eye on the term $\Phi(\delta)$, plotted in the lower panel of Figure \ref{fig:rovIllust}. This is the probability that an out of the money option will expire in the money, thereby triggering exercise of the option. It therefore makes perfect sense that $\Phi(\delta)$ approaches one as the moneyness is higher; but note that it approaches one more slowly as project risk is higher.
+
+```{r Fig1, fig.show = "hold", fig.width = 4, fig.height=4, fig.align="center", fig.cap="\\label{fig:rovIllust}A hypothetical project's real option value and net present value plotted together over a range of moneyness values. The black line marks 0, while the dotted red line marks the sunk cost $S$ beneath which the project is rejected. The multiple ROV plots correspond to different levels of project volatilitty ($s$). The higher the volatility, the greater the difference between ROV and NPV.", echo = FALSE}
+
+
+OVfun <- function(X0, K, tau, mm, s, r, output = "OV"){
+  
+  d2 <- (log(X0 / K) + (mm - s^2 / 2) * tau) / (s * sqrt(tau))
+  d1 <- d2 + s * sqrt(tau)
+  N1 <- pnorm(d1)
+  N2 <- pnorm(d2)
+  
+  OV <- exp((mm - r) * tau) * X0 * N1 - exp(-r * tau) * K * N2
+  
+  if(output == "OV"){
+    out <- OV
+  }
+  
+  if(output == "N2"){
+    out <- N2
+  }
+  
+  if(output == "N1"){
+    out <- N1
+  }
+  
+  return(out)
+}
+#===========================================================================
+mm <- 0.035
+r <- mm
+tau <- 35
+cv <- seq(0.5, 2, length.out = 3)
+cvTxt <- c("low", "medium", "high")
+s <- round(cv * mm * sqrt(tau), 2)
+X0 <- 10
+XoK <- seq(0.2, 3, length.out = 50)
+#K <- seq(0.1, 3, length.out = 20) * X0
+K <- X0 / XoK
+NPV <- X0 - exp(-r * tau) * K
+ns <- length(cv)
+list_df <- list()
+for(i in 1:ns){
+  this_s <- s[i]
+  ROV <- OVfun(X0, K, tau, mm, this_s, r, output = "OV")
+  Phi2 <- OVfun(X0, K, tau, mm, this_s, r, output = "N2")
+  df <- data.frame(xx = X0 / K, Type = paste("ROV", cvTxt[i], "risk"), Phi2, Value = ROV)
+  list_df[[i]] <- df
+}
+df_npv <- data.frame(xx = X0 / K, Type = "NPV", Phi2 = NA, Value = NPV)
+list_df[[ ns + 1]] <- df_npv
+
+df_plot <- as.data.frame(do.call(rbind, list_df))
+colnames(df_plot)[1] <- "x(0)/K"
+# df_plot1 <- subset(df_plot, cv == cv[ns])
+# df_plot1$cv <- NULL
+# df_plot1 <- df_plot1 %>% gather(type, Value, ROV:NPV)
+# df_plot2 <- subset(df_plot, cv != cv[ns])
+
+#n <- length(unique(df_plot1$type))
+n <- ns + 1
+bag_of_colors <- randomcoloR::distinctColorPalette(k = 2 * n)
+color_vec <- sample(bag_of_colors, n)
+
+# gg <- ggplot()
+# gg <- gg + geom_line(data = df_plot2, aes(x = `x(0)/K`, y = ROV,
+#                                          group = cv),
+#                      color = color_vec[2], lwd = 1)
+# gg <- gg + geom_line(data = df_plot1, aes(x = `x(0)/K`, y = Value,
+#                                           group = type, color = type),
+#                      lwd = 1)
+#----------------------------------------------------------------------------
+# ROV vs. NPV plot
+gg <- ggplot(df_plot, aes(x = `x(0)/K`, y = Value,
+                          group = Type, color = Type))
+gg <- gg + geom_line(lwd = 1)
+gg <- gg + scale_color_manual(values = color_vec)
+#gg <- gg + labs(y = "Value")
+gg <- gg + geom_hline(yintercept = 2, color = "red", linetype = "dashed")
+gg <- gg + geom_hline(yintercept = 0)
+gg <- gg + theme_bw()
+gg <- gg + theme(axis.text = element_blank(),
+                 axis.title.y = element_text(size = axisTitle_size),
+                 axis.title.x = element_blank(),
+                 legend.title = element_blank(),
+                 legend.position = "top",
+                 legend.text = element_text(size = legendText_size))
+gg <- gg + guides(color = guide_legend(nrow = 2, byrow = T))
+gg1 <- gg
+#----------------------------------------------------------------------------
+# Phi2 plot
+df_plot <- subset(df_plot, Type != "NPV")
+gg <- ggplot(df_plot, aes(x = `x(0)/K`, y = Phi2,
+                          group = Type, color = Type))
+gg <- gg + geom_line(lwd = 1)
+gg <- gg + scale_color_manual(values = color_vec[-1])
+gg <- gg + labs(y = "Phi 2")
+gg <- gg + theme_bw()
+gg <- gg + theme(
+  axis.text = element_text(size = axisText_size),
+  axis.title = element_text(size = axisTitle_size),
+  legend.title = element_blank(),
+  legend.position = "none",
+  legend.text = element_text(size = legendText_size))
+gg2 <- gg
+#----------------------------------------------------------------------------
+gg1 + gg2 + plot_layout(ncol = 1, heights = c(1, 1 / 2))
+
+```
+
+The cost $K$ is commonly referred to as the "exercise cost", because it is incurred only in the event that the investor decides to exercise the option. The random variable $x(t)$ is commonly referred to as the "underlying". The term $\Phi(\delta + s \sqrt{\tau})$ is equal to the partial derivative $\partial ROV / \partial x$, and thus provides insight into ROV sensitivity to movements in the underlying. Although not graphed here, it is easy to see that $\Phi(\delta + s \sqrt{\tau})$ will also approach one as the moneyness is higher. This also makes perfect sense. It simply means that, as the probability of exercise grows and ROV becomes indistinguishable from NPV, so likewise do changes in ROV become indistinguishable from changes in the underlying NPV.
+
+Figure \ref{fig:rovIllust} illustrates the importance of risk and reward when deciding whether or not to take an ROV approach to project appraisal. The ROV approach is suitable in the AR4D context because AR4D projects tend to be both high reward (i.e., deep in the money) and high risk. If AR4D projects were only high reward, with little risk, then there would be no point in calculating ROV, as it would not differ significantly from NPV.
+
+### Real options with adandonment value \label{sec:abandVal}
+
+It is easy and worthwhile to extend the ROV formula in equation \ref{eq:rov} to the slightly more general case where the project generates a guaranteed minimum benefit regardless of whether or not the project is successful. In the AR4D context, this guaranteed minimum benefit might correspond to the value of new or upgraded labs and testing facilities, and/or improved human capital through training. Let this guaranteed minimum benefit, also known as the project's abandonment value, be denoted $B$. Then the default CBA criterion (inequality \ref{eq:npvIneq2}) can be generalized to accommodate such cases as follows.
+
+\begin{equation}
+x(0) - e^{-rT} (K - B) < S \:\: \rightarrow \:\: \text{reject project}
+\label{eq:npvIneqB}
+\end{equation}
+
+The ROV formula, meanwhile, can likewise be generalized as follows.
+
+\begin{equation}
+ROV = e^{-r T} E[\max(x(T) - K, B)] \:\:;\:\:\: B \geq 0
+\label{eq:rovBraw}
+\end{equation}
+
+Such that the ROV decision criterion becomes
+
+\begin{equation}
+e^{-r T} E[\max(x(T) - K, B)] < S \:\: \rightarrow \:\: \text{reject project}
+\label{eq:rovBrawCond}
+\end{equation}
+
+But note that, by the general formula for $\max(a, b)$, i.e.,
+
+\begin{equation}
+\max(a, b) = \frac{1}{2} (a + b - \left| a - b \right|)
+\end{equation}
+
+Equation \ref{eq:rovBraw} can be rewritten
+
+\begin{equation}
+ROV = e^{-r T} (E[\max(x(T) - K + B, 0)] + B)
+\end{equation}
+
+And hence, by equation \ref{eq:part1},
+
+\begin{equation}
+\begin{split}
+ROV &= x(\hat{t}) \Phi(\delta + s \sqrt{\tau}) - e^{-r \tau} (K - B) \Phi(\delta) + B \\
+&= x(\hat{t}) \Phi(\delta + s \sqrt{\tau}) - e^{-r \tau} K \Phi(\delta) +  e^{-r \tau} B( 1 + \Phi(\delta))
+\end{split}
+\label{eq:rovB}
+\end{equation}
+
+Where
+
+\begin{equation}
+\delta = \frac{\ln \left(\frac{x(\hat{t})}{K - B} \right) + \left(m - \frac{s^2}{2} \right) \tau}{s \sqrt{\tau}}
+\end{equation}
+
+And where it is easy to see that this reduces to equation \ref{eq:rov} when $B = 0$.
+
+### Real options that scale with investment
+
+Another way real options differ significantly from financial options is that the NPV $x(0)$ is usually a function of the investment $K$.
+
+### Quantifying project NPV volatility \label{sec:volEst}
+
+<!-- As noted above, AR4D projects are characterized by high, potentially disruptive, expected net benefits, but also by extreme uncertainty surrounding these expected net benefits. Expected project impacts are vulnerable to a host of both research and non-research related factors (to be discussed in more detail farther below), such that they can easily double or halve over the life of the project. Project appraisals that do not price in, or at least provide some treatment of, this vast uncertainty are thus of limited use to prospective donors. -->
+<!-- given new additions to or subtractions from the list of countries targeted for release of the new technology. -->
+One of the key advantages of ROV is that it provides a mechanism by which to factor uncertainty into project appraisals; and this is achieved through adjustments to the volatility parameter $s$. However, there remains the question of how to calculate or deduce a plausible value for $s$. In the financial context, a direct calculation is possible based on easily accessible historical price time series. In the real options context, direct calculation is generally not possible, since analogous historical project NPV time series data usually do not exist.
+
+In practice, applied ROV studies generally make an educated guess at the volatility parameter, and then conduct sensitivity analysis around the guess (as, for example, in Majd and Pindyck [-@majd1987time] or Kemna [-@kemna1993case]). While this approach is, in some sense, pragmatic, it is also problematic, because it is difficult to build intuition about what constitutes a plausible value of $s$ for a given project. Sensitivity analysis is one way of building such intuition, but it is a blunt, laborious instrument; and the intuition gained as a result generally does not transfer to other projects. In an alternative, novel approach, Pennings and Lint [-@pennings1997option] directly calculate the volatility parameter based on a painstakingly assembled project NPV time series. While clearly more rigorous than the former approach, this is less expedient and probably not possible under most AR4D time, resource, and data constraints.
+
+To find an intermediate point on the rigor-pragmatism spectrum, consider: While it is true that research managers (and/or stakeholders and/or the foresight economists conducting the project appraisal) generally do not have an intuitive grasp of the project NPV volatility parameter $s$ itself, they do generally have some idea of the uncertainty surrounding project NPV estimates, such that they can be asked to quantify minimum and maximum bounds on project NPV, in addition to the NPV estimation itself. For example, they can say that NPV is $x(\hat{t})$, but that it might be six times that amount, or half that amount. (Or they may give the same information in terms of magnitude, which is then easily transformed into percentage terms.)
+
+These upper and lower percentage errors may then be interpreted as the upper and lower bounds on the $95\%$ confidence interval about the expected percentage change in project NPV between the start and end of the project. Another phrase for "percentage change" is "arithmetic return" (call this $\mathcal{R}$), which may then be converted to a log return ($\ell = \ln(x(T) / x(\hat{t}))$) by the formula $\ell = \ln(\mathcal{R} + 1)$. Now, recall that since $x(t)$ follows a gBm with $m = r$, then $\ell$ is normally distributed with mean $\mu$ and variance $\sigma^2$ given by
+
+\begin{equation}
+\begin{split}
+\mu = E[\ell] \bigr|_{t = \hat{t}} &= \left(r - \frac{s^2}{2} \right) \tau \\
+\sigma^2 = Var[\ell] \bigr|_{t = \hat{t}} &= s^2 \tau
+\end{split}
+\end{equation}
+
+And the upper and lower log returns, $\bar{\ell}$ and $\underline{\ell}$, may be expressed as follows.
+
+\begin{equation}
+\begin{split}
+\bar{\ell} &= \mu + z \sigma \\
+\underline{\ell} &= \mu - z \sigma
+\end{split}
+\end{equation}
+
+Where $z = 1.96$ is the standard score corresponding to the $95\%$ confidence interval of a normally distributed random variable. (The standard score can of course be adjusted to match the practitioner's idea of a suitable confidence interval defined by the bounds $\bar{\ell}$ and $\underline{\ell}$.) Subtracting the second equation from the first and rearranging then gives an expression for the volatility parameter $s$ in terms of known parameters.
+<!-- This system of equations then yields three expressions for the volatility parameter $s$ in terms of known parameters (i.e. in terms of the upper and lower log returns $\bar{\ell}, \underline{\ell}$, the discount rate $r$, the project time horizon $T$, and the standard score $z$). -->
+<!-- \begin{equation} -->
+<!-- \begin{split} -->
+<!-- s &= \frac{z \pm \sqrt{z^2 - 1 / 2 (\bar{\ell} - r \tau)}}{ \sqrt{\tau}} \\ -->
+<!-- &= \frac{-z \pm \sqrt{z^2 - 1 / 2 (\underline{\ell} - r \tau)}}{ \sqrt{\tau}} \\ -->
+<!-- &= \sqrt{ r - \frac{\bar{\ell} + \underline{\ell}}{2 \tau}} -->
+<!-- \end{split} -->
+<!-- \end{equation} -->
+
+\begin{equation}
+s = \frac{1}{2 \sqrt{\tau} z} (\bar{\ell} - \underline{\ell})
+\end{equation}
+<!-- yMax <- 1.1 -->
+<!-- yMin <- -0.6 -->
+<!-- # Define confidence interval of interest, usually 95% -->
+<!-- zBound <- 2#1.96 -->
+<!-- # Back out s and m -->
+<!-- s <- (yMax - yMin) / (2 * zBound * sqrt(tauN)) -->
+<!-- mu <- (yMax + yMin) / 2 -->
+<!-- m <- (mu / tauN + s^2 / 2) -->
+<!-- m <- 1 / (2 * tauN) * (yMax + yMin + (yMax - yMin)^2 / (4 * zBound^2)) -->
+
+Once $s$ is deduced, the growth rate coefficient of variation $\frac{s}{r \sqrt{\tau}}$ can be calculated, which serves as a plausibility check on the parameter values, project NPV estimates, and project NPV upper and lower bounds. The growth rate coefficient of variation is a handy, normalized measure of project NPV volatility over time. One should not be surprised to see high coefficients of variation in the AR4D context. A low coefficient of variation may indicate that ROV will not differ significantly from NPV, and that there is thus no point in calculating ROV. Note that expected project NPV log return $\mu$ can also be calculated using the deduced value for $s$, which may serve as an additional plausibility check.
+<!-- and that the expected project NPV at future times may be calculated by equation \ref{eq:ExT}. These calculations -->
+<!-- Note that the system of equations above can still be solved for $m$ and $s$ in the absence of an estimate for one of the bounds $\bar{\ell}$ or $\underline{\ell}$, if an estimate for the expected log return $\mu$ can be obtained. -->
+
+## Formalizing the $n$-fold real option value of multi-stage AR4D projects \label{sec:resStages}
+
+<!-- [@mitchell1988managing] -->
+AR4D projects usually unfold in a series of stages, the precise structure of which can vary considerably from one project to another. For the purpose of exposition, the focus here is on transgenic projects. Transgenic projects tend to follow the generic four stage process defined below, regardless of crop, technology, and institution. For completeness, a pre-project and post-project stage are also defined, although these typically fall outside of the donor's funding horizon.
+<!--The staging of conventional breeding projects must be assessed on a project by project basis, as this varies considerably across crops, technology, and research institution. The emergence of marker assisted breeding further complicates any effort to impose a generic structure on such projects. -->
+
+* Pre-project: A discovery or "blue skies research" stage, during which new technologies are "discovered" through a careful exploration and extension of existing research---in which serendipity plays a key role---in conjunction with a careful prioritization of research demand. The output of this stage is a new technology proof-of-concept, usually in the form of a novel genotype expressing a set of desired traits, together with a set of recommended farm management practices.
+
+1) A basic replication or scaling up stage, whereby a technology proof-of-concept generated in the discovery phase is reproduced in greenhouse and/or confined field trials, in conjunction with a more refined assessment and prioritization of research demand, especially target populations and ecologies, and the relevant socioeconomic enabling environments (particularly seed systems, government policies, institutions, and markets).
+
+2) A multi-location, multi-season testing stage, whereby successful specimens generated in the preceding stage are taken for further confined field trials under distinct agronomic conditions over multiple cropping seasons.
+
+3) A regulatory dossier stage, wherein detailed agronomic, environmental, and toxicological data, mostly generated during the preceding stages, is compiled into dossier(s) for submission to the National Competent Authorities (NCAs) in the countries targeted for release of the new technology.
+
+4) A deregulation stage, during which the regulatory dossier(s) generated during the previous stage is/are submitted to the NCA(s), which may request further clarification and testing of certain aspects of the proposed technology.
+
+* Post-project: A release and uptake stage, during which the new technology is made available for distribution in the target populations and environments. This stage depends critically on the quality of the socioeconomic enabling environment in the target countries, in conjunction with stewardship from the research institution to ensure correct provision and application of the improved germplasm at the farm level. The holistic "Agricultural Innovation System" view of AR4D considers this stage to be an integral part of AR4D projects [@klerkx2010adaptive].
+
+<!-- The duration of project stages varies depending on technology, crop, and research institution; but, as a general rule, transgenic projects (stages 1-4) tend to last 9-11 years. -->
+<!-- development of the plant, and the trait assessment, are all known. Thus, none of the costs  -->
+<!-- associated with research and development of the gene constructs or of testing them in  -->
+<!-- transgenic  events  are  included  (cloning  and  testing  different  R  genes,  testing  the  -->
+<!-- durability  of  LB  resistance,  evaluating  different  strategies  for  deployment,  socio- -->
+<!-- economic  targeting  studies,  communicating  the  results  to  stakeholders,  and  building  -->
+<!-- biotechnology  and  biosafety  facilities).  Also  excluded  are  the  costs  of  building  the  -->
+<!-- capacity  of  partners,  scientific  publications,  and  participation  in  scientific  conferences  -->
+<!-- apart from any such activities strictly needed for the LBr product development. The costs  -->
+<!-- of  obtaining  freedom-to-operate  and/or  intellectual  property  rights  over  the  relevant  -->
+<!-- technology are also excluded. It is assumed that these issues and costs have been dealt  -->
+<!-- with  at  the  previous  stage  of  the  proof-of-concept  and  has  defined  which  technology  -->
+<!-- element will be eventually used for product development. -->
+Before formalizing the extension of real option value to AR4D projects of four, or any number $n$, stages, note that the default CBA approach in expression \ref{eq:npvIneqB} can be extended to $n$-stage projects as follows.
+<!-- the decision criterion for a  may be formalized as follows. -->
+<!-- \begin{equation} -->
+<!-- e^{- r \tau_n} E[x(T_n)] \bigr|_{t = 0} - \Sigma_{i = 1}^{n - 1} e^{-r \tau_i} (K_i - B_i) < K_n \:\: \rightarrow \:\: \text{reject project} -->
+<!-- \label{eq:npvIneqBN} -->
+<!-- \end{equation} -->
+
+\begin{equation}
+x(0) - \Sigma_{i = 1}^{n - 1} e^{-r T_i} (K_i - B_i) < K_n \:\: \rightarrow \:\: \text{reject project}
+\label{eq:npvIneqBN2}
+\end{equation}
+
+Where $T_i$, $K_i$, and $B_i$ are the time horizon, exercise cost, and abandonment value, respectively, of the $i^{th}$ stage.
+
+To formalize the $n$-fold real option value of AR4D projects, it is helpful to first do some relabeling. Let the real option value of a single stage project (equation \ref{eq:rovBraw}) evaluated at some time $\hat{t}$ henceforth be relabeled $f_1(\hat{t})$, with time horizon $T_1$, exercise cost $K_0$, and abandonment value $B_0$. And let $f_0(t) = x(t)$. Then equation \ref{eq:rovBraw} can be written
+
+\begin{equation}
+f_1(\hat{t}) = e^{-r \tau_1} E[\max(f_0(T_1) - K_0, B_0)] \bigr|_{t = \hat{t}}
+\end{equation}
+
+(Where $\tau_i = T_i - \hat{t}$.)
+
+As explained above, this is the value of the option, but not the obligation, to disburse the funds required to cover final launch and scaling up costs $K_0$ less abandonment value $B_0$, once the research project is finished. Now consider the real option value of a 2-stage project $f_2(\hat{t})$.
+
+\begin{equation}
+f_2(\hat{t}) = e^{- r \tau_2} E[\max(f_1(T_2) - K_1, B_1)] \bigr|_{t = \hat{t}}
+\end{equation}
+
+This is the value of the option, but not the obligation, to disburse the funds $K_1$ required to implement the second stage of the 2-stage project, once the first stage is finished. Note that $K_1$ corresponds to the sunk cost $S$ in equation \ref{eq:rovBrawCond}. The time horizon $T_2$ refers to the duration of stage 1, and $B_1$ is the abandonment value, if any, generated by the end of stage 1.
+
+Likewise, for a 3-stage project,
+
+\begin{equation}
+f_3(\hat{t}) = e^{- r \tau_3} E[\max(f_2(T_3) - K_2, B_2)] \bigr|_{t = \hat{t}}
+\end{equation}
+
+Where $T_3$ is the duration of the first stage, $B_2$ is any abandonment value associated with this stage, and $K_2$ the cost of implementing the second stage, of the 3-stage project.
+
+And so on, for any $n$-stage project, the $n$-fold option value $f_n(\hat{t})$ may be defined
+
+\begin{equation}
+f_n(\hat{t}) = e^{- r \tau_n} E[\max(f_{n - 1}(T_n) - K_{n - 1}, B_{n - 1})] \bigr|_{t = \hat{t}} \:\:;\:\:\: B_{n - 1} \geq 0
+\label{eq:rovNraw}
+\end{equation}
+
+In other words, $n$-fold option value is the present value of the option to continue with stage 2 of the project, the value of which is itself the present value of the option to continue with stage 3 of the project, and so forth, up until the present value of the option to continue with stage $n$ of the project, which is itself the present value of the option to implement the new technology---which is itself the project NPV $x(t)$.
+
+The ROV of each stage has as its underlying the ROV of the subsequent stage, which has as its underlying the ROV of the subsequent stage, and so forth, up until the stage 1 ROV, which has as its underlying the project NPV itself. The exercise cost of a given stage is the cost of implementing the subsequent stage.
+
+The formal 1-stage ROV funding decision criterion (inequality \ref{eq:rovBrawCond}) may thus be generalized to $n$-stage projects as follows.
+
+\begin{equation}
+e^{-rT_n} E[\max(f_{n - 1}(T_n) - K_{n - 1}, B_{n - 1})] < K_n \:\: \rightarrow \:\: \text{reject project}
+\end{equation}
+
+Or, more compactly,
+
+\begin{equation}
+f_n < K_n \:\: \rightarrow \:\: \text{reject project}
+\label{eq:rovNcond}
+\end{equation}
+
+Farther below, I demonstrate that, if $x(t)$ is lognormally distributed, then so is $f_n(t)$. Equation \ref{eq:part1} may therefore be invoked to establish a closed form expression for $f_n(\hat{t})$, if $x(t)$ is lognormally distributed. Before getting to this main result, however, it is first necessary to defend the assumption of lognormal $x(t)$, and to extract far-from-market real options from the thicket of "risk neutral valuation".
+
+## Modeling the evolution of AR4D project NPV
+
+When evaluating AR4D projects as real options, it becomes necessary to think carefully about how project NPV changes over time. This, in turn, requires careful consideration of the causes behind changes in project value. A reasonable starting point in this consideration is the observation that changes in AR4D project value seem to be of two types: research related and non-research related.
+
+Research related changes in project value generally occur at discrete test points, when new information regarding the effectiveness of the new technology becomes available. Non-research related changes in project value occur as a result of changes in the political, socio-economic, and institutional enabling environments where the new technology is to be released. Such changes may include, for example, elections, abrupt changes in government policies, commodity price swings, changes in seed systems and other value chain mechanisms, changes in the security environment, the ebb and flow of public and private sector partnerships to enhance impact, and so forth.
+
+Research related changes occur perhaps 1-4 times per year, while non-research related changes occur with greater frequency, perhaps 1-4 times per quarter. Overall, then, it is reasonable to expect changes in AR4D project value to occur every quarter. If the time step is defined as a quarter, then, changes can be expected to occur in every time step, as in the left panel of Figure \ref{fig:NPVevol}.
+
+```{r, include=FALSE}
+
+# library(tidyverse)
+# library(patchwork)
+#----------------------------------------------------------------------------
+gbmFun <- function(tau = 40, m = 0.001, s = 0.003, x0 = 1,
+                   randVec = NULL, seed = NULL) {
+  if(is.null(randVec)){
+    if(!is.null(seed)){set.seed(seed)}
+    randVec <- rnorm(tau)
+  }
+  epsilon <- randVec
+  lx <- c(); lx[1] <- log(x0)
+  drift <- (m - s * s / 2)
+  for(t in 2:tau){
+    dBt <-  s * epsilon[t]
+    lx[t] <- lx[t - 1] + drift + dBt
+  }
+  x <- exp(lx)
+  return(x)
+}
+# m <- 0.001
+# s <- 0.003
+# tau <- 400
+# x0 <- 1
+# x <- gbmFun(tau, m, s, x0, randVec = NULL)
+# df_plot <- data.frame(t = 1:tau, x)
+# gg <- ggplot(df_plot, aes(x = t, y = x))
+# gg <- gg + geom_line()
+# acf(diff(log(x)))
+# hist(diff(log(x)))
+# shapiro.test(diff(log(x)))
+#---------------------------------------------------------------------------
+# Algorithm 6.2 in Tankov 2003 Financial modeling with jump processes
+compoundPoisFun <- function(tau, lambda, m_y = 0, s_y = 1,
+                            seed = NULL, maxiter = 500){
+  if(!is.null(seed)){set.seed(seed)}
+  N <- rpois(1, lambda * tau)
+  U <- runif(N) * tau
+  U <- round(U)
+  n_iter <- 0; flag <- 1
+  while(flag == 1){
+    n_iter <- n_iter + 1
+    U <- runif(N) * tau
+    U <- round(U)
+    if(sum(duplicated(U)) > 0 & n_iter <= maxiter){
+      flag <- 1
+    }else{
+      flag <- 0
+      if(n_iter == maxiter){
+        print("Reached maxiter without generating duplicate-free event times vec. Dropping duplicates.")
+        U <- U[-which(duplicated(U))]
+      }
+    }
+  }
+  Tt <- U[order(U)]
+  J <- exp(rnorm(N, m_y, s_y)) - 1
+  #---
+  cumJ <- cumsum(J)
+  # For explicit modeling of Yt per time step
+  Yt <- rep(0, tau)
+  Yt[Tt] <- cumJ
+  #---
+  Tt <- c(0, Tt)
+  J <- c(0, J)
+  if(Tt[length(Tt)] != tau){
+    Tt <- c(Tt, tau)
+    J <- c(J, 0)
+  }
+  cumJ <- cumsum(J)
+  df_step <- data.frame(Tt, cumJ)
+  #--------------------------
+  nEvents <- length(Tt)
+  cumYt <- c()
+  for(i in 1:(nEvents - 1)){
+    tStart <- Tt[i]
+    tFin <- Tt[i + 1] - 1
+    cumYt[tStart:tFin] <- cumJ[i]
+  }
+  cumYt[tau] <- cumYt[tFin]
+  df_Yt <- data.frame(t = 1:tau, Yt, cumYt)
+  
+  list_out <- list(df_step, df_Yt)
+  return(list_out)
+  
+}
+#----------------------------------------------------------------------------
+FractDim<-function(Data,graphon=FALSE) {
+  X=Data;N=length(X);
+  jstart=10;jend=floor(10*(log10(N)-1));
+  kvec=c(1:4,floor(2^(c(jstart:jend)/4)));
+  indkend=length(kvec);
+  k=c()
+  AvgLmk=c()
+  err=c()
+  for(indk in 1:indkend)
+  {
+    k=kvec[indk]
+    Xend=c()
+    Xsum=c()
+    Lmk=c()
+    for(m in 1:k)
+    {
+      Xend=floor((N-m)/k)
+      Xsum=sum(abs(X[m+c(1:Xend)*k]-c(0, X[m+c(1:(Xend-1))*k])))
+      Lmk[m]=1/k*1/k*(N-1)/Xend*Xsum
+    }
+    AvgLmk[indk]=mean(Lmk)
+    #  err[indk]=sd(log(Lmk))
+  }
+  x<-log(kvec)
+  y<-log(AvgLmk)
+  q<-lm(y~x)
+  slope<-q$coefficients[2]
+  yintcept<-q$coefficients[1]
+  yfit<-x*slope+yintcept
+  FrDim <- -slope
+  avgRes <- mean(abs(q$residuals))
+  if(graphon==TRUE)
+  {
+    plot(x,y,main="If linear then fractal, w/Fr. Dim = (-)slope",xlab="Ln(k)",ylab="Ln(length of curve with interval k)")
+    z<-line(x,yfit);abline(coef(z),col='blue');z<-NULL
+    #z<-line(x,y);abline(coef(z),col='blue');z<-NULL
+  }
+  #z<-line(x,y);qq=coef(z)
+  #yintcept=qq[1]
+  #FrDim=-qq[2]
+  return(c(FrDim, avgRes, yintcept))
+}
+#===========================================================================
+m <- 0.005
+s <- m * seq(5.5, 50, length.out = 3)
+tau <- 48
+x0 <- 1
+#rn <- round(runif(1) * 1000)
+#rn <- 905
+#rn <- 517
+# rn <- 340
+# set.seed(rn)
+# tau <- 12 * 4
+lambda <- 0.1
+
+
+#----------------------------------------------------------------------------
+# Generate and plot geometric Brownian movement example
+#gBm_seed <- 10^4 * round(runif(1), 4)
+#gBm_seed <- 2482
+#gBm_seed <- 7781
+gBm_seed <- 1029
+#randVec <- coloredNoise(N = tau, alpha = 1, scaleIt = T)
+#acf(randVec)
+list_df <- list()
+list_spec <- list()
+facet_labels <- c()
+for(i in 1:length(s)){
+  x <- gbmFun(tau, m, s[i], x0, randVec = NULL, seed = gBm_seed)
+  df_x <- data.frame(t = 1:tau, x, s = as.character(s[i]))
+  list_df[[i]] <- df_x
+  o <- spectrum(x)
+  df_gbmSpec <- data.frame(lfreq = log(o$freq), lpwr = log(o$spec))
+  df_gbmSpec <- df_gbmSpec[-1, ]
+  df_gbmSpec$s <- as.character(s[i])
+  list_spec[[i]] <- df_gbmSpec
+  
+  mod <- lm(lpwr ~ lfreq, df_gbmSpec)
+  # summary(mod)
+  alpha <- round(as.numeric(coefficients(mod)[2]), 2)
+  # yint <- as.numeric(coefficients(mod)[1])
+  # df_out <- as.data.frame(broom::glance(mod))
+  # adjR2 <- round(df_out$adj.r.squared, 2)
+  # N <- df.residual(mod)
+  this_facet_label <- paste0("Slope = ", alpha, " fd = ", round(FractDim(x)[1], 2))
+  facet_labels[i] <- this_facet_label
+}
+#---
+df_plot <- as.data.frame(do.call(rbind, list_df))
+colnames(df_plot)[1:2] <- c("Time", "Project NPV")
+df_plot <- subset(df_plot, s == s[2])
+gg <- ggplot(df_plot, aes(x = Time, y = `Project NPV`))
+gg <- gg + geom_line()
+#gg <- gg + facet_wrap(~s, scales = "free_y", ncol = 1)
+gg <- gg + theme_bw()
+gg <- gg + theme(axis.text = element_blank(),
+                 axis.title = element_text(size = axisTitle_size))
+gg_gbm <- gg
+#---
+df_plot <- as.data.frame(do.call(rbind, list_spec))
+colnames(df_plot)[1:2] <- c("Logged frequency", "Logged power spectral density")
+df_plot <- subset(df_plot, s == s[2])
+#names(facet_labels) <- s
+gg <- ggplot(df_plot, aes(x = `Logged frequency`, y = `Logged power spectral density`))
+gg <- gg + geom_smooth(method = lm, se = F)
+gg <- gg + geom_line()
+# gg <- gg + facet_wrap(~s, ncol = 1,
+#                       labeller = labeller(s = facet_labels))
+gg <- gg + theme_bw()
+gg <- gg + theme(axis.text = element_blank(),
+                 axis.title = element_text(size = axisTitle_size))
+gg_gbmSpec <- gg
+gg
+#----------------------------------------------------------------------------
+# Generate and plot compound Poisson process example
+#cPp_seed <- 10^4 * round(runif(1), 4)
+#cPp_seed <- 6819
+#cPp_seed <- 4880
+#cPp_seed <- 7656
+cPp_seed <- 2558
+list_df <- list()
+list_spec <- list()
+facet_labels <- c()
+for(i in 1:length(s)){
+  #s_y = 0.3
+  list_out <- compoundPoisFun(tau, lambda, m_y = m,
+                              s_y = s[i], seed = cPp_seed,
+                              maxiter = 500)
+  df_x <- list_out[[1]]
+  df_x$s <- as.character(s[i])
+  list_df[[i]] <- df_x
+  
+  df_Yt <- list_out[[2]]
+  o <- spectrum(df_Yt$cumYt)
+  df_spec <- data.frame(lfreq = log(o$freq), lpwr = log(o$spec))
+  df_spec <- df_spec[-1, ]
+  df_spec$s <- as.character(s[i])
+  list_spec[[i]] <- df_spec
+  
+  mod <- lm(lpwr ~ lfreq, df_spec)
+  # summary(mod)
+  alpha <- round(as.numeric(coefficients(mod)[2]), 2)
+  # yint <- as.numeric(coefficients(mod)[1])
+  # df_out <- as.data.frame(broom::glance(mod))
+  # adjR2 <- round(df_out$adj.r.squared, 2)
+  # N <- df.residual(mod)
+  this_facet_label <- paste0("Slope = ", alpha, " fd = ", round(FractDim(df_Yt$cumYt)[1], 2))
+  facet_labels[i] <- this_facet_label
+  
+}
+#---
+df_plot <- as.data.frame(do.call(rbind, list_df))
+colnames(df_plot)[1:2] <- c("Time", "Project NPV")
+df_plot <- subset(df_plot, s == s[2])
+gg <- ggplot(df_plot, aes(Time, `Project NPV`))
+#gg <- ggplot(df_cpp, aes(t, cumYt))
+gg <- gg + geom_step()
+#gg <- gg + facet_wrap(~s, ncol = 1)
+gg <- gg + theme_bw()
+gg <- gg + theme(axis.text = element_blank(),
+                 axis.title.y = element_blank(),
+                 axis.title.x = element_text(size = axisTitle_size))
+gg_cpp <- gg
+#---
+df_plot <- as.data.frame(do.call(rbind, list_spec))
+colnames(df_plot)[1:2] <- c("Logged frequency", "Logged power spectral density")
+df_plot <- subset(df_plot, s == s[2])
+#names(facet_labels) <- s
+gg <- ggplot(df_plot, aes(x = `Logged frequency`, y = `Logged power spectral density`))
+gg <- gg + geom_smooth(method = lm, se = F)
+gg <- gg + geom_line()
+# gg <- gg + facet_wrap(~s, ncol = 1,
+#                       labeller = labeller(s = facet_labels))
+gg <- gg + theme_bw()
+gg <- gg + theme(axis.text = element_blank(),
+                 axis.title.y = element_blank(),
+                 axis.title.x = element_text(size = axisTitle_size))
+gg_cppSpec <- gg
+
+```
+
+```{r Fig2, fig.show = "hold", fig.width = 5, fig.height=2, fig.align="center", fig.cap="\\label{fig:NPVevol}(Left)An example of NPV changing randomly in every time step. (Right)An example of NPV changing randomly at random time steps, and otherwise remaining constant.", echo = FALSE}
+
+gg_gbm + gg_cpp + plot_layout(nrow = 1)
+
+
+```
+
+This conclusion implies a subtle but fundamental decision to model changes in R&D project value _when they occur_, as opposed to when project managers learn of their occurrence. In the corporate R&D context, Pennings and Lint [-@pennings1997option] take the opposite approach, registering changes in project NPV only when management becomes aware of the changes through internal analysis and reporting protocols. In other words, they model changes in project value as "information dam-breaks" (my phrase), whereby new information affecting project value accumulates for a time until it is suddenly released in a report to management, at which time the project value is updated. Such a model of project NPV evolution is depicted in the right panel of Figure \ref{fig:NPVevol}. This approach may be appropriate for corporate R&D, where the value of company assets and activities is ultimately defined by the stock market, and hence (in principle) by publicly available information.
+<!-- The information dam-break approach -->
+<!-- (Indeed, information dam-breaks are the premise of frontrunning, and hence the bread and butter of many an investment bank.) In the far-from-market R&D context, however, no such nuance comes into play. -->
+
+Whether the evolution of project NPV (or of any stochastic process) resembles the time series on the left or right of Figure \ref{fig:NPVevol} is, to a certain degree, a mere matter of the choice of time step. That is to say, the time series on the left can be transformed into to something resembling the time series on the right merely by plotting over a smaller time step. Likewise, the model on the right can be transformed into the model on the left by plotting over sufficiently large time step. The model on the right becomes unavoidable when said sufficiently large time step results in an unacceptably small number of time steps. In the AR4D context, this is generally not a problem. Projects typically last 9-25 years, such that, given a quarterly time step, the project NPV time series typically contains 36-100 steps.
+
+The time series on the left of Figure \ref{fig:NPVevol} is an example of gBm, while the time series on the right is a compound Poisson process (algorithm 6.2 in Cont and Tankov [-@tankov2003financial]). The compound Poisson process (cPp) assumes that changes in value occur at random time intervals. This is fine in the financial context, but may be problematic in real options contexts, where the information affecting project NPV is released through reports to management---events that are usually, at least in the AR4D context, non-random.
+
+### In defense of the gBm model of project NPV
+
+<!-- [Rejection of the gBm model in ROV contexts is partly inherited from the financial context, where gBm is generally viewed as a naive model of price movements. fat tails--debunked by Tankov, jumps--as discussed above, an artifact of the dam-break model, not a concern in ROV contexts, plus jumps can be closely approximated by gBm. en fin, gBm is much more versatile than it is generally given credit for.] -->
+Like Pennings and Lint, many real options authors reject the gBm model, preferring instead to select a model which they perceive to more accurately approximate the real time evolution of project NPV. But this comes at a substantial loss of expedience, as the closed form expression in equation \ref{eq:rov} must be replaced by considerably less tractable and less intelligible expressions, up to and including numerical methods. Trigeorgis once characterized numerical methods as an unavoidable "bitter pill" that every serious ROV practitioner must come to grips with [-@trigeorgis1993real].
+
+It seems safe to say, in hindsight, that energetic ROV proponents like Trigeorgis have overestimated the appetite for bitterness outside of academic audiences. Adoption of ROV thinking by real world decision makers has remained low [@horn2015use; @triantis2005realizing; @driouchi2012real]. ROV critics and proponents alike attribute the tepid reception to the formal complexity of ROV, much of which can be traced back to the use of numerical methods [@triantis2005realizing]. From the perspective of research donors and managers, numerical methods are effectively black boxes; and even ROV experts find themselves bamboozled at times. The much cited numerical exercise by Majd and Pindyck [-@majd1987time], for example, contains an elementary error, which was only discovered some twelve years after publication [@milne2000time].
+<!-- [---enough so, at any rate, to warrant some revisiting of the matter:] -->
+<!-- The case for complex ROV approaches weakens further when considering what is gained in return for sacrificing expedience. Pennings and Lint find only a $2\%$ difference between the the output of their cPp numerical model and that of the gBm closed form model [@pennings1997option]. To what extent is an increase in modeling realism even meaningful in a context where direct measurement of the reality one aspires to approximate---i.e., the evolution of project NPV---is highly problematic? Is the costly increase in realism even relevant to the aims of the modeling exercise? Is there an alternative, less costly way of achieving the same ends? -->
+<!-- 33.1 - 32.3 -->
+
+In any methodological decision, there is usually a tradeoff between realism and expedience. The job of the modeler is thus not merely to maximize realism, but to strike the optimal balance between realism and expedience under the particular time and resource constraints of the modeling exercise at hand, and in a way that is clearly relevant to the particular objectives of the exercise. This is especially true in real world decision making contexts, where constraints are considerably more severe than in academic contexts. And the patience of project donors and managers for arcane technical explanations must be counted among the resources that are in short supply.
+
+Before making costly methodological decisions in the name of realism, then, one must carefully consider 1) to what extent an "increase in realism" is even meaningful, i.e., to what extent it is possible to define and measure the reality one aspires to model; 2) whether the proposed increase in realism is actually relevant to the objectives of the modeling exercise, or whether it is just realism for realism's sake; and 3) whether there is a simpler, less costly way to achieve the same increment in realism, or the same modeling objectives which the increment in realism is supposed to serve.
+<!-- [One must also be careful of merely replacing one unrealistic artifact with another.]  -->
+
+In the financial context, the reality one aspires to model---i.e. some stochastic financial process, usually a price series---is well defined in the form of historical time series that can be easily downloaded, measured, analyzed, etc. In the far-from-market AR4D context, by contrast, analogous historical time series of project NPV generally do not exist. The reality one aspires to model must be perceived indirectly, based primarily on rational assumptions and logic, as I have just done above. So, in far-from-market real options contexts, it is not even clear what one gets in return for sacrificing expedience.
+
+Then there is the question of the relevance of the increase in realism. In the financial context, the relevance of a realistic model of the time evolution of financial securities is clear: it can make the difference between profit and loss. In far-from-market real options contexts, on the other hand, there is no real need for a good predictor of exactly when or in what order specific changes in project NPV occur. The need, rather, is to simulate a time series with a certain size distribution of changes in value. If the model can do this accurately, then it is a good model, regardless of what it looks like in the time domain.
+
+```{r Fig3, fig.show = "hold", fig.width = 5, fig.height=2, fig.align="center", fig.cap="\\label{fig:NPVevol2}(Left) Periodogram of the time series in the left panel of previous figure. (Right) Periodogram of the time series in the right panel of previous figure.", echo = FALSE}
+
+gg_gbmSpec + gg_cppSpec + plot_layout(nrow = 1)
+
+```
+
+This then answers the final question of whether or not a comparable increase in realism, or the objective which the desired increase in realism is supposed to serve, may be achieved at lower cost of expedience. The cPp model might seem like a good choice when trying to approximate a time series in which there are a few big changes interspersed by long periods of no change. However, the periodograms given in Figure \ref{fig:NPVevol2} indicate that the far more expedient gBm model can approximate such a size distribution arbitrarily closely, so long as it is acceptable to substitute "periods of no change" with "periods of negligibly small changes". It is not surprising, then, that Pennings and Lint find only a $2\%$ difference between ROV as calculated by their cPp-based numerical model and ROV as calculated by the gBm-based closed form model [-@pennings1997option].
+<!-- Given all the research and non-research factors affecting project NPV, it is highly unlikely that there is not at least a small, if negligible, perturbation in NPV in every time step, in which case the gBm model is the more realistic choice (when modeling project NPV evolution as it happens, as opposed to the information dam-break approach). -->
+<!-- The question is not when changes in NPV occur, but rather how often do substantial changes to NPV occur? In more technical terms, what is the size distribution of changes? In order to answer this question, it is more instructive to look at the signal's periodogram, not its evolution in the time domain. This can be examined by looking at a periodogram. Model 1 can effectively approximate model 2 to an arbitrary degree of precision by tuning the uncertainty parameter $s$ (Figure \ref)..... A few substantial changes followed by relatively long periods of little change. [The Poisson jump model represents a process in which there are a few substantial changes interspersed among periods of no changes at all. While the gbm model cannot replicate periods of no change exactly, it can approximate such periods arbitrarily closely through adjustments to the volatility parameter.... And recall that it is highly unlikely that there are no changes in project value in any given time step, but rather that there may be long periods of very small changes punctuated by brief periods of large changes. This is perhaps best illustrated by looking at periodograms (Figure ...).] -->
+<!-- Geometric Brownian motion is a much more versatile model than portrayed in the literature.... "bitter pill" [trigergis]. criticism fat tails etc. starting with Mandelbrot []. but this has led to misconception... [Tankov]. The fact is that gbm remains a highly versatile model capable of representing a wide variety of stochastic processes by adjustments to the volatility parameters. The key question that Pennings and Lint address with their jump model may be formulated as follows: what is the size distribution of changes in project value?  [P&L Poisson jump model output differed from the lognormal assumption output by just x% [P&L].] -->
+<!-- [For the purposes of evaluating real option value, the question is not so much when exactly the changes occur, but rather their size distribution. In other words not the time domain but the frequency domain that is important.] -->
+<!-- as compared to the default NPV approach -->
+<!-- ## Low adoption of real options thinking due to complexity -->
+<!-- Despite a flood of academic interest in ROV following Myers' initial insight, adoption of the real options approach by real world decision makers remains low [@horn2015use; @triantis2005realizing; @driouchi2012real]. ROV critics and proponents alike attribute this tepid reception to the formal complexity of evaluating and explaining ROV as compared to the default NPV approach [@triantis2005realizing]. -->
+<!-- Much of this complexity can be traced back to two sources. Firstly, there is the frequent and puzzling assumption of risk neutral valuation in far-from-market real options contexts, just mentioned above. Secondly, many authors reject the key assumption that project NPV evolution may be modeled as a gBm, preferring instead to evaluate equation \ref{eq:rovRaw} by numerical methods that are considerably less tractable, transparent, and instructive than equation \ref{eq:rov}. Trigeorgis, for example, calls numerical methods a "bitter pill" that every serious ROV practitioner must come to grips with [@trigeorgis1993real]. -->
+<!-- Before deriving the $n$-fold ROV model, it is first necessary to redress these two sources of confusion in detail. It seems safe to say, in hindsight, that energetic ROV proponents like Trigeorgis may have overestimated the appetite for bitterness outside of academic audiences. After this introductory section, I preface the derivation of the $n$-fold ROV model with a defense of the gBm model of project NPV, followed by a repudiation of risk neutral valuation in far-from-market real options contexts. -->
+<!--   present arguments in defense of gBm as a model of far-from-market project NPV. In particular, I note that the a as a much more versatile model than it is given credit for. -->
+<!-- Secondly, there is confusion regarding the interpretation, in real options contexts, of the financial artifact known as "risk-neutral valuation". -->
+<!-- (see, for example, Hayes and Garvin [@hayes1982managing], McGrath and MacMillan [@mcgrath2000assessing], Doctor, Newton, and Pearson [@doctor2001managing], and Newton, Paxson, and Widdicks [@newton2004real]), -->
+<!-- [However, the question of where ... must be assessed on a case by case basis. is a matter of preference. In academic contexts, there is a premium on rigor and realism. Most real options settings, on the other hand, time, resources, patience, and attention-span are in relatively short supply ... there is a premium on transparency, expediency. Pennings and Lint use equation \ref{eq:rov} and find that the numerical method output differs by just x%. That is a lot of extra work for a negligible difference. Whether or not changes occur in every time step is a matter of judicious choice of time step. In most real options settings, changes might not occur every day or every week or even every month, but probably do occur at least once every quarter. Moreover, such meticulous realism quickly lands the practitioner in other problems. In most real options settings, the research, analysis, and reporting protocols by which new information affecting project NPV becomes available occur at predetermined, non-random intervals, whereas the CP model is only valid for events occurring at random intervals. The order of changes in NPV is irrelevant. It is the size distribution of changes that matters, not when they occur. The frequency domain is what matters, not the time evolution.] -->
+<!-- # It's ok to be lognormal -->
+<!-- When taking a real options approach to project evaluation, it becomes necessary to think carefully about the evolution of project NPV over the life of the project. -->
+<!-- Many consider the assumption of lognormally distributed NPV unrealistic. This is to some degree rooted in the original financial context, where the assumption of lognormal security returns is widely viewed as naive... -->
+<!-- Bibby and Sorensen [@bibby1996hyperbolic] -->
+<!-- Pennings and Lint []. .  misconception [Tankov]. -->
+
+## Risk non-neutrality and the NPV growth rate in far-from-market real options contexts
+
+<!-- Another major source of complexity resulting in low adoption of ROV thinking regards the confused interpretation, in real options contexts, of the financial artifact known as "risk-neutral valuation". -->
+The derivation of equation \ref{eq:rov} in the Appendix via the method of straightforward integration is atypical of the ROV literature. Most authors instead cite the Black-Scholes partial differentiation equation [@black1973valuation] as the source of the ROV formula. The method of straightforward integration is followed here because it is a considerably simpler method, and is stripped of financial trappings. In financial contexts, the Black-Scholes approach is advantageous because it generates a whole class of functional forms known as the "financial derivatives", of which the European call option formula (the financial analogue to equation \ref{eq:rov}) is just one.
+
+More importantly, the Black-Scholes approach reveals, as a by-product, the deep result known as the principle of risk-neutral valuation: If it is not possible to make risk-free profits above the risk-free rate of return (the "no-arbitrage" rule), then investors are risk-neutral, i.e. "investors do not increase the expected return they require from an investment in order to compensate for increased risk" [@hull9thEdition]. Mathematically, this means that $m = r$ (where $r$, in financial contexts, refers to the risk-free rate of return).
+
+The principle of risk-neutral valuation rests squarely upon the no-arbitrage rule, which is enforced through the market. This is fine in the financial context. However, in real options contexts, there is no clear theoretical or empirical basis for the no-arbitrage rule. Real project NPV is not a traded good, and there is no clear mechanism that might serve as a market analogue. On the contrary, most ROV contexts, especially research contexts, may be characterized as far-from-market---or even market failures, which the underlying project is supposed to redress. As a matter of simple observation, moreover, most project donors and managers do not seem to be risk-neutral; i.e., they seem to require an increase in expected project NPV to justify funding for a project with increased risk.
+
+Critics note that the ROV literature is silent and/or conflicted on this point [@borison2005real; @block2007real]; and this has surely contributed to the complexity resulting in low adoption of ROV in real world decision making. It is not uncommon for ROV studies and surveys to assume risk-neutral valuation without any justification (see, for example, Trigeorgis [-@trigeorgis1993real], Majd and Pindyck [-@majd1987time], or Kemna [-@kemna1993case]). Some studies acknowledge the invalidity of the no-arbitrage argument in ROV contexts, but instead invoke "complete markets" to justify risk-neutral valuation (see, for example, Pennings and Lint [-@pennings1997option]). However, the complete markets assumption implies that 1) project NPV can be simulated by a portfolio of traded securities, and hence project risk can be hedged away by buying and/or selling these traded securities; and 2) project managers actually engage in the buying and selling of securities necessary to achieve this hedge. One may say without controversy that neither (1) nor (2) are common features of AR4D project management landscapes.
+
+Nonetheless, a very simple, straightforward reason exists for setting $m = r$ in far-from-market settings: By the very definition of NPV as the discounted value of future impacts, NPV is effectively expected to appreciate at the discount rate $r$.
+<!-- Conversely put, an expected NPV growth rate different from $r$ implies that the program NPV is inaccurately estimated. In the AR4D context, then, setting $m = r$ is tantamount to assuming that project NPV is accurately estimated. (This is a very strong, but nonetheless de facto, assumption implicit in any NPV estimate.) -->
+<!-- Mathematically, the absence of any empirical or theoretical premise for risk-neutral valuation in far-from-market real options contexts means that there is no reason to set $m$ equal to $r$. -->
+<!-- ## The far-from-market Black-Scholes PDE -->
+<!-- But Black and Scholes' insight can be decomposed into two consecutive insights. The first insight is that, by eliminating the random terms in equation \ref{eq:bsInsight1}, the resulting expression is deterministic. And it equates a composite evolution in terms of $\Delta f$ and $\Delta x$ on the left-hand side to a time evolution $\Delta t$ on the right-hand side. Regardless of the no-arbitrage rule, it follows trivially that -->
+<!-- \begin{equation} -->
+<!-- \Delta f - \frac{\partial f}{\partial x} \Delta x = \left( f - \frac{\partial f}{\partial x} x \right) \kappa \Delta t -->
+<!-- \end{equation} -->
+<!-- <!-- So long as -->
+<!-- <!-- \begin{equation} -->
+<!-- <!-- \kappa = \frac{\frac{\partial f}{\partial t} + \frac{1}{2} \frac{\partial^2 f}{\partial x^2} s^2 x^2}{f - \frac{\partial f}{\partial x} x} -->
+<!-- <!-- \end{equation} -->
+<!-- <!-- holds. -->
+<!-- Where $\kappa$ is constant with respect to the interval $\Delta t$. -->
+<!-- The second insight is about resolving the value of $\kappa$. In financial markets, the no-arbitrage rule requires that $\kappa = r$. In the absence of the no-arbitrage rule, however, the $r$ in the Black-Scholes PDE must be replaced by $\kappa$. Solving this non-market version of the Black-Scholes PDE at the boundary condition $f(T) = \max(x(T) - K, 0)$ and comparing it to equation \ref{eq:EmaxTK}, which is obtained through straightforward integration, reveals that $\kappa$ must default to $m$. In the absence of the no-arbitrage rule, or any other overriding mechanism, then, the Black-Scholes PDE must default to -->
+<!-- \begin{equation} -->
+<!-- \left( f - \frac{\partial f}{\partial x} x \right) m = \frac{\partial f}{\partial t} + \frac{1}{2} \frac{\partial^2 f}{\partial x^2} s^2 x^2 -->
+<!-- \label{eq:ffmBSpde} -->
+<!-- \end{equation} -->
+<!-- This is the far-from-market Black-Scholes PDE. -->
+<!-- the now deterministic equation means that the evolution in terms of $\Delta f$ and $\Delta x$ on the left-hand side of equation \ref{eq:bsInsight1} may be rewritten in terms of a time evolution $\Delta t$. That is, we have an equation of the following form. -->
+<!-- the evolution of the left-hand side must be constant over the interval $\Delta t$. This means -->
+<!-- \begin{equation} -->
+<!-- a \Delta f - b \Delta x = c \Delta t -->
+<!-- \end{equation} -->
+<!-- [Where $a$ ...] -->
+<!-- Regardless of the no-arbitrage argument, it follows trivially that -->
+<!-- \begin{equation} -->
+<!-- \begin{split} -->
+<!-- a f \kappa \Delta t - b x \kappa \Delta t  &= c \Delta t \\ -->
+<!-- (a f - b x) \kappa \Delta t  &= c \Delta t -->
+<!-- \end{split} -->
+<!-- \end{equation} -->
+<!-- And hence, trivially, -->
+<!-- \begin{equation} -->
+<!-- \begin{split} -->
+<!-- a f \kappa \Delta t - b x \kappa \Delta t  &= c \Delta t \\ -->
+<!-- (a f - b x) \kappa \Delta t  &= c \Delta t -->
+<!-- \end{split} -->
+<!-- \end{equation} -->
+
+## Derivation of a closed form expression for $n$-fold real option value
+
+<!-- ...it is now time to derive the $n$-fold real option value formula. To begin, consider the far-from-market Black-Scholes PDE (equation \ref{eq:ffmBSpde}) for the 1-fold real option value function $f_1$, rearranged as an expression for $r f_1$. -->
+<!-- The derivation consists of two steps. First we show that the $n$-fold real option value $f_n$ is lognormally distributed if project NPV $x(t)$ is lognormally distributed. Then, we show A closed form expression for $f_n$ then follows from equation \ref{eq:part1}. -->
+If $x(t)$ is a gBm, then, by Ito's lemma, the evolution of a function $f(x, t)$ is described as follows.
+
+\begin{equation}
+\Delta f = \left( x m \frac{\partial f}{\partial x} + \frac{\partial f}{\partial t} + \frac{s^2 x^2}{2} \frac{\partial^2 f}{\partial x^2} \right) \Delta t + \frac{\partial f}{\partial x} x s \epsilon \sqrt{\Delta t}
+\label{eq:itoLem}
+\end{equation}
+
+(See Hull [-@hull9thEdition] for details.)
+
+Black and Scholes [-@black1973valuation] famously noted that equations \ref{eq:gbmEq} and \ref{eq:itoLem} could be combined so as to eliminate the random term as follows.
+
+\begin{equation}
+\Delta f - \frac{\partial f}{\partial x} \Delta x = \left(\frac{\partial f}{\partial t} + \frac{s^2 x^2}{2} \frac{\partial^2 f}{\partial x^2} \right) \Delta t
+\label{eq:bsInsight1}
+\end{equation}
+
+In the financial context, the left-hand side of this equation may be thought of as the instantaneous evolution over the increment $\Delta t$ of a portfolio long one share of the financial derivative $f$ and short a quantity $\partial f / \partial x$ of the underlying security $x(t)$. This is where Black and Scholes applied their no-arbitrage argument: Since the random---i.e. risky---term has been eliminated from equation \ref{eq:bsInsight1}, then the profit or loss of this portfolio over the increment $\Delta t$ must be riskless. That is, it must change at the risk free rate $r$.
+
+\begin{equation}
+\Delta f - \frac{\partial f}{\partial x} \Delta x = \left( f - \frac{\partial f}{\partial x} x \right) r \Delta t
+\end{equation}
+
+In the AR4D context, the risk free rate and no-arbitrage rule are replaced by the discount rate (also denoted by $r$), and the definition of NPV, which requires that the value of the riskless portfolio on the left-hand side of equation \ref{eq:bsInsight1} must change at the rate of $r$.
+
+Equating the right-hand side of this equation with the right-hand side of the previous equation, the $\Delta t$'s cancel, resulting in the Black-Scholes partial differentiation equation (PDE).
+
+\begin{equation}
+\left( f - \frac{\partial f}{\partial x} x \right) r = \frac{\partial f}{\partial t} + \frac{s^2 x^2}{2} \frac{\partial^2 f}{\partial x^2}
+\end{equation}
+
+(Black and Scholes went on to solve this PDE under the boundary condition $f(T) = \max(x(T) - K, 0)$, resulting in an expression for $f$ identical to the one derived in equation \ref{eq:rov} by straightforward integration.)
+
+Now, letting $f = f_1$ and rearranging the Black-Scholes PDE as an expression for $r f_1$,
+
+\begin{equation}
+r f_1 = r x \frac{\partial f_1}{\partial x} + \frac{\partial f_1}{\partial t} + \frac{s^2 x^2}{2} \frac{\partial^2 f_1}{\partial x^2}
+\end{equation}
+
+And considering Ito's lemma for $f_1$,
+
+\begin{equation}
+\Delta f_1 = \left( r x \frac{\partial f_1}{\partial x} + \frac{\partial f_1}{\partial t} + \frac{s^2 x^2}{2} \frac{\partial^2 f_1}{\partial x^2} \right) \Delta t + \frac{\partial f_1}{\partial x} x s \epsilon \sqrt{\Delta t}
+\end{equation}
+
+Note that the right-hand side of the previous expression is equal to the first term in parentheses on the right-hand side of Ito's lemma for $f_1$. Ito's lemma for $f_1$ may thus be rewritten as follows.
+
+\begin{equation}
+\Delta f_1 = r f_1 \Delta t + x \frac{\partial f_1}{\partial x} s \epsilon \sqrt{\Delta t}
+\label{eq:itoLemf1}
+\end{equation}
+
+And note that the second term on the right-hand side can be rewritten in terms of an elasticity.
+
+\begin{equation}
+x \frac{\partial f_1}{\partial x} s \epsilon \sqrt{\Delta t} = f_1 \eta_{1, 0} s \epsilon \sqrt{\Delta t}
+\end{equation}
+
+Where $\eta_{1, 0}$ is the elasticity of $f_1$ with respect to the project NPV $x$. That is, defining $f_0 = x$,
+
+\begin{equation}
+\begin{split}
+\eta_{i, 0} &= \frac{f_0}{f_i} \frac{\partial f_i}{\partial f_0} = \frac{\partial \ln(f_i)}{\partial \ln(f_0)} \\
+&= \frac{1}{100} \frac{\% \Delta f_i}{\% \Delta f_0}
+\end{split}
+\end{equation}
+
+Equation \ref{eq:itoLemf1} can be rewritten
+
+\begin{equation}
+\Delta f_1 = r f_1 \Delta t + f_1 \eta_{1, 0} s \epsilon \sqrt{\Delta t}
+\label{eq:gbmf1}
+\end{equation}
+
+By which it follows that $\Delta f_1 / f_1$ is normally distributed with mean $r \Delta t$ and variance $s^2 \eta_{1, 0}^2 \Delta t$. In other words, $f_1$ is a gBm, such that $\ln(f_1)$ is normally distributed with mean $\ln(f_1(\hat{t})) + \left(r - s^2 \eta_{1, 0}^2 / 2 \right) \tau_1$ and variance $s^2 \eta_{1, 0}^2 \tau_1$.
+
+It follows, moreover, that a 2-fold real option value function $f_2(f_1, t)$ also has a Black-Scholes PDE.
+
+\begin{equation}
+r f_2 = \frac{\partial f_2}{\partial f_1} f_1 + \frac{\partial f_2}{\partial t} + \frac{\eta_{1, 0}^2 s^2 f_1^2}{2} \frac{\partial^2 f_2}{\partial f_1^2}
+\end{equation}
+
+With corresponding Ito's lemma
+
+\begin{equation}
+\Delta f_2 = \left( r f_1 \frac{\partial f_2}{\partial f_1} + \frac{\partial f_2}{\partial t} + \frac{\eta_{1, 0}^2 s^2 f_1^2}{2} \frac{\partial^2 f_2}{\partial f_1^2} \right) \Delta t + \frac{\partial f_2}{\partial f_1} f_1 \eta_{1, 0} s \epsilon \sqrt{\Delta t}
+\end{equation}
+
+Such that
+
+\begin{equation}
+\begin{split}
+\Delta f_2 &= r f_2 \Delta t + f_1 \eta_{1, 0}  \frac{\partial f_2}{\partial f_1} s \epsilon \sqrt{\Delta t} \\
+&= r f_2 \Delta t + f_2 \eta_{2, 0} s \epsilon \sqrt{\Delta t}
+\end{split}
+\label{eq:gbmf2}
+\end{equation}
+
+By which it follows that $\Delta f_2 / f_2$ is normally distributed with mean $r \Delta t$ and variance $s^2 \eta_{2, 0}^2 \Delta t$; and that $\ln(f_2)$ is normally distributed with mean $\ln(f_2(\hat{t})) + \left(r - s^2 \eta_{2, 0}^2 / 2 \right) \tau_2$ and variance $s^2 \eta_{2, 0}^2 \tau_2$. That is, $f_2$ is also a gBm.
+
+And so on for $f_3$, $f_4$, $\dots$, $f_n$, there exists a Black-Scholes PDE
+
+\begin{equation}
+\left( f_n - \frac{\partial f_n}{\partial f_{n - 1}} f_{n - 1} \right) r = \frac{\partial f_n}{\partial t} + \frac{\eta_{n - 1, 0}^2 s^2 f_{n - 1}^2}{2} \frac{\partial^2 f_n}{\partial f_{n - 1}^2}
+\end{equation}
+
+Which, when combined with the corresponding Ito's lemma, results in an expression for $\Delta f_n$ as a gBm.
+
+\begin{equation}
+\Delta f_n = r f_n \Delta t + f_n \eta_{n, 0} s \epsilon \sqrt{\Delta t}
+\label{eq:gbmfn}
+\end{equation}
+
+Such that the growth rate $\Delta f_n / f_n$ is normally distributed with the same constant mean as that of $\Delta f_0 / f_0$---i.e. $r \Delta t$---and variance $s^2 \eta_{n, 0}^2 \Delta t$, which differs from that of $\Delta f_0 / f_0$ by a factor of $\eta_{n, 0}^2$; and such that $\ln(f_n)$ is normally distributed with mean $\ln(f_n(\hat{t})) + \left(r - s^2 \eta_{n, 0}^2 / 2 \right) \tau_n$ and variance $s^2 \eta_{n, 0}^2 \tau_n$.
+
+By equation \ref{eq:part1}, then,
+
+\begin{equation}
+f_n = f_{n - 1}(\hat{t}) \Phi(\delta_n + s \eta_{n - 1, 0} \sqrt{\tau_n}) - e^{-r \tau_n} K_n \Phi(\delta_n)
+\label{eq:rovN}
+\end{equation}
+
+Where
+
+\begin{equation}
+\delta_n = \frac{\ln \left(\frac{f_{n - 1}(\hat{t})}{K_n} \right) + \left(r - \frac{s^2 \eta_{n - 1, 0}^2}{2} \right) \tau_n}{s \eta_{n - 1, 0} \sqrt{\tau_n}}
+\end{equation}
+
+Which may be generalized to include abandonment value $B_n$ by following the steps in section \ref{sec:abandVal}.
+<!-- equation \ref{eq:rovB}, -->
+
+\begin{equation}
+f_n = f_{n - 1}(\hat{t}) \Phi(\delta_n + s \eta_{n - 1, 0} \sqrt{\tau_n}) - e^{-r \tau_n} (K_n \Phi(\delta_n) - B_n ( 1 + \Phi(\delta_n)))
+\label{eq:rovBn}
+\end{equation}
+
+Where
+
+\begin{equation}
+\delta_n = \frac{\ln \left(\frac{f_{n - 1}(\hat{t})}{K_n - B_n} \right) + \left(r - \frac{s^2 \eta_{n - 1, 0}^2}{2} \right) \tau_n}{s \eta_{n - 1, 0} \sqrt{\tau_n}}
+\end{equation}
+
+In the case where $n = 1$, it is easy to see that this reduces to the 1-fold real option value formula in equation \ref{eq:rovB}. For multi-stage projects ($n > 1$), equation \ref{eq:rovBn} must be evaluated recursively, as follows:
+
+For $i = 1$ to $i = n$,
+
+1) Using $f_{i - 1}$ and $\eta_{i - 1, 0}$, evaluate $f_i$;
+
+2) Using $f_i$, $f_{i - 1}$, and $\eta_{i - 1, 0}$, evaluate $\eta_{i, i - 1}$;
+
+3) Evaluate $\eta_{i, 0} = \eta_{i, i - 1} \eta_{i - 1, 0}$;
+
+(Remember that $f_0 = x$.)
+
+The equation for the elasticity $\eta_{i, i - 1}$ evaluated in step 2 works out to
+
+\begin{equation}
+\begin{split}
+\eta_{i, i - 1} &= \frac{f_{i - 1}}{f_i} (\Phi(\delta_i + s \sqrt{\tau_i}) + f_{i - 1} \frac{\partial \eta_{i - 1, 0}}{\partial f_{i - 1}} \phi(\delta_i + s \sqrt{\tau_i})) \\
+&= \frac{f_{i - 1}}{f_i} (\Phi(\delta_i + s \sqrt{\tau_i}) + (1 - \eta_{i - 1, 0}) \phi(\delta_i + s \sqrt{\tau_i}))
+\end{split}
+\end{equation}
+
+When $i = 1$, note that this reduces to
+
+\begin{equation}
+\begin{split}
+\eta_{i, i - 1} &= \frac{f_0}{f_1} \Phi(\delta_1 + s \sqrt{\tau_1}) \\
+&= \frac{x(\hat{t})}{f_1} \Phi(\delta_1 + s \sqrt{\tau_1})
+\end{split}
+\end{equation}
+
+The algorithm thus begins by calculating the ROV of the last ($n^{th}$) research stage, $f_1$. This ROV is then the underlying of the ROV of the second to last stage, $f_2$, which is then the underlying of $f_3$, and so forth, up to $f_n$, which is the ROV of stage 1 research.
+
+An R script of the algorithm is included in the Appendix.
+<!-- Remarkably, then, the mean fractional change in $n$-fold option value is equal to that of project NPV, $m \Delta t$. The variance of percentage changes in $n$-fold option value similarly has the parameter $s$ in common with the variance of percentage changes in project NPV, but differs from the latter by a factor of $\eta_{n,0}^2$, which changes in each time step. -->
+<!-- And -->
+<!-- \begin{equation} -->
+<!-- \begin{split} -->
+<!-- \eta_{n - 1, 0} &= \frac{\partial \ln(f_n)}{\partial \ln(f_{n - 1})} = \frac{f_{n - 1}}{f_n} \frac{\partial f_n}{\partial f_{n - 1}} \\ -->
+<!-- &= e^{(m - r) T_n} \frac{f_{n - 1}}{f_n} \left( \Phi_{n, 1} + f_{n - 1} \phi_{n, 1} \frac{\partial \eta_{n - 1, 0}}{\partial f_{n - 1}} s \sqrt{T_n} \right) \\ -->
+<!-- &= \begin{cases} -->
+<!-- 1, & n = 1 \\ -->
+<!-- e^{(m - r) T_n} \frac{f_{n - 1}}{f_n} \left( \Phi_{n, 1} + f_{n - 1} \phi_{n, 1} \frac{\partial \eta_{n - 1, 0}}{\partial f_{n - 1}} s \sqrt{T_n} \right), & n > 1 -->
+<!-- \end{cases} -->
+<!-- \end{split} -->
+<!-- \end{equation} -->
+<!-- equations \ref{eq:gBmN} and \ref{eq:bsPDEn} imply that a function $f_{n + 1}$ of an underlying geometric Brownian motion $f_n$  -->
+<!-- \begin{equation} -->
+<!-- mf_{n + 1} = \frac{\partial f_n}{\partial f_{n - 1}} f_{n - 1} m + \frac{\partial f_n}{\partial t} + \frac{s^2 f_{n - 1}^2 \eta_{n - 1, 0}^2}{2} \frac{\partial^2 f_n}{\partial f_{n - 1}^2} -->
+<!-- \label{eq:bsPDEn} -->
+<!-- \end{equation} -->
+<!-- note that by equation \ref{eq:bsPDEn},  -->
+
+# An illustrative example of real option valuation of an AR4D project
+
+Below I apply the $n$-fold option value model derived above to valuate a real AR4D project currently in implementation. The aim of the project is to develop a transgenic potato variety with resistance to Late Blight disease (henceforth LBr potato), for release as a public good in two developing countries. The LBr potato project follows the four stage structure described in section \ref{sec:resStages}. The costs and time duration associated with each stage are summarized in Table 1, based on figures documented by Schiek et al. [-@schiek2016demys]. All values are given in terms of current US dollars.
+
+Late Blight is the disease behind the infamous Irish Potato Famine of 1845-1849; and continues to pose a major threat to food security, especially in the developing world [@haverkort2008societal; @fry2008phytophthora]. Successful research and development of LBr potato varieties adapted to local environments is thus a potentially very high reward, disruptive proposition. It is also a high risk proposition, facing numerous research and non-research related challenges, not least of which is a strong "anti-GM" lobby in many of the target populations.
+<!-- Costs are assessed as the sum of staff costs, direct operating costs (including lab bench costs), indirect operating costs (overhead), external contract costs, and stewardship costs. -->
+
+The donor, USAID, originally awarded the LBr potato research contract to Cornell University in 2010, with planned release in India. However, stage 1 research and development at Cornell was unsuccessful. In 2015, USAID transferred the contract to Michigan State University (MSU), which proposed a different stage 1 research strategy, with planned release in Bangladesh and Indonesia instead of India. India was dropped as a target country partly because of the vigorous anti-GM lobby there, which made stage 4 success unlikely. MSU completed stage 1 successfully in 2019, and USAID has recently awarded them a new contract for stage 2 research and development.
+<!-- USAID-ABSP II program -->
+<!-- The project occurred in 4 distinct stages: 1) Late Blight resistant (LBr) event production and selection, 2) Wide area testing, 3) Compilation of the regulatory dossier, and 4) Registration and regulatory affairs. -->
+<!-- In stage 1, the lead gene construct was developed in a target potato variety, and a small number of transgenic events exhibiting high resistance to Late Blight, as well as a number of other qualities (absence of backbone vector sequences, minimum number copy number of R genes, etc.) were screened from a large number of explants. -->
+<!-- In stage 2, the transgenic events selected in stage 1 were cultivated in three distinct locations and three distinct seasons to assess environmental effects on the LBr trait, and vice versa. Any impacts of LBr on other key traits such as yield, maturation time, taste, and so forth, were also assessed. --><!-- In stage 3, the regulatory dossier was compiled for submission to the National Competent Authority in the country where the LBr potato was to be released. The dossier included compositional and safety assessments, as well as the environmental assessments of the previous stage. -->
+<!-- In stage 4, the regulatory dossier was defended and amended before the National Competent Authorty in the target country. This stage may involve a variety of activities, including public advocacy, lobbying, and submission of additional information. -->
+<!-- For details see Schiek et al. [@]. -->
+
+```{r, echo = FALSE}
+# Define functions
+#----------------------------------------------------------------------------
+# Table formatting function
+FitFlextableToPage <- function(ft, pgwidth = 6){
+  
+  ft_out <- ft %>% autofit()
+  #these_colWidths <- dim(ft_out)$widths * pgwidth  / (flextable_dim(ft_out)$widths)
+  these_colWidths <- dim(ft_out)$widths
+  these_colWidths[5] <- these_colWidths[1] * 1.5
+  #these_colWidths[6] <- these_colWidths[6] * 0.7
+  these_colWidths <- these_colWidths * pgwidth  / (flextable_dim(ft_out)$widths)
+  ft_out <- width(ft_out, width = these_colWidths)
+  return(ft_out)
+}
+
+#============================================================================
+#============================================================================
+# End function definition
+#============================================================================
+#============================================================================
+# Project stage time durations and costs
+# (Values given in chronologically reverse order, starting with stage n.)
+# Kvec[1] is the launch cost, Tvec[1] is the launch duration.
+# Time durations given in years, multiplied by 4 to convert to quarters.
+# MSU/cornell
+# Tvec <- c(2, 3.5, 1, 2, 4) * 4
+# Kvec <- c(300000, 200000, 400000, 400000, 530000)
+Tvec <- c(2, 3, 0.85, 1.7, 3.4) * 4
+Kvec <- c(250000, 181000, 312000, 336000, 530000)
+# Kvec <- c(180541, 311974, 335530, 530250)
+# CIP
+# Kvec <- c(52000, 213000, 396000, 929000)
+# Tvec <- c(1, 0.25, 2, 4.75) * 4
+#----------------------------------------------------------------------------
+# Create table summarizing stage costs, time durations, and descriptions
+stage1desc <- "Basic replication and scaling up"
+stage2desc <- "Multi-location/season testing"
+stage3desc <- "Compilation of the regulatory dossier"
+stage4desc <- "Deregulation"
+launchDesc <- "Launch in 2 countries"
+descVec <- c(stage1desc, stage2desc, stage3desc, stage4desc, launchDesc)
+
+df_table <- data.frame(Stage = c(1:4, "Launch"),
+                       Kn = rev(Kvec),
+                       Duration = rev(Tvec),
+                       DurationCum = cumsum(rev(Tvec)),
+                       Description = descVec)
+
+colnames(df_table)[2:4] <- c("Cost\n(USD)", "Duration\n(annual quarters)", "Cumulative\nduration")
+
+#df_table <- regulartable(df_table)
+#df_table
+#df_table <- width(df_table, width = 0.7)
+table_title <- "Project to research and develop Late Blight resistant potato for release as a public good in 2 developing countries."
+table_caption <- "Stage 1-4 costs and durations based on figures reported by Schiek et al. (2016). The launch cost and duration is hypothetical."
+
+#df_table <- FitFlextableToPage(df_table)
+# df_table <- add_header_lines(df_table, table_title)
+# df_table <- add_footer_lines(df_table, table_caption)
+# modifiedColnames <- colnames(df_table)
+# modifiedColnames[3] <- "Duration\n(annual quarters)"
+df_table %>%
+  knitr::kable(
+    format = "latex",
+    caption = table_title,
+    align = "l",
+    booktabs = T,
+    #longtable = T,
+    linesep = " ",
+    escape = F
+  ) %>%
+  kableExtra::kable_styling(
+    position = "left",
+    latex_options = c("scale_down", "striped", "repeat"),
+    full_width = F,
+    stripe_color = "gray!15"
+  ) %>%
+  # kableExtra::column_spec(column = 3:4, width = "1.5in"
+  # ) %>%
+  kableExtra::footnote(
+    general = table_caption)
+# number = c("Footnote 1; ", "Footnote 2; "),
+# alphabet = c("Footnote A; ", "Footnote B; "),
+# symbol = c("Footnote Symbol 1; ", "Footnote Symbol 2"))
+
+# print_this_table <- function(df_table){
+# df_table <- regulartable(df_table)
+# df_table <- width(df_table, width = 5.5)
+# # df_table <- FitFlextableToPage(df_table)
+# 
+# df_table %>% #regulartable() %>% autofit() %>%
+#   valign(valign = "top", part = "all") %>%
+#   align(align = "left", part = "all") %>%
+#   fontsize(i = NULL, j = NULL, size = 9, part = "body") %>%
+#   fontsize(i = NULL, j = NULL, size = 10, part = "header")
+#   
+# }
+
+
+```
+
+In real options language, USAID bought a 4-fold option on LBr potato when it awarded the original contract to Cornell; but this option expired out of the money at the end of stage 1. USAID then effectively bought a second 4-fold option on LBr potato when it transferred the contract to MSU. The first stage of the 4-fold option has expired in the money, whereupon it has become a 3-fold option.
+
+In the present exercise, I calculate the 4-fold real option value of the USAID LBr potato contract awarded to MSU in 2015. This is the value of USAID's option, but not obligation, to fund stage 2 (multi-location, multi-season confined field trials) once stage 1 is complete. In order to make the calculation, the model requires the research stage and launch costs $K_0, K_1, \dots, K_4$ and time horizons $T_1, T_2, \dots, T_4$ listed in Table 1, as well as:
+
+* The project NPV, $x(0)$
+
+* The project NPV volatility $s$, or the upper and lower bounds on project NPV, whereby $s$ can be deduced
+
+* Any abandonment values associated with each stage $B_0, B_1,\dots, B_4$
+
+* The discount rate $r$
+
+This is a purely pedagogical exercise to illustrate the use of the $n$-fold ROV model derived in the previous sections. While the exercise is based on real project stage costs and time horizons, the other parameter values are hypothetical. The resulting calculations should therefore not be interpreted as an authoritative valuation of LBr potato research.
+
+```{r, echo = FALSE}
+
+# Define functions
+#------------------------------------------------------------------------
+# N-fold ROV w/abandonment value function
+rovN <- function(X0, Kvec, Bvec = NULL, Tvec, s, r){
+  #----------------------------------------------------------------
+  # Definition of input parameters:
+  # X0 - Project NPV as of today
+  # Kvec - Vector of launch costs associated with each project stage, starting with the last stage
+  # Bvec - Vector of abandonment values associated with each project stage, starting with the last stage. Default setting is 0 for each stage (NULL).
+  # Tvec - Vector of time horizons for each stage, starting with the last stage
+  # s - NPV volatility
+  # r - Discount rate
+  #----------------------------------------------------------------
+  # Recursive calculation of the ROV of each project stage, starting with the last stage first 
+  N <- length(Kvec) # Get number of project stages
+  if(is.null(Bvec)){Bvec <- rep(0, N)}
+  # f_0 <- X0
+  # etaNm10 <- 1
+  eta_0 <- 1
+  etaVec <- c()
+  fiVec <- c()
+  s_im1Vec <- c()
+  Phi2vec <- c()
+  Phi1vec <- c()
+  for(i in 1:N){
+    # 1) Using f_{i-1} and eta_{i-1,0}, evaluate f_{i}
+    # (Note f_0 = X0 and eta_{0,0} = 1)
+    if(i == 1){
+      f_im1 <- X0
+      eta_im10 <- 1
+    }else{
+      f_im1 <- f_i
+      eta_im10 <- eta_i0
+    }
+    Ki <- Kvec[i]
+    Bi <- Bvec[i]
+    Ti <- rev(cumsum(rev(Tvec)))[i]
+    di <- (log(f_im1 / (Ki - Bi)) + (r - s^2 * eta_im10^2 / 2) * Ti) / (s * eta_im10 * sqrt(Ti))
+    Phi1 <- pnorm(di + s * eta_im10 * sqrt(Ti))
+    Phi2 <- pnorm(di)
+    f_i <- f_im1 * Phi1 - exp(-r * Ti) * Ki * Phi2 + exp(-r * Ti) * Bi * (1 + Phi2)
+    # 2) Using f_{i}, f_{i-1}, and eta_{i-1,0}, evaluate eta_{i,i-1}.
+    fiVec[i] <- f_i
+    s_im1Vec[i] <- s * eta_im10
+    Phi2vec[i] <- Phi2
+    Phi1vec[i] <- Phi1
+    phi1 <- dnorm(di + s * eta_im10 * sqrt(Ti))
+    eta_iim1 <- f_im1 / f_i * (Phi1 + phi1 * (1 - eta_im10))# * s * sqrt(Ti))
+     # <- f_im1 / f_i * dfnd_im1
+    # dfndf_im1 <- ((Phi1 + phi1 * (1 - eta_im10) * s * sqrt(Ti))
+    # eta_im10 <- f_im1 / f_i * dfnd_im1
+    #etaNnM1 <- fNm1 / fn * dfndfNm1 # Elasticity of ROV of stage n with respect to ROV of stage n-1
+    # 3) Evaluate eta_{i,0} = eta_{i,i-1} * eta_{i-1,0}
+    eta_i0 <- eta_iim1 * eta_im10 # Elasticity of ROV of stage n-1 with respect to project NPV
+    etaVec[i] <- eta_i0
+  }
+  underVec <- c(X0, fiVec[-N])
+  df_out <- data.frame(Stage = rev(1:N), Fold = 1:N,
+                       OVn = fiVec, valUnder = underVec,
+                       Kvec, etaVec,
+                       s_im1Vec, Phi2vec)
+  colnames(df_out)[-1] <- c("Fold (i)",
+                            "i-fold ROV", "Value of underlying",
+                            "Exercise cost", "Elasticity w.r.t. project NPV",
+                            "Standard dev. of underlying",
+                            "Probability of exercise")
+  return(df_out)
+  
+}
+#============================================================================
+#============================================================================
+# End function definition
+#============================================================================
+#============================================================================
+# Define parameters
+#---------------------------------------------------------------------------
+# Set abandonment value to 0 for starters
+# Separate out the stage 4 cost and total time horizon less launch time
+Bvec <- c(0, 0, 0, 0)
+n <- length(Kvec) - 1
+K1 <- Kvec[n + 1]
+Tn <- sum(Tvec[-1])
+#---------------------------------------------------------------------------
+# Crude project NPV estimate loosely based on expected adoption rates, time horizons, etc.
+rYrly_discrete <- 0.08 #0.035
+rQtly_discrete <- (1 + rYrly_discrete)^(1 / 4) - 1
+Tadopt <- 20 * 4
+Timpact <- 10 * 4
+yrlyBen <- 1 * 10^6 # (Assuming very low adoption)
+x0 <- sum(yrlyBen / (1 + rQtly_discrete)^(Tn + Tadopt + 1:Timpact))
+# (Override)
+x0 <- 1.23 * 10^6
+#---------------------------------------------------------------------------
+# Convert discrete discount rate to continuous discount rate
+r <- round(log(1 + rQtly_discrete), 3)
+#----------------------------------------------------------------------------
+# Derive s and m
+# Define confidence interval of interest, usually 95% (z = 1.96)
+zBound <- 1.96
+# Max and min log return elicited from experts/stakeholders
+# 1) Elicit upper and lower pctg error in project NPV
+# 2) Interpret as upper and lower bounds on 95% conf interval of arithmetic return
+# 3) Convert arithmetic return to log return by formula log ret = log(1 + arith ret)
+yMaxA <- 7.15#1.85
+yMinA <- -0.8#-0.45
+yMax <- log(1 + yMaxA)
+yMin <- log(1 + yMinA)
+# bTerm <- -(2 * yMin + 8 / 3 * zBound^2)
+# yMax <- 1 / 2 * (-bTerm - sqrt(bTerm^2 + 4))
+# Back out s and m
+s <- (yMax - yMin) / (2 * zBound * sqrt(Tn))
+# m <- 1 / (2 * Tn) * (yMax + yMin + (yMax - yMin)^2 / (4 * zBound^2))
+# \begin{split}
+# s &= \frac{z \pm \sqrt{z^2 - 1 / 2 (\bar{\ell} - r \tau)}}{ \sqrt{\tau}} \\
+# &= \frac{-z \pm \sqrt{z^2 - 1 / 2 (\underline{\ell} - r \tau)}}{ \sqrt{\tau}} \\
+# &= \sqrt{ r - \frac{\bar{\ell} + \underline{\ell}}{2 \tau}}
+# \end{split}
+# \end{equation}
+
+s <- round(s, 3)
+#m <- round(m, 3)
+#m - r
+# Make sure m > r
+#----------------------------------------------------------------------------
+# Plausibility check:
+# Coefficient of variation
+cv <- round(s / (r * sqrt(Tn)), 2)
+#cv
+# CV graph
+# yMaxVec <- seq(0.1, 2.5, length.out = 35)
+# sVec <- (yMaxVec - yMin) / (2 * zBound * sqrt(Tn))
+# mVec <- 1 / (2 * Tn) * (yMaxVec + yMin + (yMaxVec - yMin)^2 / (4 * zBound^2))
+# cvVec <- sVec / (mVec * sqrt(Tn))
+# plot(yMaxVec, cvVec)
+# cvVec <- 1 / (4 * zBound * Tn^2) * (yMaxVec^2 - yMin^2 + (yMaxVec - yMin)^3 / (4 * zBound^2))
+# E[x(T)]|t=0
+# ExT <- round(exp(m * Tn) * x0 * 10^-6, 3) # millions
+# ExTdisc <- round(exp(-r * Tn) * ExT, 3) # millions
+# Expected log return
+#mu <- round((yMax + yMin) / 2, 2)
+mu <- round((r - s^2 / 2) * Tn, 2)
+#mu
+#m <- (mu / Tn + s^2 / 2)
+#--------------------------------------------------------------------------
+# Compare to conventional appraisal
+#NPV <- exp(-r * sum(Tvec)) * (X0 - sum(Kvec))
+conv <- x0 - sum(exp(-r * rev(cumsum(rev(Tvec[-1])))) * (Kvec[-(n + 1)] - Bvec))
+conv <- round(conv)
+dif_conv <- round(conv - K1)
+#------------------------------------------------------------------------
+# Calculate n-fold ROV, at first with no abandonment value
+df <- rovN(x0, Kvec[-n - 1], Bvec, Tvec[-1], s, r)
+ROV <- round(df$`i-fold ROV`[nrow(df)])
+dif <- round(ROV - K1)
+Phi2 <- round(df$`Probability of exercise`[n], 2)
+etaN0 <- round(df$`Elasticity w.r.t. project NPV`[n], 2)
+#------------------------------------------------------------------------
+# Calculate n-fold ROV, now with abandonment value
+Bvec <- c(0, 0, 0, 20000)
+df_wB <- rovN(x0, Kvec[-n - 1], Bvec, Tvec[-1], s, r)
+ROV_wB <- round(df_wB$`i-fold ROV`[nrow(df_wB)])
+dif_wB <- round(ROV_wB - K1)
+Phi2wB <- round(df_wB$`Probability of exercise`[n], 2)
+etaN0_wB <- round(df_wB$`Elasticity w.r.t. project NPV`[n], 2)
+#------------------------------------------------------------------------
+# Compare to conventional appraisal with abandonment value
+#NPV <- exp(-r * sum(Tvec)) * (X0 - sum(Kvec))
+conv_wB <- x0 - sum(exp(-r * rev(cumsum(rev(Tvec[-1])))) * (Kvec[-(n + 1)] - Bvec))
+conv_wB <- round(conv_wB)
+dif_conv_wB <- conv_wB - K1
+
+```
+
+USAID generally uses a high annual discount rate of $0.12$ in its cost-benefit analyses of agricultural development projects [@usaid2015cba]. However, there are good reasons for using a much lower rate when appraising these kinds of projects [@moore2004just; @caplin2004social; @harrison2010valuing]. As a compromise between the two extremes, an annual (discrete) discount rate of `r rYrly_discrete` is assumed in this exercise, which works out to a (continuous) quarterly discount rate of `r r` used in the calculation. Abandonment values are assumed to be zero for the time being.
+
+No ex-ante impact assessments of LBr potato in Bangladesh and Indonesia have yet been published. For the pedagogical purposes of this exercise, say that MSU and/or USAID internally conducted an ex-ante impact assessment indicating net benefits on the order of tens of millions of dollars per year, but that the long time horizon and high discounting results in an LBr project NPV of $x(0)=\$`r x0 * 10^-6`$ million. Moreover, the study reports a high degree of uncertainty ranging from `r 100 * yMinA` $\%$ to `r 100 * yMaxA`$\%$ of NPV. Based on these uncertainty bounds (and assuming project NPV follows a gBm), the project NPV volatility parameter $s$ is deduced as `r s` following the method explained in section \ref{sec:volEst}.
+<!-- $m = `r m`$ (or `r round(((1 + m)^4 - 1), 2)` annually) and -->
+
+As a plausibility check, the project NPV growth rate coefficient of variation and log return are calculated based on the deduced value for $s$. The coefficient of variation works out to `r cv`. This might be considered high, but well within reason given the ambitious scope of the project, and given the wide range of research and non-research factors affecting its progress and eventual diffusion in the target populations and environments. The expected log return, meanwhile, works out to `r mu`, which works out to an expected arithmetic return of `r round(exp(mu) - 1, 2)`. This may or may not be plausible depending upon the details of the hypothetical NPV calculation. A high expected percentage change in NPV by the end of the project (i.e., a high arithmetic return) may make sense if there is reason to expect major improvements in potato value chain infrastructure within the target countries.
+<!-- For public projects The annual discount rate is set equal to a social discount rate of $0.035$, following the recommendation of Moore et al. [@moore2004just], which implies a quarterly discount rate of $r = $`r r`.-->
+<!-- (Alston and Norton acknowledged in 1995 that the treatment of risk in impact assessment models was "rudimentary and in need of further refinement" [@Alston1995]. Unfortunately, this remains true today.) If ex-ante risk assessments are not available, then they can be elicited in the survey of domain experts. Project risk might be crowdsourced, for example, by asking survey participants to estimate the maximum, minimum, and most probable impact of each given project. With these three inputs, it is then straightforward to compute standard deviation on the basis of an assumed project impact probability density. (For example, the minimum and maximum could be interpreted as the bounds of the 95% confidence interval of a lognormal probability density, and the "most probable impact" could be interpreted as its mode. From this it is then straightforward to derive the standard deviation.) -->
+
+```{r, echo=FALSE}
+
+
+df_table <- df[, c("Stage", "Fold (i)",
+                   "i-fold ROV", "Value of underlying",
+                   "Elasticity w.r.t. project NPV",
+                   "Standard dev. of underlying",
+                   "Probability of exercise")]
+#df_tabwB <- df_wB[nrow(df_wB), c("OVn", "fnM10", "etaNm10", "sNm1", "Phi2")]
+# colnames(df_table)[2:ncol(df_table)] <- c("ROV", "Value of\nunderlying", "Elasticity\nw.r.t. project NPV", "Standard dev.", "Phi 2")
+df_table$`i-fold ROV` <- round(df_table$`i-fold ROV`)
+df_table$`Value of underlying` <- round(df_table$`Value of underlying`)
+these_cols <- c("Elasticity w.r.t. project NPV", "Standard dev. of underlying", "Probability of exercise")
+df_table[, these_cols] <- round(df_table[, these_cols], 2)
+
+# df_table <- regulartable(df_table)
+# #df_table <- width(df_table, width = 0.7)
+# df_table <- FitFlextableToPage(df_table)
+# df_table
+
+table_title <- "LBr potato project stage 1-4 ROVs"
+modifiedColnames <- colnames(df_table)
+modifiedColnames[2] <- "Fold $i$"
+modifiedColnames[3] <- "$i$-fold ROV"
+modifiedColnames[ncol(df_table)] <- "Prob. of exercise $\\Phi(\\delta_i)$"
+
+df_table %>%
+  knitr::kable(
+    format = "latex",
+    caption = table_title,
+    align = "l",
+    booktabs = T,
+    #longtable = T,
+    linesep = " ",
+    col.names = modifiedColnames,
+    escape = F
+  ) %>%
+  kableExtra::kable_styling(
+    position = "left",
+    latex_options = c("scale_down", "striped", "repeat"),
+    full_width = F,
+    stripe_color = "gray!15"
+  ) %>%
+  kableExtra::column_spec(column = 4:7, width = "1in")
+# %>%
+#   kableExtra::save_kable("Table 1.png")
+# here("Table 1", "test")
+# %>%
+#   kableExtra::footnote(
+#     general = table_caption)
+
+
+
+```
+
+Based on these parameter values, the 4-fold option value of the LBr potato project works out to $\$`r as.integer(ROV)`$, which exceeds the stage 1 implementation cost ($\$`r as.integer(K1)`$) by $\$`r as.integer(dif)`$. Hence the investment is justified under the parameter settings defined above. Conventional CBA appraisal (expression \ref{eq:npvIneqBN2}), by contrast, works out to $\$`r as.integer(conv)`$ million, which falls below the stage 1 cost by $\$`r -as.integer(dif_conv)`$. By the conventional CBA criterion, then, the LBr project would be rejected.
+<!-- (equation \ref{eq:rovBn}) -->
+
+The ROV approach provides additional output that may be of use in decision making. The probability of stage 1 research expiring in the money ($\Phi(\delta_4)$) is an encouraging `r Phi2`, while the elasticity of the 4-fold ROV with respect to project NPV is `r etaN0`, meaning that a $1\%$ change in project NPV results in a `r etaN0`$\%$ change in the 4-fold ROV. This indicates considerable sensitivity to changes in project NPV.
+
+Since the 4-fold ROV is calculated recursively, the 3-fold, 2-fold, and 1-fold ROVs are also calculated in the process, along with their respective probabilities of expiring in the money and elasticities with respect to project NPV. These are reported together with the 4-fold ROV in Table 2. It may be of interest to note that the 3-fold, 2-fold, and 1-fold options are deep in the money with successively increasing probabilities of expiring in the money. This suggests that justification of the funding of each subsequent stage becomes easier if researchers can just manage to clear the stage 1 hurdle.
+<!-- `r round(dif)` -->
+
+```{r, echo=FALSE}
+
+#--------------------------------------------------------------------------
+# Define slack function for root finding function
+slackfun <- function(x0, Kvec, Bvec, Tvec, s, r, thresh){
+  
+  df <- rovN(x0, Kvec, Bvec, Tvec, s, r)
+  ROV <- df$`i-fold ROV`[nrow(df)]
+  slack <- ROV - thresh
+  return(slack)
+  
+}
+
+# testFn <- function(x, a, b, thresh){
+#   f <- a * x^2 - b
+#   slack <- f - thresh
+#   return(slack)
+# }
+# a <- 1
+# b <- 2
+# thresh <- 0
+# xGuess <- sqrt(2)
+# testFn(xGuess, a, b, thresh)
+# thisInt <- c(0, 2)
+# minInt <- min(thisInt)
+# maxInt <- max(thisInt)
+# testRoot <- rootSolve::uniroot.all(testFn,
+#                                    thisInt,
+#                                    minInt,
+#                                    maxInt,
+#                                    a = a,
+#                                    b = b,
+#                                    thresh = thresh)
+
+#--------------------------------------------------------------------------
+interval <- c(1, 2) * 10^6
+out <- uniroot(slackfun,
+               interval,
+               Kvec = Kvec[-n - 1],
+               Bvec = Bvec,
+               Tvec = Tvec[-1],
+               s = s,
+               r = r,
+               thresh = K1
+)
+x0bEven <- round(out[[1]] * 10^-6, 3) # millions
+# x0guess <- 1.06 * 10^6 #x0
+# slackfun(x0guess, Kvec[-n - 1], Bvec, Tvec[-1], s, m, r, thresh = K1)
+# minInt <- min(interval)
+# maxInt <- max(interval)
+# mm <- m
+# x0Root <- rootSolve::uniroot.all(slackfun,
+#                        interval = interval,
+#                        lower = minInt,
+#                        upper = maxInt,
+#                        trace = 2,
+#                        Kvec = Kvec[-n - 1],
+#                        Bvec = Bvec,
+#                        Tvec = Tvec[-1],
+#                        s = s,
+#                        mm = mm,
+#                        r = r,
+#                        thresh = K1
+#                        )
+#--------------------------------------------------------------------------
+
+```
+
+The exercise so far assumes that abandonment value is zero. Now consider a stage 1 abandonment value of $\$`r as.integer(Bvec[n])`$, corresponding to the value of permanent upgrades to human and fixed capital at national agricultural research institutions in the target countries. Then the 4-fold ROV works out to $\$`r as.integer(ROV_wB)`$ USD, and the probability of expiring in the money at the end of stage 1 increases to `r Phi2wB`.
+<!-- When there is considerable uncertainty or disagreement surrounding project NPV, as in the present example, a better question to ask may be: what is the minimum project NPV required to justify stage 1 funding? That is to say, instead of calculating the 4-fold ROV based on a dubious project NPV, it may be more useful to deduce the minimum project NPV required for the donor's investment to break even. This is achieved by solving the $n$-fold ROV model implicitly for $x_0$ such that $f_n - K_n = 0$. The audience can then draw its own conclusions about whether or not real project NPV is above or below this minimum threshold. In the present exercise, the break even project NPV works out to $\$`r x0bEven `$ million. -->
+<!-- Point estimates such as this are of limited use when there is high uncertainty surrounding parameter settings. In such cases, it is better to report ROV in a map format spanning some relevant range of values of the most uncertain parameters. This allows decision makers to quickly discern ROV across a wide range of parameter values, as well as to develop a sense of how sharply ROV varies with these parameters. In other words, it combines ROV estimates and sensitivity analysis in a single reporting format. In the pedagogical example explored here, there is high uncertainty surrounding project NPV. A 3-fold ROV map spanning a range of combinations of upper and lower bounds on the 95% confidence interval is therefore provided in Figure \ref{fig:rovNmap}. -->
+<!-- # ```{r, fig.show = "hold", fig.width = 4, fig.height=3, fig.align="left", fig.cap="\\label{fig:rovNmap}A map of 4-fold real option values across multiple combinations of project NPV minimum and maximum bounds.", echo = FALSE} -->
+<!-- # ROV Map -->
+<!-- nRes <- 20 -->
+<!-- #----- -->
+<!-- this_r <- 0.04 -->
+<!-- #----- -->
+<!-- # X0vec <- seq(0.5, 1.5, length.out = nRes) -->
+<!-- # cvVec <- seq(2, 15, length.out = nRes) -->
+<!-- yMaxVec <- seq(0.1, 3.5, length.out = nRes) -->
+<!-- yMinVec <- seq(-0.9, -0.1, length.out = nRes) -->
+<!-- #---- -->
+<!-- difmat <- matrix(NA, nRes, nRes) -->
+<!-- difNPVmat <- matrix(NA, nRes, nRes) -->
+<!-- phi2mat <- matrix(NA, nRes, nRes) -->
+<!-- x0starMat <- matrix(NA, nRes, nRes) -->
+<!-- for(i in 1:nRes){ -->
+<!--     #x0 <- X0vec[i] * 10^6 -->
+<!--     yMin <- yMinVec[i] -->
+<!--   for(j in 1:nRes){ -->
+<!--     #cv <- cvVec[j] -->
+<!--     #s <- m * cv -->
+<!--     yMax <- yMaxVec[j] -->
+<!-- # Back out s and m -->
+<!-- s <- (yMax - yMin) / (2 * zBound * sqrt(Tn)) -->
+<!-- mu <- (yMax + yMin) / 2 -->
+<!-- m <- (mu / Tn + s^2 / 2) -->
+<!-- #-------------------------------------------------------------------------- -->
+<!-- # Compare to conventional appraisal -->
+<!-- #NPV <- exp(-r * sum(Tvec)) * (X0 - sum(Kvec)) -->
+<!-- conv <- exp((m - r) * Tn) * x0 - sum(exp(-r * rev(cumsum(rev(Tvec[-1])))) * (Kvec[-(n + 1)] - Bvec)) -->
+<!-- dif_conv <- conv - K1 -->
+<!-- #-------------------------------------------------------------------------- -->
+<!-- # Calculate n-fold ROV with no abandonment value -->
+<!-- df <- rovN(x0, Kvec[-n - 1], Bvec, Tvec[-1], s, m, r) -->
+<!-- ROV <- df$OVn[nrow(df)] -->
+<!-- dif <- ROV - K1 -->
+<!-- Phi2 <- df$Phi2[n] #round(df$Phi2[n], 2) -->
+<!-- etaNm10 <- round(df$etaNm10[n], 2) -->
+<!-- #-------------------------------------------------------------------------- -->
+<!-- interval <- c(.4, 10) * 10^6 -->
+<!-- out <- uniroot(slackfun, -->
+<!--         interval, -->
+<!--         Kvec = Kvec[-n - 1], -->
+<!--         Bvec = Bvec, -->
+<!--         Tvec = Tvec[-1], -->
+<!--         s = s, -->
+<!--         m = m, -->
+<!--         r = r, -->
+<!--         thresh = K1 -->
+<!--         ) -->
+<!-- x0star <- out[[1]] -->
+<!-- #-------------------------------------------------------------------------- -->
+<!--   difmat[i, j] <- dif -->
+<!--   phi2mat[i, j] <- Phi2 -->
+<!--   difNPVmat[i, j] <- dif_conv -->
+<!--   x0starMat[i, j] <- x0star -->
+<!--     } -->
+<!-- } -->
+<!-- #-------------------------------------- -->
+<!-- colnames(difmat) <- as.character(yMaxVec) -->
+<!-- row.names(difmat) <- as.character(X0vec) -->
+<!-- df_plot <- reshape2::melt(difmat) -->
+<!-- colnames(df_plot) <- c("Project NPV at t = 0 (million USD)", "y max", "ROV net benefit\n(100 thousand USD)") -->
+<!-- colnames(phi2mat) <- as.character(yMaxVec) -->
+<!-- row.names(phi2mat) <- as.character(X0vec) -->
+<!-- df_plotPhi2 <- reshape2::melt(phi2mat) -->
+<!-- colnames(df_plotPhi2) <- c("Project NPV at t = 0 (million USD)", "y max", "Probability of success") -->
+<!-- #, "NPV net benefit", ) -->
+
+<!-- #--- -->
+<!-- gg <- ggplot(df_plot, aes(x = `y max`, -->
+<!--                           y = `Project NPV at t = 0 (million USD)`, -->
+<!--                           fill = `ROV net benefit\n(100 thousand USD)`)) -->
+<!--                           #fill = `Probability of success`)) -->
+<!-- gg <- gg + geom_tile() -->
+<!-- gg <- gg + scale_fill_gradient2(high = "green", -->
+<!--                                 mid = "yellow", -->
+<!--                                 low = "red", -->
+<!--                                 midpoint = 0) -->
+<!-- gg <- gg + theme_bw() -->
+<!-- gg <- gg + theme(legend.position = "top", -->
+<!--                  axis.title.y = element_text(size = axisTitle_size), -->
+<!--                  axis.text.y = element_text(size = axisText_size), -->
+<!--                  axis.title.x = element_text(size = axisTitle_size), -->
+<!--                  axis.text.x = element_text(size = axisText_size), -->
+<!--                  legend.text = element_text(size = legendText_size), -->
+<!--                  legend.title = element_text(size = axisTitle_size)) -->
+<!-- gg_rovMap <- gg -->
+<!-- #--------------------------------------------------------------------------- -->
+<!-- gg <- ggplot(df_plotPhi2, aes(x = `y max`, -->
+<!--                           y = `Project NPV at t = 0 (million USD)`, -->
+<!--                           fill = `Probability of success`)) -->
+<!-- gg <- gg + geom_tile() -->
+<!-- gg <- gg + scale_fill_gradient(high = "green", -->
+<!--                                 #mid = "yellow", -->
+<!--                                 low = "red")#, -->
+<!--                                 #midpoint = 0.5) -->
+<!-- gg <- gg + theme_bw() -->
+<!-- gg <- gg + theme(legend.position = "top", -->
+<!--                  axis.title.y = element_blank(), -->
+<!--                  axis.text.y = element_blank(), -->
+<!--                  axis.title.x = element_text(size = axisTitle_size), -->
+<!--                  axis.text.x = element_text(size = axisText_size), -->
+<!--                  legend.text = element_text(size = legendText_size), -->
+<!--                  legend.title = element_text(size = axisTitle_size)) -->
+<!-- gg_probMap <- gg -->
+<!-- #--------------------------------------------------------------------------- -->
+<!-- gg_rovMap + gg_probMap + plot_layout(ncol = 2) -->
+
+# Discussion and conclusion
+
+In this article, I have developed an $n$-fold ROV model to evaluate the real option value of multi-stage AR4D projects. The model effectively prices in the research donor's option to discontinue funding of a project at the end of well defined research stages, thereby facilitating donor commitment to the long time horizons of agricultural research. In other words, the model formalizes the de facto structure of most AR4D project funding arrangements. The model also accounts for the wide uncertainty that usually surrounds AR4D project NPV, thereby reducing the pressure on researchers to put an exact monetary value on impacts that may be decades in the future. I have also extended the model to include abandonment value.
+
+The proposed model is particularly appropriate for the valuation of high risk, deep-in-the-money (i.e. high expected reward) projects. The higher a project's moneyness (i.e. the higher the expected reward), the higher must be its volatility for there to be a meaningful difference between the ROV and conventional CBA approaches. In the case of LBr potato examined above, for example, a small increase in the hypothetical NPV and/or decrease in the confidence interval given by $\bar{\ell}$, $\underline{\ell}$ (and hence a decrease in the volatility $s$) results in an ROV that is virtually the same as the NPV, in which case there is no point in evaluating the $n$-fold ROV.
+
+The proposed model rests on the assumption that project NPV follows a gBm, and is thus subject to criticism insofar as this assumption is unrealistic. In response to critics who reject the gBm assumption on the basis that the time evolution of project NPV fails to resemble that of gBm, I have argued that 1) the time domain discrepancy is largely spurious, attributable to one's theory of how/when new information affects project NPV, and to one's choice of time step $\Delta t$. And, more importantly, I have argued that 2) it is not the time domain, but the frequency domain that is relevant when it comes to far-from-market ROV calculation. That is to say, the calculation of ROV hinges upon the size distribution of changes in NPV, regardless of when or in what order the changes occur. Assuming that project NPV follows a gBm is tantamount to assuming that percentage changes in project NPV are normally distributed. Insofar as this assumption is valid, then, the proposed model is valid. Practitioners are forewarned that rejection of this assumption tends to lead to the sort of black box complexity that has so far inhibited wider adoption of the ROV approach.
+
+Note that project NPV usually scales with the launch and scaling up cost $K_n$. That is to say, beyond a certain minimum level of funding required to generate, release, and support the diffusion and uptake of the project's research product on a pilot level, further increments in the investment $K_n$ have the effect of broadening the scope of impact---i.e. extending the size and number of target populations and environments where the research product is released and has an impact. In future work, then, it might be worthwhile to explore the ROV implications of explicitly modeling project NPV as a function of the scaling up investment $K_n$. For example, $x(0)$ could be defined
+
+\begin{equation}
+x(0) = \tilde{x}(0) \left(\frac{K_n}{\bar{K}_n}\right)^{\alpha}
+\end{equation}
+
+Where the parameter $\bar{K}_n$ is a reference value---perhaps the minimum or maximum possible scale up investment, for example---$\tilde{x}(0)$ is the project NPV if scaling up funding equals the reference value, and the exponent $\alpha$ is restricted to fall between 0 and 1, reflecting decreasing returns to scale. It may then be interesting to analyze ROV response to successively higher scale up investments $K_n$, corresponding to successively broader geographical scopes of impact.
+
+For purposes of exposition, I have focused here on the valuation of transgenic projects; but the $n$-fold ROV model derived in this article is of course not limited to such ventures. It applies just as well to the valuation of conventional crop and livestock breeding projects, as well as to multi-stage AR4D projects not necessarily built around the objective of genetic gain. This includes, for example, projects involving digital agriculture, value chain integration, social capital formation, agricultural biodiversity, environmental services, climate smart agriculture, agroecology, etc., and combinations thereof. The proposed model can also be applied at more aggregate levels of accounting---to valuate, for example, a multi-stage program consisting of several projects in various stages of implementation. While AR4D is the motivating context of the present work, the model presented here is generally applicable to the valuation of any far-from-market, multi-stage venture.
+
+<!-- https://stackoverflow.com/questions/58187514/r-markdown-place-an-appendix-after-the-references-section -->
+<!-- # References {-} -->
+<!-- <div id="refs"></div> -->
+<!-- <div id="refs"></div> -->
+<!-- \printbibliography[heading=none] -->
+<!-- \def\printbibliography{} -->
+
+<!-- \pagebreak -->
+<!-- https://tex.stackexchange.com/questions/520480/how-make-appendix-of-paper-number-equations-in-there -->
+<!-- In YAML: -->
+<!-- \usepackage{etoolbox} -->
+<!-- \appto\appendix{\counterwithin{equation}{section}} -->
+
+\appendix
+\renewcommand{\thesection}{A}
+
+# Appendix {-}
+
+## Proof of equation \ref{eq:part1} through straightforward integration {-}
+
+<!-- Lemma: -->
+
+<!-- If $v(t)$ follows a geometric Brownian motion; that is to say, if the instantaneous evolution of $v(t)$ over time can be expressed -->
+
+<!-- \begin{equation} -->
+<!-- \Delta v = \alpha v \Delta t + \beta v \epsilon \sqrt{\Delta t} \:\:;\:\:\: \Delta v = v(t + \Delta t) - v(t) -->
+<!-- \label{eq:deltaV} -->
+<!-- \end{equation} -->
+
+<!-- Where $\epsilon$ is a normally distributed random variable with mean $0$ and variance $1$, and $\alpha$ and $\beta$ are constant with respect to the instantaneous time increment $\Delta t$, such that -->
+
+<!-- \begin{equation} -->
+<!-- \frac{\Delta v}{v} ~ \phi(\alpha \Delta t, \beta^2 \Delta t) -->
+<!-- \end{equation} -->
+
+<!-- Where $\phi()$ is the standard normal probability density function; and hence -->
+
+<!-- \begin{equation} -->
+<!-- v(T) = v(\hat{t}) e^{(\alpha - \beta^2 / 2) \tau + \beta \epsilon \sqrt{\tau}} -->
+<!-- \label{eq:defVt} -->
+<!-- \end{equation} -->
+
+<!-- Where $T$ is some future time step, $\hat{t} < T$ is the time step at which $v(T)$ is evaluated, and $\tau = T - \hat{t}$. (See Hull [@hull9thEdition] for details.) Then, for a constant C, -->
+<!-- <!-- , such that --> 
+<!-- <!-- \begin{equation} --> 
+<!-- <!-- \ln \left(\frac{v(T)}{v(\hat{t})} \right) ~ \phi \left(\left(\alpha - \frac{\beta^2}{2} \right) \tau, \beta^2 \tau \right) -->
+<!-- <!-- \end{equation} -->
+
+<!-- \begin{equation} -->
+<!-- E[max(v(T) - C, 0)]\bigr|_{t = \hat{t}} = e^{\alpha \tau} v(\hat{t}) \Phi(\delta + \beta \sqrt{\tau}) - C \Phi(\delta) -->
+<!-- \end{equation} -->
+
+<!-- Where $\Phi()$ is the standard normal cumulative distribution function, and -->
+
+<!-- \begin{equation} -->
+<!-- \delta = \frac{\ln(v(\hat{t}) / C) + (\alpha - \beta^2 / 2) \tau}{\beta \sqrt{\tau}} -->
+<!-- \end{equation} -->
+
+<!-- Proof: -->
+
+(The proof below closely follows that of Hull in the appendix to chapter 13 of his book [-@hull9thEdition]. It is presented here solely for the reader's convenience, with no claim to originality.)
+<!-- _Part 1_ -->
+
+By definition, for a random variable $q$ and a constant $C$,
+
+\begin{equation}
+E[\max(q - C, 0)] = \int_{C}^{\infty} (q - C) p(q) \: dq
+\label{eq:def}
+\end{equation}
+
+Where $p(q)$ is the probability density function of the random variable $q$. If $\ln(q)$ is normally distributed with mean $\nu$ and variance $\omega^2$, then
+
+\begin{equation}
+E[q] = e^{\nu + \frac{\omega^2}{2}}
+\label{eq:muXT}
+\end{equation}
+
+and
+
+\begin{equation}
+p(q) = \frac{1}{q \omega} \phi \left(\frac{\ln(q) - \nu}{\omega} \right)
+\end{equation}
+
+Where $\phi()$ is the standard normal probability density function.
+
+Now, introducing a change of variables,
+
+\begin{equation}
+u = \frac{\ln(q) - \nu}{\omega}
+\label{eq:subThis1}
+\end{equation}
+
+Such that
+
+\begin{equation}
+\frac{du}{d q} = \frac{1}{q \omega}\: \rightarrow \: d q = q \omega du
+\label{eq:subThis2}
+\end{equation}
+
+The definition in equation \ref{eq:def} can be rewritten as follows.
+
+\begin{equation}
+\begin{split}
+E[\max(q - C, 0)] &= \int_{\frac{\ln(C) - \nu}{\omega}}^{\infty} (e^{u \omega + \nu} - C) \phi(u) \: du \\
+&= \int_{\frac{\ln(C) - \nu}{\omega}}^{\infty} e^{u \omega + \nu} \phi(u) \: du - C \int_{\frac{\ln(C) - \nu}{\omega}}^{\infty} \phi(u) \: du \\
+&= \int_{\frac{\ln(C) - \nu}{\omega}}^{\infty} e^{u \omega + \nu} \phi(u) \: du - C \Phi \left(-\frac{\ln(C) - \nu}{\omega} \right)
+\end{split}
+\end{equation}
+
+The remaining integral on the right-hand side of the definition resolves as follows.
+
+\begin{equation}
+\begin{split}
+\int_{\frac{\ln(C) - \nu}{\omega}}^{\infty} e^{u \omega + \nu} \phi(u) \: du &= \frac{1}{\sqrt{2 \pi}} \int_{\frac{\ln(C) - \nu}{\omega}}^{\infty} e^{u \omega + \nu -\frac{u^2}{2}} \: du \\
+&= \frac{1}{\sqrt{2 \pi}} \int_{\frac{\ln(C) - \nu}{\omega}}^{\infty} e^{-1 / 2 (u^2 - 2 u \omega - 2 \nu)} \: du \\
+&= \frac{1}{\sqrt{2 \pi}} \int_{\frac{\ln(C) - \nu}{\omega}}^{\infty} e^{-\frac{(u - \omega)^2}{2} + \nu + \frac{\omega^2}{2}} \: du \\
+&= \frac{1}{\sqrt{2 \pi}} \int_{\frac{\ln(C) - \nu}{\omega}}^{\infty} e^{-\frac{(u - \omega)^2}{2}} e^{\nu + \frac{\omega^2}{2}} \: du \\
+&= e^{\nu + \frac{\omega^2}{2}} \frac{1}{\sqrt{2 \pi}} \int_{\frac{\ln(C) - \nu}{\omega}}^{\infty} e^{-\frac{(u - \omega)^2}{2}} \: du \\
+&= \frac{E[q]}{\sqrt{2 \pi}} \int_{\frac{\ln(C) - \nu}{\omega}}^{\infty} e^{-\frac{(u - \omega)^2}{2}} \: du \\
+&= \frac{E[q]} \int_{\frac{\ln(C) - \nu}{\omega}}^{\infty} \phi(u - \omega) \: du \\
+&= \frac{E[q]} \Phi \left(- \frac{\ln(C) - \nu}{\omega} + \omega \right)
+\end{split}
+\end{equation}
+
+The definition may now be rewritten as follows.
+
+\begin{equation}
+E[\max(q - C, 0)] = E[q] \Phi \left(- \frac{\ln(C) - \nu}{\omega} + \omega \right) - C \Phi \left(-\frac{\ln(C) - \nu}{\omega} \right)
+\end{equation}
+
+Note that \ref{eq:muXT} can be rearranged into an expression for $\nu$.
+
+\begin{equation}
+\nu = \ln(E[q]) - \omega^2 / 2
+\end{equation}
+
+Substituting this for $\nu$ in the definition gives
+
+\begin{equation}
+E[\max(q - C, 0)] = E[q] \Phi \left(\frac{\ln \left( \frac{E[q]}{C} \right) + \frac{\omega^2}{2}}{\omega} \right) - C \Phi \left(-\frac{\ln \left( \frac{E[q]}{C} \right) - \frac{\omega^2}{2}}{\omega} \right)
+\end{equation}
+
+$\blacksquare$
+
+<!-- \label{eq:part1} -->
+
+<!-- _Part 2_ -->
+
+<!-- Let $q$ equal the geometric Brownian motion $v(t)$ defined in equation \ref{eq:defVt}, and note that -->
+
+<!-- \begin{equation} -->
+<!-- E[v(T)] \bigr|_{t = \hat{t}} = v(\hat{t}) e^{\alpha \tau} -->
+<!-- \end{equation} -->
+
+<!-- \begin{equation} -->
+<!-- Var[\ln(v(T))] \bigr|_{t = \hat{t}} = \beta^2 \tau -->
+<!-- \end{equation} -->
+<!-- <!-- Where $\alpha = 1 / \tau \: E[\Delta v / v]$, and $\beta^2 = 1 / \tau \:Var[\Delta v / v]$. -->
+
+<!-- (See Hull [@hull9thEdition] for details.) -->
+<!-- <!-- Substituting $v(T)$ for $q$, $E[v(T)]\bigr|_{t = \hat{t}}$ for $E[q]$, and $Var[\ln(v(T))] \bigr|_{t = \hat{t}}$ for $\omega$, -->
+
+<!-- Then equation \ref{eq:part1} can be rewritten as follows. -->
+
+<!-- \begin{equation} -->
+<!-- E[max(v(T) - C, 0)]\bigr|_{t = \hat{t}} = v(\hat{t}) e^{\alpha \tau} \Phi \left(\frac{\ln(v(\hat{t}) / C) + (\alpha + \beta^2 / 2) \tau}{\beta \sqrt{\tau}} \right) - C \Phi \left(\frac{\ln(v(\hat{t}) / C) + (\alpha - \beta^2 / 2) \tau}{\beta \sqrt{\tau}} \right) -->
+<!-- \end{equation} -->
+
+<!-- Or, more compactly, -->
+
+<!-- \begin{equation} -->
+<!-- E[max(v(T) - C, 0)]\bigr|_{t = \hat{t}} = v(\hat{t}) e^{\alpha \tau} \Phi(\delta + s \sqrt{\tau}) - C \Phi(\delta) -->
+<!-- \end{equation} -->
+
+<!-- Where -->
+
+<!-- \begin{equation} -->
+<!-- \delta = \frac{\ln(v(\hat{t}) / C) + (\alpha - \beta^2 / 2) \tau}{\beta \sqrt{\tau}} -->
+<!-- \end{equation} -->
+
+<!-- Multiplying this by the discount factor then gives -->
+<!-- \begin{equation} -->
+<!-- e^{-r \tau} E[max(v(T) - C, 0)]\bigr|_{t = \hat{t}} = v(\hat{t}) e^{(\alpha - r) \tau} \Phi(\delta + \beta \sqrt{\tau}) - e^{-r \tau} C \Phi(\delta) -->
+<!-- \end{equation} -->
+
+<!-- This is the ROV formula in equation \ref{eq:rov}. -->
+
+## R script of the $n$-fold real option value model, with abandonment value {-}
+
+This R script is written for clarity, not for efficiency.
+
+````markdown
+
+rovN <- function(X0, Kvec, Bvec = NULL, Tvec, s, r){
+N <- length(Kvec)
+if(is.null(Bvec)){Bvec <- rep(0, N)}
+fNm1 <- X0
+etaNm10 <- 1
+etaVec <- c()
+fnVec <- c()
+sNm1vec <- c()
+Phi2vec <- c()
+Phi1vec <- c()
+for(i in 1:N){
+Kn <- Kvec[i]
+Bn <- Bvec[i]
+Tn <- rev(cumsum(rev(Tvec)))[i]
+dn <- (log(fNm1 / (Kn - Bn)) + (r - s^2 * etaNm10^2 / 2) * Tn) / (s * etaNm10 * sqrt(Tn))
+Phi1 <- pnorm(dn + s * etaNm10 * sqrt(Tn))
+Phi2 <- pnorm(dn)
+fn <- fNm1 * Phi1 - exp(-r * Tn) * Kn * Phi2 + exp(-r * Tn) * Bn * (1 + Phi2)
+fnVec[i] <- fn
+sNm1vec[i] <- s * etaNm10
+Phi2vec[i] <- Phi2
+Phi1vec[i] <- Phi1
+phi1 <- dnorm(dn + s * etaNm10 * sqrt(Tn))
+dfndfNm1 <- (Phi1 + phi1 * (1 - etaNm10) * s * sqrt(Tn))
+etaNnM1 <- fNm1 / fn * dfndfNm1
+etaNm10 <- etaNnM1 * etaNm10
+fNm1 <- fn
+etaVec[i] <- etaNm10
+}
+underVec <- c(X0, fnVec[-N])
+df_out <- data.frame(Stage = rev(1:N), Fold = 1:N,
+OVn = fnVec, fnM10 = underVec,
+KnM1 = Kvec, etaN0 = etaVec,
+sNm1 = sNm1vec, Phi2 = Phi2vec)
+colnames(df_out)[-1] <- c("Fold (i)",
+"i-fold ROV", "Value of underlying",
+"Exercise cost", "Elasticity w.r.t. project NPV",
+"Standard dev. of underlying",
+"Probability of exercise")
+return(df_out)
+
+}
+
+````
+
+<!-- >"[The proven LB resistance] technology is applied to the target [potato] variety in order to obtain a reduced number of candidate...transgenic events. Once the lead gene construct has been developed, a relatively large number of explants is screened by successive procedures in order to identify transgenic events from among the explants, remove the transgenic events with backbone vector sequences, select the transgenic events exhibiting high resistance to LB in confined field trials [CFTs], and select the transgenic events with the minimum copy number of R genes. The output of this process is a small number of candidate pre-commercial transgenic events selected for wide area testing, as well as molecular characterisation data to be used in the compilation of the regulatory dossier later on" []. -->
+
+<!-- Stage 2: Wide area testing -->
+
+<!-- >"The candidate...transgenic events are evaluated under normal and/or managed field conditions for resistance to LB. Depending on the diversity of the environment where the potato variety is grown in the target country, CFTs are conducted in multiple locations to assess any environmental effect on the trait performance. At the same time, the agronomic performance of the candidate pre-commercial transgenic events are assessed and compared to the non-transformed counterpart. This may include testing the number and kinds of fungicide spray needed to prevent productivity losses under exceptionally heavy disease pressure. These field trials also test for any negative impact of the trait on key performance attributes, yield or tuber quality, or potential negative environmental interactions. At the end of this process, one ...transgenic event is identified" []. -->
+
+<!-- Stage 3: Compilation of the regulatory dossier -->
+
+<!-- >"In this process, the best pre-commercial transgenic event (selected under [Stage] 2) is examined to ensure compliance with all regulatory requirements established by the National Competent Authority (NCA), and the corresponding regulatory dossier is compiled for submission to the NCA. Much of the data required for this examination have already been generated and collected under previous...[stages]. Therefore the respective costs assessed ...[here] are only those incurred in the processing, filing, and redaction of the results of the laboratory and the field observations for the regulatory dossier. Only the compositional assessment data and the safety assessment data (protein production and characterisation data for allergenicity and toxicity assessments) are generated and collected under Process 3. At the end of this process, a regulatory dossier is ready for submission to the NCA" []. -->
+
+<!-- sub-processes: molecular characterisation data are generated under sub-process 1.5; while the environmental impact and phenotypic/agronomic data are generated under sub-processes 2.1 and 2.2. -->
+<!-- Stage 4: Registration and regulatory affairs -->
+<!-- >"Once the regulatory dossier has been submitted it must be defended, amended, and completed before the NCA authorises commercial production. This process may involve a variety of activities, including public advocacy, lobbying, and submission of additional information not included in the original dossier. In this study, it is assumed that any requests made by the NCA will concern existing information and data that were not included in the regulatory dossier, or data included in the regulatory dossier but not analysed using the methodology favored by the examiners, or not discussed at the level of details desired by the examiners. Hence, participating institutions assessed the cost and duration of this process assuming that the NCA makes its requests and decisions solely on scientific bases directly related to the regulatory dossier, and that it does not request further regulatory trials. The end product of this process is the authorization of commercial production of one transgenic LBr potato variety in one of the target  -->
+<!-- countries" []. -->
+
+<!-- The far-from-market Black-Scholes PDE can be rearranged into an expression for $fm$ as follows. -->
+
+
+<!-- And, repeating the steps in equations \ref...\ref, -->
+
+<!-- \begin{equation} -->
+<!-- \ln \left(\frac{f}{f\bigr|_{t = 0}}  \right) ~ \phi \left(\left(m - \frac{s^2 \eta_{f, x}^2}{2} \right) T, s^2 \eta_{f, x}^2 T \right) -->
+<!-- \end{equation} -->
+
+<!-- The function $f$ of the geometric Brownian motion $x$ is thus itself a geometric Brownian motion. That is to say, the log returns of $f$ are normally distributed with mean $\left(m - \frac{s^2 \eta_{f, x}^2}{2} \right) T$ and variance $s^2 \eta_{f, x}^2 T$. -->
+
+<!-- Now consider a function $g$ which represents the option value of the option value $f$. That is, -->
+
+<!-- \begin{equation} -->
+<!-- g = e^{-r T_g} E[\max(f(T_g) - K_f, 0)] -->
+<!-- \end{equation} -->
+
+<!-- Where $T_g$ is the time from the present moment ($t = 0$) until maturity of $g$ (the start of the subsequent real option $f$, if exercised), and $K_f$ is the cost of the stage associated with $f$ that is triggered if $f(T_g) > K_f$. -->
+
+<!-- By Ito's Lemma, the evolution of $g$ may be expressed -->
+
+<!-- \begin{equation} -->
+<!-- \Delta g = \left( \frac{\partial g}{\partial f} f m + \frac{\partial g}{\partial t} + \frac{s^2 f^2 \eta_{f, x}^2}{2} \frac{\partial^2 g}{\partial f^2} \right) \Delta t + s f \varespsilon_{f, x} \frac{\partial g}{\partial f} \epsilon \sqrt{\Delta t} -->
+<!-- \end{equation} -->
+
+<!-- Subtracting $\partial g/\partial f \Delta f$ from $\Delta g$ and applying Black-Scholes insight #2 results in the following non-market Black-Scholes PDE for $g$. -->
+
+<!-- \begin{equation} -->
+<!-- mg = \frac{\partial g}{\partial f} f m + \frac{\partial g}{\partial t} + \frac{s^2 f^2 \eta_{f, x}^2}{2} \frac{\partial^2 g}{\partial f^2} -->
+<!-- \label{eq:bsPDEg} -->
+<!-- \end{equation} -->
+
+<!-- So that $mg$ may be substituted for the first term on the right-hand side of the previous equation, giving -->
+
+<!-- \begin{equation} -->
+<!-- \Delta g = m g \Delta t + s f \varespsilon_{f, x} \frac{\partial g}{\partial f} \epsilon \sqrt{\Delta t} -->
+<!-- \end{equation} -->
+
+<!-- And the second term may also be rewritten as follows. -->
+
+<!-- \begin{equation} -->
+<!-- \begin{split} -->
+<!-- \Delta g &= m g \Delta t + s g \varespsilon_{g, f} \varespsilon_{f, x} \epsilon \sqrt{\Delta t} \\ -->
+<!-- &= m g \Delta t + s g \varespsilon_{g, x} \epsilon \sqrt{\Delta t} -->
+<!-- \end{split} -->
+<!-- \label{eq:gbmg} -->
+<!-- \end{equation} -->
+
+<!-- By which it follows that -->
+
+<!-- \begin{equation} -->
+<!-- \frac{\Delta g}{g} ~ \phi(m \Delta t, s^2 \eta_{g, x}^2 \Delta t) -->
+<!-- \end{equation} -->
+
+<!-- And -->
+
+<!-- \begin{equation} -->
+<!-- \ln \left(\frac{g}{g \bigr|_{t = 0}}  \right) ~ \phi \left(\left(m - \frac{s^2 \eta_{g, x}^2}{2} \right) T, s^2 \eta_{g, x}^2 T \right) -->
+<!-- \end{equation} -->
+
+<!-- The option on the option, or "compound option", $g$ is thus also a geometric Brownian motion. -->
+
+<!-- By now, the astute reader will have noticed a pattern, such that the geometric Brownian motions in equations \ref..., \ref{eq:gbmf}, and \ref{eq:gbmg} may be consolidated into a single equation, as follows. Letting $f_0 = x$, $f_1 = f$, and $f_2 = g$, -->
+
+<!-- \begin{equation} -->
+<!-- \Delta f_n = m f_n \Delta t + s \eta_{n, 0} \epsilon \sqrt{\Delta t} -->
+<!-- \label{eq:gBmN} -->
+<!-- \end{equation} -->
+
+<!-- For $n = 0, 1, 2$. (Where, to be clear, $\eta_{n, 0} = \frac{\partial \ln(f_n)}{\partial \ln(f_0)}$.) -->
+
+<!-- And the non-market Black-Scholes PDEs in equations \ref..., \ref{eq:bsPDEf}, and \ref{eq:bsPDEg} can likewise be consolidated as follows. -->
+
+<!-- \begin{equation} -->
+<!-- mf_n = \frac{\partial f_n}{\partial f_{n - 1}} f_{n - 1} m + \frac{\partial f_n}{\partial t} + \frac{s^2 f_{n - 1}^2 \eta_{n - 1, 0}^2}{2} \frac{\partial^2 f_n}{\partial f_{n - 1}^2} -->
+<!-- \label{eq:bsPDEn} -->
+<!-- \end{equation} -->
+
+<!-- For $n = 1, 2$. To extend equations \ref{eq:gBmN} and {eq:bsPDEn} to $n > 2$, note that, since $f_n$ is a geometric Brownian motion, then, by Ito's Lemma, the evolution of a function $f_{n + 1}$ of $f_n$ can be expressed -->
+
+<!-- \begin{equation} -->
+<!-- \Delta f_{n + 1} = \left( \frac{\partial f_{n + 1}}{\partial f_n} f_n m + \frac{\partial f_{n + 1}}{\partial t} + \frac{s^2 f_n^2 \eta_{n, 0}^2}{2} \frac{\partial^2 f_{n + 1}}{\partial f_n^2} \right) \Delta t + s f_n \varespsilon_{n, 0} \frac{\partial f_{n + 1}}{\partial f_n} \epsilon \sqrt{\Delta t} -->
+<!-- \label{eq:gbmNproof1} -->
+<!-- \end{equation} -->
+
+<!-- Subtracting $\partial f_{n + 1} / \partial f_n \Delta f_n$ from $\Delta f_{n + 1}$ and applying Black-Scholes insight #2 in the non-market context results in the non-market Black-Scholes PDE for $f_{n + 1}$. -->
+
+<!-- \begin{equation} -->
+<!-- mf_{n + 1} = \frac{\partial f_{n + 1}}{\partial f_n} f_n m + \frac{\partial f_{n + 1}}{\partial t} + \frac{s^2 f_n^2 \eta_{n, 0}^2}{2} \frac{\partial^2 f_{n + 1}}{\partial f_n^2} -->
+<!-- \end{equation} -->
+
+<!-- By which the previous equation reduces to -->
+
+<!-- \begin{equation} -->
+<!-- \begin{split} -->
+<!-- \Delta f_{n + 1} &= m f_{n + 1} \Delta t + s f_n \varespsilon_{n, 0} \frac{\partial f_{n + 1}}{\partial f_n} \epsilon \sqrt{\Delta t} \\ -->
+<!-- &= m f_{n + 1} \Delta t + s f_{n + 1} \varespsilon_{n, 0} \varespsilon_{n + 1, n} \epsilon \sqrt{\Delta t} \\ -->
+<!-- &= m f_{n + 1} \Delta t + s f_{n + 1} \varespsilon_{n + 1, 0} \epsilon \sqrt{\Delta t} -->
+<!-- \end{split} -->
+<!-- \label{eq:gbmNproof3} -->
+<!-- \end{equation} -->
+
+<!-- By which it follows that -->
+
+<!-- \begin{equation} -->
+<!-- \frac{\Delta f_{n + 1}}{f_n} ~ \phi(m \Delta t, s^2 \eta_{f_{n + 1}, f_n}^2 \Delta t) -->
+<!-- \label{eq:gBmNp1} -->
+<!-- \end{equation} -->
+
+<!-- And -->
+
+<!-- \begin{equation} -->
+<!-- \ln \left(\frac{f_{n + 1}}{f_{n + 1} \bigr|_{t = 0}}  \right) ~ \phi \left(\left(m - \frac{s^2 \eta_{n + 1, 0}^2}{2} \right) T_{n + 1}, s^2 \eta_{n + 1, 0}^2 T_{n + 1} \right) -->
+<!-- \end{equation} -->
+
+<!-- That is, $f_{n + 1}$ is a geometric Brownian motion. Since $f_{n + 1}$ is a geometric Brownian motion, then the same steps in equations \ref{eq:gbmNproof1} to \ref{eq:gbmNproof3} may be followed to show that a function $f_{n + 2}$ of $f_{n + 1}$ is also a geometric Brownian motion, and so on for a function $f_{n + 3}$ of $f_{n + 2}$, ad infinitum. Equations \ref{eq:gBmN} and \ref{eq:bsPDEn} therefore extend to $n > 2$. -->
+
+<!-- Since $f_n$ is a geometric Brownian motion, then substituting $f_n$ for $q$ in equation \ref{eq:rovRaw} gives the following formula for the N-fold real option value, i.e., the option value of an underlying option value (which may itself be the option value of an option value). -->
+
+<!-- \begin{equation} -->
+<!-- f_n = e^{(m - r) T_n} (f_{n - 1} \Phi(\delta_n + \eta_{n - 1, 0} s \sqrt{T_n}) - e^{-r T_n} K_n) -->
+<!-- \end{equation} -->
+
+<!-- Where -->
+
+<!-- \begin{equation} -->
+<!-- \delta_n = \frac{\ln \left( \frac{f_{n - 1}}{K_n} \right) + \left( m - \frac{s^2 \eta_{n - 1, 0}^2}{2} \right) T_n}{s \eta_{n - 1, 0} \sqrt{T_n}} -->
+<!-- \end{equation} -->
+
+<!-- And -->
+
+<!-- \begin{equation} -->
+<!-- \begin{split} -->
+<!-- \eta_{n - 1, 0} &= \frac{\partial \ln(f_{n - 1})}{\partial \ln(f_0)} = \frac{f_0}{f_{n - 1}} \frac{\partial f_{n - 1}}{\partial f_0} \\ -->
+<!-- &= e^{(m - r) T_{n - 1}} \frac{f_0}{f_{n - 1}} \Phi_{{n - 1}, 1} -->
+<!-- \end{split} -->
+<!-- \end{equation} -->
+
+<!-- By Ito's Lemma, the evolution of an $n$-fold option may be expressed -->
+
+<!-- \begin{equation} -->
+<!-- \Delta f_n = \left( \frac{\partial f_n}{\partial x} m x + \frac{\partial f_n}{\partial t} + \frac{1}{2} \frac{\partial^2 f_n}{\partial x^2} s^2 x^2 \right) \Delta t + \frac{\partial f_n}{\partial x} s x \epsilon \sqrt{\Delta t} -->
+<!-- \label{eq:itoLemN} -->
+<!-- \end{equation} -->
+
+<!-- As in the previous section, the random term in this expression may be eliminated by subtracting $\partial f_n / \partial x \Delta x$ from $\Delta f_n$. That is, -->
+
+<!-- \begin{equation} -->
+<!-- \Delta f_n - \frac{\partial f_n}{\partial x} \Delta x = \left(\frac{\partial f_n}{\partial t} + \frac{1}{2} \frac{\partial^2 f_n}{\partial x^2} s^2 x^2 \right) \Delta t -->
+<!-- \end{equation} -->
+
+<!-- Which, as above, trivially implies -->
+
+<!-- \begin{equation} -->
+<!-- \Delta f_n - \frac{\partial f_n}{\partial x} \Delta x = \left( f_n - \frac{\partial f_n}{\partial x} x \right) \kappa \Delta t -->
+<!-- \end{equation} -->
+
+<!-- Substituting the right-hand side of this equation for the left-hand side of the previous equation then yields the following expression. -->
+
+<!-- \begin{equation} -->
+<!-- \kappa f_n - \frac{\partial f_n}{\partial x} x \kappa = \frac{\partial f_n}{\partial t} + \frac{s^2 x^2}{2} \frac{\partial^2 f_n}{\partial x^2} -->
+<!-- \label{eq:bsPDEfn} -->
+<!-- \end{equation} -->
+
+<!-- Isolating $\kappa f_n$ and letting $\kappa = m$, -->
+
+<!-- \begin{equation} -->
+<!-- m f_n = \frac{\partial f_n}{\partial x} x m + \frac{\partial f_n}{\partial t} + \frac{s^2 x^2}{2} \frac{\partial^2 f_n}{\partial x^2} -->
+<!-- \label{eq:bsPDEfn} -->
+<!-- \end{equation} -->
+
+<!-- But note that the right-hand side of this expression is equal to the first term in parenthesis on the right-hand side of equation \ref{eq:itoLemN}. Therefore, -->
+
+<!-- \begin{equation} -->
+<!-- \Delta f_n = m f_n \Delta t + s x \frac{\partial f_n}{\partial x} \epsilon \sqrt{\Delta t} -->
+<!-- \label{eq:itoLemN2} -->
+<!-- \end{equation} -->
+
+<!-- The second term on the right-hand side can also be reduced as follows. -->
+
+<!-- \begin{equation} -->
+<!-- s x \frac{\partial f_n}{\partial x} \epsilon \sqrt{\Delta t} = s f_n \eta_{f, x} \epsilon \sqrt{\Delta t} -->
+<!-- \end{equation} -->
+
+<!-- Where $\eta_{n, 0}$ is the elasticity of $f_n$ with respect to the project NPV $x$. That is, -->
+
+<!-- \begin{equation} -->
+<!-- \begin{split} -->
+<!-- \eta_{n, 0} &= \frac{x}{f_n} \frac{\partial f_n}{\partial x} = \frac{\partial \ln(f_n)}{\partial \ln(x)} \\ -->
+<!-- &= \frac{1}{100} \frac{%\Delta f_n}{%\Delta x} -->
+<!-- \end{split} -->
+<!-- \end{equation} -->
+
+<!-- Equation \ref{eq:itoLemN2} can thus be rewritten -->
+
+<!-- \begin{equation} -->
+<!-- \Delta f_n = m f_n \Delta t + s f_n \eta_{n, 0} \epsilon \sqrt{\Delta t} -->
+<!-- \label{eq:gbmf} -->
+<!-- \end{equation} -->
+
+<!-- By which it follows that $\Delta f_n / f_n$ is normally distributed with mean $m \Delta t$ and variance $s^2 \eta_{n, 0}^2 \Delta t$. From this, it follows that $f_n$ is a geometric Brownian movement, such that $\ln(f_n)$ is normally distributed with mean $\ln(f_n(\hat{t})) + \left(m - \frac{s^2 \eta_{n, 0}^2}{2} \right) \tau_n$ and variance $s^2 \eta_{n, 0}^2 \tau_n$. -->
+
+<!-- \begin{equation} -->
+<!-- \ln \left(\frac{f}{f\bigr|_{t = 0}}  \right) ~ \phi \left(\left(m - \frac{s^2 \eta_{f, x}^2}{2} \right) T, s^2 \eta_{f, x}^2 T \right) -->
+<!-- \end{equation} -->
+<!-- The function $f$ of the geometric Brownian motion $x$ is thus itself a geometric Brownian motion. That is to say, the log returns of $f$ are normally distributed with mean $\left(m - \frac{s^2 \eta_{f, x}^2}{2} \right) T$ and variance $s^2 \eta_{f, x}^2 T$. -->
+
+# Disclosure/Conflict-of-Interest Statement {-}
+
+The author declares that the research was conducted in the absence of any commercial or financial relationships that could be construed as a potential conflict of interest.
+
+# Author Contributions {-}
+
+Benjamin Schiek is the sole author of this article, responsible for all aspects of its conception, content, drafting, and revision.
+<!--When determining authorship the following criteria should be observed:
+- Substantial contributions to the conception or design of the work; or the
+acquisition, analysis, or interpretation of data for the work; AND
+- Drafting the work or revising it critically for important intellectual
+content; AND
+- Final approval of the version to be published ; AND
+- Agreement to be accountable for all aspects of the work in ensuring that
+questions related to the accuracy or integrity of any part of the work are
+appropriately investigated and resolved.
+Contributors who meet fewer than all 4 of the above criteria for authorship
+should not be listed as authors, but they should be acknowledged.
+(http://www.icmje.org/roles_a.html)-->
+<!-- The statement about the authors and contributors can be up to several sentences -->
+<!-- long, describing the tasks of individual authors referred to by their initials -->
+<!-- and should be included at the end of the manuscript before the References -->
+<!-- section. -->
+
+# Acknowledgments {-}
+
+Funding: The Foresight and Metrics Initiative
+
+# References {-}
+
+::: {#refs}
+:::
+
+# Figures {-}
+
+<!-- # ```{r, Figure-1, ref.label = "graph", results = "hide", echo = FALSE, message = FALSE, fig.height=4, fig.width=4, fig.align='center', fig.cap='Figure caption', out.width = "85mm", out.height = "85mm"} -->
+<!-- # You can also refer to code chunks from above to place figures at the bottom. -->
+<!-- ``` -->
+
