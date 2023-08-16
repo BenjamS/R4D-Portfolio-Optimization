@@ -67,17 +67,171 @@ facetTitle_size <- 7
 # Introduction
 
 <!-- Agricultural research for development (AR4D) scientists are under ever increasing pressure from donors to put a defensible monetary value on their proposed projects. However,  -->
-Agricultural research for development (AR4D) projects tend to be high risk (if high reward) propositions with long time horizons, such that project net present value is likely to fluctuate considerably over the life of the project. Donors, meanwhile, face increasingly austere fiscal outlooks that restrict their ability to commit to the long time horizons of agricultural research.
-
+Agricultural research for development (AR4D) projects tend to be high reward, but also high risk, propositions with long time horizons. Donors are attracted by the high potential payoff of such projects, but face increasingly austere fiscal outlooks that restrict their ability to engage in such long term, risky commitments. For researchers, the resulting uncertainty in the long term funding outlook incentivizes work in the direction of low risk, modest objectives that are achievable in the near term. Such research has its place; but the Sustainable Development Goals clearly call for higher impact, riskier, longer term research as well. Real options valuation, a method of project appraisal adapted from financial analysis, presents a potential enabling mechanism by which to secure long term funding for disruptive research while also guaranteeing donors the fiscal flexibility they require to justify such commitments.
+<!-- , such that project net present value is likely to fluctuate considerably over the life of the project -->
 <!-- They are also (d) far-from-market, or even unfold in the midst of market failures, such that project value and/or changes in value may not be deduced or projected based on movements in the prices of commodities or financial securities. -->
 <!-- Properties (a)-(d) make it extremely difficult to valuate AR4D projects in a way that is meaningfully different from a wild, if educated, guess. With good reason, then, AR4D researchers generally resent the mounting pressure to quantify promising, but distant and uncertain, impacts [@leeuwis2018reforming]. The resentment is evident across other scientific disciplines as well [@Petsko2011; @Moriarty2008]. AR4D donors, meanwhile, have grown disillusioned with the crudeness of research project appraisals---even to the point of disbelief, and a commensurate global decline in AR4D funding levels [@hurley2016returns; @hurley2014re; @pardey2018shifting]. The frustration of scientists and donors alike is compounded by increasingly austere fiscal restrictions on donors' ability to commit to the long time horizons of agricultural research. The upshot is an atmosphere of "ever growing distrust" between donors and research communities [@leeuwis2018reforming]. -->
-Real options valuation [@trigeorgis1993real; @mcgrath2000assessing] presents a potential mechanism by which researchers can secure long term funding while providing fiscally constrained donors with the flexibility they require to justify long term commitments. The notion of real options valuation is born of the analogous concept of European call options in the financial context. The holder of a European call option on an underlying security (a stock, for example) has the right, but not the obligation, to purchase the security for a predetermined price at the end of a certain time period. If the predetermined price is higher than the security price at the end of the time period, it is in the investor's best interest to exercise their right. If not, they are under no obligation to do so. The predetermined price at which the investor agrees to buy the security if they so choose is called the "strike price" or "exercise price".
 
-Analogously, investors who "buy a real option" commit to funding a real project for a certain time period, at the end of which they have the right, but not the obligation, to continue funding the subsequent stage of the project. In research contexts, the subsequent stage in question is usually the launch and scaling up of a proof of concept developed during the main stage of the project. ... [], for example, evaluate the real option value of a project to develop a new consumer electronics product at a private sector tech firm. The exercise price, in this case, is the cost of establishing the plant capacity required to manufacture the new product at scale, plus advertising and any other marketing costs.
+The notion of a real option is born of the analogous concept of a European call option in finance markets. The holder of a European call option on an underlying security (a stock, for example) has the right, but not the obligation, to purchase the security for a predetermined price---called the "strike" or "exercise" price---at the end of a certain time period. Analogously, donors who "buy" a real option on an underlying project commit to funding the project for a certain time period, at the end of which they have the right, but not the obligation, to continue funding the subsequent stage of the project. In the case of research projects, for example, the subsequent stage might be the launch and scaling up of a proof of concept developed during the main research stage. A project's real option value (ROV) is usually higher than its NPV, especially in the case of high risk, high reward projects, such that a project that would normally be rejected in a conventional cost-benefit analysis mght pass muster on an ROV basis. For a detailed introduction to ROV, see Trigeorgis [-@trigeorgis1999real].
+<!-- -@trigeorgis1993real; and McGrath [-@mcgrath2000assessing] -->
+<!-- The methodological details of real option valuation can vary considerably from one applied context to another. But, generally speaking, -->
+
+In principle, then, real option contracts are mutually beneficial for both donors and researchers alike. From the donor's perspective, a real option contract is a way to tentatively lay claim to promising, but distant and uncertain, research results, while at the same time guaranteeing easy extraction from underperforming projects. And the resulting fiscal agility then translates into longer term funding commitments, which is music to the ears of the research community.
+
+It is worth noting, moreover, that many donors already acquire an unacknowledged option value in their conventional research funding arrangements. That is to say, nowadays, most AR4D contracts are signed for no more than 1-5 years, at the end of which the contract comes up for renewal or cancellation, pending progress up to that point. By reserving the right to discontinue funding at specific time intervals, the donor effectively acquires option value. The introduction of ROV would thus merely formalize an already existing practice, and more accurately quantifies the real value acquired by the donor in exchange for their investment. By the same token, default methods of cost benefit analysis neglect to price in the donor's option value, and thus understate the real value acquired by the donor.
+
+Up until now, ROV methods have developed in the context of corporate projects. Extension of these methods to the AR4D context is complicated by a number of methodological challenges stemming from the key difference between the two contexts: corporate projects occur in market or near market settings, whereas AR4D projects are born of market failures. For present purposes, this means that AR4D project NPV cannot be evaluated based on market prices. In the corporate context, project NPV is often near enough to market that it can be evaluated as a linear combination of relevant prices by invoking a financial argument called "replicating portfolios" [@brennan1985evaluating; @koller2010valuation; @amram1998real].
+
+Insofar as the replicating portfolios argument is valid, it plays a critical role in facilitating the evaluation of project NPV and risk, both of which are required to evaluate project ROV. That is to say, since the replicating portfolios argument effectively specifies project NPV as a linear function of prices, then project NPV may be easily calculated at any time from publicly available price information. Moreover, since price information is automatically updated on a second-by-second basis, a project NPV time series is generated by which to estimate project risk (i.e. the standard deviation of the project NPV fractional change per time step), and to otherwise empirically inspect the stochastic character of the time evolution of project NPV.
+
+Finally, and most importantly from a theoretical standpoint, the replicating portfolios argument means that project NPV may be treated as a traded good in an efficient market. This figures critically in the formal derivation of the financial option formula one wishes to adapt to real options (i.e. the Black-Scholes partial differential equation) via an argument known as the "no-arbitrage rule" [@hull9thEdition]. It also implies a celebrated corollary known as "risk-neutral valuation", which makes perfect sense to financial analysts, but is problematic in the AR4D setting. Risk-neutral valuation means that, if it is not possible to make risk-free profits above the risk-free rate of return (the "no-arbitrage" rule), then investors are risk-neutral, i.e. "investors do not increase the expected return they require from an investment in order to compensate for increased risk" [@hull9thEdition]. Clearly, AR4D donors are not risk neutral. They are willing to "bet big" on a high risk project only if there is a correspondingly high expected return.
+<!-- all of this stemming from replicating portfolios argument -->
+<!-- Mathematically, this means that $m = r$ (where $r$, in financial contexts, refers to the risk-free rate of return). -->
+
+Even in the corporate context, the replicating portfolios argument faces considerable skepticism [@borison2005real]; and proponents of the argument acknowledge that its validity is limited to a narrow range of project types [@schwartz2013real]. R&D projects are not among the project types where replicating portfolios may plausibly be invoked. In order to preserve risk-neutral valuation, many invoke   omplete markets [@pennings1997option]. This requires "manual" assessment of project NPV and risk, but saves the theoretical premise and risk-neutral valuation which for some reason is desirable to them.
+<!-- @mathews2007practical -->
+...the complexity of stochastic processes encountered in financial and corporate contexts leads them down the dark path of numerical methods at great methodological cost...Pennings & Lint cPp... Here argue that gBm is a good enough and great methodoligcal benefits, periods of no change (cPp can be modeled arbitrarily closely as periods of negligible change (gBm).
+
+In the AR4D context, project NPV must be evaluated the "hard way", by ex-ante impact assessment. These assessments typically require a considerable investment of time, effort, and expertise, making frequent updates of project NPV unfeasible. As a result, we are left without a project NPV time series by which to estimate project risk or otherwise empirically inspect the stochastic character of project NPV. We must therefore devise some other way of estimating project risk...../ In the AR4D context, neither  NPV is not a traded good, nor may complete markets be invoked, then there is no theoretical premise for the B-S PDE.
+
+The 
 
 
 
-[Real options valuation has been applied to numerous research and non-research private sector project contexts. (For a taxonomy, see Trigeorgis [-@].)] In the present article, we extend real options valuation to AR4D projects.    Donors effectively have and exercise this option anyway, as AR4D project funding agreements are usually up for renewal/cancelation every 3-5 years. Somewhat unfairly for researchers, default methods of project appraisal fail to price in this option value.
+
+
+...there is a strong consensus against gBm at great methodological cost... corp people be dissin the gBm bitter pill -- this will have to be tackled first, leads naturally then to derivation of (1-stage) ROV formula by straightforward integration based only on assumption of lognormal changes.
+[may this the place to mention the low uptake ---see Borison , known as the "replicating portfolio" argument, is strained even in the corporate context. [ROV proponents base this on a sophisticated technical argument called "replicating portfolios". This is called the   Or so say the ROV proponents.]]
+
+Finally, ROV has focused on single stage projects. AR4D projects are typically multi-stage... Casimmon et al. ...geske... but this is still very tied to near market...
+
+Here we show how can derive the BS equation from an alternative premise only lognormally distributed changes; and we mount a defense of the gBm; and we extend the framework to multi-stage projects.
+
+[Trivially,] we also extend the model to include abandonment value, and project NPVs that scale with the exercise investment. this is an easy modification that can also be applied in existing ROV methods.
+
+
+
+
+
+
+
+
+[The time and effort required for such estimation ...impractical]  [Even in the corporate context, the replicating portfolios argument has been severely criticized . In the AR4D context it is completely broke.]
+AR4D project NPV is measured  With the possible exception of emissions reducing , such impacts are not traded on any market; and so AR4D project NPV cannot be modeled as a function of observable prices.  The non-market valuation of AR4D project NPV typically involves a considerable investment of time, energy, and expertise, such that subsequent updates of project NPV are unfeasible.  The non-market character of AR4D projects is particularly problematic.  This is known as the "replicating portfolio" argument [],  in turn, validates another critical assumption known as the "no-arbitrage rule", which 
+
+...bitter pill...gbm...
+
+In the present article, we develop an ROV method for AR4D projects. This involves more than a mere extension or adaptation of existing ROV methods, which have developed in the corporate context.   The corporate and AR4D contexts differ in many key respects; and these differences complicate the mere extension of existing ROV methods to the AR4D context. In particular, the 
+
+Rather than building upon the existing methods, then, the present work marks a departure from the ROV.   development of AR4D ROV   Because of the critical differences between the corporate and AR4D contexts, it is not 
+
+
+Efforts to adapt financial option valuation to the valuation of any real project are complicated by the key difference between the two contexts: A financial option is bought on a _traded_ security, the value of which is determined by the market and thus readily known and updated on a second by second basis. A real option, on the other hand, is bought on the NPV of future project impacts, a _non-traded_ good, the value of which is not readily known, requires considerable time and effort to estimate (via cost-benefit analysis), and is updated but infrequently, if at all. ROV proponents evade this issue by invoking the "replicating portfolio" argument, or the "complete markets" argument, by which they claim that corporate project NPV can be approximated by a linear combination of relevant security prices [@brennan1985evaluating; @koller2010valuation; @amram1998real]. This may be true of projects in certain corporate contexts---although even there the assumption has been lambasted [@borison2005real]. Such arguments have no analogue in the AR4D context, where project 
+
+In the AR4D context, estimation of project NPV is typically a major undertaking in and of itself requiring considerable time and resources, such that frequent updates of project NPV are impractical.
+
+This key difference between finance and real options poses two methodological challenges. First of all, since project NPV estimation is more or less a one-off affair, it generates no time series analogous to a stock price series by which to empirically inspect and assess the stochastic process. Does project NPV evolve as a geometric Brownian motion, a compound Poisson process, or something else? [Absent time series data, this question must be answered by deductive reasoning.] Moreover, the absence of a project NPV time series complicates the estimation of project NPV variance (risk), which is required for the calculation of ROV. Proponents of ROV argue that project NPV is sufficiently approximated by company price and/or by a linear combination of other relevant prices (the "replicating portfolio" argument [@brennan1985evaluating; @koller2010valuation; @amram1998real]).  In some private sector R&D settings, it may be that the company stock price serves as a proxy although even here it is problematic [@borison2005real]. In non-market settings such as AR4D, this is not possible.
+<!-- Pennings and Lint [-@pennings1997option], for example, cite the case of the Merck pharmaceutical company, which has estimated R&D project risk based on the company's stock price volatility. -->
+
+Secondly, the mathematical option value formula we wish to adapt to real options settings (i.e., the Black-Scholes equation) is fundamentally derived from the assumption that the underlying good is traded in an efficient market---known in finance as the "no-arbitrage rule" [@hull9thEdition]. More problematically still, the no-arbitrage rule then leads to a corollary known as "risk-neutral valuation", which implies that the donor is willing to take on any level of risk for a given expected reward [@hull9thEdition]. Again, in some private sector R&D settings, it may be that project NPV is highly correlated with company price, and/or a linear combination of other relevant prices, effectively validating such assumptions. In the AR4D context, however, it can be said without controversy that neither the no-arbitrage rule nor risk-neutral valuation are valid assumptions.
+
+[Critics note that the ROV literature is either silent or conflicted on this point.]
+
+Here we present a much simpler derivation leading to the same result
+
+and this has surely contributed to the complexity resulting in low adoption of ROV in real world decision making. It is not uncommon for ROV studies and surveys to assume risk-neutral valuation without any justification (see, for example, Trigeorgis [-@trigeorgis1993real], Majd and Pindyck [-@majd1987time], or Kemna [-@kemna1993case]). Some studies acknowledge the invalidity of the no-arbitrage argument in ROV contexts, but instead invoke "complete markets" to justify risk-neutral valuation (see, for example, Pennings and Lint [-@pennings1997option]). However, the complete markets assumption implies that 1) project NPV can be simulated by a portfolio of traded securities, and hence project risk can be hedged away by buying and/or selling these traded securities; and 2) project managers actually engage in the buying and selling of securities necessary to achieve this hedge. One may say without controversy that neither (1) nor (2) are common features of AR4D project management landscapes.
+
+what others do about it...complete markets, DM = BS--but wait until lit review to mention this nitty gritty
+
+[what we do about it: derive from the assumption of normally distributed log returns
+we show that the same result is obtained by merely assuming that all future values appreciate at the discount rate
+]
+
+gBm
+
+relatively recent critique and synthesis of real options theory by one of its founders [@trigeorgis2017real]
+surveys repeatedly indicate low uptake of rov [@ryan2002capital; @block2007real; @horn2015use]
+Triantis gives the best survey of methodological critiques or rov [@triantis2005realizing]
+a survey of more conceptual or high level critiques of rov [@driouchi2012real]
+
+respondents say rov too complex, "black box" [@horn2015use] triantis also mentions "black box" as the most serious critique of rov
+Adoption of ROV thinking by real world decision makers has remained low [@horn2015use; @triantis2005realizing; @driouchi2012real]. ROV critics and proponents alike attribute the tepid reception to the formal complexity of ROV, much of which can be traced back to the use of numerical methods [@triantis2005realizing].
+
+good description of rov state of the art by key proponent [@schwartz2013real]
+
+key criticisms in the literature: black box and replicating portfolio
+
+the consensus is that the assumption of normally distributed log returns (gBm) is unrealistic, that this should be a key area of focus going forward to improve rov models, numerical models..[@triantis2005realizing]. the response to disappointing uptake and ctirique is thus to double down on trigergois' original "bitter pill" critique...[trigeorgis] (which is odd because this then results in an even blacker black box)... [At any rate] This entire discussion occurs in the context of corporate real options. The replicating portfolio arguments are already strained there at the fringes of the market. In the AR4D context they are broken. AR4D unfolds precisely in the midst of a market failure. Not profits but net benefits in terms of smallholder incomes, environmental services, nutritional and public health outcomes. [no way this can be represented in terms of market prices]
+Rather than build upon the existing literature, then, we must break new ground.
+
+we start with a passionate defense of the gBm model of NPV
+
+
+ROV has been applied and discussed in private sector research contexts [@mitchell1990alternative; @pennings1997option; @cassimon2004valuation; @doctor2001managing; @newton2004real; @mathews2007practical]; and much of this work is relevant to the AR4D context---although there are some important differences which must be kept in mind. Regardless, rather than build upon the existing work in this direction, we propose an alternative .
+
+Adaptation of financial option valuation tools to the valuation of real projects, and especially AR4D projects, is 
+
+...the consensus is to eschew gBm at great methodological cost...
+
+...numerous methodological challenges stemming from the fundamental difference between the financial and real project contexts... 
+
+many studies eschew the assumption of gBm at great methodological cost.
+
+Estimation of project NPV typically requires considerable time and effort, such that subsequent updates of the value are impractical...time series [For private sector projects, it may be possible to calculate project NPV on the basis of stock values. Note that stock value is basically just NPV---current assets plus DFC, i.e. the PV of value - debt]
+
+In the real options context, there is often an abandonment value that is realized even if the project fails. In the AR4D context, this might be, for example, the value of intermediate scientific results and/or institutional strengthening (the strengthening of national agricultural research systems, producer organizations, and other project stakeholders).
+
+In the real options-AR4D context, the value of the underlying good often scales with the exercise price.
+
+Finally, adaptation is complicated by the multi-stage structure of most AR4D projects. This is the focus of the present work.
+
+Financial option valuation depends upon something called "risk-neutral valuation", which in turn derives from something called the "no arbitrage rule", which is only valid in a competitive market setting. which has no clear analogue in the non-market real option setting.
+
+
+
+The project's net present value (NPV) is analogous to the price of the underlying security in the financial context, while the cost of the subsequent stage is analogous to the exercise price. (The cost of the subsequent stage must be known up front for the analogy to hold.) 
+
+
+<!-- [Incidentally, this is an additional benefit of ROV---it explicitly takes account of risk.] -->
+
+Real and financial options differ in many key respects that make the evaluation of real options considerably more difficult than the evaluation of financial options. In the financial context, the value of the underlying security is determined by markets, and this information is readily available, whereas in the ROV context, the underlying must be estimated in terms of the NPV of future project impacts---a major undertaking in its own right. 
+...Also adaptation of something called "risk-neutral valuation" to the real options context.
+
+Many, if not most, real options contexts are non-market contexts. AR4D projects typically address market failures. Here we show an alternative way to establish the same premise that is valid for non-market settings.
+
+
+
+
+
+2) the lack of rationale by which to apply risk-neutral valuation, 3) abandoment value, 4) project NPV scales with investment, and 5) the multi-stage nature of agricultural research projects.
+
+
+In the AR4D context, adaptation is further complicated by the multi-stage nature of most AR4D projects.
+
+...the R&D ROV literature has so far focused on private sector research. Here the focus is on public sector research...although much is applicable to the private sector setting.
+
+In the present article, we extend this treatment to the AR4D context.
+
+Here we modify... abandonment value, scale with launch cost, alternative to the no-arbitrage argument...most importantly, multi-stage
+
+
+
+A key difference between the AR4D and corporate contexts simplifies a toublesome aspect that has   ... differs from the private sector in many key respects, but these differences d   Whereas private sector research addresses a market opportunity, AR4D addresses a market failure  ...to be released as public goods in developing countries. The present value of future impacts is calculated in terms of benefits...which can be multi-dimensional. The non-market valuation of such "intangibles" is a major topic in its own right, and is not addressed here.
+
+In research contexts, the exercise price corresponds to the launch and scaling up of a proof of concept developed during the main stage of the project.
+
+<!-- Pennings and Lint [-@pennings1997option], in this journal, evaluated the ROV of a project to develop a new consumer electronics product at a private tech firm. The exercise price, in this case, was the cost of building manufacturing plants required to produce the prospective product at scale plus marketing costs. -->
+
+here we present a straightforward derivation of the real option model stripped of its financial trappings 
+risk neutral valuation, pennings and lint complete markets, here we show a much more straightforward way...
+volatility not available from data, has to be deduced
+abandonment value
+NPV scales with exercise price
+extension of ROV to AR4D is especially complicated by multi-stage nature of most AR4D projects.
+
+
+
+
 
 AR4D projects differ from other real options   producing     The focus of the present article is on AR4D projects  unfolding in the space of market failures.    the real option context Funding the project up until the launch and scaling phase is thus effectively analogous to buying an option on launch and scaling.   does this by building in an option for the donor to discontinue project funding after a certain amount of time if the project is underperforming. 
 <!-- can 1) provide meaningful, risk-adjusted project appraisals, 2) secure long term commitments from donors, while at the same time 3) giving donors the flexibility they require to maintain solvent fiscal outlooks. -->
@@ -171,7 +325,7 @@ The left hand side of this inequality is what authors, starting with Myers [-@my
 
 In this literature, the real option value (ROV) approach to project valuation (Inequality \ref{eq:rovRaw}) is often construed as an alternative to the "NPV approach". This is misleading insofar as it gives the impression that the ROV approach exempts one from the need to estimate project NPV. On the contrary, the formal exposition so far demonstrates that ROV is a function of NPV, and thus involves its estimation (and this becomes clearer as the formal exposition continues, below). For this reason, the conventional or default approach to project funding decisions characterized in Inequality \ref{eq:convCBA}, against which the ROV approach is distinguished, is henceforth referred to as the "conventional CBA criterion"---and not the "NPV approach".
 
-It follows, moreover, that the same challenges faced in the estimation of project NPV---such as non-market valuation of "intangible" costs and benefits (environmental and public health outcomes, for example), or the estimation of technology adoption rates, and so forth---are faced in the estimation of ROV. To avoid raising false hopes, the reader is advised up front that the many important open problems in the field of NPV estimation fall outside the scope of the present article.
+It follows, moreover, that the same challenges faced in the estimation of project NPV---such as non-market valuation of "intangible" costs and benefits (environmental and public health outcomes, for example), or the estimation of technology adoption rates, and so forth---are faced in the estimation of ROV. To avoid raising false hopes, the reader is advised up front that the many important open problems in the field of NPV estimation fall outside the scope of the present work.
 
 Inequality \ref{eq:rovRaw} describes the ROV approach for a 1-stage project. The focus of the present article is the extension of this approach to multi-stage projects. The first step in this task is to develop the closed form expression for 1-stage ROV.
 <!-- mention low uptake of ROV here? -->
@@ -869,7 +1023,7 @@ The time series on the left of Figure \ref{fig:NPVevol} is an example of gBm, wh
 <!-- [Rejection of the gBm model in ROV contexts is partly inherited from the financial context, where gBm is generally viewed as a naive model of price movements. fat tails--debunked by Tankov, jumps--as discussed above, an artifact of the dam-break model, not a concern in ROV contexts, plus jumps can be closely approximated by gBm. en fin, gBm is much more versatile than it is generally given credit for.] -->
 Like Pennings and Lint, many real options authors reject the gBm model, preferring instead to select a model which they perceive to more accurately approximate the real time evolution of project NPV. But this comes at a substantial loss of expedience, as the closed form expression in equation \ref{eq:rov} must be replaced by considerably less tractable and less intelligible expressions, up to and including numerical methods. Trigeorgis once characterized numerical methods as an unavoidable "bitter pill" that every serious ROV practitioner must come to grips with [-@trigeorgis1993real].
 
-It seems safe to say, in hindsight, that energetic ROV proponents like Trigeorgis have overestimated the appetite for bitterness outside of academic audiences. Adoption of ROV thinking by real world decision makers has remained low [@horn2015use; @triantis2005realizing; @driouchi2012real]. ROV critics and proponents alike attribute the tepid reception to the formal complexity of ROV, much of which can be traced back to the use of numerical methods [@triantis2005realizing]. From the perspective of research donors and managers, numerical methods are effectively black boxes; and even ROV experts find themselves bamboozled at times. The much cited numerical exercise by Majd and Pindyck [-@majd1987time], for example, contains an elementary error, which was only discovered some twelve years after publication [@milne2000time].
+In hindsight, it seems safe to say that energetic ROV proponents like Trigeorgis have overestimated the appetite for bitterness outside of academic audiences. Adoption of ROV thinking by real world decision makers has remained low [@horn2015use; @triantis2005realizing; @driouchi2012real]. ROV critics and proponents alike attribute the tepid reception to the formal complexity of ROV, much of which can be traced back to the use of numerical methods [@triantis2005realizing]. From the perspective of research donors and managers, numerical methods are effectively black boxes; and even ROV experts find themselves bamboozled at times. The much cited numerical exercise by Majd and Pindyck [-@majd1987time], for example, contains an elementary error, which was only discovered some twelve years after publication [@milne2000time].
 <!-- [---enough so, at any rate, to warrant some revisiting of the matter:] -->
 <!-- The case for complex ROV approaches weakens further when considering what is gained in return for sacrificing expedience. Pennings and Lint find only a $2\%$ difference between the the output of their cPp numerical model and that of the gBm closed form model [@pennings1997option]. To what extent is an increase in modeling realism even meaningful in a context where direct measurement of the reality one aspires to approximate---i.e., the evolution of project NPV---is highly problematic? Is the costly increase in realism even relevant to the aims of the modeling exercise? Is there an alternative, less costly way of achieving the same ends? -->
 <!-- 33.1 - 32.3 -->
