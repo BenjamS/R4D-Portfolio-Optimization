@@ -168,14 +168,15 @@ Var \left[\frac{\Delta x}{x} \right] &= s^2 \Delta t
 Technically, $\Delta t$ is an instantaneous or infinitesimal time interval and hence $m$ is the expected instantaneous growth rate. In practice, it is acceptable to treat $\Delta t$ as a finitely small, but judicious, time step. As a rule of thumb, this time step should be as small as possible while still ensuring that changes in $x$ occur in every time step. In the present context, it is reasonable to assume that random research and/or non-research related changes in project NPV occur at least once per annual quarter. The time step $\Delta t$ at the project level may thus be judiciously defined as an annual quarter; and the parameters $m$ and $s$ may be interpreted as the mean and standard deviation of project quarterly growth or arithmetic return.
 <!-- This selection must be made on the basis of both realism and expedience. Periods of a few substantial changes interspersed by relatively longer periods of many small changes. Geometric Brownian motion expedient and versatile  -->
 
-By definition, project NPV appreciates over time at the quarterly discount rate $r$. Conversely put, a project growth rate different from $r$ implies that the project NPV is inaccurately calculated. Therefore, by assuming that project NPV is accurately calculated, one effectively assumes that the expected arithmetic return $m$ equals $r$. Henceforth, then, the expected quarterly growth rate $m$ is assumed to be $r$.
+By definition, project NPV appreciates over time at the quarterly discount rate $r$. Henceforth, then, the expected quarterly growth rate $m$ is assumed to be $r$.
+<!-- Conversely put, a project growth rate different from $r$ implies that the project NPV is inaccurately calculated. Therefore, by assuming that project NPV is accurately calculated, one effectively assumes that the expected arithmetic return $m$ equals $r$. -->
 
 Geometric Brownian movement implies, furthermore, that the log return $\ln(x(\tau) / x(\hat{t}))$ over some non-infinitessimal time $\tau = T - \hat{t}$ (where $\hat{t}$ is the time at which the evaluation is made and $T > \hat{t}$) is normally distributed with mean and variance
 
 \begin{equation}
 \begin{split}
-E \left[\ln \left (\frac{x(\tau)}{x(\hat{t})} \right) \right] \Bigr|_{t = \hat{t}} &= \left(m + \frac{s^2}{2} \right) \tau \\
-Var \left[\ln \left( \frac{x(\tau)}{x(\hat{t})} \right) \right] \Bigr|_{t = \hat{t}} &= s^2 \tau
+E \left[\ln \left (\frac{x(\tau)}{x(\hat{t})} \right) \right] \biggr|_{t = \hat{t}} &= \left(m + \frac{s^2}{2} \right) \tau \\
+Var \left[\ln \left( \frac{x(\tau)}{x(\hat{t})} \right) \right] \biggr|_{t = \hat{t}} &= s^2 \tau
 \end{split}
 \label{eq:EVarlogRet}
 \end{equation}
@@ -184,13 +185,14 @@ Var \left[\ln \left( \frac{x(\tau)}{x(\hat{t})} \right) \right] \Bigr|_{t = \hat
 
 This defining feature of gBm is exploited farther below to deduce the value of $s$ when it cannot be estimated directly from data.
 
-## Expected value, variance, and covariance of project NPVs
+## Expected value, variance, covariance, and "covariation" of project NPVs
 
-Since this is an article about portfolios, project specific parameters such as $s$, $\tau$, and $T$ henceforth carry the project subscript $k$, with $k \in (1, n)$, where $n$ is the number of projects in the portfolio. The non-infinitessimal time span $T_k$ henceforth refers specifically to the project time horizon. Under the assumptions discussed above---that 1) project NPV evolves as a gBm, and 2) is accurately calculated---the expected value and variance of the $k^{th}$ project NPV are
+Since this is an article about portfolios, project specific parameters such as $s$, $\tau$, and $T$ henceforth carry the project subscript $k$, with $k \in (1, n)$, where $n$ is the number of projects in the portfolio. Under the assumption that project NPV follows a gBm, the expected value and variance of the $k^{th}$ project NPV are
+<!-- The non-infinitessimal time span $T_k$ henceforth refers specifically to the project time horizon. -->
 <!-- at the end of the funding cycle ($x_k(T_k)$) -->
 
 \begin{equation}
-E[x_k(T_k)]\bigr|_{t = \hat{t}} = x_k(\hat{t}) e^{r \tau_k}
+E[x_k(T_k)]\bigr|_{t = \hat{t}} = \mu_k = x_k(\hat{t}) e^{r \tau_k}
 \label{eq:ExTraw}
 \end{equation}
 <!-- In many AR4D fund allocation decisions, the focus is on programs rather than projects. A program generally consists of several projects and complementary activities in different stages of implementation. At the program level, a monthly time step is probably justified, with $m_k$ thus representing the expected monthly growth rate. -->
@@ -200,51 +202,64 @@ E[x_k(T_k)]\bigr|_{t = \hat{t}} = x_k(\hat{t}) e^{r \tau_k}
 and
 
 \begin{equation}
-Var[x_k(T_k)]\bigr|_{t = \hat{t}} = \mu_k^2 (e^{s_k^2 \tau_k} - 1)
+Var[x_k(T_k)]\bigr|_{t = \hat{t}} = \sigma_k^2 = \mu_k^2 (e^{s_k^2 \tau_k} - 1)
 \label{eq:xVar}
 \end{equation}
-
 <!-- $s_k = \sqrt{Var[\Delta x_k / x_k(\hat{t})]}$ -->
-Where the shorthand $\mu_k = E[x_k(T_k)]\bigr|_{t = \hat{t}}$ has been introduced. Project NPV variance or standard deviation, $\sqrt{Var[x_k(T_k)]\bigr|_{t = \hat{t}}}$, are measures of project risk. Note that the expected value and standard deviation can be combined to form another measure of risk, the coefficient of variation $c_k$, as follows.
+<!-- Where the shorthand $\mu_k = E[x_k(T_k)]\bigr|_{t = \hat{t}}$ has been introduced. -->
+
+Variance (or standard deviation) is a conventional measure of risk. For the formulation of the portfolio optimization problem farther below, it is expedient to introduce an alternative measure of risk, the coefficient of variation $c_k$.
 
 \begin{equation}
 c_k = \frac{\sigma_k}{\mu_k} = \sqrt{e^{s_k^2 \tau_k} - 1}
 \label{eq:xCV}
 \end{equation}
+<!-- Where the shorthand $\sigma_k = \sqrt{Var[x_k(T_k)]\bigr|_{t = \hat{t}}}$ has been introduced. -->
 
-Where the shorthand $\sigma_k = \sqrt{Var[x_k(T_k)]\bigr|_{t = \hat{t}}}$ has been introduced. The covariance between two project NPVs $x_k$ and $x_j$, meanwhile, is
+The covariance between two project NPVs $x_k$ and $x_j$, meanwhile, is
 
 \begin{equation}
-\text{cov}[x_k(T_k), x_j(T_j)]\bigr|_{t = \hat{t}} = \mu_k \mu_j (e^{s_{kj} \sqrt{\tau_k \tau_j}} - 1)
+\text{cov}[x_k(T_k), x_j(T_j)]\bigr|_{t = \hat{t}} = \mu_k \mu_j (e^{s_{kj} \sqrt{\tau_k \tau_j}} - 1) \:\:;\:\:\: s_{kj} = \text{cov}[\Delta x_k/x_k(\hat{t}), \Delta x_j/x_j(\hat{t})],\:\: s_{kk} = s_k^2
 \label{eq:xCov}
 \end{equation}
 
-Where the shorthand $s_{kj}$ has been introduced to stand for the covariance between the quarterly arithmetic returns of projects $k$ and $j$. That is, $s_{kj} = \text{cov}[\Delta x_k/x_k(\hat{t}), \Delta x_j/x_j(\hat{t})]$, with $s_{kk} = s_k^2$. Moreover, note that Eq \ref{eq:xCov} can be rearranged into an extension of the coefficient of variation as follows.
+Where the shorthand $s_{kj}$ has been introduced to stand for the covariance between the quarterly arithmetic returns of projects $k$ and $j$. Now, note that this can be rearranged into an extension of the coefficient of variation as follows.
 
 \begin{equation}
-c_{kj} = \sqrt{\frac{\sigma_{kj}}{\mu_k \mu_j}} = \sqrt{e^{s_{kj} \sqrt{\tau_k \tau_j}} - 1}
+c_{kj} = \sqrt{\frac{\sigma_{kj}}{\mu_k \mu_j}} = \sqrt{e^{s_{kj} \sqrt{\tau_k \tau_j}} - 1} \:\:;\:\:\:\: \sigma_{kj} = \text{cov}[x_k(T_k), x_j(T_j)]\bigr|_{t = \hat{t}} \:\:\: \sigma_{kk} = \sigma_k^2 \:\:\: c_{kk} = c_k^2
 \label{eq:xCcoV}
 \end{equation}
 <!-- Where $\rho_{kj} = \text{cor}(\Delta x_k / x_k(\hat{t}), \Delta x_j / x_j(\hat{t}))$. \rho_{i, j} s_k s_j \tau -->
 
-Such that $c_{kk} = c_k^2$, and where the shorthand $\sigma_{kj} = \text{cov}[x_k(T_k), x_j(T_j)]\bigr|_{t = \hat{t}}$ has been introduced, with $\sigma_{kk} = \sigma_k^2$. This is a project NPV "coefficient of covariation", which may be interpreted as an indicator of the relation between the NPVs of projects $k$ and $j$, analogous to the correlation coefficient. (Whereas the correlation coefficient is the covariance normalized by the product of the respective standard deviations, the coefficient of covariation is the covariance normalized by the product of the respective means.)
+This is the NPV coefficient of "covariation" between projects $k$ and $j$. It gives us the same type of information that the covariance or correlation does. Whereas the correlation coefficient is the covariance normalized by the product of the respective standard deviations, the coefficient of covariation is the covariance normalized by the product of the respective means.
 <!-- Expected portfolio NPV $\mu(\hat{t})$  is then just the sum of the individual expected project NPVs. -->
 <!-- \begin{equation} -->
 <!-- \mu(\hat{t}) = \Sigma_k \mu_k(\hat{t}) -->
 <!-- \end{equation} -->
 
-The portfolio variance, it follows, can be expressed
+## Measuring portfolio impact and risk
+
+Expected portfolio impact (henceforth denoted $\mathcal{E}$) may be measured in a variety of ways. For present purposes, it is measured as the sum of squared project NPVs $\mu_k^2$ scaled by $r^2/2$.
+
+\begin{equation}
+\mathcal{E} = \frac{r^2}{2} \boldsymbol{\mu} ' \boldsymbol{\mu}
+\label{eq:ErawPort}
+\end{equation}
+
+This is analogous to the kinetic energy of an $n$-body system in physics. (A technical explanation is given in the Appendix.)
+
+Portfolio risk is measured as the portfolio standard deviation, defined
 
 <!-- = Var[X(T)]\bigr|_{t = \hat{t}} -->
 \begin{equation}
 \begin{split}
-\sigma(\hat{t})^2 &= \mathbf{1} ' \Sigma \mathbf{1} \;\;;\;\;\; [\Sigma]_{kj} = \sigma_{kj}  \\
-&= \boldsymbol{\mu}(\hat{t})' G \boldsymbol{\mu}(\hat{t}) \;\;;\;\;\; [G]_{kj} = c_{kj}
+\sigma(\hat{t}) &= \sqrt{\mathbf{1} ' \Sigma \mathbf{1}} \;\;;\;\;\; [\Sigma]_{kj} = \sigma_{kj}  \\
+&= \sqrt{\boldsymbol{\mu}(\hat{t})' G \boldsymbol{\mu}(\hat{t})} \;\;;\;\;\; [G]_{kj} = c_{kj}
 \end{split}
-\label{eq:s2port}
+\label{eq:riskPort}
 \end{equation}
 
-Where the notation $D(\boldsymbol{\mu})$ indicates a diagonal matrix whose diagonal elements are the elements of the vector $\boldsymbol{\mu}$; and $G$ is the project NPV "coefficient of covariation matrix". The matrix $G$ may also be expressed
+Where $G$ is the project NPV "coefficient of covariation matrix". For computational purposes, it is helpful to note that $G$ may also be expressed
 <!-- is just the project NPV covariance matrix left and right multiplied by a diagonal matrix of the inverse project NPV means. -->
 
 \begin{equation}
@@ -255,7 +270,8 @@ G &= D(\boldsymbol{\mu})^{-1} \Sigma D(\boldsymbol{\mu})^{-1} \\
 \label{eq:G}
 \end{equation}
 
-Where the elements of the vector $\boldsymbol{\tau}$ are the project time horizons $\tau_k$, and $\Sigma_{\ell X}$ is the matrix of project log return covariances.
+Where the notation $D(\boldsymbol{\mu})$ indicates a diagonal matrix whose diagonal elements are the elements of the vector $\boldsymbol{\mu}$; and $\Sigma_{\ell X}$ is the matrix of project log return covariances.
+<!-- Where the elements of the vector $\boldsymbol{\tau}$ are the project time horizons $\tau_k$, and  -->
 <!-- such that $D(\boldsymbol{\tau})^{\frac{1}{2}} \Sigma_{XX} D(\boldsymbol{\tau})^{\frac{1}{2}}$ is the life-of-project log return covariance matrix. -->
 
 ## Deducing program NPV means, variances, and covariances in minimum data contexts \label{sec:volEst}
@@ -612,234 +628,28 @@ An approximate project quarterly arithmetic returns covariance matrix then follo
 \tilde{\Sigma}_{\ell X} = D(\boldsymbol{\tau})^{\frac{1}{2}} \tilde{\Sigma}_{\Delta X} D(\boldsymbol{\tau})^{\frac{1}{2}}  \label{eq:SigXXlop}
 \end{equation}
 
-(Where the elements $\boldsymbol{\tau}$ are the respective project time horizons.) Having deduced $\tilde{\Sigma}_{\ell X}$, an approximate coefficient of covariation matrix $\tilde{G}$ then follows from Eq \ref{eq:G}.
+(Where the elements of the vector $\boldsymbol{\tau}$ are the respective project time horizons.) Having deduced $\tilde{\Sigma}_{\ell X}$, an approximate coefficient of covariation matrix $\tilde{G}$ then follows from Eq \ref{eq:G}.
 <!-- and the elements of $\boldsymbol{\tau}$ are the project time horizons $\tau_k$. -->
 <!-- the project NPV covariances and coefficients of covariation in Eqs \ref{eq:xCov} and \ref{eq:xCcoV}. -->
 
-# Cyclically real expected project NPV \label{sec:cycReal}
-
-## The funding cycle
-
-The project funding cycle may be broadly defined as the process by which value is transformed from one tangibly or demonstrably real form to another. More specifically, in the AR4D context, it is the process by which a certain amount of funds is transformed into measurable project impacts. Project impacts at the end of a funding cycle may take the form of a demonstrable change in key development indicators; or they may be tangible impacts of a more intermediate nature, such as completed experiments, pilot implementations, proofs of concept, and/or empirical studies that resolve a prerequisite research question---with a view to demonstrable changes in key development indicators farther down the road, at the end of subsequent funding cycles.
-
-## Project time horizons are measured in terms of funding cycles
-
-The duration of a funding cycle is thus, by definition, the time elapsed between the disbursement of funds and the transformation of those funds into the realization of an agreed upon, tangible set of project impacts or "deliverables". Projects are usually designed so that this transformation occurs in a specific period of time. Henceforth, let $T$ stand for the duration of the funding cycle expressed in terms of the judiciously chosen time step $\Delta t$. A typical AR4D funding cycle currently lasts 1-5 years. For the sake of argument, say it is 3 years. If the judicious time step $\Delta t$ is defined as an annual quarter, then, $T = 12$, in this case.
-
-Preferably, projects should not begin or end in the middle of a funding cycle; and so AR4D project time horizons should be measured as a positive integer multiple of $T$. That is, $T_k = T\nu_k \;;\;\; \nu_k \in \mathbb{Z}^+$.
-
-## Project NPV is cyclically real
-
-In the course of the funding cycle, project funds are productively consumed to generate project deliverables. During this process of transformation from one tangible form to another, the "project value" that undergoes the transformation exists in a limbo state where it is a complex amalgam of sunk cost, deliverables in formation, and funds not yet spent, still in their monetary form.
-
-In other words, the value of the investment during the transformative process is not real, at least not in any immediately tangible or demonstrable sense. One speaks of "project value" at any point in the funding cycle, but one understands that this refers not to any palpable value the project might have at that point, but rather _either_ the value of the monetary investment at the start of the cycle, _or_ the expected value of project deliverables at the end of the cycle.
-
-In this sense, project NPV is "cyclically real". That is, it is cyclically tangible or demonstrable, particularly at the start and end of funding cycles. One may also discern a sunk cost point, where the value is real but negative. At other points in the cycle, project NPV exists, but not in a way that intersects with our reality in any tangible or demonstrable sense. Mathematically, this means that the expected NPV model in equation \ref{eq:muFnw} is effectively restricted to the domain of $\hat{t}$ that are integer multiples of $T$.
-
-## Modeling project NPV in the complex plane
-
-A similar statement can be made about complex numbers. Recall that a complex number $e^{i \theta}$ is defined
-
-\begin{equation}
-e^{i \theta} = \cos(\theta) + i \sin(\theta)
-\label{eq:compNum}
-\end{equation}
-
-Where $i = \sqrt{-1}$ and $\theta \in (0, 2\kappa \pi)$ for any positive integer $\kappa$. Complex numbers are thus cyclically real---at $\theta = \kappa \pi$. Elsewhere, they have no physically meaningful interpretation (leaving quantum mechanics aside for now), but nonetheless may be expressed in terms of a real part, $\cos(\theta)$, and an imaginary part, $i\sin(\theta)$. The complex plane thus presents a framework by which to extend $\mu_k(\hat{t})$ (Eq \ref{eq:muFnw}) to time points between the integer multiples of the funding cycle $T$.
-
-To build up to this extension intuitively, note first of all that expected project NPV evaluated at the start of the funding cycle---that is to say $\mu_k(0) = x_k(0)e^{r T \nu_k}$---has the following equivalent expression in the complex plane.
-
-\begin{equation}
-\mu_k(0) = x_k(0) e^{\omega 2 \pi \nu_k}
-\end{equation}
-
-Where the funding cycle duration $T$ is mapped to $2 \pi$, so that $\omega 2 \pi = r T$; and the time step $\Delta t$ maps to $\Delta \theta$ such that $\Delta \theta = 2 \pi / T$. Now, consider that, by Eq \ref{eq:compNum}, $e^{2i \pi} = 1$. Hence, $\mu_k(0)$ may also be written
-
-\begin{equation}
-\mu_k(0) = x_k(0) e^{2 \pi \nu_k (\omega + i)}
-\end{equation}
-
-Extension to all angles $\theta \in (0, 2 \kappa \pi)$ in the complex plane then results in the following expression.
-
-\begin{equation}
-\begin{split}
-\mu_k(\theta) &= x_k(\theta) e^{(2 \nu_k \pi - \theta)(\omega + i)} \\
-&= \tilde{x}_k(\theta) \left(\frac{w_k}{C} \right)^{\alpha_k} e^{(T_k - \theta)(\omega + i)}
-\end{split}
-\label{eq:muFnwComp}
-\end{equation}
-<!-- [graphic? $\mu_k(\hat{\theta}) / x_k(\hat{\theta})$ decay---ratio of E[x(T)]|_t / x(t)] -->
-
-This extension of expected project NPV to all points on the complex plane encompasses the sunk cost point occurring halfway through the funding cycle ($\theta = (2 \kappa - 1) \pi$), when the investment is real valued, but negative.
-
-\begin{equation}
-\begin{split}
-\mu_k((2\kappa - 1) \pi) &= x_k((2\kappa - 1) \pi) e^{(T_k - (2\kappa - 1) \pi) (\omega + i)} \\
-&= -x_k((2\kappa - 1) \pi) e^{(2 (\nu_k - \kappa) + 1) \pi \omega}
-\end{split}
-\end{equation}
-
-<!-- ## Negative project NPV, time horizon adjustments to ensure real valued budget allocations -->
-<!-- This extension of expected project NPV to all points on the complex plane encompasses the sunk cost point occurring halfway through the funding cycle ($\theta = (2 \kappa - 1) \pi$), when the investment is real valued, but negative. -->
-
-<!-- \begin{equation} -->
-<!-- \begin{split} -->
-<!-- \mu_k((2\kappa - 1) \pi) &= x_k((2\kappa - 1) \pi) e^{(T_k - (2\kappa - 1) \pi) (\omega + i)} \\ -->
-<!-- &= -x_k((2\kappa - 1) \pi) e^{(2 (\nu_k - \kappa) + 1) \pi \omega} -->
-<!-- \end{split} -->
-<!-- \end{equation} -->
-
-<!-- <!-- By definition, the funding cycle begins and ends on a positive real value. A project investment that is negative at the start of the funding cycle thus implies that it is out of phase with the funding cycle by an odd integer multiple of $\pi$. --> <!-- Without loss of generality, consideration may be limited to the case where the odd integer multiple is $1$. That is, if $\mu_k(0) < 0$, this implies -->
-
-<!-- \begin{equation} -->
-<!-- \begin{split} -->
-<!-- \mu_k(0) &= -x_k(0) e^{T_k (\omega + i)} \;\;\;;\;\; T_k = 2 \pi \nu_k \\ -->
-<!-- &= x_k(0) e^{T_k (\omega + i) \pm i \pi} -->
-<!-- \end{split} -->
-<!-- \end{equation} -->
-
-<!-- Negative project NPV is problematic for portfolio optimization since it implies a complex valued budget allocation. To see this, note that an expression for the project budget allocation is obtained by solving Eq \ref{eq:muFnwComp} for $w_k$ at $\theta = 0$. -->
-
-<!-- \begin{equation} -->
-<!-- w_k = C \left( \frac{\mu_k(0)}{\tilde{x}_k(0)} e^{-T_k (\omega + i)} \right)^{\frac{1}{\alpha_k}} -->
-<!-- \label{eq:wFnmuComp} -->
-<!-- \end{equation} -->
-
-<!-- Whereby it is evident that $w_k$ is complex valued if $\mu_k(0) < 0$ and $T_k = 2 \pi \nu_k$. To ensure that budget allocations are always real valued, the time horizon is henceforth redefined -->
-
-<!-- \begin{equation} -->
-<!-- T_k = 2 \pi \left(\nu_k \mp \frac{1}{2} \kappa_k \right) -->
-<!-- \label{eq:Tk} -->
-<!-- \end{equation} -->
-
-<!-- Where -->
-
-<!-- \begin{equation} -->
-<!-- \kappa_k = -->
-<!-- \begin{cases} -->
-<!-- 0, & \text{if $\mu_k(0) > 0$} \\ -->
-<!-- 1, & \text{if $\mu_k(0) < 0$} -->
-<!-- \end{cases} -->
-<!-- \end{equation} -->
-
-<!-- In this modified definition of the time horizon, a half cycle phase correction is automatically triggered if expected project NPV is negative. The phase correction amounts to a half cycle extension or contraction of the project time horizon. (The decision of whether to extend or contract the horizon is made by the investor and/or research project managers.) This in turn guarantees that the budget allocation is real valued. To see this, consider a case where $\mu_k(0) < 0$ and apply the modified definition of $T_k$. -->
-
-<!-- \begin{equation} -->
-<!-- \begin{split} -->
-<!-- w_k &= C \left( \frac{\mu_k(0)}{\tilde{x}_k(0)} e^{-T_k (\omega + i)} \right)^{\frac{1}{\alpha_k}} \;\;;\;\;\; \mu_k(0) < 0\\ -->
-<!-- &= C \left( \frac{e^{ \pm i \pi} |\mu_k(0)|}{\tilde{x}_k(0)} e^{-2 \pi \left(\nu_k \mp \frac{1}{2} \right) (\omega + i)} \right)^{\frac{1}{\alpha_k}} \\ -->
-<!-- &= C \left(\frac{|\mu_k(0)|}{\tilde{x}_k(0)} e^{-2 \pi \left(\nu_k \mp \frac{1}{2} \right) (\omega + i) \pm i \pi} \right)^{\frac{1}{\alpha_k}} \\ -->
-<!-- &= C \left(\frac{|\mu_k(0)|}{\tilde{x}_k(0)} e^{-2 \pi \omega \left( \nu_k \mp \frac{1}{2} \right) + 2 i \pi \left( \nu_k \mp \frac{1}{2} \right) \pm i \pi} \right)^{\frac{1}{\alpha_k}} \\ -->
-<!-- &= C \left(\frac{|\mu_k(0)|}{\tilde{x}_k(0)} e^{-2 \pi \omega \left( \nu_k \mp \frac{1}{2} \right) + 2 i \pi \nu_k \mp i \pi  \pm i \pi} \right)^{\frac{1}{\alpha_k}} \\ -->
-<!-- &= C \left(\frac{|\mu_k(0)|}{\tilde{x}_k(0)} e^{-2 \pi \omega \left( \nu_k \mp \frac{1}{2} \right)} \right)^{\frac{1}{\alpha_k}} -->
-<!-- \end{split} -->
-<!-- \label{eq:wRotate} -->
-<!-- \end{equation} -->
-<!-- # ```{r, fig.show = "hold", fig.width = 6, fig.height=3, fig.align="center", fig.cap="\\label{fig:logSpiral}Log spiral in (left) polar and (right) complex coordinates over 0 \\geq \\theta \\geq 2 \\pi.", echo = FALSE} -->
-<!-- theta <- seq(0, 2 * pi, length.out = 50) -->
-<!-- r <- 0.01 -->
-<!-- Tt <- 40 -->
-<!-- omega <- r * Tt / (2 * pi) -->
-<!-- a <- 1 -->
-<!-- x <- a * exp(omega * theta) * cos(theta) -->
-<!-- y <- a * exp(omega * theta) * sin(theta) -->
-<!-- df_plot <- data.frame(x, y) -->
-<!-- thisTheta <- pi / 3 -->
-<!-- thisX <- a * exp(omega * thisTheta) * cos(thisTheta) -->
-<!-- thisY <- a * exp(omega * thisTheta) * sin(thisTheta) -->
-<!-- theta <- seq(0, thisTheta, length.out = 15) -->
-<!-- x <- 0.25 * cos(theta) -->
-<!-- y <- 0.25 * sin(theta) -->
-<!-- df_angle <- data.frame(x, y) -->
-<!-- gg <- ggplot() -->
-<!-- gg <- gg + geom_path(data = df_plot, aes(x, y, group = 1)) -->
-<!-- gg <- gg + geom_point(data = data.frame(x = thisX, y = thisY), -->
-<!--                       aes(x, y), size = 2) -->
-<!-- gg <- gg + geom_segment(aes(x = 0, xend = thisX, y = 0, yend = thisY)) -->
-<!-- gg <- gg + geom_path(data = df_angle, aes(x, y, group = 1)) -->
-<!-- gg <- gg + geom_hline(yintercept = 0) -->
-<!-- gg <- gg + geom_vline(xintercept = 0) -->
-<!--                         # arrow=arrow(length=unit(0.2,"cm")), linetype = 1) -->
-<!-- gg <- gg + annotate( -->
-<!--     geom = "text", x = thisX, y = thisY,  -->
-<!--     label = expression(italic(mu(theta)==x(0)~e^{omega*theta})), hjust = -0.1, vjust = -0.1, size = 3.5 -->
-<!--   ) -->
-<!-- gg <- gg + annotate( -->
-<!--     geom = "text", x = -0.1, y = 1.7,  -->
-<!--     label = expression(italic(y)), size = 4 -->
-<!--   ) -->
-<!-- gg <- gg + annotate( -->
-<!--     geom = "text", x = 1.7, y = -0.1,  -->
-<!--     label = expression(italic(x)), size = 4 -->
-<!--   ) -->
-<!-- gg <- gg + annotate( -->
-<!--     geom = "text", x = 0.15, y = 0.1,  -->
-<!--     label = expression(theta), size = 3.5 -->
-<!--   ) -->
-<!-- gg <- gg + coord_cartesian(ylim = c(-1.7, 1.7), xlim = c(-1.7, 1.7)) -->
-<!-- gg <- gg + theme_bw() -->
-<!-- gg <- gg + theme(axis.title = element_blank(), -->
-<!--                  axis.text = element_blank(), -->
-<!--                  axis.ticks = element_blank(), -->
-<!--                  panel.grid = element_blank()) -->
-<!-- ggPolar <- gg -->
-<!-- gg <- ggplot() -->
-<!-- gg <- gg + geom_path(data = df_plot, aes(x, y, group = 1)) -->
-<!-- gg <- gg + geom_point(data = data.frame(x = thisX, y = thisY), -->
-<!--                       aes(x, y), size = 2) -->
-<!-- gg <- gg + geom_segment(aes(x = 0, xend = thisX, y = 0, yend = thisY)) -->
-<!-- gg <- gg + geom_path(data = df_angle, aes(x, y, group = 1)) -->
-<!-- gg <- gg + geom_hline(yintercept = 0) -->
-<!-- gg <- gg + geom_vline(xintercept = 0) -->
-<!--                         # arrow=arrow(length=unit(0.2,"cm")), linetype = 1) -->
-<!-- gg <- gg + annotate( -->
-<!--     geom = "text", x = thisX, y = thisY,  -->
-<!--     label = expression(mu==x(0)~e^{(omega+i)*theta}), hjust = -0.1, vjust = -0.1, size = 3.5 -->
-<!--   ) -->
-<!-- gg <- gg + annotate( -->
-<!--     geom = "text", x = -0.1, y = 1.7,  -->
-<!--     label = expression(italic(iy)), size = 4 -->
-<!--   ) -->
-<!-- gg <- gg + annotate( -->
-<!--     geom = "text", x = 1.7, y = -0.1,  -->
-<!--     label = expression(italic(x)), size = 4 -->
-<!--   ) -->
-<!-- gg <- gg + annotate( -->
-<!--     geom = "text", x = 0.15, y = 0.1,  -->
-<!--     label = expression(theta), size = 3.5 -->
-<!--   ) -->
-<!-- gg <- gg + coord_cartesian(ylim = c(-1.7, 1.7), xlim = c(-1.7, 1.7)) -->
-<!-- gg <- gg + theme_bw() -->
-<!-- gg <- gg + theme(axis.title = element_blank(), -->
-<!--                  axis.text = element_blank(), -->
-<!--                  axis.ticks = element_blank(), -->
-<!--                  panel.grid = element_blank()) -->
-<!-- ggComp <- gg -->
-<!-- ggPolar + ggComp + plot_layout(ncol = 2) -->
-<!-- ``` -->
-
 # Risk adjusted portfolio optimization
 
-## First order conditions
-
-Given the groundwork laid out above, the portfolio optimization problem may now be formulated and solved in terms of portfolio vis viva maximization subject to a risk tolerance threshold.
-
-\begin{equation}
-\max_{\boldsymbol{\mu}}{\mathcal{E}} \:\:\: s.t. \:\:\: \sigma = \overline{\sigma}
-\end{equation}
-
-Where the portfolio risk $\sigma$ is defined $\sigma = \sqrt{\boldsymbol{\mu} ' G \boldsymbol{\mu}}$ (recall Eq \ref{eq:s2port}).
-<!-- Without loss of generality, the control variables $\mathbf{w}$ may be swapped for $\boldsymbol{\mu}$. -->
-<!-- Because $\mu_k(w_k)$ is monotonically increasing in $w_k$ -->
+Given the groundwork laid out above, the portfolio optimization problem may now be formulated and solved in terms of portfolio impact maximization subject to a risk tolerance threshold.
 
 \begin{equation}
 \max_{\boldsymbol{\mu}}{\mathcal{E}} \:\:\: s.t. \:\:\: \sigma = \overline{\sigma}
 \label{eq:probStat}
 \end{equation}
 
-Some may object that this formulation of the portfolio optimization problem lacks a budget constraint. It will soon become clear that no such constraint is necessary.
+Where the portfolio risk $\sigma$ and expected impact $\mathcal{E}$ were defined in Eq \ref{eq:riskPort} and \ref{eq:ErawPort}.
 
-The objective function or lagrangian is
+As mentioned in the introduction, the control variables are defined as the project NPVs on the assumption that project NPV is a known function of the budget allocation. This is done in order to facilitate the mathematical exposition of the first and second order conditions. The optimal budget allocations are deduced from the optimal project NPVs at the end of this section.
+
+Note that this formulation of the portfolio optimization problem lacks a budget constraint. It will soon become clear that no such constraint is necessary.
+
+## First order conditions
+
+The objective function or lagrangian corresponding to the optimization problem in Eq \ref{eq:probStat} is
 
 \begin{equation}
 \begin{split}
@@ -895,91 +705,7 @@ Where $\sigma_j^*$ is the portfolio risk corresponding to the $j^{th}$ solution,
 
 The risk shadow price is thus inversely proportional to portfolio risk. This makes sense. As risk increases, the marginal benefit of additional increments in risk decrease.
 
-Because eigenvectors are defined up to scaling, the constant $\beta$ may be arbitrarily assigned so as to enforce a portfolio impact, risk, or budget target/constraint. (The budget constraint is often the most binding of these three.) This obviates the need to explicitly include a budget constraint in the objective function.
-
-### The candidate optimal budget allocations
-
-The budget allocations satisfying the first order conditions ($w_{kj}^*$) are given by Eq \ref{eq:wFnmuComp} evaluated at $\mu_{kj}^*$.
-<!-- \begin{equation} -->
-<!-- \mathbf{w}_{kj}^* = C \left(\frac{\mu_{kj}^*}{\tilde{x_k(0)}}e^{- r T_k } \right)^{\frac{1}{\alpha_k}} -->
-<!-- \end{equation} -->
-<!-- But recall that this has the following equivalent expression in the complex plane. -->
-
-\begin{equation}
-\mathbf{w}_{kj}^* = C \left(\frac{\mu_{kj}^*}{\tilde{x}_k(0)}e^{- T_k (\omega + i)} \right)^{\frac{1}{\alpha_k}}
-\label{eq:wStarRaw}
-\end{equation}
-<!-- \begin{equation} -->
-<!-- \mathbf{w}_{kj}^* = C \left(\frac{q_{kj}}{\tilde{x_k(0)}} (-1)^{2 \kappa_k + 1} e^{-r T_k} \right)^{\frac{1}{\alpha_k}} -->
-<!-- \label{eq:wStar} -->
-<!-- \end{equation} -->
-
-<!-- in \ref{sec:cycReal} -->
-The eigenvectors $\mathbf{q}_j$ may include negative elements, which in turn implies negative project NPV $\mu_{kj}^*$. As explained above, a negative expected NPV may be interpreted as the project value at the sunk cost point in the funding cycle; and negative values are problematic for portfolio optimization since it implies a complex valued budget allocation (Eq \ref{eq:wStarRaw}). The project time horizon $T_k$ is defined in Eq \ref{eq:Tk} so as to automatically extend or contract the time horizon by half a funding cycle, such that the budget allocations $\mathbf{w}_{kj}^*$ are guaranteed to be real valued. Note, moreover, that all of the terms in Eq \ref{eq:wStarRaw} are positive, whereby it is guaranteed that $\mathbf{w}_{kj}^*$ is also positive.
-<!-- And in vector notation, -->
-<!-- \begin{equation} -->
-<!-- \hat{\mathbf{w}}_j^* = \Sigma_{j = 1}^m C_j (D(\tilde{\mathbf{x}}(0))^{-1} \mathbf{q}_j (-1)^{2 \kappa - 1} e^{-r T \left(\frac{1}{2} + \kappa \right)})^{\frac{1}{\boldsymbol{\alpha}}} -->
-<!-- \label{eq:wStarPolicy} -->
-<!-- \end{equation} -->
-<!-- \begin{equation} -->
-<!-- \hat{\boldsymbol{\mu}}_j^* = (-1)^{1 - 2 \kappa} e^{rT \left(\kappa - \frac{1}{2}\right)} \beta_j \mathbf{q}_j -->
-<!-- \end{equation} -->
-
-### Scaling the solution to enforce constraints \label{sec:scaleConst}
-
-Because eigenvectors are defined up to scaling, the optimal solution can be arbitrarily scaled in accordance with any portfolio impact, risk, or budget target/constraint. The budget constraint is usually the most binding of these three. In order to arbitrarily enforce the budget constraint $C$, then, note that the candidate optimal budget allocations may be rewritten
-
-\begin{equation}
-w_{kj}^* = C \left(\frac{\beta_j q_{kj}}{\tilde{x}_k(0)} e^{-T_k (\omega + i)} \right)^{\frac{1}{\alpha_k}}
-\label{eq:wStar}
-\end{equation}
-<!-- \begin{equation} -->
-<!-- \hat{\mathbf{w}}_j^* = \Sigma_{j = 1}^m C_j (D(\tilde{\mathbf{x}}(0))^{-1} \beta_j \mathbf{q}_j (-1)^{2 \kappa - 1} e^{-r T \left(\frac{1}{2} + \kappa \right)})^{\frac{1}{\boldsymbol{\alpha}}} -->
-<!-- \label{eq:wStarPolicy} -->
-<!-- \end{equation} -->
-
-Where $\mathbf{q}_j {'} \mathbf{q}_j = 1$ and $\beta_j$ is an arbitrary scaling constant, which may be chosen such that $\hat{\mathbf{w}}_j^* {'} \mathbf{1} = C$.
-
-In vector notation,
-
-\begin{equation}
-\mathbf{w}_j^* = C ( \beta_j D(\mathbf{q}_j) D(\tilde{\mathbf{x}}(0))^{-1} D(e^{\mathbf{T}})^{-\omega - i} )^{\frac{1}{\boldsymbol{\alpha}}}
-\label{eq:wStarVec}
-\end{equation}
-
-When choosing the scaling constant $\beta_j$ to enforce the budget constraint, the corresponding optimal vis viva $\mathcal{E}_j^*$ is also thereby defined.
-<!-- Eq \ref{eq:ErawPort} -->
-
-\begin{equation}
-\begin{split}
-\mathcal{E}_j^* &= \frac{r^2}{2} \hat{\boldsymbol{\mu}}_j^* {'} \hat{\boldsymbol{\mu}}_j^* \\
-&= \frac{r^2}{2} \beta_j \mathbf{q}_j {'} \beta_j \mathbf{q}_j = \frac{r^2}{2} \beta_j^2
-\end{split}
-\label{eq:visViva}
-\end{equation}
-<!-- Note that $\beta_j^2$ corresponds to the constant $\rho$ in Eq \ref{eq:Newt2}. -->
-
-Moreover, the optimal portfolio risk $\sigma_j^*$ (Eq \ref{eq:riskJraw}) and risk shadow price $\lambda_j$ (Eq \ref{eq:lamJraw}) must also be redefined more carefully as follows.
-
-\begin{equation}
-\begin{split}
-\sigma_j^* &= \sqrt{\boldsymbol{\mu}_j^* {'} G \boldsymbol{\mu}_j^*} = \sqrt{(\beta_j \mathbf{q}_j) {'} G (\beta_j \mathbf{q}_j)} \\
-&= \beta_j \sqrt{\upsilon_j}
-\end{split}
-\label{eq:riskJ}
-\end{equation}
-
-\begin{equation}
-\lambda_j = \frac{r^2}{\beta_j \sqrt{\upsilon_j}}
-\label{eq:lamJ}
-\end{equation}
-
-Finally, note that the vis viva to risk ratio may be expressed as follows.
-
-\begin{equation}
-\frac{\mathcal{E}_j^*}{\sigma_j^*} = \frac{r^2 |\beta_j|}{2 \sqrt{\upsilon_j}}
-\label{eq:visToRisk}
-\end{equation}
+Because eigenvectors are defined up to scaling, the constant $\beta$ may be arbitrarily assigned so as to enforce a portfolio impact, risk, or budget target/constraint. (The budget constraint is often the most binding of these three.) For this reason, no budget constraint was included in the objective function.
 
 ## Second order condition \label{sec:soc}
 
@@ -1084,9 +810,9 @@ Such that $\zeta_n = 1$.
 
 The number of retained eigenvectors $\hat{n}$ should be high enough to explain, for example, $\zeta_m \geq 0.98$, although the exact threshold is left to the practitioner's discretion.
 
-## Modeling diminishing returns to investment \label{sec:dimRet}
+## Deducing the optimal budget allocation from the optimal project NPVs \label{sec:dimRet}
 
-Generally speaking, project NPV scales with investment. That is to say, beyond a certain minimum level of funding required to generate, release, and support the diffusion and uptake of the project's research product(s) on a pilot level, further increments in project investment have the effect of broadening the scope of impact---i.e. extending the size and number of populations or markets where the research product is released and has an impact. For reasons well known to economists, this scaling is not linear, but rather marginally diminishing. Project NPV $x_k(\hat{t})$ may thus be expressed as a marginally diminishing function of the funding allocation $w_k$, as follows.
+Generally speaking, project NPV scales with investment. That is to say, beyond a certain minimum level of funding required to generate, release, and support the diffusion and uptake of the project's research product(s) on a pilot level, further increments in project investment have the effect of broadening the scope of impact---i.e. extending the size and number of populations or markets where the research product is released and has an impact. This scaling is not linear, but rather marginally diminishing. Project NPV $x_k(\hat{t})$ may thus be expressed as a marginally diminishing function of the funding allocation $w_k$, as follows.
 
 \begin{equation}
 x_k(\hat{t}) = \tilde{x}_k(\hat{t}) \left(\frac{w_k}{C} \right)^{\alpha_k}
@@ -1111,6 +837,90 @@ Substituting the right hand side of Eq \ref{eq:npvFnW} for $x_k(\hat{t})$, expec
 Note that project NPV variances and covariances $\sigma_{jk}$ are also functions of investment, since $\mu_k$ appears in their definition.
 
 Eq \ref{eq:npvFnW} is an ansatz. Practitioners may design other functional forms more suitable to their particular context; but, in general, $x_k(\hat{t})$ should be greater than zero, and should be marginally diminishing in the investment $w_k$.
+
+The budget allocations satisfying the first order conditions ($w_{kj}^*$) are given by Eq \ref{eq:wFnmuComp} evaluated at $\mu_{kj}^*$.
+<!-- \begin{equation} -->
+<!-- \mathbf{w}_{kj}^* = C \left(\frac{\mu_{kj}^*}{\tilde{x_k(0)}}e^{- r T_k } \right)^{\frac{1}{\alpha_k}} -->
+<!-- \end{equation} -->
+<!-- But recall that this has the following equivalent expression in the complex plane. -->
+
+\begin{equation}
+\mathbf{w}_{kj}^* = C \left(\frac{\mu_{kj}^*}{\tilde{x}_k(0)}e^{- T_k (\omega + i)} \right)^{\frac{1}{\alpha_k}}
+\label{eq:wStarRaw}
+\end{equation}
+<!-- \begin{equation} -->
+<!-- \mathbf{w}_{kj}^* = C \left(\frac{q_{kj}}{\tilde{x_k(0)}} (-1)^{2 \kappa_k + 1} e^{-r T_k} \right)^{\frac{1}{\alpha_k}} -->
+<!-- \label{eq:wStar} -->
+<!-- \end{equation} -->
+
+<!-- in \ref{sec:cycReal} -->
+The eigenvectors $\mathbf{q}_j$ may include negative elements, which in turn implies negative project NPV $\mu_{kj}^*$. As explained above, a negative expected NPV may be interpreted as the project value at the sunk cost point in the funding cycle; and negative values are problematic for portfolio optimization since it implies a complex valued budget allocation (Eq \ref{eq:wStarRaw}). The project time horizon $T_k$ is defined in Eq \ref{eq:Tk} so as to automatically extend or contract the time horizon by half a funding cycle, such that the budget allocations $\mathbf{w}_{kj}^*$ are guaranteed to be real valued. Note, moreover, that all of the terms in Eq \ref{eq:wStarRaw} are positive, whereby it is guaranteed that $\mathbf{w}_{kj}^*$ is also positive.
+<!-- And in vector notation, -->
+<!-- \begin{equation} -->
+<!-- \hat{\mathbf{w}}_j^* = \Sigma_{j = 1}^m C_j (D(\tilde{\mathbf{x}}(0))^{-1} \mathbf{q}_j (-1)^{2 \kappa - 1} e^{-r T \left(\frac{1}{2} + \kappa \right)})^{\frac{1}{\boldsymbol{\alpha}}} -->
+<!-- \label{eq:wStarPolicy} -->
+<!-- \end{equation} -->
+<!-- \begin{equation} -->
+<!-- \hat{\boldsymbol{\mu}}_j^* = (-1)^{1 - 2 \kappa} e^{rT \left(\kappa - \frac{1}{2}\right)} \beta_j \mathbf{q}_j -->
+<!-- \end{equation} -->
+
+### Scaling the solution to enforce constraints \label{sec:scaleConst}
+
+Because eigenvectors are defined up to scaling, the optimal solution can be arbitrarily scaled in accordance with any portfolio impact, risk, or budget target/constraint. The budget constraint is usually the most binding of these three. In order to arbitrarily enforce the budget constraint $C$, then, note that the candidate optimal budget allocations may be rewritten
+
+\begin{equation}
+w_{kj}^* = C \left(\frac{\beta_j q_{kj}}{\tilde{x}_k(0)} e^{-T_k (\omega + i)} \right)^{\frac{1}{\alpha_k}}
+\label{eq:wStar}
+\end{equation}
+<!-- \begin{equation} -->
+<!-- \hat{\mathbf{w}}_j^* = \Sigma_{j = 1}^m C_j (D(\tilde{\mathbf{x}}(0))^{-1} \beta_j \mathbf{q}_j (-1)^{2 \kappa - 1} e^{-r T \left(\frac{1}{2} + \kappa \right)})^{\frac{1}{\boldsymbol{\alpha}}} -->
+<!-- \label{eq:wStarPolicy} -->
+<!-- \end{equation} -->
+
+Where $\mathbf{q}_j {'} \mathbf{q}_j = 1$ and $\beta_j$ is an arbitrary scaling constant, which may be chosen such that $\hat{\mathbf{w}}_j^* {'} \mathbf{1} = C$.
+
+In vector notation,
+
+\begin{equation}
+\mathbf{w}_j^* = C ( \beta_j D(\mathbf{q}_j) D(\tilde{\mathbf{x}}(0))^{-1} D(e^{\mathbf{T}})^{-\omega - i} )^{\frac{1}{\boldsymbol{\alpha}}}
+\label{eq:wStarVec}
+\end{equation}
+
+When choosing the scaling constant $\beta_j$ to enforce the budget constraint, the corresponding optimal vis viva $\mathcal{E}_j^*$ is also thereby defined.
+<!-- Eq \ref{eq:ErawPort} -->
+
+\begin{equation}
+\begin{split}
+\mathcal{E}_j^* &= \frac{r^2}{2} \hat{\boldsymbol{\mu}}_j^* {'} \hat{\boldsymbol{\mu}}_j^* \\
+&= \frac{r^2}{2} \beta_j \mathbf{q}_j {'} \beta_j \mathbf{q}_j = \frac{r^2}{2} \beta_j^2
+\end{split}
+\label{eq:visViva}
+\end{equation}
+<!-- Note that $\beta_j^2$ corresponds to the constant $\rho$ in Eq \ref{eq:Newt2}. -->
+
+Moreover, the optimal portfolio risk $\sigma_j^*$ (Eq \ref{eq:riskJraw}) and risk shadow price $\lambda_j$ (Eq \ref{eq:lamJraw}) must also be redefined more carefully as follows.
+
+\begin{equation}
+\begin{split}
+\sigma_j^* &= \sqrt{\boldsymbol{\mu}_j^* {'} G \boldsymbol{\mu}_j^*} = \sqrt{(\beta_j \mathbf{q}_j) {'} G (\beta_j \mathbf{q}_j)} \\
+&= \beta_j \sqrt{\upsilon_j}
+\end{split}
+\label{eq:riskJ}
+\end{equation}
+
+\begin{equation}
+\lambda_j = \frac{r^2}{\beta_j \sqrt{\upsilon_j}}
+\label{eq:lamJ}
+\end{equation}
+
+Finally, note that the impact to risk ratio may be expressed as follows.
+
+\begin{equation}
+\frac{\mathcal{E}_j^*}{\sigma_j^*} = \frac{r^2 |\beta_j|}{2 \sqrt{\upsilon_j}}
+\label{eq:visToRisk}
+\end{equation}
+
+
 
 # Hypothetical use case
 
@@ -1401,10 +1211,11 @@ thisInt <- c(0, 100000)
 
 for(j in 1:nSigG){
   muStar <- Qtilde[, j]
-  ind <- which(muStar < 0)
-  kappaK <- rep(0, length(TkHat))
-  kappaK[ind] <- 1
-  Tk <- TkHat + kappaK * pi
+  # ind <- which(muStar < 0)
+  # kappaK <- rep(0, length(TkHat))
+  # kappaK[ind] <- 1
+  # Tk <- TkHat + kappaK * pi
+  Tk <- TkHat
   out <- uniroot(wSlack, interval = thisInt,
                  Tk = Tk, omega = omega, xTilde = xTilde,
                  muStar = muStar, alpha = alpha, C = C,
@@ -1915,7 +1726,11 @@ In every budget allocation exercise there will be participants who are disappoin
 <!-- ``` -->
 <!-- # References {-} -->
 
-# Appendix: Project kinematics and vis viva
+# Appendix
+
+## Project kinematics and vis viva
+
+[Where we justify the quadratic expression of portfolio impact...]
 
 The utility $\text{u}_k(t)$ of a project intervention over a single time step $\Delta t$ may be defined as the difference between project NPV at the end of the interval and NPV at the start of the interval. That is,
 
@@ -2035,177 +1850,218 @@ And so the project "kinetic energy" over the time horizon $T_k$ (call this $\mat
 \mathcal{E}_k(t; T_k) = \frac{r^2}{2} \mu_k(t; T_k)^2
 \end{equation}
 
-In the present context, $\mathcal{E}_k(t; T_k)$ is effectively a quadratic expression for the expected project level of effort expended over the course of the time horizon, expressed in units of value squared per unit time squared. To discourage the present audience from getting too cozy with the physics analogy, $\mathcal{E}_k(t; T_k)$ is henceforth referred to using Gottfried Leibniz's more archaic, and now largely abandoned, term, "vis viva" (which means "living force" in Latin; for a reference, see [@iltis1971leibniz]).
+In the present context, $\mathcal{E}_k(t; T_k)$ is effectively a quadratic expression for the expected project level of effort expended over the course of the time horizon, expressed in units of value squared per unit time squared.
+<!-- To discourage the present audience from getting too cozy with the physics analogy, $\mathcal{E}_k(t; T_k)$ is henceforth referred to using Gottfried Leibniz's more archaic, and now largely abandoned, term, "vis viva" (which means "living force" in Latin; for a reference, see [@iltis1971leibniz]). -->
 <!-- The vis viva is adopted here because a quadratic measure for project effort proves methodologically expedient in the formulation of the portfolio optimization problem farther below. -->
 <!-- As in physics, it may also be teleologically defined as the amount of project impetus required to accelerate a NPV to a  -->
 
-Portfolio vis viva $\mathcal{E}$ is defined as the sum of project vis vivas.
-<!-- \begin{equation} -->
-<!-- \begin{split} -->
-<!-- \text{v} = \sqrt{\sum_k \left( \frac{\Delta \text{u}_k}{\Delta t} \right)^2} &= r \sqrt{ \sum_k \mu_k^2} \\ -->
-<!-- &= r \sqrt{\boldsymbol{\mu} ' \boldsymbol{\mu}} \\ -->
-<!-- \end{split} -->
-<!-- \end{equation} -->
-<!-- and -->
+Expected portfolio impact $\mathcal{E}$ is defined as the sum of project "kinetic energies".
 
-<!-- \frac{\rho}{2} \text{v}^2 =  -->
 \begin{equation}
 \mathcal{E} = \frac{r^2}{2} \sum_k \mu_k(t; T_k)^2 = \frac{r^2}{2} \boldsymbol{\mu} ' \boldsymbol{\mu}
 \label{eq:ErawPort}
 \end{equation}
 
+## Cyclically real expected project NPV \label{sec:cycReal}
 
+[Where we justify taking the absolute value of expected impact...]
 
+### The funding cycle
 
-<!-- In the broadest terms, a project may be said to intervene in, or operate upon, an existing net benefit stream $\Delta \text{u}_k / \Delta t$ with the aim of raising it to a higher value by the end of the project, such that -->
-<!-- \begin{equation} -->
-<!-- \frac{\Delta \text{u}_k}{\Delta t} \Bigr|_{t = T_k} - \frac{\Delta \text{u}_k}{\Delta t} \Bigr|_{t = 0} > 0 -->
-<!-- \end{equation} -->
-<!-- <!-- $\Delta^2 \text{u}_k / \Delta t^2$ -->
-<!-- This implies a positive acceleration which comes as a result of the skilled, concerted, applied efforts that comprise the project intervention. The net impact of the project---i.e. the left hand side of the expression above---may be expressed as the integral of this acceleration over the project's lifetime. -->
-<!-- \begin{equation} -->
-<!-- \int_{0}^{T_k} \frac{\Delta^2 \text{u}_k}{\Delta t^2} \Delta t = -->
-<!-- \frac{\Delta \text{u}_k}{\Delta t} \Bigr|_{t = T_k} - \frac{\Delta \text{u}_k}{\Delta t} \Bigr|_{t = 0} -->
-<!-- \end{equation} -->
-<!-- <!-- Letting $F_k$ stand for these applied efforts and $a_k$ for the acceleration, this axiomatic relation can be expressed $F_k \sim a_k$, or -->
-<!-- <!-- \begin{equation} -->
-<!-- <!-- F_k = \rho a_k -->
-<!-- <!-- \label{eq:Newt2} -->
-<!-- <!-- \end{equation} -->
-<!-- <!-- Where $\rho$ is a proportionality constant to be defined based on context. -->
-<!-- For sufficiently small time intervals $\Delta t$, it may be said that $F_k$ is effectively constant, resulting in a similarly constant acceleration of the net benefit stream. This is illustrated in Figure \ref{fig:kinema}, where the shorthand $\text{v}_k = \Delta \text{u}_k/\Delta t$ has been introduced to reduce clutter. -->
-<!-- Note that the slope of the line in this plot is just the acceleration. That is, -->
-<!-- \begin{equation} -->
-<!-- \frac{\Delta \text{v}_k}{\Delta t} = a_k -->
-<!-- \end{equation} -->
-<!-- Which can be rearranged as follows, -->
+The project funding cycle may be broadly defined as the process by which value is transformed from one tangibly or demonstrably real form to another. More specifically, in the AR4D context, it is the process by which a certain amount of funds is transformed into measurable project impacts. Project impacts at the end of a funding cycle may take the form of a demonstrable change in key development indicators; or they may be tangible impacts of a more intermediate nature, such as completed experiments, pilot implementations, proofs of concept, and/or empirical studies that resolve a prerequisite research question---with a view to demonstrable changes in key development indicators farther down the road, at the end of subsequent funding cycles.
+
+## Project time horizons are measured in terms of funding cycles
+
+The duration of a funding cycle is thus, by definition, the time elapsed between the disbursement of funds and the transformation of those funds into the realization of an agreed upon, tangible set of project impacts or "deliverables". Projects are usually designed so that this transformation occurs in a specific period of time. Henceforth, let $T$ stand for the duration of the funding cycle expressed in terms of the judiciously chosen time step $\Delta t$. A typical AR4D funding cycle currently lasts 1-5 years. For the sake of argument, say it is 3 years. If the judicious time step $\Delta t$ is defined as an annual quarter, then, $T = 12$, in this case.
+<!-- Preferably, projects should not begin or end in the middle of a funding cycle; and so AR4D project time horizons should be measured as a positive integer multiple of $T$. That is, $T_k = T\nu_k \;;\;\; \nu_k \in \mathbb{Z}^+$. -->
+
+## Project NPV is cyclically real
+
+In the course of the funding cycle, project funds are productively consumed to generate project deliverables. During this process of transformation from one tangible form to another, the "project value" that undergoes the transformation exists in a limbo state where it is a complex amalgam of sunk cost, deliverables in formation, and funds not yet spent, still in their monetary form.
+
+In other words, the value of the investment during the transformative process is not real, at least not in any immediately tangible or demonstrable sense. One speaks of "project value" at any point in the funding cycle, but one understands that this refers not to any palpable value the project might have at that point, but rather _either_ the value of the monetary investment at the start of the cycle, _or_ the expected value of project deliverables at the end of the cycle.
+
+In this sense, project NPV is "cyclically real". That is, it is cyclically tangible or demonstrable, particularly at the start and end of funding cycles. One may also discern a tangible sunk cost point, where the value is real but negative. At other points in the cycle, project NPV exists, but not in a way that intersects with our reality in any directly tangible or demonstrable sense. Mathematically, this means that the expected NPV model in equation \ref{eq:muFnw} is effectively restricted to the domain of $\hat{t}$ that are integer multiples of $T$.
+
+## Modeling project NPV in the complex plane
+
+A similar statement can be made about complex numbers. Recall that a complex number $e^{i \theta}$ is defined
+
+\begin{equation}
+e^{i \theta} = \cos(\theta) + i \sin(\theta)
+\label{eq:compNum}
+\end{equation}
+
+Where $i = \sqrt{-1}$ and $\theta \in (0, 2\kappa \pi)$ for any positive integer $\kappa$. Complex numbers are thus cyclically real---at $\theta = \kappa \pi$. Elsewhere, they have no physically meaningful interpretation (leaving quantum mechanics aside for now), but nonetheless may be expressed in terms of a real part, $\cos(\theta)$, and an imaginary part, $i\sin(\theta)$. The complex plane thus presents a framework by which to extend $\mu_k(\hat{t})$ (Eq \ref{eq:muFnw}) to time points between the integer multiples of the funding cycle $T$.
+
+To build up to this extension intuitively, note first of all that expected project NPV evaluated at the start of the funding cycle---that is to say $\mu_k(0) = x_k(0)e^{r T \nu_k}$---has the following equivalent expression in the complex plane.
+
+\begin{equation}
+\mu_k(0) = x_k(0) e^{\omega 2 \pi \nu_k}
+\end{equation}
+
+Where the funding cycle duration $T$ is mapped to $2 \pi$, so that $\omega 2 \pi = r T$; and the time step $\Delta t$ maps to $\Delta \theta$ such that $\Delta \theta = 2 \pi / T$. Now, consider that, by Eq \ref{eq:compNum}, $e^{2i \pi} = 1$. Hence, $\mu_k(0)$ may also be written
+
+\begin{equation}
+\mu_k(0) = x_k(0) e^{2 \pi \nu_k (\omega + i)}
+\end{equation}
+
+Extension to all angles $\theta \in (0, 2 \kappa \pi)$ in the complex plane then results in the following expression.
+
+\begin{equation}
+\begin{split}
+\mu_k(\theta) &= x_k(\theta) e^{(2 \nu_k \pi - \theta)(\omega + i)} \\
+&= \tilde{x}_k(\theta) \left(\frac{w_k}{C} \right)^{\alpha_k} e^{(T_k - \theta)(\omega + i)}
+\end{split}
+\label{eq:muFnwComp}
+\end{equation}
+<!-- [graphic? $\mu_k(\hat{\theta}) / x_k(\hat{\theta})$ decay---ratio of E[x(T)]|_t / x(t)] -->
+
+This extension of expected project NPV to all points on the complex plane encompasses the sunk cost point occurring halfway through the funding cycle ($\theta = (2 \kappa - 1) \pi$), when the investment is real valued, but negative.
+
+\begin{equation}
+\begin{split}
+\mu_k((2\kappa - 1) \pi) &= x_k((2\kappa - 1) \pi) e^{(T_k - (2\kappa - 1) \pi) (\omega + i)} \\
+&= -x_k((2\kappa - 1) \pi) e^{(2 (\nu_k - \kappa) + 1) \pi \omega}
+\end{split}
+\end{equation}
+
+<!-- ## Negative project NPV, time horizon adjustments to ensure real valued budget allocations -->
+<!-- This extension of expected project NPV to all points on the complex plane encompasses the sunk cost point occurring halfway through the funding cycle ($\theta = (2 \kappa - 1) \pi$), when the investment is real valued, but negative. -->
+
 <!-- \begin{equation} -->
 <!-- \begin{split} -->
-<!-- a_k \Delta t &= \Delta \text{v}_k \\ -->
-<!-- &= \text{v}_k(\hat{t} + \Delta t) - \text{v}_k(\hat{t}) -->
+<!-- \mu_k((2\kappa - 1) \pi) &= x_k((2\kappa - 1) \pi) e^{(T_k - (2\kappa - 1) \pi) (\omega + i)} \\ -->
+<!-- &= -x_k((2\kappa - 1) \pi) e^{(2 (\nu_k - \kappa) + 1) \pi \omega} -->
 <!-- \end{split} -->
 <!-- \end{equation} -->
-<!-- Note, moreover, that the area $\Delta A$ is equal to the project impact over the interval $\Delta t$. -->
-<!-- \begin{equation} -->
-<!-- \begin{split} -->
-<!-- \Delta A &= \frac{1}{2} (\text{v}_k(\hat{t} + \Delta t) - \text{v}_k(\hat{t})) \Delta t \\ -->
-<!-- &= \frac{1}{2} (\Delta \text{u}_k |_{\hat{t} + \Delta t} - \Delta \text{u}_k |_{\hat{t}}) \\ -->
-<!-- &= \frac{1}{2} \Delta (\text{u}_k |_{\hat{t} + \Delta t} - \text{u}_k |_{\hat{t}}) = \Delta (\Delta \text{u}_k) \\ -->
-<!-- &= \Delta^2 \text{u}_k -->
-<!-- \end{split} -->
-<!-- \end{equation} -->
-<!-- And a third "kinematic" expression, soon to come in handy, can be obtained by multiplying the previous two as follows. -->
-<!-- \begin{equation} -->
-<!-- \begin{split} -->
-<!-- a_k \Delta t \Delta \text{u}_k &= \frac{1}{2} (\text{v}_k(T_k) - \text{v}_k(0)) (\text{v}_k(T_k) + \text{v}_k(0)) \Delta t \\ -->
-<!-- a_k \Delta \text{u}_k &= \frac{1}{2} (\text{v}_k(T_k)^2 - \text{v}_k(0)^2) -->
-<!-- \end{split} -->
-<!-- \label{eq:kinema3} -->
-<!-- \end{equation} -->
-<!-- <!-- Now, since the project has a limited budget, the amount of skilled, concerted, applied effort ($F$) it can exert along the net benefit displacement $\Delta u$ is also limited. That is, the quantity $F \Delta u$ is limited. Let this quantity be denoted $\mathcal{E}$. By equation \ref{eq:Newt2}, $\mathcal{E}$ can be rewritten as follows. --> <!-- Now, consider that, for a given budget and risk tolerance, the project aims to maximize the amount of skilled, concerted, applied effort ($F_k$) exerted along the "displacement" $\Delta \text{u}_k$. That is to say, the aim is to maximize the quantity $F_k \Delta \text{u}_k$, subject to a budget and risk constraint. Let this quantity be denoted $\mathcal{E}_k$, and note that, by equation \ref{eq:Newt2}, -->
-<!-- \begin{equation} -->
-<!-- \mathcal{E}_k = \rho a_k \Delta \text{u}_k  -->
-<!-- \end{equation} -->
-<!-- But, by equation \ref{eq:kinema3}, -->
-<!-- \begin{equation} -->
-<!-- \mathcal{E}_k = \frac{\rho}{2} (\text{v}_k(T_k)^2 - \text{v}_k(0)^2) -->
-<!-- \label{eq:Eraw} -->
-<!-- \end{equation} -->
-<!-- Finally, note that the same analysis can be reformulated in terms of project NPV---that is to say, in terms of the difference between the net benefit stream _with_ the project intervention versus the net benefit stream _without_ it (the counter-factual). Formally, this means $\text{v}_k$ is redefined -->
-<!-- \begin{equation} -->
-<!-- \text{v}_k = \frac{\Delta \text{u}_k}{\Delta t}\Bigr|_{*} - \frac{\Delta \text{u}_k}{\Delta t} -->
-<!-- \end{equation} -->
-<!-- (Where the "$*$" indicates the "with project intervention" scenario.) -->
-<!-- Then $\text{v}_k(0) = 0$, and so equation \ref{eq:Eraw} becomes -->
-<!-- \begin{equation} -->
-<!-- \mathcal{E}_k = \frac{\rho}{2} \text{v}_k(T_k)^2 -->
-<!-- \label{eq:Enpv} -->
-<!-- \end{equation} -->
-<!-- In physics, this is analogous to the expression for the kinetic energy of a moving object with mass $\rho$, where the $\text{u}_k$ stands for a spatial dimension. To discourage practitioners from getting too cozy with this analogy, $\mathcal{E}_k$ is henceforth referred to using Gottfried Leibniz's more archaic, and now largely abandoned, term, "vis viva" (which means "living force" in Latin; for a reference, see [@iltis1971leibniz]). Pragmatically, the vis viva may be interpreted as a quadratic expression of expected program impact. -->
-<!-- Note, moreover, that the displacement $\Delta \text{u}_k$ corresponds to the $k^{th}$ expected project NPV at $t = \hat{t}$. More precisely, -->
-<!-- \begin{equation} -->
-<!-- \begin{split} -->
-<!-- \Delta \text{u}_k = \int_{\hat{t}}^{T_k} \text{v}_k dt &= \text{u}_k(\tau_k)|_{*} - \text{u}_k(\tau_k) \\ -->
-<!-- &= E[x_k(T)]\bigr|_{t = \hat{t}} -->
-<!-- \end{split} -->
-<!-- \end{equation} -->
-<!-- The displacement $\Delta \text{u}_k$ is thus expressed in units of value. Since the project effort $F_k$ is expressed in units of value per unit time squared, it follows that vis viva has units of value squared per unit time squared. Conversely, $F_k$ may be thought of as the effort required to achieve a certain NPV acceleration, say 1 unit of value per unit time squared. Defining this quantity of effort as 1 "project-Newton", vis viva can be measured in units of "project-joules"---i.e. in units of total effort expended, or work done, over the displacement $\Delta \text{u}_k$. -->
-<!-- Assuming $x_k(t)$ follows a gBm, -->
-<!-- \begin{equation} -->
-<!-- \Delta \text{u}_k \bigr|_{t = \hat{t}} = \mu_k(\hat{t}) = x_k(\hat{t}) e^{r \tau_k} \bigr|_{t = \hat{t}} -->
-<!-- \end{equation} -->
-<!-- The corresponding velocity thus works out to -->
-<!-- \begin{equation} -->
-<!-- \frac{\Delta \text{u}_k}{\Delta t} \Bigr|_{t = \hat{t}} = -r x_k(\hat{t}) e^{r \tau_k} -->
-<!-- \end{equation} -->
-<!-- With starting and finishing values of -->
-<!-- \begin{equation} -->
-<!-- \frac{\Delta \text{u}_k}{\Delta t} \Bigr|_{t = 0} = -r x_k(0) e^{r \tau_k} -->
-<!-- \end{equation} -->
-<!-- and -->
-<!-- \begin{equation} -->
-<!-- \frac{\Delta \text{u}_k}{\Delta t} \Bigr|_{t = T_k} = -r x_k(T_k) -->
-<!-- \end{equation} -->
-<!-- The velocity is negative because time progression in the definition of $\mu_k$ is expressed not in terms of the number of time steps transpired, but rather in terms of the number of time steps that have yet to transpire until the time horizon $T_k$. Nonetheless, the velocity is monotonically increasing in time (Fig \ref{fig:kinema2}). -->
 
-<!-- # ```{r, fig.show = "hold", fig.width = 4, fig.height=3, fig.align="center", fig.cap="\\label{fig:kinema2}Acceleration of a net benefit stream.", echo = FALSE} -->
-<!-- t <- seq(0, 1, length.out = 10) -->
-<!-- slope <- 1 -->
-<!-- yint <- -4 / 3 -->
-<!-- v <- slope * t + yint -->
-<!-- df <- data.frame(t, v) -->
-<!-- ymax <- max(v) -->
-<!-- ymin <- min(v) -->
-<!-- gg <- ggplot(df, aes(x = t, y = v)) -->
-<!-- gg <- gg + geom_line() -->
-<!-- gg <- gg + geom_segment(aes(x = 0, xend = 1, y = ymax, yend = ymax), linetype = 1) -->
-<!-- # gg <- gg + geom_segment(aes(x = 0, xend = 1, y = ymax, yend = ymax), linetype = 2) -->
-<!-- gg <- gg + geom_segment(aes(x = 1, xend = 1, y = ymax, yend = 0), linetype = 2) -->
-<!-- gg <- gg + geom_segment(aes(x = 0, xend = 1.2, y = 0, yend = 0), -->
-<!--                         arrow=arrow(length=unit(0.2,"cm")), linetype = 1) -->
-<!-- gg <- gg + geom_segment(aes(x = 0, xend = 0, y = 0, yend = -2), -->
-<!--                         arrow=arrow(length=unit(0.2,"cm")), linetype = 1) -->
-<!-- gg <- gg + geom_ribbon(aes(ymin = v, ymax = ymax), fill = "blue", alpha = .5) -->
-<!-- # gg <- gg + geom_ribbon(aes(ymin = 0, ymax = yint), fill = "orange", alpha = .5) -->
-<!-- gg <- gg + annotate("text", x = 1 / 3, y = yint * 0.5, -->
-<!--                     label = expression(italic(Delta*A))) -->
-<!-- # gg <- gg + annotate("text", x = 2 / 3, y = yint * 0.5, -->
-<!-- #                     label = expression(italic(A["0"]))) -->
-<!-- gg <- gg + annotate("text", x = -0.09, y = yint, -->
-<!--                     label = expression(italic("v(t)")), size = label_size) -->
-<!-- gg <- gg + annotate("text", x = -0.09, y = ymax, -->
-<!--                     label = expression(italic("v(t + "*Delta*t*")")), size = label_size) -->
-<!-- gg <- gg + annotate("text", x = 0, y = 0.07, -->
-<!--                     label = "t", size = label_size) -->
-<!-- gg <- gg + annotate("text", x = 1, y = 0.07, -->
-<!--                     label = expression(italic("t + "*Delta*t)), size = label_size) -->
-<!-- gg <- gg + coord_cartesian(xlim = c(-0.11, 1.2)) -->
-<!-- # gg <- gg + labs(x = expression(Delta~t), -->
-<!-- #                 y = expression(Delta*u~"/"~Delta*t)) -->
+<!-- <!-- By definition, the funding cycle begins and ends on a positive real value. A project investment that is negative at the start of the funding cycle thus implies that it is out of phase with the funding cycle by an odd integer multiple of $\pi$. --> <!-- Without loss of generality, consideration may be limited to the case where the odd integer multiple is $1$. That is, if $\mu_k(0) < 0$, this implies -->
+
+<!-- \begin{equation} -->
+<!-- \begin{split} -->
+<!-- \mu_k(0) &= -x_k(0) e^{T_k (\omega + i)} \;\;\;;\;\; T_k = 2 \pi \nu_k \\ -->
+<!-- &= x_k(0) e^{T_k (\omega + i) \pm i \pi} -->
+<!-- \end{split} -->
+<!-- \end{equation} -->
+
+<!-- Negative project NPV is problematic for portfolio optimization since it implies a complex valued budget allocation. To see this, note that an expression for the project budget allocation is obtained by solving Eq \ref{eq:muFnwComp} for $w_k$ at $\theta = 0$. -->
+
+<!-- \begin{equation} -->
+<!-- w_k = C \left( \frac{\mu_k(0)}{\tilde{x}_k(0)} e^{-T_k (\omega + i)} \right)^{\frac{1}{\alpha_k}} -->
+<!-- \label{eq:wFnmuComp} -->
+<!-- \end{equation} -->
+
+<!-- Whereby it is evident that $w_k$ is complex valued if $\mu_k(0) < 0$ and $T_k = 2 \pi \nu_k$. To ensure that budget allocations are always real valued, the time horizon is henceforth redefined -->
+
+<!-- \begin{equation} -->
+<!-- T_k = 2 \pi \left(\nu_k \mp \frac{1}{2} \kappa_k \right) -->
+<!-- \label{eq:Tk} -->
+<!-- \end{equation} -->
+
+<!-- Where -->
+
+<!-- \begin{equation} -->
+<!-- \kappa_k = -->
+<!-- \begin{cases} -->
+<!-- 0, & \text{if $\mu_k(0) > 0$} \\ -->
+<!-- 1, & \text{if $\mu_k(0) < 0$} -->
+<!-- \end{cases} -->
+<!-- \end{equation} -->
+
+<!-- In this modified definition of the time horizon, a half cycle phase correction is automatically triggered if expected project NPV is negative. The phase correction amounts to a half cycle extension or contraction of the project time horizon. (The decision of whether to extend or contract the horizon is made by the investor and/or research project managers.) This in turn guarantees that the budget allocation is real valued. To see this, consider a case where $\mu_k(0) < 0$ and apply the modified definition of $T_k$. -->
+
+<!-- \begin{equation} -->
+<!-- \begin{split} -->
+<!-- w_k &= C \left( \frac{\mu_k(0)}{\tilde{x}_k(0)} e^{-T_k (\omega + i)} \right)^{\frac{1}{\alpha_k}} \;\;;\;\;\; \mu_k(0) < 0\\ -->
+<!-- &= C \left( \frac{e^{ \pm i \pi} |\mu_k(0)|}{\tilde{x}_k(0)} e^{-2 \pi \left(\nu_k \mp \frac{1}{2} \right) (\omega + i)} \right)^{\frac{1}{\alpha_k}} \\ -->
+<!-- &= C \left(\frac{|\mu_k(0)|}{\tilde{x}_k(0)} e^{-2 \pi \left(\nu_k \mp \frac{1}{2} \right) (\omega + i) \pm i \pi} \right)^{\frac{1}{\alpha_k}} \\ -->
+<!-- &= C \left(\frac{|\mu_k(0)|}{\tilde{x}_k(0)} e^{-2 \pi \omega \left( \nu_k \mp \frac{1}{2} \right) + 2 i \pi \left( \nu_k \mp \frac{1}{2} \right) \pm i \pi} \right)^{\frac{1}{\alpha_k}} \\ -->
+<!-- &= C \left(\frac{|\mu_k(0)|}{\tilde{x}_k(0)} e^{-2 \pi \omega \left( \nu_k \mp \frac{1}{2} \right) + 2 i \pi \nu_k \mp i \pi  \pm i \pi} \right)^{\frac{1}{\alpha_k}} \\ -->
+<!-- &= C \left(\frac{|\mu_k(0)|}{\tilde{x}_k(0)} e^{-2 \pi \omega \left( \nu_k \mp \frac{1}{2} \right)} \right)^{\frac{1}{\alpha_k}} -->
+<!-- \end{split} -->
+<!-- \label{eq:wRotate} -->
+<!-- \end{equation} -->
+<!-- # ```{r, fig.show = "hold", fig.width = 6, fig.height=3, fig.align="center", fig.cap="\\label{fig:logSpiral}Log spiral in (left) polar and (right) complex coordinates over 0 \\geq \\theta \\geq 2 \\pi.", echo = FALSE} -->
+<!-- theta <- seq(0, 2 * pi, length.out = 50) -->
+<!-- r <- 0.01 -->
+<!-- Tt <- 40 -->
+<!-- omega <- r * Tt / (2 * pi) -->
+<!-- a <- 1 -->
+<!-- x <- a * exp(omega * theta) * cos(theta) -->
+<!-- y <- a * exp(omega * theta) * sin(theta) -->
+<!-- df_plot <- data.frame(x, y) -->
+<!-- thisTheta <- pi / 3 -->
+<!-- thisX <- a * exp(omega * thisTheta) * cos(thisTheta) -->
+<!-- thisY <- a * exp(omega * thisTheta) * sin(thisTheta) -->
+<!-- theta <- seq(0, thisTheta, length.out = 15) -->
+<!-- x <- 0.25 * cos(theta) -->
+<!-- y <- 0.25 * sin(theta) -->
+<!-- df_angle <- data.frame(x, y) -->
+<!-- gg <- ggplot() -->
+<!-- gg <- gg + geom_path(data = df_plot, aes(x, y, group = 1)) -->
+<!-- gg <- gg + geom_point(data = data.frame(x = thisX, y = thisY), -->
+<!--                       aes(x, y), size = 2) -->
+<!-- gg <- gg + geom_segment(aes(x = 0, xend = thisX, y = 0, yend = thisY)) -->
+<!-- gg <- gg + geom_path(data = df_angle, aes(x, y, group = 1)) -->
+<!-- gg <- gg + geom_hline(yintercept = 0) -->
+<!-- gg <- gg + geom_vline(xintercept = 0) -->
+<!--                         # arrow=arrow(length=unit(0.2,"cm")), linetype = 1) -->
+<!-- gg <- gg + annotate( -->
+<!--     geom = "text", x = thisX, y = thisY,  -->
+<!--     label = expression(italic(mu(theta)==x(0)~e^{omega*theta})), hjust = -0.1, vjust = -0.1, size = 3.5 -->
+<!--   ) -->
+<!-- gg <- gg + annotate( -->
+<!--     geom = "text", x = -0.1, y = 1.7,  -->
+<!--     label = expression(italic(y)), size = 4 -->
+<!--   ) -->
+<!-- gg <- gg + annotate( -->
+<!--     geom = "text", x = 1.7, y = -0.1,  -->
+<!--     label = expression(italic(x)), size = 4 -->
+<!--   ) -->
+<!-- gg <- gg + annotate( -->
+<!--     geom = "text", x = 0.15, y = 0.1,  -->
+<!--     label = expression(theta), size = 3.5 -->
+<!--   ) -->
+<!-- gg <- gg + coord_cartesian(ylim = c(-1.7, 1.7), xlim = c(-1.7, 1.7)) -->
 <!-- gg <- gg + theme_bw() -->
-<!-- gg <- gg + theme(axis.text = element_blank(), -->
+<!-- gg <- gg + theme(axis.title = element_blank(), -->
+<!--                  axis.text = element_blank(), -->
 <!--                  axis.ticks = element_blank(), -->
-<!--                  axis.title = element_text(size = axisTitle_size)) -->
-<!-- gg -->
+<!--                  panel.grid = element_blank()) -->
+<!-- ggPolar <- gg -->
+<!-- gg <- ggplot() -->
+<!-- gg <- gg + geom_path(data = df_plot, aes(x, y, group = 1)) -->
+<!-- gg <- gg + geom_point(data = data.frame(x = thisX, y = thisY), -->
+<!--                       aes(x, y), size = 2) -->
+<!-- gg <- gg + geom_segment(aes(x = 0, xend = thisX, y = 0, yend = thisY)) -->
+<!-- gg <- gg + geom_path(data = df_angle, aes(x, y, group = 1)) -->
+<!-- gg <- gg + geom_hline(yintercept = 0) -->
+<!-- gg <- gg + geom_vline(xintercept = 0) -->
+<!--                         # arrow=arrow(length=unit(0.2,"cm")), linetype = 1) -->
+<!-- gg <- gg + annotate( -->
+<!--     geom = "text", x = thisX, y = thisY,  -->
+<!--     label = expression(mu==x(0)~e^{(omega+i)*theta}), hjust = -0.1, vjust = -0.1, size = 3.5 -->
+<!--   ) -->
+<!-- gg <- gg + annotate( -->
+<!--     geom = "text", x = -0.1, y = 1.7,  -->
+<!--     label = expression(italic(iy)), size = 4 -->
+<!--   ) -->
+<!-- gg <- gg + annotate( -->
+<!--     geom = "text", x = 1.7, y = -0.1,  -->
+<!--     label = expression(italic(x)), size = 4 -->
+<!--   ) -->
+<!-- gg <- gg + annotate( -->
+<!--     geom = "text", x = 0.15, y = 0.1,  -->
+<!--     label = expression(theta), size = 3.5 -->
+<!--   ) -->
+<!-- gg <- gg + coord_cartesian(ylim = c(-1.7, 1.7), xlim = c(-1.7, 1.7)) -->
+<!-- gg <- gg + theme_bw() -->
+<!-- gg <- gg + theme(axis.title = element_blank(), -->
+<!--                  axis.text = element_blank(), -->
+<!--                  axis.ticks = element_blank(), -->
+<!--                  panel.grid = element_blank()) -->
+<!-- ggComp <- gg -->
+<!-- ggPolar + ggComp + plot_layout(ncol = 2) -->
 <!-- ``` -->
-<!-- The vis viva, meanwhile, works out to -->
-<!-- \begin{equation} -->
-<!-- \begin{split} -->
-<!-- \mathcal{E}_k(\hat{t}) &= \rho \frac{r^2}{2} x_k(\hat{t})^2 e^{2r \tau_k} \\ -->
-<!-- &= \rho \frac{r^2}{2} \mu_k(\hat{t})^2 -->
-<!-- \end{split} -->
-<!-- \end{equation} -->
-<!-- Note, finally, that the vis viva per unit project expenditure may be expressed -->
-<!-- \begin{equation} -->
-<!-- \begin{split} -->
-<!-- \frac{\mathcal{E}_k}{w_k} &= r^2 x_k(\hat{t})^2 e^{2r \tau} \\ -->
-<!-- &= r^2 k_k^2 \left( \frac{w_k}{C} \right)^{2 (\alpha_k - 1)} e^{2r \tau} -->
-<!-- \end{split} -->
-<!-- \end{equation} -->
-<!-- ...at portfolio level: -->
-<!-- \begin{equation} -->
-<!-- \begin{split} -->
-<!-- \mathbf{\mathcal{E}} ' \mathbf{w}^{-1} &= r^2 x_k(\hat{t})^2 e^{2r \tau} \\ -->
-<!-- &= r^2 k_k^2 \left( \frac{w_k^{\alpha_k - 1}}{C} \right)^2 e^{2r \tau} -->
-<!-- \end{split} -->
-<!-- \end{equation} -->
+
