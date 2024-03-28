@@ -769,7 +769,7 @@ Where $\boldsymbol{\upsilon}_j$ is the vector of eigenvalues of $G$ excluding th
 \frac{\upsilon_k}{\upsilon_j} > 1 \;\;;\;\;\; \text{for all $k \neq j$}
 \end{equation}
 
-It then follows that only the candidate solution with the smallest eigenvalue results in a negative definite $H_j$ and is thus optimal, i.e., the maximizer of $\mathcal{L}$. By the same token, the candidate solution with the largest eigenvalue results in a positive definite $H_j$ and thus minimizes $\mathcal{L}$, while the remaining eigenvalues in between result in indefinite $H_j$ and thus correspond to saddle point solutions.
+It then follows that only the candidate solution with the smallest eigenvalue results in a negative definite $H_j$ and is thus optimal, i.e., the maximizer of $\mathcal{L}$. Assuming eigenvalues are ordered decreasingly, the optimal solution is thus $\{\mathbf{q}_n, \upsilon_n\}$. By the same token, the candidate solution with the largest eigenvalue results in a positive definite $H_j$, and thus minimizes $\mathcal{L}$. This corresponds to the leading eigenvalue solution $\{\mathbf{q}_1, \upsilon_1\}$. The remaining in between solutions result in indefinite $H_j$, corresponding to saddle point solutions.
 <!-- \begin{equation} -->
 <!-- \begin{split} -->
 <!-- \sigma^*_a &= \min(\boldsymbol{\sigma^*}) \\ -->
@@ -792,7 +792,7 @@ It then follows that only the candidate solution with the smallest eigenvalue re
 
 ## Keeping only meaningful solutions
 
-The trailing eigenvectors of a synergy-tradeoff matrix (i.e., a covariance or correlation or coefficient of covariation matrix) tend to represent noise in the data. The budget allocations associated with these eigenvectors are thus effectively random, and should be discarded from the menu of eligible solutions. To ensure that solutions are meaningful, only the leading $\hat{n}$ eigenvectors required to explain a high fraction of total portfolio variance should be retained. (This is tantamount to the "spectral cut-off" method used in the financial context [@guo2018eigen; @carrasco2011optimal].)
+The second order conditions indicate that the lowest eigenvalue solution is optimal. However, the trailing eigenvectors of a synergy-tradeoff matrix (i.e., a covariance or correlation or coefficient of covariation matrix) tend to represent noise in the data. The budget allocations associated with these eigenvectors are thus effectively random, and should be discarded from the menu of eligible solutions. To ensure that solutions are meaningful, only the leading $\hat{n}$ eigenvectors required to explain a high fraction of total portfolio variance should be retained. (This is tantamount to the "spectral cut-off" method used in the financial context [@guo2018eigen; @carrasco2011optimal].)
 
 The fraction of portfolio variance explained by any given eigenvector $\mathbf{q}_j$ (call this $\psi_j$) is the corresponding eigenvalue $\upsilon_j$ divided by the sum of all the eigenvalues (see Abdi [-@abdi2010principal] for details).
 
@@ -810,9 +810,11 @@ Such that $\zeta_n = 1$.
 
 The number of retained eigenvectors $\hat{n}$ should be high enough to explain, for example, $\zeta_m \geq 0.98$, although the exact threshold is left to the practitioner's discretion.
 
+The optimal _meaningful_ solution is thus $\{\mathbf{q}_{\hat n}, \upsilon_{\hat n}\}$.
+
 ## Deducing the optimal budget allocation from the optimal project NPVs \label{sec:dimRet}
 
-Generally speaking, project NPV scales with investment. That is to say, beyond a certain minimum level of funding required to generate, release, and support the diffusion and uptake of the project's research product(s) on a pilot level, further increments in project investment have the effect of broadening the scope of impact---i.e. extending the size and number of populations or markets where the research product is released and has an impact. This scaling is not linear, but rather marginally diminishing. Project NPV $x_k(\hat{t})$ may thus be expressed as a marginally diminishing function of the funding allocation $w_k$, as follows.
+Generally speaking, project NPV scales with investment. That is to say, beyond a certain minimum level of funding required to generate, release, and support the diffusion and uptake of the project's research product(s) on a pilot level, further increments in project investment have the effect of broadening the scope of impact---i.e. extending the size and number of populations or markets where the research product is released and has an impact. This scaling is not linear, but rather marginally diminishing. Project NPV $x_k(\hat{t})$ may thus be modeled as a marginally diminishing function of the funding allocation $w_k$, as follows.
 
 \begin{equation}
 x_k(\hat{t}) = \tilde{x}_k(\hat{t}) \left(\frac{w_k}{C} \right)^{\alpha_k}
@@ -834,27 +836,24 @@ Substituting the right hand side of Eq \ref{eq:npvFnW} for $x_k(\hat{t})$, expec
 \label{eq:muFnw}
 \end{equation}
 
-Note that project NPV variances and covariances $\sigma_{jk}$ are also functions of investment, since $\mu_k$ appears in their definition.
+Note that project NPV variances and covariances $\sigma_{jk}$ are also effectively functions of investment, since $\mu_k$ appears in their definition.
 
 Eq \ref{eq:npvFnW} is an ansatz. Practitioners may design other functional forms more suitable to their particular context; but, in general, $x_k(\hat{t})$ should be greater than zero, and should be marginally diminishing in the investment $w_k$.
 
-The budget allocations satisfying the first order conditions ($w_{kj}^*$) are given by Eq \ref{eq:wFnmuComp} evaluated at $\mu_{kj}^*$.
-<!-- \begin{equation} -->
-<!-- \mathbf{w}_{kj}^* = C \left(\frac{\mu_{kj}^*}{\tilde{x_k(0)}}e^{- r T_k } \right)^{\frac{1}{\alpha_k}} -->
-<!-- \end{equation} -->
-<!-- But recall that this has the following equivalent expression in the complex plane. -->
+This expression can then be rearranged into an expression for the optimal budget allocation $w_k^*$.
 
 \begin{equation}
-\mathbf{w}_{kj}^* = C \left(\frac{\mu_{kj}^*}{\tilde{x}_k(0)}e^{- T_k (\omega + i)} \right)^{\frac{1}{\alpha_k}}
-\label{eq:wStarRaw}
+w_k^* = w_k\bigr|_{\mu_k = \mu_k^*} C \left( \frac{\beta |q_k^*|}{\tilde{x}_k(0)} e^{-r T_k} \right)^{\frac{1}{\alpha_k}}
+\label{eq:wFnmu}
 \end{equation}
-<!-- \begin{equation} -->
-<!-- \mathbf{w}_{kj}^* = C \left(\frac{q_{kj}}{\tilde{x_k(0)}} (-1)^{2 \kappa_k + 1} e^{-r T_k} \right)^{\frac{1}{\alpha_k}} -->
-<!-- \label{eq:wStar} -->
-<!-- \end{equation} -->
 
-<!-- in \ref{sec:cycReal} -->
-The eigenvectors $\mathbf{q}_j$ may include negative elements, which in turn implies negative project NPV $\mu_{kj}^*$. As explained above, a negative expected NPV may be interpreted as the project value at the sunk cost point in the funding cycle; and negative values are problematic for portfolio optimization since it implies a complex valued budget allocation (Eq \ref{eq:wStarRaw}). The project time horizon $T_k$ is defined in Eq \ref{eq:Tk} so as to automatically extend or contract the time horizon by half a funding cycle, such that the budget allocations $\mathbf{w}_{kj}^*$ are guaranteed to be real valued. Note, moreover, that all of the terms in Eq \ref{eq:wStarRaw} are positive, whereby it is guaranteed that $\mathbf{w}_{kj}^*$ is also positive.
+Note that $q_k^*$ can take negative values....complex 
+
+## Dealing with negative project expected NPV
+
+The eigenvectors $\mathbf{q}_j$ may include negative elements, which in turn implies negative expected project NPV. This is problematic because project NPVs are assumed to follow a gBm, which cannot take negative values. It is also problematic since a negative $q_k^*$ implies a complex valued budget allocation (Eq \ref{eq:wFnmu}). To redress this, here I introduce an alternative interpretation of negative NPV as the project value at the sunk cost point in the funding cycle. It is then possible to simply take the absolute value of $\abs{\mathbf{q}_j}$
+
+<!-- As explained above, a negative expected NPV may be interpreted as the project value at the sunk cost point in the funding cycle; and negative values are problematic for portfolio optimization since it implies a complex valued budget allocation (Eq \ref{eq:wStarRaw}). The project time horizon $T_k$ is defined in Eq \ref{eq:Tk} so as to automatically extend or contract the time horizon by half a funding cycle, such that the budget allocations $\mathbf{w}_{kj}^*$ are guaranteed to be real valued. Note, moreover, that all of the terms in Eq \ref{eq:wStarRaw} are positive, whereby it is guaranteed that $\mathbf{w}_{kj}^*$ is also positive. -->
 <!-- And in vector notation, -->
 <!-- \begin{equation} -->
 <!-- \hat{\mathbf{w}}_j^* = \Sigma_{j = 1}^m C_j (D(\tilde{\mathbf{x}}(0))^{-1} \mathbf{q}_j (-1)^{2 \kappa - 1} e^{-r T \left(\frac{1}{2} + \kappa \right)})^{\frac{1}{\boldsymbol{\alpha}}} -->
